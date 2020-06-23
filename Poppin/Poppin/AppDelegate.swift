@@ -14,8 +14,6 @@ import Kronos
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
-    var dataController: DataController!
     
     var monitor: NWPathMonitor!
 
@@ -27,8 +25,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         monitor = NWPathMonitor()
         monitor.start(queue: DispatchQueue(label: "Monitor"))
         Clock.sync()
-        dataController = DataController()
-        dataController.initalizeStack()
         
         return true
         
