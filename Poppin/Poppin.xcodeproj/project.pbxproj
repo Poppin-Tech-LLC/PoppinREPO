@@ -67,6 +67,7 @@
 		6417BC9124A22DFC006AE467 /* Octarine-LightOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-LightOblique.otf"; sourceTree = "<group>"; };
 		6417BC9224A22DFC006AE467 /* Octarine-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Bold.otf"; sourceTree = "<group>"; };
 		6417BC9324A22DFC006AE467 /* Octarine-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Light.otf"; sourceTree = "<group>"; };
+		6417BC9924A22E54006AE467 /* CustomLocation.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = CustomLocation.gpx; sourceTree = "<group>"; };
 		750AA0A58BE046A14348C685 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		7F8FC9DB1D6B16FAE8A8E2D5 /* Pods-Poppin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.debug.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.debug.xcconfig"; sourceTree = "<group>"; };
 		92CAEE3D8A3DFC7F3929803F /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -134,6 +135,7 @@
 				6403143324A1F138006A55EB /* LaunchScreen.storyboard */,
 				6403143624A1F138006A55EB /* Info.plist */,
 				6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */,
+				6417BC9924A22E54006AE467 /* CustomLocation.gpx */,
 			);
 			path = Poppin;
 			sourceTree = "<group>";
