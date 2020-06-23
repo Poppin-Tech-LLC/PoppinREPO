@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,6 +16,7 @@
 		6403143524A1F138006A55EB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6403143324A1F138006A55EB /* LaunchScreen.storyboard */; };
 		6403144024A1F138006A55EB /* PoppinTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403143F24A1F138006A55EB /* PoppinTests.swift */; };
 		6403144B24A1F138006A55EB /* PoppinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403144A24A1F138006A55EB /* PoppinUITests.swift */; };
+		6417BC8D24A22B88006AE467 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */; };
 		DF9361364A8A4D79034EA69F /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F652D2BA96ABB01F0DF64A78 /* Pods_PoppinTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -55,6 +56,7 @@
 		6403144624A1F138006A55EB /* PoppinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PoppinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6403144A24A1F138006A55EB /* PoppinUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoppinUITests.swift; sourceTree = "<group>"; };
 		6403144C24A1F138006A55EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		750AA0A58BE046A14348C685 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		7F8FC9DB1D6B16FAE8A8E2D5 /* Pods-Poppin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.debug.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.debug.xcconfig"; sourceTree = "<group>"; };
 		92CAEE3D8A3DFC7F3929803F /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 				6403143124A1F138006A55EB /* Assets.xcassets */,
 				6403143324A1F138006A55EB /* LaunchScreen.storyboard */,
 				6403143624A1F138006A55EB /* Info.plist */,
+				6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */,
 			);
 			path = Poppin;
 			sourceTree = "<group>";
@@ -162,7 +165,6 @@
 				567DF2038F48A1A16BD15FC2 /* Pods-PoppinUITests.debug.xcconfig */,
 				750AA0A58BE046A14348C685 /* Pods-PoppinUITests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -276,6 +278,7 @@
 			files = (
 				6403143524A1F138006A55EB /* LaunchScreen.storyboard in Resources */,
 				6403143224A1F138006A55EB /* Assets.xcassets in Resources */,
+				6417BC8D24A22B88006AE467 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -560,7 +563,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = PoppinTechLLC.Poppin;
+				PRODUCT_BUNDLE_IDENTIFIER = Poppin.Poppin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -578,7 +581,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = PoppinTechLLC.Poppin;
+				PRODUCT_BUNDLE_IDENTIFIER = Poppin.Poppin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
