@@ -34,7 +34,7 @@ class PopsicleAnnotationView: MKAnnotationView {
     lazy private var popsicleIconImageView: UIImageView = {
         
         var popsicleGroupIconImageView = UIImageView()
-        popsicleGroupIconImageView.image = (annotation as! NewPopsicleAnnotation).getPopsicleAnnotationImage()
+        popsicleGroupIconImageView.image = (annotation as! PopsicleAnnotation).getPopsicleAnnotationImage()
         popsicleGroupIconImageView.contentMode = .scaleAspectFit
         return popsicleGroupIconImageView
         
@@ -60,21 +60,21 @@ class PopsicleAnnotationView: MKAnnotationView {
         
         if let popsicleAnnotation = self.annotation {
             
-            if popsicleAnnotation is NewPopsicleAnnotation {
+            if popsicleAnnotation is PopsicleAnnotation {
                 
-                popsicleCategory = (annotation as! NewPopsicleAnnotation).popsicleAnnotationData.eventCategory
+                popsicleCategory = (annotation as! PopsicleAnnotation).popsicleAnnotationData.eventCategory
                 
             } else {
                 
                 print("ERROR: Trying to create a PopsicleAnnotationView with an annotation that is not PopsicleAnnotation. Adding a default one.")
-                annotation = NewPopsicleAnnotation(popsicleAnnotationData: NewPopsicleAnnotation.defaultPopsicleAnnotationData)
+                annotation = PopsicleAnnotation(popsicleAnnotationData: PopsicleAnnotation.defaultPopsicleAnnotationData)
                 
             }
             
         } else {
             
             print("ERROR: Trying to create a PopsicleAnnotationView without an annotation. Adding a default one.")
-            annotation = NewPopsicleAnnotation(popsicleAnnotationData: NewPopsicleAnnotation.defaultPopsicleAnnotationData)
+            annotation = PopsicleAnnotation(popsicleAnnotationData: PopsicleAnnotation.defaultPopsicleAnnotationData)
             
         }
         
