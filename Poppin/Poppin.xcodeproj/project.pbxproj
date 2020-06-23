@@ -24,6 +24,8 @@
 		6417BC9824A22DFC006AE467 /* Octarine-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9324A22DFC006AE467 /* Octarine-Light.otf */; };
 		6417BCA324A255CD006AE467 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCA224A255CD006AE467 /* AlertViewController.swift */; };
 		6417BCA624A25684006AE467 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCA524A25684006AE467 /* Extensions.swift */; };
+		6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCA924A25C4F006AE467 /* BouncyButtons.swift */; };
+		6417BCAC24A25CE3006AE467 /* RefreshButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCAB24A25CE3006AE467 /* RefreshButton.swift */; };
 		DF9361364A8A4D79034EA69F /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F652D2BA96ABB01F0DF64A78 /* Pods_PoppinTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +74,8 @@
 		6417BC9924A22E54006AE467 /* CustomLocation.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = CustomLocation.gpx; sourceTree = "<group>"; };
 		6417BCA224A255CD006AE467 /* AlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		6417BCA524A25684006AE467 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		6417BCA924A25C4F006AE467 /* BouncyButtons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BouncyButtons.swift; sourceTree = "<group>"; };
+		6417BCAB24A25CE3006AE467 /* RefreshButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshButton.swift; sourceTree = "<group>"; };
 		750AA0A58BE046A14348C685 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		7F8FC9DB1D6B16FAE8A8E2D5 /* Pods-Poppin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.debug.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.debug.xcconfig"; sourceTree = "<group>"; };
 		92CAEE3D8A3DFC7F3929803F /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -131,8 +135,9 @@
 		6403142724A1F136006A55EB /* Poppin */ = {
 			isa = PBXGroup;
 			children = (
+				6417BCA724A25BE6006AE467 /* Views */,
 				6417BCA424A25652006AE467 /* Miscellaneous */,
-				6417BCA024A2559E006AE467 /* View Controllers */,
+				6417BCA024A2559E006AE467 /* Controllers */,
 				6417BC8E24A22C74006AE467 /* Fonts */,
 				6403142824A1F136006A55EB /* AppDelegate.swift */,
 				6403142A24A1F136006A55EB /* SceneDelegate.swift */,
@@ -176,12 +181,12 @@
 			path = Fonts;
 			sourceTree = "<group>";
 		};
-		6417BCA024A2559E006AE467 /* View Controllers */ = {
+		6417BCA024A2559E006AE467 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
 				6417BCA124A255B2006AE467 /* Alerts */,
 			);
-			path = "View Controllers";
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 		6417BCA124A255B2006AE467 /* Alerts */ = {
@@ -198,6 +203,23 @@
 				6417BCA524A25684006AE467 /* Extensions.swift */,
 			);
 			path = Miscellaneous;
+			sourceTree = "<group>";
+		};
+		6417BCA724A25BE6006AE467 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6417BCA824A25C2C006AE467 /* Buttons */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		6417BCA824A25C2C006AE467 /* Buttons */ = {
+			isa = PBXGroup;
+			children = (
+				6417BCA924A25C4F006AE467 /* BouncyButtons.swift */,
+				6417BCAB24A25CE3006AE467 /* RefreshButton.swift */,
+			);
+			path = Buttons;
 			sourceTree = "<group>";
 		};
 		9BC670D25DB8C3608F200E00 /* Frameworks */ = {
@@ -450,8 +472,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				6417BCA624A25684006AE467 /* Extensions.swift in Sources */,
+				6417BCAC24A25CE3006AE467 /* RefreshButton.swift in Sources */,
 				6403142D24A1F136006A55EB /* ViewController.swift in Sources */,
 				6403142924A1F136006A55EB /* AppDelegate.swift in Sources */,
+				6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */,
 				6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */,
 				6417BCA324A255CD006AE467 /* AlertViewController.swift in Sources */,
 			);

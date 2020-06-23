@@ -3,7 +3,7 @@
 //  Poppin
 //
 //  Created by Manuel Alejandro Martin Callejo on 10/13/19.
-//  Copyright © 2019 PoppinREPO. All rights reserved.
+//  Copyright © 2019 Poppin Tech LLC. All rights reserved.
 //
 
 import UIKit
