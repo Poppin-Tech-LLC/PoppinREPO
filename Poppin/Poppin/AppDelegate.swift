@@ -2,11 +2,15 @@
 //  AppDelegate.swift
 //  Poppin
 //
-//  Created by Manuel Alejandro Martin Callejo on 6/23/20.
-//  Copyright © 2020 Poppin Tech LLC. All rights reserved.
+//  Created by Manuel Alejandro Martin Callejo on 10/13/19.
+//  Copyright © 2019 PoppinREPO. All rights reserved.
 //
 
 import UIKit
+import CoreData
+import Firebase
+import Network
+import Kronos
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
