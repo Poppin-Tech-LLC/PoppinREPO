@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SearchBar: UISearchBar {
+final class SearchBar: UISearchBar {
     
     lazy private var searchBarTintColor: UIColor = UIColor.white
     
