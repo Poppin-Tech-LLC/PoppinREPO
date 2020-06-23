@@ -17,6 +17,11 @@
 		6403144024A1F138006A55EB /* PoppinTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403143F24A1F138006A55EB /* PoppinTests.swift */; };
 		6403144B24A1F138006A55EB /* PoppinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403144A24A1F138006A55EB /* PoppinUITests.swift */; };
 		6417BC8D24A22B88006AE467 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */; };
+		6417BC9424A22DFC006AE467 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC8F24A22DFC006AE467 /* OFL.txt */; };
+		6417BC9524A22DFC006AE467 /* Octarine-BoldOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9024A22DFC006AE467 /* Octarine-BoldOblique.otf */; };
+		6417BC9624A22DFC006AE467 /* Octarine-LightOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9124A22DFC006AE467 /* Octarine-LightOblique.otf */; };
+		6417BC9724A22DFC006AE467 /* Octarine-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9224A22DFC006AE467 /* Octarine-Bold.otf */; };
+		6417BC9824A22DFC006AE467 /* Octarine-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9324A22DFC006AE467 /* Octarine-Light.otf */; };
 		DF9361364A8A4D79034EA69F /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F652D2BA96ABB01F0DF64A78 /* Pods_PoppinTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +62,11 @@
 		6403144A24A1F138006A55EB /* PoppinUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoppinUITests.swift; sourceTree = "<group>"; };
 		6403144C24A1F138006A55EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		6417BC8F24A22DFC006AE467 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
+		6417BC9024A22DFC006AE467 /* Octarine-BoldOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-BoldOblique.otf"; sourceTree = "<group>"; };
+		6417BC9124A22DFC006AE467 /* Octarine-LightOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-LightOblique.otf"; sourceTree = "<group>"; };
+		6417BC9224A22DFC006AE467 /* Octarine-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Bold.otf"; sourceTree = "<group>"; };
+		6417BC9324A22DFC006AE467 /* Octarine-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Light.otf"; sourceTree = "<group>"; };
 		750AA0A58BE046A14348C685 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		7F8FC9DB1D6B16FAE8A8E2D5 /* Pods-Poppin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.debug.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.debug.xcconfig"; sourceTree = "<group>"; };
 		92CAEE3D8A3DFC7F3929803F /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -116,6 +126,7 @@
 		6403142724A1F136006A55EB /* Poppin */ = {
 			isa = PBXGroup;
 			children = (
+				6417BC8E24A22C74006AE467 /* Fonts */,
 				6403142824A1F136006A55EB /* AppDelegate.swift */,
 				6403142A24A1F136006A55EB /* SceneDelegate.swift */,
 				6403142C24A1F136006A55EB /* ViewController.swift */,
@@ -143,6 +154,18 @@
 				6403144C24A1F138006A55EB /* Info.plist */,
 			);
 			path = PoppinUITests;
+			sourceTree = "<group>";
+		};
+		6417BC8E24A22C74006AE467 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				6417BC9224A22DFC006AE467 /* Octarine-Bold.otf */,
+				6417BC9024A22DFC006AE467 /* Octarine-BoldOblique.otf */,
+				6417BC9324A22DFC006AE467 /* Octarine-Light.otf */,
+				6417BC9124A22DFC006AE467 /* Octarine-LightOblique.otf */,
+				6417BC8F24A22DFC006AE467 /* OFL.txt */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		9BC670D25DB8C3608F200E00 /* Frameworks */ = {
@@ -278,7 +301,12 @@
 			files = (
 				6403143524A1F138006A55EB /* LaunchScreen.storyboard in Resources */,
 				6403143224A1F138006A55EB /* Assets.xcassets in Resources */,
+				6417BC9424A22DFC006AE467 /* OFL.txt in Resources */,
+				6417BC9824A22DFC006AE467 /* Octarine-Light.otf in Resources */,
+				6417BC9624A22DFC006AE467 /* Octarine-LightOblique.otf in Resources */,
+				6417BC9524A22DFC006AE467 /* Octarine-BoldOblique.otf in Resources */,
 				6417BC8D24A22B88006AE467 /* GoogleService-Info.plist in Resources */,
+				6417BC9724A22DFC006AE467 /* Octarine-Bold.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
