@@ -15,11 +15,23 @@ import Kronos
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    var dataController: DataController!
+    
+    var monitor: NWPathMonitor!
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
         // Override point for customization after application launch.
+        
+        FirebaseApp.configure()
+        monitor = NWPathMonitor()
+        monitor.start(queue: DispatchQueue(label: "Monitor"))
+        Clock.sync()
+        dataController = DataController()
+        dataController.initalizeStack()
+        
         return true
+        
     }
 
     // MARK: UISceneSession Lifecycle
