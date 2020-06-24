@@ -16,6 +16,12 @@
 		6403143524A1F138006A55EB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6403143324A1F138006A55EB /* LaunchScreen.storyboard */; };
 		6403144024A1F138006A55EB /* PoppinTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403143F24A1F138006A55EB /* PoppinTests.swift */; };
 		6403144B24A1F138006A55EB /* PoppinUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403144A24A1F138006A55EB /* PoppinUITests.swift */; };
+		6409061624A37A2F00AD4FF6 /* StartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6409061524A37A2F00AD4FF6 /* StartViewController.swift */; };
+		6409061824A37AA600AD4FF6 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6409061724A37AA600AD4FF6 /* LoginViewController.swift */; };
+		6409061A24A37B1500AD4FF6 /* ForgotPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6409061924A37B1500AD4FF6 /* ForgotPasswordViewController.swift */; };
+		6409061C24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6409061B24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift */; };
+		6409061E24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6409061D24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift */; };
+		6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6409061F24A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift */; };
 		6417BC8D24A22B88006AE467 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */; };
 		6417BC9424A22DFC006AE467 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC8F24A22DFC006AE467 /* OFL.txt */; };
 		6417BC9524A22DFC006AE467 /* Octarine-BoldOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9024A22DFC006AE467 /* Octarine-BoldOblique.otf */; };
@@ -74,6 +80,12 @@
 		6403144624A1F138006A55EB /* PoppinUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PoppinUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6403144A24A1F138006A55EB /* PoppinUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoppinUITests.swift; sourceTree = "<group>"; };
 		6403144C24A1F138006A55EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6409061524A37A2F00AD4FF6 /* StartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StartViewController.swift; path = ../Login/StartViewController.swift; sourceTree = "<group>"; };
+		6409061724A37AA600AD4FF6 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		6409061924A37B1500AD4FF6 /* ForgotPasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForgotPasswordViewController.swift; sourceTree = "<group>"; };
+		6409061B24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpFirstPageViewController.swift; sourceTree = "<group>"; };
+		6409061D24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpSecondPageViewController.swift; sourceTree = "<group>"; };
+		6409061F24A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpThirdPageViewController.swift; sourceTree = "<group>"; };
 		6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		6417BC8F24A22DFC006AE467 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
 		6417BC9024A22DFC006AE467 /* Octarine-BoldOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-BoldOblique.otf"; sourceTree = "<group>"; };
@@ -187,6 +199,26 @@
 			path = PoppinUITests;
 			sourceTree = "<group>";
 		};
+		6409061424A3799C00AD4FF6 /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				6409061724A37AA600AD4FF6 /* LoginViewController.swift */,
+				6409061924A37B1500AD4FF6 /* ForgotPasswordViewController.swift */,
+				6409061B24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift */,
+				6409061D24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift */,
+				6409061F24A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		6409062124A37E9C00AD4FF6 /* Start */ = {
+			isa = PBXGroup;
+			children = (
+				6409061524A37A2F00AD4FF6 /* StartViewController.swift */,
+			);
+			path = Start;
+			sourceTree = "<group>";
+		};
 		6417BC8E24A22C74006AE467 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -202,17 +234,19 @@
 		6417BCA024A2559E006AE467 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				6417BCA124A255B2006AE467 /* Alerts */,
+				6409062124A37E9C00AD4FF6 /* Start */,
+				6409061424A3799C00AD4FF6 /* Login */,
+				6417BCA124A255B2006AE467 /* Alert */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
 		};
-		6417BCA124A255B2006AE467 /* Alerts */ = {
+		6417BCA124A255B2006AE467 /* Alert */ = {
 			isa = PBXGroup;
 			children = (
 				6417BCA224A255CD006AE467 /* AlertViewController.swift */,
 			);
-			path = Alerts;
+			path = Alert;
 			sourceTree = "<group>";
 		};
 		6417BCA424A25652006AE467 /* Miscellaneous */ = {
@@ -522,20 +556,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6409061824A37AA600AD4FF6 /* LoginViewController.swift in Sources */,
 				6417BCA624A25684006AE467 /* Extensions.swift in Sources */,
 				6417BCAC24A25CE3006AE467 /* RefreshButton.swift in Sources */,
 				6417BCC524A2695D006AE467 /* LocationSearchCell.swift in Sources */,
 				6417BCBC24A2650A006AE467 /* Popsicles.swift in Sources */,
 				6417BCAF24A25FFE006AE467 /* UserLocationAnnotationView.swift in Sources */,
 				6417BCB824A26339006AE467 /* DarkOverlayView.swift in Sources */,
+				6409061A24A37B1500AD4FF6 /* ForgotPasswordViewController.swift in Sources */,
+				6409061E24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift in Sources */,
 				6403142D24A1F136006A55EB /* ViewController.swift in Sources */,
 				6417BCB624A261CA006AE467 /* FiltersView.swift in Sources */,
 				6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */,
 				6403142924A1F136006A55EB /* AppDelegate.swift in Sources */,
+				6409061C24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift in Sources */,
+				6409061624A37A2F00AD4FF6 /* StartViewController.swift in Sources */,
 				6417BCB124A2606E006AE467 /* PopsicleAnnotationView.swift in Sources */,
 				6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */,
 				6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */,
 				6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */,
+				6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */,
 				6417BCB324A260AF006AE467 /* PopsicleGroupAnnotationView.swift in Sources */,
 				6417BCA324A255CD006AE467 /* AlertViewController.swift in Sources */,
 			);
