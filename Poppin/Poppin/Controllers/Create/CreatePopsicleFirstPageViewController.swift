@@ -151,7 +151,7 @@ extension CreatePopsicleFirstPageViewController : UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath){
 
         // controls what happens when a card is clicked
-        let vc = NewCreateEventCardViewController()
+        let vc = CreatePopsicleSecondPageViewController()
      switch (indexPath.row)   {
          case 0:
             print("0")

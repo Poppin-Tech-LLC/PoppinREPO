@@ -222,7 +222,7 @@ final class MapViewController: UIViewController {
         // For trial purposes, present the new create event view controller modally
         // later, need to change to using navigation controller
         //self.modalPresentationStyle = .overFullScreen
-        self.present(NewCreateEventViewController(), animated: true, completion: nil)
+        self.present(CreatePopsicleFirstPageViewController(), animated: true, completion: nil)
         
     }
     
