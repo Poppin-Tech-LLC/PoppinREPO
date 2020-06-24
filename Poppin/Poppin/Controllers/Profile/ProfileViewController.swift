@@ -11,7 +11,7 @@ import FirebaseDatabase
 import FirebaseUI
 import FirebaseAuth
 
-class ProfileViewController: UIViewController, UINavigationControllerDelegate {
+final class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
     var storage: Storage?
 
