@@ -16,15 +16,15 @@ import Contacts
 
 final class MapViewController: UIViewController {
     
-    public static let defaultMainMapViewRegionRadius = 3000.0 // 3km
-    public static let defaultMainMapViewCenterLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
+    public static let defaultMapViewRegionRadius = 3000.0 // 3km
+    public static let defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
         
-    private let mainVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
-    private let mainHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
+    private let mapVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
+    private let mapHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
     
     private var shouldPresentLoginVC: Bool = false
     
-    lazy private var mainUserPicture: UIImage = .defaultUserPicture64
+    lazy private var userPicture: UIImage = .defaultUserPicture64
     
     lazy private var launchScreenOverlayView: UIView = {
         
@@ -56,105 +56,105 @@ final class MapViewController: UIViewController {
         
     }()
     
-    lazy private var mainMapView: MKMapView = {
+    lazy private var mapView: MKMapView = {
         
-        var mainMapView = MKMapView()
-        mainMapView.addGestureRecognizer(mainMenuOutsideTapGestureRecognizer)
-        mainMapView.isPitchEnabled = false
-        mainMapView.isRotateEnabled = false
-        mainMapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mainMapViewRegion)
-        mainMapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMainMapViewRegionRadius)
-        mainMapView.setRegion(mainMapViewRegion, animated: true)
-        mainMapView.delegate = self
-        mainMapView.showsUserLocation = false
-        return mainMapView
-        
-    }()
-    
-    lazy private var mainMenuOutsideTapGestureRecognizer: UITapGestureRecognizer = {
-        
-        var menuOutsideTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handlePan(_:)))
-        return menuOutsideTapGestureRecognizer
+        var mapView = MKMapView()
+        mapView.addGestureRecognizer(mapMenuOutsideTapGestureRecognizer)
+        mapView.isPitchEnabled = false
+        mapView.isRotateEnabled = false
+        mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
+        mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
+        mapView.setRegion(mapViewRegion, animated: true)
+        mapView.delegate = self
+        mapView.showsUserLocation = false
+        return mapView
         
     }()
     
-    lazy private var mainMapViewRegion: MKCoordinateRegion = {
+    lazy private var mapMenuOutsideTapGestureRecognizer: UITapGestureRecognizer = {
         
-        let mainMapViewRegionCenter = mainUserLocation
-        let mainMapViewRegionRadius = MapViewController.defaultMainMapViewRegionRadius
-        
-        var mainMapViewRegion = MKCoordinateRegion(center: mainMapViewRegionCenter, latitudinalMeters: mainMapViewRegionRadius, longitudinalMeters: mainMapViewRegionRadius)
-        return mainMapViewRegion
+        var mapMenuOutsideTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        return mapMenuOutsideTapGestureRecognizer
         
     }()
     
-    fileprivate lazy var mainLocationManager: CLLocationManager = {
+    lazy private var mapViewRegion: MKCoordinateRegion = {
         
-        var mainLocationManager = CLLocationManager()
-        mainLocationManager.requestWhenInUseAuthorization()
-        mainLocationManager.desiredAccuracy = kCLLocationAccuracyBest
-        mainLocationManager.distanceFilter = kCLDistanceFilterNone
-        mainLocationManager.startUpdatingLocation()
-        mainLocationManager.delegate = self
-        return mainLocationManager
+        let mapViewRegionCenter = userLocation
+        let mapViewRegionRadius = MapViewController.defaultMapViewRegionRadius
+        
+        var mapViewRegion = MKCoordinateRegion(center: mapViewRegionCenter, latitudinalMeters: mapViewRegionRadius, longitudinalMeters: mapViewRegionRadius)
+        return mapViewRegion
         
     }()
     
-    lazy private var mainUserLocation: CLLocationCoordinate2D = NewMainViewController.defaultMainMapViewCenterLocation
+    fileprivate lazy var mapLocationManager: CLLocationManager = {
+        
+        var mapLocationManager = CLLocationManager()
+        mapLocationManager.requestWhenInUseAuthorization()
+        mapLocationManager.desiredAccuracy = kCLLocationAccuracyBest
+        mapLocationManager.distanceFilter = kCLDistanceFilterNone
+        mapLocationManager.startUpdatingLocation()
+        mapLocationManager.delegate = self
+        return mapLocationManager
+        
+    }()
     
-    lazy private var mainCreateEventButton: BubbleButton = {
+    lazy private var userLocation: CLLocationCoordinate2D = MapViewController.defaultMapViewCenterLocation
+    
+    lazy private var mapCreateEventButton: BubbleButton = {
         
         let edgeInset: CGFloat = .getPercentageWidth(percentage: 3.3)
         
-        var mainCreateEventButton = BubbleButton(bouncyButtonImage: UIImage(systemSymbol: .plus, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .bold)).withTintColor(UIColor.mainDARKPURPLE, renderingMode: .alwaysOriginal))
-        mainCreateEventButton.backgroundColor = .white
-        mainCreateEventButton.contentEdgeInsets = UIEdgeInsets(top: edgeInset, left: edgeInset, bottom: edgeInset, right: edgeInset)
-        mainCreateEventButton.addTarget(self, action: #selector(transitionToCreateEvent), for: .touchUpInside)
+        var mapCreateEventButton = BubbleButton(bouncyButtonImage: UIImage(systemSymbol: .plus, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .bold)).withTintColor(UIColor.mainDARKPURPLE, renderingMode: .alwaysOriginal))
+        mapCreateEventButton.backgroundColor = .white
+        mapCreateEventButton.contentEdgeInsets = UIEdgeInsets(top: edgeInset, left: edgeInset, bottom: edgeInset, right: edgeInset)
+        mapCreateEventButton.addTarget(self, action: #selector(transitionToCreateEvent), for: .touchUpInside)
         
-        mainCreateEventButton.translatesAutoresizingMaskIntoConstraints = false
-        mainCreateEventButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 17)).isActive = true
-        mainCreateEventButton.heightAnchor.constraint(equalTo: mainCreateEventButton.widthAnchor).isActive = true
+        mapCreateEventButton.translatesAutoresizingMaskIntoConstraints = false
+        mapCreateEventButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 17)).isActive = true
+        mapCreateEventButton.heightAnchor.constraint(equalTo: mapCreateEventButton.widthAnchor).isActive = true
         
-        return mainCreateEventButton
-        
-    }()
-    
-    lazy private var mainTopStackView: UIStackView = {
-        
-        let mainSearchBar = SearchBar()
-        mainSearchBar.delegate = self
-        
-        let mainMenuButton = ImageBubbleButton(bouncyButtonImage: mainUserPicture)
-        mainMenuButton.layer.borderColor = UIColor.white.cgColor
-        mainMenuButton.addTarget(self, action: #selector(openMenu), for: .touchUpInside)
-        
-        mainMenuButton.translatesAutoresizingMaskIntoConstraints = false
-        mainMenuButton.heightAnchor.constraint(equalTo: mainMenuButton.widthAnchor).isActive = true
-        
-        let mainRefreshButton = RefreshButton()
-        
-        mainRefreshButton.translatesAutoresizingMaskIntoConstraints = false
-        mainRefreshButton.heightAnchor.constraint(equalTo: mainRefreshButton.widthAnchor).isActive = true
-        
-        var mainTopStackView = UIStackView(arrangedSubviews: [mainMenuButton, mainSearchBar, mainRefreshButton])
-        mainTopStackView.axis = .horizontal
-        mainTopStackView.alignment = .fill
-        mainTopStackView.distribution = .fill
-        mainTopStackView.spacing = mainHorizontalEdgeInset
-        
-        mainTopStackView.translatesAutoresizingMaskIntoConstraints = false
-        mainTopStackView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 90)).isActive = true
-        mainTopStackView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 11)).isActive = true
-        
-        return mainTopStackView
+        return mapCreateEventButton
         
     }()
     
-    lazy private var mainMapFiltersView: FiltersView = {
+    lazy private var mapTopStackView: UIStackView = {
         
-        var mainMapFiltersStackView = FiltersView()
+        let mapSearchBar = SearchBar()
+        mapSearchBar.delegate = self
         
-        for view in mainMapFiltersStackView.mapFiltersStackView.arrangedSubviews {
+        let mapMenuButton = ImageBubbleButton(bouncyButtonImage: userPicture)
+        mapMenuButton.layer.borderColor = UIColor.white.cgColor
+        mapMenuButton.addTarget(self, action: #selector(openMenu), for: .touchUpInside)
+        
+        mapMenuButton.translatesAutoresizingMaskIntoConstraints = false
+        mapMenuButton.heightAnchor.constraint(equalTo: mapMenuButton.widthAnchor).isActive = true
+        
+        let mapRefreshButton = RefreshButton()
+        
+        mapRefreshButton.translatesAutoresizingMaskIntoConstraints = false
+        mapRefreshButton.heightAnchor.constraint(equalTo: mapRefreshButton.widthAnchor).isActive = true
+        
+        var mapTopStackView = UIStackView(arrangedSubviews: [mapMenuButton, mapSearchBar, mapRefreshButton])
+        mapTopStackView.axis = .horizontal
+        mapTopStackView.alignment = .fill
+        mapTopStackView.distribution = .fill
+        mapTopStackView.spacing = mapHorizontalEdgeInset
+        
+        mapTopStackView.translatesAutoresizingMaskIntoConstraints = false
+        mapTopStackView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 90)).isActive = true
+        mapTopStackView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 11)).isActive = true
+        
+        return mapTopStackView
+        
+    }()
+    
+    lazy private var mapFiltersView: FiltersView = {
+        
+        var mapFiltersView = FiltersView()
+        
+        for view in mapFiltersView.filtersStackView.arrangedSubviews {
             
             if let filterButton = view as? PopsicleBubbleButton {
                 
@@ -162,50 +162,50 @@ final class MapViewController: UIViewController {
                 
             } else if let showHideFiltersButton = view as? BubbleButton {
                 
-                showHideFiltersButton.addTarget(self, action: #selector(toggleMainMapDarkLayerView), for: .touchUpInside)
+                showHideFiltersButton.addTarget(self, action: #selector(toggleMapDarkOverlayView), for: .touchUpInside)
                 
             }
             
         }
         
-        return mainMapFiltersStackView
+        return mapFiltersView
         
     }()
     
-    lazy private var mainMapDarkLayerView: NewDarkLayerView = {
+    lazy private var mapDarkOverlayView: DarkOverlayView = {
     
-        var mainMapDarkLayerView = NewDarkLayerView()
+        var mapDarkOverlayView = DarkOverlayView()
         
-        let darkLayerViewTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleFilters))
-        let darkLayerViewSwipeRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(toggleFilters))
-        mainMapDarkLayerView.addGestureRecognizer(darkLayerViewTapRecognizer)
-        mainMapDarkLayerView.addGestureRecognizer(darkLayerViewSwipeRecognizer)
-        mainMapDarkLayerView.isUserInteractionEnabled = true
+        let darkOverlayViewTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleFilters))
+        let darkOverlayViewSwipeRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(toggleFilters))
+        mapDarkOverlayView.addGestureRecognizer(darkOverlayViewTapRecognizer)
+        mapDarkOverlayView.addGestureRecognizer(darkOverlayViewSwipeRecognizer)
+        mapDarkOverlayView.isUserInteractionEnabled = true
         
-        mainMapDarkLayerView.toggleDarkLayerView()
+        mapDarkOverlayView.toggleDarkOverlayView()
         
-        return mainMapDarkLayerView
+        return mapDarkOverlayView
     
     }()
     
-    @objc func toggleMainMapDarkLayerView() {
+    @objc func toggleMapDarkOverlayView() {
         
-        mainMapDarkLayerView.toggleDarkLayerView()
+        mapDarkOverlayView.toggleDarkOverlayView()
         
     }
     
     @objc func toggleFilters() {
         
-        toggleMainMapDarkLayerView()
-        mainMapFiltersView.toggleFilters()
+        toggleMapDarkOverlayView()
+        mapFiltersView.toggleFilters()
         
     }
     
     @objc func filterPopsicles() {
         
-        if mainMapDarkLayerView.isVisible {
+        if mapDarkOverlayView.isVisible {
             
-            toggleMainMapDarkLayerView()
+            toggleMapDarkOverlayView()
             
         }
         
@@ -213,7 +213,7 @@ final class MapViewController: UIViewController {
     
     @objc func transitionToCreateEvent() {
         
-        if mainMapDarkLayerView.isVisible {
+        if mapDarkOverlayView.isVisible {
             
             toggleFilters()
             
@@ -240,11 +240,11 @@ final class MapViewController: UIViewController {
     
     @objc func zoomToUserLocation(_ sender: UIButton) {
         
-        let region = MKCoordinateRegion(center: mainUserLocation, latitudinalMeters: 50.0, longitudinalMeters: 50.0)
+        let region = MKCoordinateRegion(center: userLocation, latitudinalMeters: 50.0, longitudinalMeters: 50.0)
         
         MKMapView.animate(withDuration: 1, delay: 0.1, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
             
-            self.mainMapView.setRegion(region, animated: true)
+            self.mapView.setRegion(region, animated: true)
             
         }, completion: nil)
         
@@ -286,32 +286,32 @@ final class MapViewController: UIViewController {
         
         view.backgroundColor = .mainCREAM
         
-        view.addSubview(mainMapView)
-        mainMapView.translatesAutoresizingMaskIntoConstraints = false
-        mainMapView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        mainMapView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        mainMapView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        mainMapView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        view.addSubview(mapView)
+        mapView.translatesAutoresizingMaskIntoConstraints = false
+        mapView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        mapView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         
-        view.addSubview(mainMapDarkLayerView)
-        mainMapDarkLayerView.translatesAutoresizingMaskIntoConstraints = false
-        mainMapDarkLayerView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        mainMapDarkLayerView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        mainMapDarkLayerView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        mainMapDarkLayerView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        view.addSubview(mapDarkOverlayView)
+        mapDarkOverlayView.translatesAutoresizingMaskIntoConstraints = false
+        mapDarkOverlayView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        mapDarkOverlayView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        mapDarkOverlayView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        mapDarkOverlayView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         
-        view.addSubview(mainCreateEventButton)
-        mainCreateEventButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -mainVerticalEdgeInset).isActive = true
-        mainCreateEventButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        view.addSubview(mapCreateEventButton)
+        mapCreateEventButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -mapVerticalEdgeInset).isActive = true
+        mapCreateEventButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+    
+        view.addSubview(mapTopStackView)
+        mapTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: mapVerticalEdgeInset).isActive = true
+        mapTopStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
-        view.addSubview(mainTopStackView)
-        mainTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: mainVerticalEdgeInset).isActive = true
-        mainTopStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        
-        view.addSubview(mainMapFiltersView)
-        mainMapFiltersView.translatesAutoresizingMaskIntoConstraints = false
-        mainMapFiltersView.trailingAnchor.constraint(equalTo: mainTopStackView.trailingAnchor).isActive = true
-        mainMapFiltersView.topAnchor.constraint(equalTo: mainTopStackView.bottomAnchor, constant: mainHorizontalEdgeInset).isActive = true
+        view.addSubview(mapFiltersView)
+        mapFiltersView.translatesAutoresizingMaskIntoConstraints = false
+        mapFiltersView.trailingAnchor.constraint(equalTo: mapTopStackView.trailingAnchor).isActive = true
+        mapFiltersView.topAnchor.constraint(equalTo: mapTopStackView.bottomAnchor, constant: mapHorizontalEdgeInset).isActive = true
         
         if shouldPresentLoginVC {
             
@@ -332,7 +332,7 @@ final class MapViewController: UIViewController {
         
         if shouldPresentLoginVC {
             
-            let loginNavigationController = UINavigationController(rootViewController: NewLoginStartViewController())
+            let loginNavigationController = UINavigationController(rootViewController: StartViewController())
             loginNavigationController.modalPresentationStyle = .overFullScreen
             loginNavigationController.modalTransitionStyle = .coverVertical
             loginNavigationController.setNavigationBarHidden(true, animated: false)
@@ -350,7 +350,7 @@ final class MapViewController: UIViewController {
     
 }
 
-extension NewMainViewController: CLLocationManagerDelegate {
+extension MapViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
@@ -366,12 +366,12 @@ extension NewMainViewController: CLLocationManagerDelegate {
         
         if let location = locations.last {
             
-            mainUserLocation = location.coordinate
+            userLocation = location.coordinate
             
-            if !mainMapView.visibleMapRect.contains(MKMapPoint(mainUserLocation)) {
+            if !mapView.visibleMapRect.contains(MKMapPoint(userLocation)) {
                 
-                mainMapViewRegion.center = mainUserLocation
-                mainMapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mainMapViewRegion)
+                mapViewRegion.center = userLocation
+                mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
                 
             }
             
@@ -391,13 +391,13 @@ extension NewMainViewController: CLLocationManagerDelegate {
     
 }
 
-extension NewMainViewController: MKMapViewDelegate {
+extension MapViewController: MKMapViewDelegate {
     
     func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
         
-        if !mainMapView.showsUserLocation {
+        if !mapView.showsUserLocation {
         
-            mainMapView.showsUserLocation = true
+            mapView.showsUserLocation = true
             
         }
         
@@ -490,25 +490,25 @@ extension NewMainViewController: MKMapViewDelegate {
         
         if annotation is MKUserLocation {
             
-            var userLocationAnnotationView = mainMapView.dequeueReusableAnnotationView(withIdentifier: NewUserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier)
+            var userLocationAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: UserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier)
             
             if userLocationAnnotationView == nil {
                 
-                userLocationAnnotationView = NewUserLocationAnnotationView(annotation: annotation, reuseIdentifier: NewUserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier)
+                userLocationAnnotationView = UserLocationAnnotationView(annotation: annotation, reuseIdentifier: UserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier)
                 
             }
             
-            (userLocationAnnotationView as! NewUserLocationAnnotationView).setUserLocationIcon(icon: nil)
+            (userLocationAnnotationView as! UserLocationAnnotationView).setUserLocationIcon(icon: nil)
             
             return userLocationAnnotationView
             
-        } else if annotation is NewPopsicleAnnotation {
+        } else if annotation is PopsicleAnnotation {
             
-            var popsicleAnnotationView = mainMapView.dequeueReusableAnnotationView(withIdentifier: NewPopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier)
+            var popsicleAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: PopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier)
             
             if popsicleAnnotationView == nil {
                 
-                popsicleAnnotationView = NewPopsicleAnnotationView(annotation: annotation, reuseIdentifier: NewPopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier)
+                popsicleAnnotationView = PopsicleAnnotationView(annotation: annotation, reuseIdentifier: PopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier)
                 
             }
             
@@ -516,15 +516,15 @@ extension NewMainViewController: MKMapViewDelegate {
             
         } else if annotation is MKClusterAnnotation {
             
-            var popsicleGroupAnnotationView = mainMapView.dequeueReusableAnnotationView(withIdentifier: NewPopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier)
+            var popsicleGroupAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: PopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier)
             
             if popsicleGroupAnnotationView == nil {
                 
-                popsicleGroupAnnotationView = NewPopsicleGroupAnnotationView(annotation: annotation, reuseIdentifier: NewPopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier)
+                popsicleGroupAnnotationView = PopsicleGroupAnnotationView(annotation: annotation, reuseIdentifier: PopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier)
                 
             }
             
-            (popsicleGroupAnnotationView as! NewPopsicleGroupAnnotationView).setGroupCount(count: (annotation as! MKClusterAnnotation).memberAnnotations.count)
+            (popsicleGroupAnnotationView as! PopsicleGroupAnnotationView).setGroupCount(count: (annotation as! MKClusterAnnotation).memberAnnotations.count)
             
             return popsicleGroupAnnotationView
             
@@ -538,7 +538,7 @@ extension NewMainViewController: MKMapViewDelegate {
         
         for annotationView in views {
             
-            if annotationView is NewPopsicleAnnotationView, let annotationCoordinates = annotationView.annotation?.coordinate, mapView.visibleMapRect.contains(MKMapPoint(annotationCoordinates)) {
+            if annotationView is PopsicleAnnotationView, let annotationCoordinates = annotationView.annotation?.coordinate, mapView.visibleMapRect.contains(MKMapPoint(annotationCoordinates)) {
                 
                 let endFrame:CGRect = annotationView.frame
                 
@@ -554,7 +554,7 @@ extension NewMainViewController: MKMapViewDelegate {
                     
                 }, completion: nil)
                 
-            } else if annotationView is NewPopsicleGroupAnnotationView || annotationView is NewUserLocationAnnotationView, let annotationCoordinates = annotationView.annotation?.coordinate, mapView.visibleMapRect.contains(MKMapPoint(annotationCoordinates)) {
+            } else if annotationView is PopsicleGroupAnnotationView || annotationView is UserLocationAnnotationView, let annotationCoordinates = annotationView.annotation?.coordinate, mapView.visibleMapRect.contains(MKMapPoint(annotationCoordinates)) {
                 
                 annotationView.alpha = 0
                 annotationView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
@@ -575,7 +575,7 @@ extension NewMainViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
-        if let selectedPopsicle = view.annotation, selectedPopsicle is NewPopsicleAnnotation {
+        if let selectedPopsicle = view.annotation, selectedPopsicle is PopsicleAnnotation {
             
             print("Popsicle selected.")
             
@@ -585,18 +585,17 @@ extension NewMainViewController: MKMapViewDelegate {
             
         }
         
-        mainMapView.deselectAnnotation(view.annotation, animated: false)
+        mapView.deselectAnnotation(view.annotation, animated: false)
         
     }
     
 }
 
-extension NewMainViewController: UISearchBarDelegate {
-    
+extension MapViewController: UISearchBarDelegate {
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         
-        if mainMapDarkLayerView.isVisible {
+        if mapDarkOverlayView.isVisible {
             
             toggleFilters()
             
@@ -615,7 +614,7 @@ extension NewMainViewController: UISearchBarDelegate {
     
 }
 
-extension NewMainViewController: UIViewControllerTransitioningDelegate {
+extension MapViewController: UIViewControllerTransitioningDelegate {
 
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         

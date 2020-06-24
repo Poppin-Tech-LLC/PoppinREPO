@@ -72,7 +72,7 @@ final class DarkOverlayView: UIView {
         
     }
     
-    func toggleDarkLayerView() {
+    func toggleDarkOverlayView() {
         
         isVisible = !isVisible
         
