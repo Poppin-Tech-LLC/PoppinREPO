@@ -601,11 +601,11 @@ extension MapViewController: UISearchBarDelegate {
             
         }
         
-        let searchVC = NewSearchViewController()
-        searchVC.transitioningDelegate = self
+        let searchVC = SearchViewController()
+        //searchVC.transitioningDelegate = self
         searchVC.searchType = "searchUsers"
         self.present(searchVC, animated: true, completion: nil)
-      //  self.present(searchVC.searchController, animated: true, completion: nil)
+        //  self.present(searchVC.searchController, animated: true, completion: nil)
 
         
         return false
@@ -614,7 +614,7 @@ extension MapViewController: UISearchBarDelegate {
     
 }
 
-extension MapViewController: UIViewControllerTransitioningDelegate {
+/*extension MapViewController: UIViewControllerTransitioningDelegate {
 
     func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         
@@ -627,6 +627,6 @@ extension MapViewController: UIViewControllerTransitioningDelegate {
         return ViewControllerFadeTransitionAnimator(presenting: false)
         
     }
-}
+}*/
 
 

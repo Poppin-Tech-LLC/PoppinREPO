@@ -503,7 +503,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
         
         let ref = Database.database().reference()
         let uid = Auth.auth().currentUser!.uid
-        let vc = UserViewController()
+        let vc = ProfileViewController()
         
         if(searchType == "searchUsers"){
             ref.child("users/\(uid)/following").observeSingleEvent(of: .value, with: { (snapshot) in
@@ -511,14 +511,14 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
                 if snapshot.hasChild(self.filteredUser![indexPath.row].userData.uid){
                     
                     vc.followButton.setTitle("following", for: .normal)
-                    vc.followButton.setTitleColor(.newPurple, for: .normal)
+                    vc.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
                     vc.followButton.backgroundColor = .white
                     
                 }else{
                     
                     vc.followButton.setTitle("follow", for: .normal)
                     vc.followButton.setTitleColor(.white, for: .normal)
-                    vc.followButton.backgroundColor = .newPurple
+                    vc.followButton.backgroundColor = .mainDARKPURPLE
                     
                 }
                 
@@ -548,14 +548,14 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
                 if snapshot.hasChild(self.users![indexPath.row].userData.uid){
                     
                     vc.followButton.setTitle("following", for: .normal)
-                    vc.followButton.setTitleColor(.newPurple, for: .normal)
+                    vc.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
                     vc.followButton.backgroundColor = .white
                     
                 }else{
                     
                     vc.followButton.setTitle("follow", for: .normal)
                     vc.followButton.setTitleColor(.white, for: .normal)
-                    vc.followButton.backgroundColor = .newPurple
+                    vc.followButton.backgroundColor = .mainDARKPURPLE
                     
                 }
                 
