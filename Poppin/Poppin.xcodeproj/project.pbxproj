@@ -41,6 +41,7 @@
 		6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC024A2677C006AE467 /* SearchBar.swift */; };
 		6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC224A2680A006AE467 /* UserSearchCell.swift */; };
 		6417BCC524A2695D006AE467 /* LocationSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC424A2695D006AE467 /* LocationSearchCell.swift */; };
+		64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941EC924A39F6E00824E9B /* MapViewController.swift */; };
 		DF9361364A8A4D79034EA69F /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F652D2BA96ABB01F0DF64A78 /* Pods_PoppinTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -106,6 +107,7 @@
 		6417BCC024A2677C006AE467 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		6417BCC224A2680A006AE467 /* UserSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSearchCell.swift; sourceTree = "<group>"; };
 		6417BCC424A2695D006AE467 /* LocationSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchCell.swift; sourceTree = "<group>"; };
+		64941EC924A39F6E00824E9B /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		750AA0A58BE046A14348C685 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		7F8FC9DB1D6B16FAE8A8E2D5 /* Pods-Poppin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.debug.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.debug.xcconfig"; sourceTree = "<group>"; };
 		92CAEE3D8A3DFC7F3929803F /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -234,6 +236,7 @@
 		6417BCA024A2559E006AE467 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				64941EC824A39F4B00824E9B /* Map */,
 				6409062124A37E9C00AD4FF6 /* Start */,
 				6409061424A3799C00AD4FF6 /* Login */,
 				6417BCA124A255B2006AE467 /* Alert */,
@@ -305,6 +308,14 @@
 				6417BCC424A2695D006AE467 /* LocationSearchCell.swift */,
 			);
 			path = "Search Bar";
+			sourceTree = "<group>";
+		};
+		64941EC824A39F4B00824E9B /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				64941EC924A39F6E00824E9B /* MapViewController.swift */,
+			);
+			path = Map;
 			sourceTree = "<group>";
 		};
 		9BC670D25DB8C3608F200E00 /* Frameworks */ = {
@@ -565,6 +576,7 @@
 				6417BCB824A26339006AE467 /* DarkOverlayView.swift in Sources */,
 				6409061A24A37B1500AD4FF6 /* ForgotPasswordViewController.swift in Sources */,
 				6409061E24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift in Sources */,
+				64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */,
 				6403142D24A1F136006A55EB /* ViewController.swift in Sources */,
 				6417BCB624A261CA006AE467 /* FiltersView.swift in Sources */,
 				6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */,
