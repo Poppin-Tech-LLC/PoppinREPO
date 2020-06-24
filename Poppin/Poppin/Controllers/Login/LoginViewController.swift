@@ -9,7 +9,7 @@
 import UIKit
 import FirebaseAuth
 
-class LoginViewController: UIViewController {
+final class LoginViewController: UIViewController {
     
     let loginInsetY: CGFloat = .getPercentageWidth(percentage: 5)
     let loginInsetX: CGFloat = .getPercentageWidth(percentage: 5)
