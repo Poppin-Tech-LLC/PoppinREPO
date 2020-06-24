@@ -1,5 +1,5 @@
 //
-//  CreatePopsicleViewController.swift
+//  CreatePopsicleFirstPageViewController.swift
 //  Poppin
 //
 //  Created by Josiah Aklilu on 5/13/20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-final class CreatePopsicleViewController : UIViewController {
+final class CreatePopsicleFirstPageViewController : UIViewController {
     
     lazy private var cancelButton: BubbleButton = {
         var cb = BubbleButton(bouncyButtonImage: UIImage(systemSymbol: .multiply, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .medium)).withTintColor(.mainDARKPURPLE, renderingMode: .alwaysOriginal))
@@ -105,7 +105,7 @@ final class CreatePopsicleViewController : UIViewController {
     
 }
 
-extension NewCreateEventViewController : UICollectionViewDataSource {
+extension CreatePopsicleFirstPageViewController : UICollectionViewDataSource {
     // hardcode to show 10 cells, you can use array for this if you want
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 5
@@ -138,7 +138,7 @@ extension NewCreateEventViewController : UICollectionViewDataSource {
 
 // Cell height is equal to the collection view's height
 // Cell width = cell height = collection view's height
-extension NewCreateEventViewController : UICollectionViewDelegateFlowLayout {
+extension CreatePopsicleFirstPageViewController : UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: .getPercentageWidth(percentage: 50), height: collectionView.frame.size.height)
@@ -146,7 +146,7 @@ extension NewCreateEventViewController : UICollectionViewDelegateFlowLayout {
     
 }
 
-extension NewCreateEventViewController : UICollectionViewDelegate {
+extension CreatePopsicleFirstPageViewController : UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath){
 
@@ -181,7 +181,7 @@ extension NewCreateEventViewController : UICollectionViewDelegate {
     
 }
 
-extension NewCreateEventViewController : UIScrollViewDelegate {
+extension CreatePopsicleFirstPageViewController : UIScrollViewDelegate {
     
     // perform scaling whenever the collection view is being scrolled
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -313,11 +313,13 @@ class CollectionViewCell : UICollectionViewCell {
     
 }
 
-extension NewCreateEventViewController: CAAnimationDelegate {
+extension CreatePopsicleFirstPageViewController: CAAnimationDelegate {
     func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
         if flag {
             print("animation finished")
         }
     }
 }
+
+
 
