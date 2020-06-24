@@ -29,16 +29,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         if Auth.auth().currentUser == nil {
             
-            /*rootVC = NewMainViewController(shouldShowLoginVC: true) // User is not logged in*/
+            rootVC = MapViewController(shouldShowLoginVC: true) // User is not logged in*/
             
         } else {
             
-            /*rootVC = NewMainViewController(shouldShowLoginVC: false) // User is logged in*/
+            rootVC = MapViewController(shouldShowLoginVC: false) // User is logged in*/
             
         }
         
-        //navigationController = UINavigationController(rootViewController: rootVC)
-        navigationController = UINavigationController(rootViewController: UIViewController())
+        navigationController = UINavigationController(rootViewController: rootVC)
         navigationController?.setNavigationBarHidden(true, animated: false)
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
