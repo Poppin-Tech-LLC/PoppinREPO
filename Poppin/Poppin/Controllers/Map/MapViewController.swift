@@ -91,10 +91,8 @@ final class MapViewController: UIViewController {
     fileprivate lazy var mapLocationManager: CLLocationManager = {
         
         var mapLocationManager = CLLocationManager()
-        mapLocationManager.requestWhenInUseAuthorization()
         mapLocationManager.desiredAccuracy = kCLLocationAccuracyBest
         mapLocationManager.distanceFilter = kCLDistanceFilterNone
-        mapLocationManager.startUpdatingLocation()
         mapLocationManager.delegate = self
         return mapLocationManager
         
@@ -324,6 +322,9 @@ final class MapViewController: UIViewController {
             
         }
         
+        mapLocationManager.requestWhenInUseAuthorization()
+        mapLocationManager.startUpdatingLocation()
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -354,9 +355,14 @@ extension MapViewController: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
-        if status == .authorizedWhenInUse {
-            
-            manager.requestLocation()
+        switch status {
+        
+        case .authorizedAlways: manager.startUpdatingLocation()
+        case .authorizedWhenInUse: manager.startUpdatingLocation()
+        case .denied: manager.requestWhenInUseAuthorization()
+        case .notDetermined: manager.requestWhenInUseAuthorization()
+        case .restricted: manager.requestWhenInUseAuthorization()
+        default: manager.requestWhenInUseAuthorization()
             
         }
         
