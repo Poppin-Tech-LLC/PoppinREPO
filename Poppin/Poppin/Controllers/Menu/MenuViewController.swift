@@ -10,11 +10,26 @@ import UIKit
 
 final class MenuViewController: UIViewController {
     
+    lazy private var menuBorderView: UIView = {
+        
+        var menuBorderView = UIView()
+        menuBorderView.backgroundColor = .white
+        return menuBorderView
+        
+    }()
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = .mainDARKPURPLE
+        
+        view.addSubview(menuBorderView)
+        menuBorderView.translatesAutoresizingMaskIntoConstraints = false
+        menuBorderView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        menuBorderView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        menuBorderView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        menuBorderView.widthAnchor.constraint(equalToConstant: 1.0).isActive = true
         
     }
     
