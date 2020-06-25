@@ -67,6 +67,7 @@ PODS:
     - SDWebImage/Core (= 5.8.1)
   - SDWebImage/Core (5.8.1)
   - SFSafeSymbols (1.2.0)
+  - SideMenu (6.4.8)
 
 DEPENDENCIES:
   - Firebase/Auth
@@ -76,6 +77,7 @@ DEPENDENCIES:
   - GeoFire (~> 4.0)
   - Kronos
   - SFSafeSymbols (~> 1.2.0)
+  - SideMenu (~> 6.0)
 
 SPEC REPOS:
   trunk:
@@ -97,6 +99,7 @@ SPEC REPOS:
     - PromisesObjC
     - SDWebImage
     - SFSafeSymbols
+    - SideMenu
 
 SPEC CHECKSUMS:
   Firebase: fc4cbf6f1592636431821ef9a3c557e4dfd9f268
@@ -117,7 +120,8 @@ SPEC CHECKSUMS:
   PromisesObjC: b48e0338dbbac2207e611750777895f7a5811b75
   SDWebImage: e3eae2eda88578db0685a0c88597fdadd9433f05
   SFSafeSymbols: deeb973675d234251b215d3cf4c1965249fb7440
+  SideMenu: 4a891be552d30bb6fa87ad404d62e485f8450c34
 
-PODFILE CHECKSUM: 3d86899c4b0025d3465a28001ae3c41e77c0e932
+PODFILE CHECKSUM: 4cf09b509bf922e6256e47051933a94a86fa6b02
 
 COCOAPODS: 1.9.3

@@ -13,6 +13,7 @@ target 'Poppin' do
   pod 'Kronos'
   pod 'SFSafeSymbols', '~> 1.2.0'
   pod 'GeoFire', '~> 4.0'
+  pod 'SideMenu', '~> 6.0'
 
   target 'PoppinTests' do
     inherit! :search_paths
