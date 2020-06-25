@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CreatePopsicleSecondPageViewController : UIViewController, UITextFieldDelegate {
+final class CreatePopsicleSecondPageViewController : UIViewController, UITextFieldDelegate {
     
     lazy private var cCard: UIView = {
         
