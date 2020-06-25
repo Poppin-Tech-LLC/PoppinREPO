@@ -6,4 +6,16 @@
 //  Copyright © 2020 Poppin Tech LLC. All rights reserved.
 //
 
-import Foundation
+import UIKit
+
+final class MenuViewController: UIViewController {
+    
+    override func viewDidLoad() {
+        
+        super.viewDidLoad()
+        
+        view.backgroundColor = .white
+        
+    }
+    
+}
