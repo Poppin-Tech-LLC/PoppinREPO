@@ -85,6 +85,18 @@ class BouncyButton: UIButton {
 
 class BubbleButton: BouncyButton {
     
+    override init(bouncyButtonImage: UIImage?) {
+        
+        super.init(bouncyButtonImage: bouncyButtonImage)
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        
+        super.init(coder: aDecoder)
+        
+    }
+    
     override func layoutSubviews() {
         
         super.layoutSubviews()
@@ -96,6 +108,18 @@ class BubbleButton: BouncyButton {
 }
 
 final class ImageBubbleButton: BubbleButton {
+    
+    override init(bouncyButtonImage: UIImage?) {
+        
+        super.init(bouncyButtonImage: bouncyButtonImage)
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        
+        super.init(coder: aDecoder)
+        
+    }
     
     override func layoutSubviews() {
         
