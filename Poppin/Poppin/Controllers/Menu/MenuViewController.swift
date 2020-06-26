@@ -254,7 +254,7 @@ final class MenuButtonView: UIView {
         menuButtonImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: menuButtonInsetX).isActive = true
         
         addSubview(menuButtonLabel)
-        menuButtonLabel.centerYAnchor.constraint(equalTo: menuButtonImageView.centerYAnchor, constant: 1.5).isActive = true
+        menuButtonLabel.centerYAnchor.constraint(equalTo: menuButtonImageView.centerYAnchor).isActive = true
         menuButtonLabel.leadingAnchor.constraint(equalTo: menuButtonImageView.trailingAnchor, constant: menuButtonInsetX*2).isActive = true
         menuButtonLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -menuButtonInsetX).isActive = true
         

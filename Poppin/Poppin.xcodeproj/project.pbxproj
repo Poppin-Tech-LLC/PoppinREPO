@@ -23,10 +23,6 @@
 		6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6409061F24A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift */; };
 		6417BC8D24A22B88006AE467 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */; };
 		6417BC9424A22DFC006AE467 /* OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC8F24A22DFC006AE467 /* OFL.txt */; };
-		6417BC9524A22DFC006AE467 /* Octarine-BoldOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9024A22DFC006AE467 /* Octarine-BoldOblique.otf */; };
-		6417BC9624A22DFC006AE467 /* Octarine-LightOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9124A22DFC006AE467 /* Octarine-LightOblique.otf */; };
-		6417BC9724A22DFC006AE467 /* Octarine-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9224A22DFC006AE467 /* Octarine-Bold.otf */; };
-		6417BC9824A22DFC006AE467 /* Octarine-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 6417BC9324A22DFC006AE467 /* Octarine-Light.otf */; };
 		6417BCA324A255CD006AE467 /* AlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCA224A255CD006AE467 /* AlertViewController.swift */; };
 		6417BCA624A25684006AE467 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCA524A25684006AE467 /* Extensions.swift */; };
 		6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCA924A25C4F006AE467 /* BouncyButtons.swift */; };
@@ -40,6 +36,10 @@
 		6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC024A2677C006AE467 /* SearchBar.swift */; };
 		6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC224A2680A006AE467 /* UserSearchCell.swift */; };
 		6417BCC524A2695D006AE467 /* LocationSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC424A2695D006AE467 /* LocationSearchCell.swift */; };
+		645DE3CF24A6367A0007E159 /* Octarine-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3CE24A6367A0007E159 /* Octarine-Light.otf */; };
+		645DE3D124A636F60007E159 /* Octarine-BoldOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3D024A636F60007E159 /* Octarine-BoldOblique.otf */; };
+		645DE3D324A637390007E159 /* Octarine-LightOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3D224A637390007E159 /* Octarine-LightOblique.otf */; };
+		645DE3D524A637750007E159 /* Octarine-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3D424A637740007E159 /* Octarine-Bold.otf */; };
 		64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941EC924A39F6E00824E9B /* MapViewController.swift */; };
 		64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECC24A3A71300824E9B /* SearchViewController.swift */; };
 		64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECF24A3AB9600824E9B /* ProfileViewController.swift */; };
@@ -92,10 +92,6 @@
 		6409061F24A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpThirdPageViewController.swift; sourceTree = "<group>"; };
 		6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		6417BC8F24A22DFC006AE467 /* OFL.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OFL.txt; sourceTree = "<group>"; };
-		6417BC9024A22DFC006AE467 /* Octarine-BoldOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-BoldOblique.otf"; sourceTree = "<group>"; };
-		6417BC9124A22DFC006AE467 /* Octarine-LightOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-LightOblique.otf"; sourceTree = "<group>"; };
-		6417BC9224A22DFC006AE467 /* Octarine-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Bold.otf"; sourceTree = "<group>"; };
-		6417BC9324A22DFC006AE467 /* Octarine-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Light.otf"; sourceTree = "<group>"; };
 		6417BC9924A22E54006AE467 /* CustomLocation.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = CustomLocation.gpx; sourceTree = "<group>"; };
 		6417BCA224A255CD006AE467 /* AlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertViewController.swift; sourceTree = "<group>"; };
 		6417BCA524A25684006AE467 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -110,6 +106,10 @@
 		6417BCC024A2677C006AE467 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		6417BCC224A2680A006AE467 /* UserSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSearchCell.swift; sourceTree = "<group>"; };
 		6417BCC424A2695D006AE467 /* LocationSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchCell.swift; sourceTree = "<group>"; };
+		645DE3CE24A6367A0007E159 /* Octarine-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Light.otf"; sourceTree = "<group>"; };
+		645DE3D024A636F60007E159 /* Octarine-BoldOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-BoldOblique.otf"; sourceTree = "<group>"; };
+		645DE3D224A637390007E159 /* Octarine-LightOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-LightOblique.otf"; sourceTree = "<group>"; };
+		645DE3D424A637740007E159 /* Octarine-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Bold.otf"; sourceTree = "<group>"; };
 		64941EC924A39F6E00824E9B /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		64941ECC24A3A71300824E9B /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64941ECF24A3AB9600824E9B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -231,10 +231,10 @@
 		6417BC8E24A22C74006AE467 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
-				6417BC9224A22DFC006AE467 /* Octarine-Bold.otf */,
-				6417BC9024A22DFC006AE467 /* Octarine-BoldOblique.otf */,
-				6417BC9324A22DFC006AE467 /* Octarine-Light.otf */,
-				6417BC9124A22DFC006AE467 /* Octarine-LightOblique.otf */,
+				645DE3D424A637740007E159 /* Octarine-Bold.otf */,
+				645DE3D024A636F60007E159 /* Octarine-BoldOblique.otf */,
+				645DE3CE24A6367A0007E159 /* Octarine-Light.otf */,
+				645DE3D224A637390007E159 /* Octarine-LightOblique.otf */,
 				6417BC8F24A22DFC006AE467 /* OFL.txt */,
 			);
 			path = Fonts;
@@ -494,13 +494,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				6403143524A1F138006A55EB /* LaunchScreen.storyboard in Resources */,
+				645DE3D124A636F60007E159 /* Octarine-BoldOblique.otf in Resources */,
+				645DE3D324A637390007E159 /* Octarine-LightOblique.otf in Resources */,
+				645DE3D524A637750007E159 /* Octarine-Bold.otf in Resources */,
+				645DE3CF24A6367A0007E159 /* Octarine-Light.otf in Resources */,
 				6403143224A1F138006A55EB /* Assets.xcassets in Resources */,
 				6417BC9424A22DFC006AE467 /* OFL.txt in Resources */,
-				6417BC9824A22DFC006AE467 /* Octarine-Light.otf in Resources */,
-				6417BC9624A22DFC006AE467 /* Octarine-LightOblique.otf in Resources */,
-				6417BC9524A22DFC006AE467 /* Octarine-BoldOblique.otf in Resources */,
 				6417BC8D24A22B88006AE467 /* GoogleService-Info.plist in Resources */,
-				6417BC9724A22DFC006AE467 /* Octarine-Bold.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
