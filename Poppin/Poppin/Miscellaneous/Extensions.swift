@@ -137,6 +137,12 @@ extension UIImage {
     static let refreshPopsiclesIcon256 = UIImage(named: "refreshPopsiclesIcon256")!
     static let refreshPopsiclesIcon1024 = UIImage(named: "refreshPopsiclesIcon1024")!
     
+    // Menu Icons
+    
+    static let popsicleBorder128 = UIImage(named: "popsicleBorder128")!
+    static let popsicleBorder256 = UIImage(named: "popsicleBorder256")!
+    static let popsicleBorder1024 = UIImage(named: "popsicleBorder1024")!
+    
     // App Background
     
     static let appBackground = UIImage(named: "appBackground")!
