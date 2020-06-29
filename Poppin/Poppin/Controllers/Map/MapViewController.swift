@@ -14,6 +14,13 @@ import Network
 import Kronos
 import Contacts
 
+protocol MenuDelegate: class {
+    
+    func closeMenu(with action: MenuAction?)
+    func openMenu()
+    
+}
+
 final class MapViewController: UIViewController {
     
     public static let defaultMapViewRegionRadius = 3000.0 // 3km
@@ -134,7 +141,7 @@ final class MapViewController: UIViewController {
     
     lazy private var mapCloseMenuTapGestureRecognizer: UITapGestureRecognizer = {
         
-        var mapCloseMenuTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeMenu))
+        var mapCloseMenuTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeMenu(sender:)))
         return mapCloseMenuTapGestureRecognizer
         
     }()
@@ -212,8 +219,7 @@ final class MapViewController: UIViewController {
     lazy private var mapMenuButton: ImageBubbleButton = {
         
         var mapMenuButton = ImageBubbleButton(bouncyButtonImage: userPicture)
-        mapMenuButton.layer.borderColor = UIColor.white.cgColor
-        mapMenuButton.addTarget(self, action: #selector(openMenu), for: .touchUpInside)
+        mapMenuButton.addTarget(self, action: #selector(openMenu(sender:)), for: .touchUpInside)
         
         mapMenuButton.translatesAutoresizingMaskIntoConstraints = false
         mapMenuButton.heightAnchor.constraint(equalTo: mapMenuButton.widthAnchor).isActive = true
@@ -225,6 +231,7 @@ final class MapViewController: UIViewController {
     lazy private var mapMenuViewController: MenuViewController = {
         
         var mapMenuViewController = MenuViewController()
+        mapMenuViewController.delegate = self
         return mapMenuViewController
         
     }()
@@ -331,7 +338,7 @@ final class MapViewController: UIViewController {
             
             if menuIsVisible, translation.x < 0 {
                 
-                closeMenu()
+                closeMenu(with: nil)
                 
             } else if menuIsVisible, translation.x > 0 {
                 
@@ -345,7 +352,7 @@ final class MapViewController: UIViewController {
             } else {
                 
                 menuIsVisible = !menuIsVisible
-                closeMenu()
+                closeMenu(with: nil)
                 
             }
             
@@ -381,59 +388,15 @@ final class MapViewController: UIViewController {
         
     }
     
-    @objc private func closeMenu() {
+    @objc private func closeMenu(sender: BouncyButton) {
         
-        if menuIsVisible {
-         
-            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                
-                self.menuLeadingConstraint.constant = -self.mapMenuWidth
-                self.mapContainerLeadingConstraint.constant = 0
-                self.mapContainerView.alpha = 1.0
-                self.mapMenuButton.alpha = 1.0
-                self.view.layoutIfNeeded()
-                
-            }, completion: { finished in
-            
-                self.mapContainerView.removeGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
-                self.mapView.isUserInteractionEnabled = true
-                self.view.removeGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
-                self.mapEdgePanView.addGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
-            
-            })
-            
-        }
-        
-        menuIsVisible = !menuIsVisible
+        closeMenu(with: nil)
         
     }
     
-    @objc private func openMenu() {
+    @objc private func openMenu(sender: BouncyButton) {
         
-        if !menuIsVisible {
-        
-            view.layoutIfNeeded()
-            
-            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                
-                self.menuLeadingConstraint.constant = 0
-                self.mapContainerLeadingConstraint.constant = self.mapMenuWidth
-                self.mapContainerView.alpha = 0.2
-                self.mapMenuButton.alpha = 0.0
-                self.view.layoutIfNeeded()
-                
-            }, completion: { finished in
-            
-                self.mapContainerView.addGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
-                self.mapView.isUserInteractionEnabled = false
-                self.mapEdgePanView.removeGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
-                self.view.addGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
-            
-            })
-            
-        }
-        
-        menuIsVisible = !menuIsVisible
+        openMenu()
         
     }
     
@@ -810,6 +773,100 @@ extension MapViewController: UISearchBarDelegate {
         
     }
     
+}
+
+extension MapViewController: MenuDelegate {
+
+    func closeMenu(with action: MenuAction?) {
+        
+        if menuIsVisible {
+         
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.menuLeadingConstraint.constant = -self.mapMenuWidth
+                self.mapContainerLeadingConstraint.constant = 0
+                self.mapContainerView.alpha = 1.0
+                self.mapMenuButton.alpha = 1.0
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+                
+                self.menuIsVisible = !self.menuIsVisible
+                self.mapContainerView.removeGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
+                self.mapView.isUserInteractionEnabled = true
+                self.view.removeGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
+                self.mapEdgePanView.addGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
+                
+                guard let action = action else { return }
+                
+                switch action {
+                    
+                case .YourSchedule: print(action)
+                case .YourEvents: print(action)
+                case .Subscription: print(action)
+                case .FriendGroups: print(action)
+                case .Settings: print(action)
+                case .Help: print(action)
+                case .Logout:
+                    
+                    do {
+                        
+                        try Auth.auth().signOut()
+                        
+                        let loginNavigationController = UINavigationController(rootViewController: StartViewController())
+                        loginNavigationController.modalPresentationStyle = .overFullScreen
+                        loginNavigationController.modalTransitionStyle = .coverVertical
+                        loginNavigationController.setNavigationBarHidden(true, animated: false)
+                        
+                        self.present(loginNavigationController, animated: true, completion: nil)
+                        
+                    } catch let error {
+                        
+                        let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
+                        let alertVC = AlertViewController(alertTitle: "Unable to logout", alertMessage: error.localizedDescription, alertButtons: [button1])
+                        
+                        self.present(alertVC, animated: true, completion: nil)
+                    
+                    }
+                    
+                case .Default: print(action)
+                    
+                }
+                
+            })
+            
+        }
+        
+    }
+    
+    func openMenu() {
+     
+        if !menuIsVisible {
+        
+            view.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.menuLeadingConstraint.constant = 0
+                self.mapContainerLeadingConstraint.constant = self.mapMenuWidth
+                self.mapContainerView.alpha = 0.2
+                self.mapMenuButton.alpha = 0.0
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+            
+                self.menuIsVisible = !self.menuIsVisible
+                self.mapContainerView.addGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
+                self.mapView.isUserInteractionEnabled = false
+                self.mapEdgePanView.removeGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
+                self.view.addGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
+            
+            })
+            
+        }
+        
+    }
+        
 }
 
 /*extension MapViewController: UIViewControllerTransitioningDelegate {

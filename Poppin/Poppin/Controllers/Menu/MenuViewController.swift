@@ -7,6 +7,20 @@
 //
 
 import UIKit
+import FirebaseAuth
+
+enum MenuAction: String {
+    
+    case Default = "Default"
+    case Logout = "Logout"
+    case Help = "Help"
+    case Settings = "Settings"
+    case Subscription = "Subscription"
+    case FriendGroups = "FriendGroups"
+    case YourEvents = "YourEvents"
+    case YourSchedule = "YourSchedule"
+    
+}
 
 final class MenuViewController: UIViewController {
     
@@ -14,10 +28,12 @@ final class MenuViewController: UIViewController {
     let menuInsetX: CGFloat = .getPercentageWidth(percentage: 3)
     let menuInnerInset: CGFloat = .getPercentageWidth(percentage: 5.5)
     
-    private var fullName: String = "Manuel A Martin Callejo"
-    private var username: String = "@manolito_martin"
-    private var following: String = "525"
-    private var followers: String = "540"
+    private var fullName: String = "Full Name"
+    private var username: String = "@username"
+    private var following: String = "0"
+    private var followers: String = "0"
+    
+    weak var delegate: MenuDelegate?
     
     lazy private var menuTopStackView: UIStackView = {
         
@@ -136,7 +152,7 @@ final class MenuViewController: UIViewController {
         
         let menuButtonsStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 9)
         
-        let menuButtonsStackView = UIStackView(arrangedSubviews: [menu24hScheduleButtonView, menuYourEventsButtonView, menuFriendGroupsButtonView, menuYourSubscriptionButtonView, menuSettingsPrivacyButtonView, menuHelpButtonView])
+        let menuButtonsStackView = UIStackView(arrangedSubviews: [menu24hScheduleButtonView, menuYourEventsButtonView, menuFriendGroupsButtonView, menuYourSubscriptionButtonView, menuSettingsPrivacyButtonView, menuHelpButtonView, menuLogoutButtonView])
         menuButtonsStackView.axis = .vertical
         menuButtonsStackView.alignment = .leading
         menuButtonsStackView.distribution = .fill
@@ -146,6 +162,7 @@ final class MenuViewController: UIViewController {
         menuButtonsScrollView.alwaysBounceVertical = true
         menuButtonsScrollView.showsVerticalScrollIndicator = false
         menuButtonsScrollView.automaticallyAdjustsScrollIndicatorInsets = false
+        menuButtonsScrollView.delaysContentTouches = false
         menuButtonsScrollView.contentInset = UIEdgeInsets(top: .getPercentageWidth(percentage: 9), left: 0.0, bottom: .getPercentageWidth(percentage: 9), right: 0.0)
         
         menuButtonsScrollView.addSubview(menuButtonsStackView)
@@ -210,6 +227,14 @@ final class MenuViewController: UIViewController {
         
     }()
     
+    lazy private var menuLogoutButtonView: MenuButtonView = {
+        
+        var menuHelpButtonView = MenuButtonView(menuButtonImage: UIImage(systemSymbol: .personBadgeMinusFill), menuButtonText: "Logout")
+        menuHelpButtonView.addTarget(target: self, action: #selector(performLogout(sender:)), for: .touchUpInside)
+        return menuHelpButtonView
+        
+    }()
+    
     lazy private var menuBorderView: UIView = {
         
         var menuBorderView = UIView()
@@ -217,6 +242,12 @@ final class MenuViewController: UIViewController {
         return menuBorderView
         
     }()
+    
+    @objc private func performLogout(sender: UIButton) {
+        
+        delegate?.closeMenu(with: .Logout)
+        
+    }
     
     override func viewDidLoad() {
         
@@ -369,6 +400,12 @@ final class MenuButtonView: UIView {
                         self.transform = transform
                         
             }, completion: nil)
+        
+    }
+    
+    func addTarget(target: Any?, action: Selector, for event: UIControl.Event) {
+        
+        menuButton.addTarget(target, action: action, for: event)
         
     }
     
