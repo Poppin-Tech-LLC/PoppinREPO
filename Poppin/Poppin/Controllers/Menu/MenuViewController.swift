@@ -239,6 +239,11 @@ final class MenuViewController: UIViewController {
         
         var menuBorderView = UIView()
         menuBorderView.backgroundColor = .white
+        menuBorderView.alpha = 1.0
+        
+        menuBorderView.translatesAutoresizingMaskIntoConstraints = false
+        menuBorderView.widthAnchor.constraint(equalToConstant: 1).isActive = true
+        
         return menuBorderView
         
     }()
@@ -260,7 +265,6 @@ final class MenuViewController: UIViewController {
         menuBorderView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         menuBorderView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         menuBorderView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        menuBorderView.widthAnchor.constraint(equalToConstant: 2.0).isActive = true
         
         view.addSubview(menuTopStackView)
         menuTopStackView.translatesAutoresizingMaskIntoConstraints = false

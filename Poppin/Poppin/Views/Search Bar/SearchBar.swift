@@ -42,6 +42,7 @@ final class SearchBar: UISearchBar {
         
         isTranslucent = true
         searchBarStyle = .minimal
+        setImage(UIImage(systemSymbol: .magnifyingglass).applyingSymbolConfiguration(UIImage.SymbolConfiguration(weight: .heavy)), for: .search, state: .normal)
         
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.topAnchor.constraint(equalTo: topAnchor).isActive = true
@@ -49,15 +50,18 @@ final class SearchBar: UISearchBar {
         searchTextField.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         searchTextField.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         
+        searchTextField.leftView?.heightAnchor.constraint(equalToConstant: searchTextField.font!.pointSize * .getWidthFitSize(minSize: 1.0, maxSize: 1.15)).isActive = true
+        searchTextField.leftView?.widthAnchor.constraint(equalTo: searchTextField.leftView!.heightAnchor).isActive = true
+        
     }
     
     override func layoutSubviews() {
         
         super.layoutSubviews()
         
-        searchTextField.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 15.0, maxSize: 20.0))
+        searchTextField.font = .dynamicFont(with: "Octarine-Bold", style: .callout)
         searchTextField.textColor = searchBarTintColor
-        searchTextField.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 19.0)
+        searchTextField.layer.cornerRadius = .getWidthFitSize(minSize: 12.0, maxSize: 16.0)
         searchTextField.layer.cornerCurve = .continuous
         searchTextField.layer.masksToBounds = true
         searchTextField.leftView?.tintColor = searchBarTintColor

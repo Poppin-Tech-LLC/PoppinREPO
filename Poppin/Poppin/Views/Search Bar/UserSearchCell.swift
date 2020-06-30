@@ -19,35 +19,61 @@ struct UserData {
 
 final class UserSearchCell: UITableViewCell {
     
-    var userData: UserData!
+    private let cellYInset: CGFloat = .getPercentageWidth(percentage: 3)
+    private let cellXInset: CGFloat = .getPercentageWidth(percentage: 3)
     
-    lazy var usernameLabel: UILabel = {
+    lazy private var cellTextStackView: UIStackView = {
+        
+        let cellTextStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 1)
+        
+        var cellTextStackView = UIStackView(arrangedSubviews: [fullNameLabel, usernameLabel])
+        cellTextStackView.axis = .vertical
+        cellTextStackView.alignment = .fill
+        cellTextStackView.distribution = .fill
+        cellTextStackView.spacing = cellTextStackViewSpacing
+        
+        return cellTextStackView
+        
+    }()
+    
+    lazy private(set) var fullNameLabel: UILabel = {
+        
+        var fullNameLabel = UILabel()
+        fullNameLabel.lineBreakMode = .byTruncatingTail
+        fullNameLabel.numberOfLines = 1
+        fullNameLabel.textAlignment = .left
+        fullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        fullNameLabel.textColor = UIColor.mainDARKPURPLE
+        
+        fullNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        fullNameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height + cellYInset).isActive = true
+        
+        return fullNameLabel
+        
+    }()
+    
+    lazy private(set) var usernameLabel: UILabel = {
         
         var usernameLabel = UILabel()
-        usernameLabel.font = UIFont(name: "Octarine-Light", size: 15)
+        usernameLabel.lineBreakMode = .byTruncatingTail
+        usernameLabel.numberOfLines = 1
+        usernameLabel.textAlignment = .left
+        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .callout)
         usernameLabel.textColor = UIColor.mainDARKPURPLE
+        
+        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
+        usernameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height + cellYInset).isActive = true
+        
         return usernameLabel
         
     }()
     
-    lazy var nameLabel: UILabel = {
+    lazy private(set) var userImageView: UIImageView = {
         
-        var nameLabel = UILabel()
-        nameLabel.font = UIFont(name: "Octarine-Bold", size: 13)
-        nameLabel.textColor = UIColor.mainDARKPURPLE
-        return nameLabel
-        
-    }()
-    
-    lazy var userImage: UIImageView = {
-        
-        var userImage = UIImageView()
-        userImage.layer.borderColor = UIColor.mainDARKPURPLE.cgColor
-        //userImage.image = .defaultUserPicture128
-        userImage.contentMode = .scaleAspectFit
-        userImage.heightAnchor.constraint(equalToConstant: contentView.bounds.height * 0.8).isActive = true
+        var userImageView = UIImageView(image: UIImage.defaultUserPicture256)
+        userImageView.contentMode = .scaleAspectFit
+        userImageView.heightAnchor.constraint(equalToConstant: contentView.bounds.height * 0.8).isActive = true
         userImage.widthAnchor.constraint(equalToConstant: contentView.bounds.height * 0.8).isActive = true
-        userImage.frame = CGRect(x: 0, y: 0, width: contentView.bounds.height * 0.8, height: contentView.bounds.height * 0.8)
         userImage.layer.masksToBounds = true
         userImage.layer.cornerRadius = userImage.bounds.height/2
         //userImage.addShadowAndRoundCorners()

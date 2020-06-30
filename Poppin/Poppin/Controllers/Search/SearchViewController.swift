@@ -11,39 +11,38 @@ import FirebaseUI
 import FirebaseDatabase
 import FirebaseAuth
 
-final class SearchViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+final class SearchViewController: UIViewController {
     
     private let searchVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let searchHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
     
-    let searchController = UISearchController(searchResultsController: nil)
     var cellIdentifier = "cell"
     var searchType: String?
     var uid: String?
     
     var storage: Storage?
     
-    lazy var searchTable: UITableView = {
+    lazy private var searchTableView: UITableView = {
         
-        let flowLayout = UICollectionViewFlowLayout()
-        var searchTable = UITableView(frame: self.view.bounds)
-        searchTable.register(UserSearchCell.self, forCellReuseIdentifier: cellIdentifier)
-        searchTable.delegate = self
-        searchTable.dataSource = self
-        return searchTable
+        var searchTableView = UITableView()
+        searchTableView.separatorInset = .zero
+        searchTableView.backgroundColor = .white
+        searchTableView.delegate = self
+        searchTableView.dataSource = self
+        return searchTableView
         
     }()
     
-    lazy var purpleView: UIView = {
+    lazy private var purpleView: UIView = {
         
         let purpleView = UIView()
         purpleView.backgroundColor = .white
-        // purpleView.addShadowAndRoundCorners(shadowOffset: CGSize(width: 5.0, height: 5.0))
+        purpleView.addShadowAndRoundCorners(shadowOffset: CGSize(width: 5.0, height: 5.0))
         return purpleView
         
     }()
     
-    lazy var followingLabel: UILabel = {
+    lazy private var followingLabel: UILabel = {
         
         let followingLabel = UILabel()
         followingLabel.text = "following"
@@ -54,7 +53,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
         
     }()
     
-    lazy var followerLabel: UILabel = {
+    lazy private var followerLabel: UILabel = {
         
         let followerLabel = UILabel()
         followerLabel.text = "followers"
@@ -65,67 +64,54 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
         
     }()
     
-    lazy var backButton: ImageBubbleButton = {
+    /*lazy private var backButton: ImageBubbleButton = {
         
         let purpleArrow = UIImage(systemName: "arrow.left.circle.fill")!.withTintColor(UIColor.mainDARKPURPLE)
         let backButton = ImageBubbleButton(bouncyButtonImage: purpleArrow)
         backButton.contentMode = .scaleToFill
-        // backButton.setTitle("Back", for: .normal)
-        //backButton.setTitleColor(.newPurple, for: .normal)
+        backButton.setTitle("Back", for: .normal)
+        backButton.setTitleColor(.mainDARKPURPLE, for: .normal)
         backButton.addTarget(self, action: #selector(closeSearchBar), for: .touchUpInside)
         return backButton
         
-    }()
+    }()*/
     
     var users: [UserSearchCell]?
     var filteredUser: [UserSearchCell]?
     
-    //
-    //    lazy private var searchBar: UISearchBar = {
-    //        let searchBar = NewSearchBar(tintColor: UIColor.darkGray)
-    //        searchBar.becomeFirstResponder()
-    //        searchBar.delegate = self
-    //        return searchBar
-    //    }()
-    //
-    //    lazy private var searchTopStackView: UIView = {
-    //
-    //        let newsearchBar = NewSearchBar(tintColor: UIColor.darkGray)
-    //        newsearchBar.becomeFirstResponder()
-    //        newsearchBar.delegate = self
-    //
-    //
-    //        let cancelButton = BouncyButton(bouncyButtonImage: nil)
-    //        cancelButton.setTitle("Cancel", for: .normal)
-    //        cancelButton.titleLabel!.textAlignment = .center
-    //        cancelButton.setTitleColor(.darkGray, for: .normal)
-    //        cancelButton.titleLabel!.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 15.0, maxSize: 20.0))
-    //        cancelButton.addTarget(self, action: #selector(closeSearchBar), for: .touchUpInside)
-    //
-    //        cancelButton.translatesAutoresizingMaskIntoConstraints = false
-    //        cancelButton.widthAnchor.constraint(equalToConstant: cancelButton.intrinsicContentSize.width).isActive = true
-    //
-    //        var searchTopStackView = UIView()
-    //        // searchTopStackView.axis = .horizontal
-    //        //searchTopStackView.alignment = .fill
-    //        //searchTopStackView.spacing = searchHorizontalEdgeInset
-    //
-    //        searchTopStackView.addSubview(searchController.searchBar)
-    //
-    //        searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
-    //        searchTopStackView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 99)).isActive = true
-    //        searchTopStackView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 11)).isActive = true
-    //
-    //        searchController.searchBar.frame = CGRect(x: 0, y: 0, width: view.bounds.width * 0.9, height: view.bounds.height * 0.05)
-    //
-    //
-    //        //       searchController.searchBar.translatesAutoresizingMaskIntoConstraints = false
-    //        //        searchController.searchBar.widthAnchor.constraint(equalTo: searchTopStackView.widthAnchor).isActive = true
-    //        //         searchController.searchBar.heightAnchor.constraint(equalTo: searchTopStackView.heightAnchor).isActive = true
-    //        //
-    //        return searchTopStackView
-    //
-    //    }()
+    lazy private var searchTopStackView: UIView = {
+        
+        let cancelButton = BouncyButton(bouncyButtonImage: nil)
+        cancelButton.setTitle("Cancel", for: .normal)
+        cancelButton.titleLabel?.textAlignment = .center
+        cancelButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+        cancelButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        cancelButton.addTarget(self, action: #selector(closeSearchBar), for: .touchUpInside)
+        
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        cancelButton.widthAnchor.constraint(equalToConstant: cancelButton.intrinsicContentSize.width).isActive = true
+        
+        var searchTopStackView = UIStackView(arrangedSubviews: [searchBar, cancelButton])
+        searchTopStackView.axis = .horizontal
+        searchTopStackView.alignment = .fill
+        searchTopStackView.spacing = searchHorizontalEdgeInset
+        
+        searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
+        searchTopStackView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 90)).isActive = true
+        searchTopStackView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 10.5)).isActive = true
+        
+        return searchTopStackView
+        
+    }()
+    
+    lazy private var searchBar: UISearchBar = {
+        
+        let searchBar = SearchBar(tintColor: UIColor.mainDARKPURPLE)
+        searchBar.becomeFirstResponder()
+        searchBar.delegate = self
+        return searchBar
+        
+    }()
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         
@@ -134,6 +120,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
         /* FOR TRIAL PURPOSES */
         
         modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
         
     }
     
@@ -144,10 +131,11 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
         /* FOR TRIAL PURPOSES */
         
         modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
         
     }
     
-    override func viewDidAppear(_ animated: Bool) {
+    /*override func viewDidAppear(_ animated: Bool) {
         
         if(searchType == "searchUsers"){
             
@@ -169,10 +157,10 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
                 self.searchController.searchBar.becomeFirstResponder()
             }
         }
-    }
+    }*/
     
     
-    @objc func presentSearchController() {
+    /*@objc func presentSearchController() {
         
         searchController.isActive = true
         
@@ -182,14 +170,14 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
             
         }
         
-    }
+    }*/
     
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(presentSearchController), name: NSNotification.Name(rawValue: "myNotification"), object: nil)
+        /*NotificationCenter.default.addObserver(self, selector: #selector(presentSearchController), name: NSNotification.Name(rawValue: "myNotification"), object: nil)
         
         storage = Storage.storage()
         users = []
@@ -267,29 +255,41 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
             searchTable.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
             searchTable.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
             
-        }
+        }*/
+        
+        storage = Storage.storage()
+        users = []
+        filteredUser = []
+        
+        getUsers()
         
         view.backgroundColor = .white
         
-        //        view.addSubview(searchTopStackView)
-        //        searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
-        //        searchTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: searchVerticalEdgeInset).isActive = true
-        //        searchTopStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        view.addSubview(searchTopStackView)
+        searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
+        searchTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: searchVerticalEdgeInset).isActive = true
+        searchTopStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
+        view.addSubview(searchTableView)
+        searchTableView.translatesAutoresizingMaskIntoConstraints = false
+        searchTableView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor).isActive = true
+        searchTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: searchVerticalEdgeInset).isActive = true
+        searchTableView.leadingAnchor.constraint(equalTo: searchTopStackView.leadingAnchor).isActive = true
+        searchTableView.trailingAnchor.constraint(equalTo: searchTopStackView.trailingAnchor).isActive = true
         
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
+    /*override func viewWillDisappear(_ animated: Bool) {
         
         super.viewWillDisappear(animated)
         
-    }
+    }*/
     
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+    /*func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         
         self.dismiss(animated: true, completion: nil)
         
-    }
+    }*/
     
     
     @objc func closeSearchBar() {
@@ -298,7 +298,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
         
     }
     
-    public func getUsers() {
+    private func getUsers() {
         
         let ref = Database.database().reference(withPath:"users")
         
@@ -326,7 +326,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
                                 
                                 DispatchQueue.main.async {
                                     
-                                    self.searchTable.reloadData()
+                                    self.searchTableView.reloadData()
                                     
                                 }
                             }
@@ -338,7 +338,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
         
     }
     
-    public func getFollowers() {
+    /*public func getFollowers() {
         
         let ref = Database.database().reference()
         
@@ -443,43 +443,53 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
                 }
             }
         })
-    }
+    }*/
+    
+}
+
+extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if(searchType == "searchUsers"){
-            if !searchController.isActive || searchController.searchBar.text == "" {
-                return 0
-            }
-            if searchController.isActive && searchController.searchBar.text != "" {
-                return filteredUser!.count
-            }
-        }
-        else if(searchType == "showFollowers" || searchType == "showFollowing"){
+        if searchType == "searchUsers" {
+            
+            if !searchBar.isFirstResponder || searchBar.text == "" { return 0 }
+            
+            if searchBar.isFirstResponder && searchBar.text != "" { return filteredUser!.count }
+            
+        }/* else if searchType == "showFollowers" || searchType == "showFollowing" {
+            
             return users!.count
-        }
+            
+        }*/
+        
         return users!.count
         
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = searchTable.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! UserSearchCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! UserSearchCell
         var user: UserSearchCell
         user = UserSearchCell()
         
-        if(searchType == "searchUsers"){
-            if searchController.isActive && searchController.searchBar.text != "" {
+        if searchType == "searchUsers" {
+            
+            if searchBar.isFirstResponder && searchBar.text != "" {
                 
                 user = filteredUser![indexPath.row]
+                
             } else {
+                
                 user = users![indexPath.row]
+                
             }
-        }
-        else if (searchType == "showFollowers" || searchType == "showFollowing"){
+            
+        }/* else if searchType == "showFollowers" || searchType == "showFollowing" {
+            
             user = users![indexPath.row]
             
-        }
+        }*/
         
         // Reference to an image file in Firebase Storage
         let reference = (self.storage?.reference().child("images/\(user.userData.uid)/profilepic.jpg"))!
@@ -541,7 +551,7 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
             self.present(vc, animated: true, completion: nil)
             //self.dismiss(animated: true, completion: nil)
             
-        } else if (searchType == "showFollowers" || searchType == "showFollowing"){
+        }/* else if (searchType == "showFollowers" || searchType == "showFollowing"){
             
             ref.child("users/\(uid)/following").observeSingleEvent(of: .value, with: { (snapshot) in
                 
@@ -569,19 +579,34 @@ final class SearchViewController: UIViewController, UITableViewDataSource, UITab
             //self.dismiss(animated: true, completion: nil)
             self.present(vc, animated: true, completion: nil)
             
+        }*/
+        
+    }
+    
+}
+    
+
+extension SearchViewController: UISearchBarDelegate {
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        filterUsers(for: searchText)
+        
+    }
+    
+    private func filterUsers(for searchText: String) {
+        
+        filteredUser = users?.filter { user in
+            return user.userData.username.lowercased().contains(searchText.lowercased()) || user.userData.fullName.lowercased().contains(searchText.lowercased())
         }
+        
+        searchTableView.reloadData()
         
     }
     
 }
 
-extension SearchViewController: UISearchBarDelegate {
-    
-    
-    
-}
-
-extension SearchViewController: UISearchResultsUpdating {
+/*extension SearchViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         // TO-DO: Implement here
@@ -597,4 +622,4 @@ extension SearchViewController: UISearchResultsUpdating {
         searchTable.reloadData()
     }
     
-}
+}*/

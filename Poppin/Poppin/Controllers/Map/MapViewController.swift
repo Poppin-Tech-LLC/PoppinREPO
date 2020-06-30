@@ -202,7 +202,7 @@ final class MapViewController: UIViewController {
         
         mapTopStackView.translatesAutoresizingMaskIntoConstraints = false
         mapTopStackView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 90)).isActive = true
-        mapTopStackView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 11)).isActive = true
+        mapTopStackView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 10.5)).isActive = true
         
         return mapTopStackView
         
@@ -763,11 +763,8 @@ extension MapViewController: UISearchBarDelegate {
         }
         
         let searchVC = SearchViewController()
-        //searchVC.transitioningDelegate = self
         searchVC.searchType = "searchUsers"
         self.present(searchVC, animated: true, completion: nil)
-        //  self.present(searchVC.searchController, animated: true, completion: nil)
-
         
         return false
         

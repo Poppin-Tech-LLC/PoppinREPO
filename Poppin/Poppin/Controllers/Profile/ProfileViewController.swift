@@ -53,7 +53,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         followerCountButton.titleLabel!.font = UIFont(name: "Octarine-Light", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
         followerCountButton.titleLabel!.textAlignment = .center
         followerCountButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-        followerCountButton.addTarget(self, action: #selector(viewFollowers), for: .touchUpInside)
+        //followerCountButton.addTarget(self, action: #selector(viewFollowers), for: .touchUpInside)
 
         return followerCountButton
     }()
@@ -71,7 +71,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         followingCountButton.titleLabel!.font = UIFont(name: "Octarine-Light", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
         followingCountButton.titleLabel!.textAlignment = .center
         followingCountButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-        followingCountButton.addTarget(self, action: #selector(viewFollowing), for: .touchUpInside)
+        //followingCountButton.addTarget(self, action: #selector(viewFollowing), for: .touchUpInside)
         return followingCountButton
     }()
     
@@ -346,7 +346,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
     }
     
-    @objc func viewFollowers(){
+    /*@objc func viewFollowers(){
         
         let vc = SearchViewController()
         vc.uid = uid
@@ -364,7 +364,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
          vc.modalPresentationStyle = .fullScreen
          self.present(vc, animated: true, completion: nil)
 
-     }
+     }*/
     
     func getFollowerCount(){
         
