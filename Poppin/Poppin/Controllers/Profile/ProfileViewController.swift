@@ -293,7 +293,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     @objc func goBack() {
         
-        self.dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
         //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "myNotification"), object: nil)
         
     }

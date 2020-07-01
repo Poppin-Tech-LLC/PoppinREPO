@@ -13,6 +13,7 @@ final class BubbleImageView: UIImageView {
     override func layoutSubviews() {
         
         super.layoutSubviews()
+        layer.masksToBounds = true
         layer.cornerRadius = min(frame.width, frame.height)/2
         
     }

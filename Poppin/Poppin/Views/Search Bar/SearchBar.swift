@@ -10,6 +10,9 @@ import UIKit
 
 final class SearchBar: UISearchBar {
     
+    static let defaultSearchBarHeight: CGFloat = .getPercentageWidth(percentage: 10.5)
+    static let defaultSearchBarWidth: CGFloat = .getPercentageWidth(percentage: 90)
+    
     lazy private var searchBarTintColor: UIColor = UIColor.white
     
     init(tintColor: UIColor?) {

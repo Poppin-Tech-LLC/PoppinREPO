@@ -19,12 +19,15 @@ struct UserData {
 
 final class UserSearchCell: UITableViewCell {
     
-    private let cellYInset: CGFloat = .getPercentageWidth(percentage: 3)
-    private let cellXInset: CGFloat = .getPercentageWidth(percentage: 3)
+    static let cellIdentifier: String = "UserSearchCell"
+    
+    private let cellYInset: CGFloat = .getPercentageWidth(percentage: 4)
+    private let cellInnerSet: CGFloat = .getPercentageWidth(percentage: 1)
+    private let cellXInset: CGFloat = .getPercentageWidth(percentage: 5)
     
     lazy private var cellTextStackView: UIStackView = {
         
-        let cellTextStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 1)
+        let cellTextStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 0.5)
         
         var cellTextStackView = UIStackView(arrangedSubviews: [fullNameLabel, usernameLabel])
         cellTextStackView.axis = .vertical
@@ -42,11 +45,12 @@ final class UserSearchCell: UITableViewCell {
         fullNameLabel.lineBreakMode = .byTruncatingTail
         fullNameLabel.numberOfLines = 1
         fullNameLabel.textAlignment = .left
+        fullNameLabel.text = "Full Name"
         fullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
         fullNameLabel.textColor = UIColor.mainDARKPURPLE
         
         fullNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        fullNameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height + cellYInset).isActive = true
+        fullNameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height + cellInnerSet).isActive = true
         
         return fullNameLabel
         
@@ -58,29 +62,26 @@ final class UserSearchCell: UITableViewCell {
         usernameLabel.lineBreakMode = .byTruncatingTail
         usernameLabel.numberOfLines = 1
         usernameLabel.textAlignment = .left
-        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .callout)
+        usernameLabel.text = "@username"
+        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
         usernameLabel.textColor = UIColor.mainDARKPURPLE
         
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height + cellYInset).isActive = true
+        usernameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height + cellInnerSet).isActive = true
         
         return usernameLabel
         
     }()
     
-    lazy private(set) var userImageView: UIImageView = {
+    lazy private(set) var userImageView: BubbleImageView = {
         
-        var userImageView = UIImageView(image: UIImage.defaultUserPicture256)
-        userImageView.contentMode = .scaleAspectFit
-        userImageView.heightAnchor.constraint(equalToConstant: contentView.bounds.height * 0.8).isActive = true
-        userImage.widthAnchor.constraint(equalToConstant: contentView.bounds.height * 0.8).isActive = true
-        userImage.layer.masksToBounds = true
-        userImage.layer.cornerRadius = userImage.bounds.height/2
-        //userImage.addShadowAndRoundCorners()
-        //userImage.layer.cornerRadius = userImage.bounds.height/2
-        //userImage.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
-        //userImage.clipsToBounds = true
-        return userImage
+        var userImageView = BubbleImageView(image: UIImage.defaultUserPicture256)
+        userImageView.contentMode = .scaleAspectFill
+        
+        userImageView.translatesAutoresizingMaskIntoConstraints = false
+        userImageView.widthAnchor.constraint(equalTo: userImageView.heightAnchor).isActive = true
+        
+        return userImageView
         
     }()
     
@@ -97,42 +98,39 @@ final class UserSearchCell: UITableViewCell {
     //        return userImageHolder
     //    }()
     
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-        
-    }
-    
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-        
-        // Configure the view for the selected state
-    }
-    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.addSubview(userImage)
-        
-        userImage.translatesAutoresizingMaskIntoConstraints = false
-        userImage.centerYAnchor.constraint(equalTo: contentView.centerYAnchor).isActive = true
-        userImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: contentView.bounds.height * 0.1).isActive = true
-        
-        contentView.addSubview(usernameLabel)
-        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: contentView.bounds.height * 0.25).isActive = true
-        usernameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: contentView.bounds.height * 0.1).isActive = true
-        
-        contentView.addSubview(nameLabel)
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -contentView.bounds.height * 0.25).isActive = true
-        nameLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: contentView.bounds.height * 0.1).isActive = true
+        configureCell()
         
     }
     
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        
+        super.init(coder: aDecoder)
+        
+        configureCell()
+        
+    }
+    
+    private func configureCell() {
+        
+        contentView.backgroundColor = .white
+        
+        contentView.addSubview(cellTextStackView)
+        cellTextStackView.translatesAutoresizingMaskIntoConstraints = false
+        cellTextStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: cellYInset).isActive = true
+        cellTextStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellYInset).isActive = true
+        cellTextStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: cellXInset).isActive = true
+        
+        contentView.addSubview(userImageView)
+        userImageView.translatesAutoresizingMaskIntoConstraints = false
+        userImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: cellYInset).isActive = true
+        userImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellYInset).isActive = true
+        userImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -cellXInset).isActive = true
+        userImageView.leadingAnchor.constraint(equalTo: cellTextStackView.trailingAnchor, constant: cellInnerSet).isActive = true
+        
     }
     
 }

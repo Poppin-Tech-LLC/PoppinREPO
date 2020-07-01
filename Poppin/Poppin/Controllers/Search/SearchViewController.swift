@@ -11,29 +11,92 @@ import FirebaseUI
 import FirebaseDatabase
 import FirebaseAuth
 
+enum SearchType: String {
+    
+    case Following = "Following"
+    case Followers = "Followers"
+    case Main = "Main"
+    case Default = "Default"
+    
+}
+
 final class SearchViewController: UIViewController {
     
     private let searchVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let searchHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
     
-    var cellIdentifier = "cell"
-    var searchType: String?
-    var uid: String?
+    private var searchType: SearchType = .Default
+    private var uid: String?
+    private var users: [UserData] = []
+    private var filteredUsers: [UserData] = []
+    private var storage: Storage = Storage.storage()
     
-    var storage: Storage?
+    private var isDisplayingAllCells: Bool = false
     
-    lazy private var searchTableView: UITableView = {
+    lazy private var fadeView: UIView = {
         
-        var searchTableView = UITableView()
+        var fadeView = UIView()
+        fadeView.backgroundColor = .mainDARKPURPLE
+        fadeView.addShadowAndRoundCorners(cornerRadius: 0.0, shadowColor: .mainDARKPURPLE, shadowOpacity: 0.65, shadowRadius: 12, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        return fadeView
+        
+    }()
+    
+    lazy private var searchScrollView: UIScrollView = {
+        
+        let searchStackView = UIStackView(arrangedSubviews: [searchTableView, loadingIndicatorView])
+        searchStackView.axis = .vertical
+        searchStackView.alignment = .fill
+        searchStackView.distribution = .fill
+        searchStackView.spacing = searchVerticalEdgeInset
+        
+        var searchScrollView = UIScrollView()
+        searchScrollView.alwaysBounceVertical = true
+        searchScrollView.showsVerticalScrollIndicator = false
+        searchScrollView.delaysContentTouches = false
+        searchScrollView.contentInset = UIEdgeInsets(top: searchVerticalEdgeInset/2, left: 0.0, bottom: searchVerticalEdgeInset, right: 0.0)
+        
+        searchScrollView.addSubview(searchStackView)
+        searchStackView.translatesAutoresizingMaskIntoConstraints = false
+        searchStackView.topAnchor.constraint(equalTo: searchScrollView.topAnchor).isActive = true
+        searchStackView.bottomAnchor.constraint(equalTo: searchScrollView.bottomAnchor).isActive = true
+        searchStackView.leadingAnchor.constraint(equalTo: searchScrollView.leadingAnchor).isActive = true
+        searchStackView.trailingAnchor.constraint(equalTo: searchScrollView.trailingAnchor).isActive = true
+        searchStackView.widthAnchor.constraint(equalTo: searchScrollView.widthAnchor).isActive = true
+        
+        return searchScrollView
+        
+    }()
+    
+    lazy private var loadingIndicatorView: UIActivityIndicatorView = {
+        
+        var loadingIndicatorView = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
+        loadingIndicatorView.color = .white
+        loadingIndicatorView.hidesWhenStopped = true
+        return loadingIndicatorView
+        
+    }()
+    
+    lazy private var searchTableView: SelfSizedTableView = {
+        
+        var searchTableView = SelfSizedTableView()
+        searchTableView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 16.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.3, shadowRadius: 8.0)
+        searchTableView.isScrollEnabled = false
+        searchTableView.clipsToBounds = true
         searchTableView.separatorInset = .zero
-        searchTableView.backgroundColor = .white
+        searchTableView.separatorColor = UIColor.mainDARKPURPLE.withAlphaComponent(0.5)
+        searchTableView.backgroundColor = .mainDARKPURPLE
+        searchTableView.rowHeight = UITableView.automaticDimension
+        searchTableView.estimatedRowHeight = UITableView.automaticDimension
         searchTableView.delegate = self
         searchTableView.dataSource = self
+        searchTableView.register(UserSearchCell.self, forCellReuseIdentifier: UserSearchCell.cellIdentifier)
+        
         return searchTableView
         
     }()
     
-    lazy private var purpleView: UIView = {
+    /*lazy private var purpleView: UIView = {
         
         let purpleView = UIView()
         purpleView.backgroundColor = .white
@@ -64,7 +127,7 @@ final class SearchViewController: UIViewController {
         
     }()
     
-    /*lazy private var backButton: ImageBubbleButton = {
+    lazy private var backButton: ImageBubbleButton = {
         
         let purpleArrow = UIImage(systemName: "arrow.left.circle.fill")!.withTintColor(UIColor.mainDARKPURPLE)
         let backButton = ImageBubbleButton(bouncyButtonImage: purpleArrow)
@@ -76,15 +139,12 @@ final class SearchViewController: UIViewController {
         
     }()*/
     
-    var users: [UserSearchCell]?
-    var filteredUser: [UserSearchCell]?
-    
     lazy private var searchTopStackView: UIView = {
         
         let cancelButton = BouncyButton(bouncyButtonImage: nil)
         cancelButton.setTitle("Cancel", for: .normal)
         cancelButton.titleLabel?.textAlignment = .center
-        cancelButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+        cancelButton.setTitleColor(.white, for: .normal)
         cancelButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         cancelButton.addTarget(self, action: #selector(closeSearchBar), for: .touchUpInside)
         
@@ -97,8 +157,8 @@ final class SearchViewController: UIViewController {
         searchTopStackView.spacing = searchHorizontalEdgeInset
         
         searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
-        searchTopStackView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 90)).isActive = true
-        searchTopStackView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 10.5)).isActive = true
+        searchTopStackView.widthAnchor.constraint(equalToConstant: SearchBar.defaultSearchBarWidth).isActive = true
+        searchTopStackView.heightAnchor.constraint(equalToConstant: SearchBar.defaultSearchBarHeight).isActive = true
         
         return searchTopStackView
         
@@ -106,12 +166,20 @@ final class SearchViewController: UIViewController {
     
     lazy private var searchBar: UISearchBar = {
         
-        let searchBar = SearchBar(tintColor: UIColor.mainDARKPURPLE)
+        let searchBar = SearchBar(tintColor: UIColor.white)
         searchBar.becomeFirstResponder()
         searchBar.delegate = self
         return searchBar
         
     }()
+    
+    init(searchType: SearchType) {
+        
+        super.init(nibName: nil, bundle: nil)
+        
+        self.searchType = searchType
+        
+    }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         
@@ -257,25 +325,30 @@ final class SearchViewController: UIViewController {
             
         }*/
         
-        storage = Storage.storage()
-        users = []
-        filteredUser = []
-        
-        getUsers()
-        
-        view.backgroundColor = .white
+        view.backgroundColor = .mainDARKPURPLE
         
         view.addSubview(searchTopStackView)
         searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
         searchTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: searchVerticalEdgeInset).isActive = true
         searchTopStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
-        view.addSubview(searchTableView)
-        searchTableView.translatesAutoresizingMaskIntoConstraints = false
-        searchTableView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor).isActive = true
-        searchTableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: searchVerticalEdgeInset).isActive = true
-        searchTableView.leadingAnchor.constraint(equalTo: searchTopStackView.leadingAnchor).isActive = true
-        searchTableView.trailingAnchor.constraint(equalTo: searchTopStackView.trailingAnchor).isActive = true
+        view.addSubview(fadeView)
+        view.sendSubviewToBack(fadeView)
+        fadeView.translatesAutoresizingMaskIntoConstraints = false
+        fadeView.topAnchor.constraint(equalTo: searchTopStackView.topAnchor).isActive = true
+        fadeView.bottomAnchor.constraint(equalTo: searchTopStackView.bottomAnchor, constant: searchVerticalEdgeInset*0.33).isActive = true
+        fadeView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        fadeView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        view.addSubview(searchScrollView)
+        view.sendSubviewToBack(searchScrollView)
+        searchScrollView.translatesAutoresizingMaskIntoConstraints = false
+        searchScrollView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor, constant: searchVerticalEdgeInset/2).isActive = true
+        searchScrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        searchScrollView.leadingAnchor.constraint(equalTo: searchTopStackView.leadingAnchor).isActive = true
+        searchScrollView.trailingAnchor.constraint(equalTo: searchTopStackView.trailingAnchor).isActive = true
+        
+        fetchUsers()
         
     }
     
@@ -298,11 +371,16 @@ final class SearchViewController: UIViewController {
         
     }
     
-    private func getUsers() {
+    private func fetchUsers() {
+        
+        loadingIndicatorView.startAnimating()
         
         let ref = Database.database().reference(withPath:"users")
         
-        ref.observeSingleEvent(of: .value, with: { (snapshot) in
+        ref.observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+            
+            guard let self = self else { return }
+            
             // Printing the child count
             // Checking if the reference has some values
             if snapshot.childrenCount > 0 {
@@ -315,24 +393,16 @@ final class SearchViewController: UIViewController {
                             let uid = data.key
                             let bio = dat["bio"] as? String ?? ""
                             let fullName = dat["fullName"] as? String ?? ""
-                            let userToAdd = UserSearchCell()
-                            
-                            userToAdd.userData = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
-                            self.users?.append(userToAdd)
-                            
-                            DispatchQueue.global(qos: .background).async {
-                                
-                                // Background Thread
-                                
-                                DispatchQueue.main.async {
-                                    
-                                    self.searchTableView.reloadData()
-                                    
-                                }
-                            }
+                            let userToAdd = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
+                            self.users.append(userToAdd)
+                
                         }
                     }
                 }
+                
+                self.isDisplayingAllCells = true
+                self.searchTableView.reloadData()
+                
             }
         })
         
@@ -451,11 +521,9 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if searchType == "searchUsers" {
+        if searchType == .Main {
             
-            if !searchBar.isFirstResponder || searchBar.text == "" { return 0 }
-            
-            if searchBar.isFirstResponder && searchBar.text != "" { return filteredUser!.count }
+            if searchBar.text != "" { return filteredUsers.count }
             
         }/* else if searchType == "showFollowers" || searchType == "showFollowing" {
             
@@ -463,25 +531,24 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
             
         }*/
         
-        return users!.count
+        return users.count
         
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! UserSearchCell
-        var user: UserSearchCell
-        user = UserSearchCell()
+        let userCell = tableView.dequeueReusableCell(withIdentifier: UserSearchCell.cellIdentifier, for: indexPath) as! UserSearchCell
+        var userData: UserData?
         
-        if searchType == "searchUsers" {
+        if searchType == .Main {
             
-            if searchBar.isFirstResponder && searchBar.text != "" {
+            if searchBar.text != "" {
                 
-                user = filteredUser![indexPath.row]
+                userData = filteredUsers[indexPath.row]
                 
             } else {
                 
-                user = users![indexPath.row]
+                userData = users[indexPath.row]
                 
             }
             
@@ -491,21 +558,23 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
             
         }*/
         
-        // Reference to an image file in Firebase Storage
-        let reference = (self.storage?.reference().child("images/\(user.userData.uid)/profilepic.jpg"))!
+        if let userData = userData {
+            
+            // Reference to an image file in Firebase Storage
+            let reference = self.storage.reference().child("images/\(userData.uid)/profilepic.jpg")
+            
+            // Placeholder image
+            let placeholderImage = UIImage.defaultUserPicture256
+            
+            // Load the image using SDWebImage
+            userCell.userImageView.sd_setImage(with: reference, placeholderImage: placeholderImage)
+            
+            userCell.usernameLabel.text = "@" + userData.username
+            userCell.fullNameLabel.text = userData.fullName
+            
+        }
         
-        // Placeholder image
-        let placeholderImage = UIImage.defaultUserPicture256
-        
-        // Load the image using SDWebImage
-        //cell.userImageHolder.sd_setImage(with: reference, placeholderImage: placeholderImage)
-        cell.userImage.sd_setImage(with: reference, placeholderImage: placeholderImage)
-        
-        cell.usernameLabel.text = "@" + user.userData.username
-        cell.nameLabel.text = user.userData.fullName
-        //cell.userImage.image = user.userData.image
-        
-        return cell
+        return userCell
         
     }
     
@@ -513,32 +582,33 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         
         let ref = Database.database().reference()
         let uid = Auth.auth().currentUser!.uid
-        let vc = ProfileViewController()
+        let profileVC = ProfileViewController()
         
-        if(searchType == "searchUsers"){
+        if searchType == .Main {
+            
             ref.child("users/\(uid)/following").observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if snapshot.hasChild(self.filteredUser![indexPath.row].userData.uid){
+                if snapshot.hasChild(self.filteredUsers[indexPath.row].uid){
                     
-                    vc.followButton.setTitle("following", for: .normal)
-                    vc.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-                    vc.followButton.backgroundColor = .white
+                    profileVC.followButton.setTitle("following", for: .normal)
+                    profileVC.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+                    profileVC.followButton.backgroundColor = .white
                     
-                }else{
+                } else {
                     
-                    vc.followButton.setTitle("follow", for: .normal)
-                    vc.followButton.setTitleColor(.white, for: .normal)
-                    vc.followButton.backgroundColor = .mainDARKPURPLE
+                    profileVC.followButton.setTitle("follow", for: .normal)
+                    profileVC.followButton.setTitleColor(.white, for: .normal)
+                    profileVC.followButton.backgroundColor = .mainDARKPURPLE
                     
                 }
                 
             })
             
-            vc.modalPresentationStyle = .fullScreen
-            vc.nameLabel.text = filteredUser![indexPath.row].userData.fullName
-            vc.usernameLabel.text = "@" + filteredUser![indexPath.row].userData.username
-            vc.bioLabel.text = filteredUser![indexPath.row].userData.bio
-            vc.uid = filteredUser![indexPath.row].userData.uid
+            profileVC.nameLabel.text = filteredUsers[indexPath.row].fullName
+            profileVC.usernameLabel.text = "@" + filteredUsers[indexPath.row].username
+            profileVC.bioLabel.text = filteredUsers[indexPath.row].bio
+            profileVC.uid = filteredUsers[indexPath.row].uid
+            
             //vc.userImage.image = filteredUser![indexPath.row].userImage.image
             //            let transition = CATransition()
             //            transition.duration = 0.5
@@ -547,9 +617,8 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
             //            transition.timingFunction = CAMediaTimingFunction(name:CAMediaTimingFunctionName.easeInEaseOut)
             //            view.window!.layer.add(transition, forKey: kCATransition)
             // vc.modalTransitionStyle = .flipHorizontal
-            self.dismiss(animated: true, completion: nil)
-            self.present(vc, animated: true, completion: nil)
-            //self.dismiss(animated: true, completion: nil)
+            
+            navigationController?.pushViewController(profileVC, animated: true)
             
         }/* else if (searchType == "showFollowers" || searchType == "showFollowing"){
             
@@ -583,21 +652,47 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         
     }
     
-}
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        loadingIndicatorView.stopAnimating()
+        
+        if isDisplayingAllCells {
+            
+            cell.alpha = 0
+            
+            UIView.animate(withDuration: 0.5, delay: 0.05 * Double(indexPath.row), usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                cell.alpha = 1
+                
+            })
+            
+            if let lastVisibleIndexPath = tableView.indexPathsForVisibleRows?.last, lastVisibleIndexPath == indexPath {
+                
+                isDisplayingAllCells = false
+                
+            }
+            
+        }
+        
+    }
     
+}
 
 extension SearchViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
+        loadingIndicatorView.startAnimating()
         filterUsers(for: searchText)
         
     }
     
     private func filterUsers(for searchText: String) {
         
-        filteredUser = users?.filter { user in
-            return user.userData.username.lowercased().contains(searchText.lowercased()) || user.userData.fullName.lowercased().contains(searchText.lowercased())
+        filteredUsers = users.filter { user in
+            
+            return user.username.lowercased().contains(searchText.lowercased()) || user.fullName.lowercased().contains(searchText.lowercased())
+            
         }
         
         searchTableView.reloadData()
@@ -606,20 +701,23 @@ extension SearchViewController: UISearchBarDelegate {
     
 }
 
-/*extension SearchViewController: UISearchResultsUpdating {
+final class SelfSizedTableView: UITableView {
     
-    func updateSearchResults(for searchController: UISearchController) {
-        // TO-DO: Implement here
-        filterUsers(for: searchController.searchBar.text ?? "")
+    override var contentSize: CGSize {
         
-        
-    }
-    
-    private func filterUsers(for searchText: String) {
-        filteredUser = users?.filter { user in
-            return user.userData.username.lowercased().contains(searchText.lowercased()) || user.userData.fullName.lowercased().contains(searchText.lowercased())
+        didSet {
+            
+            invalidateIntrinsicContentSize()
+            
         }
-        searchTable.reloadData()
+        
     }
-    
-}*/
+
+    override var intrinsicContentSize: CGSize {
+        
+        layoutIfNeeded()
+        return CGSize(width: UIView.noIntrinsicMetric, height: contentSize.height)
+        
+    }
+
+}

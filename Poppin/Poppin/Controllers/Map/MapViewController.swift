@@ -762,9 +762,11 @@ extension MapViewController: UISearchBarDelegate {
             
         }
         
-        let searchVC = SearchViewController()
-        searchVC.searchType = "searchUsers"
-        self.present(searchVC, animated: true, completion: nil)
+        let searchNavigationController = UINavigationController(rootViewController: SearchViewController(searchType: .Main))
+        searchNavigationController.modalPresentationStyle = .overFullScreen
+        searchNavigationController.modalTransitionStyle = .crossDissolve
+        searchNavigationController.setNavigationBarHidden(true, animated: false)
+        present(searchNavigationController, animated: true, completion: nil)
         
         return false
         
