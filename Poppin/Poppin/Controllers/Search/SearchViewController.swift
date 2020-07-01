@@ -30,39 +30,77 @@ final class SearchViewController: UIViewController {
     private var users: [UserData] = []
     private var filteredUsers: [UserData] = []
     private var storage: Storage = Storage.storage()
+    private var isFetchingUsers: Bool = false
     
-    private var isDisplayingAllCells: Bool = false
-    
-    lazy private var fadeView: UIView = {
+    lazy private var backgroundView: UIView = {
         
-        var fadeView = UIView()
-        fadeView.backgroundColor = .mainDARKPURPLE
-        fadeView.addShadowAndRoundCorners(cornerRadius: 0.0, shadowColor: .mainDARKPURPLE, shadowOpacity: 0.65, shadowRadius: 12, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
-        return fadeView
+        let backgroundImageView = UIImageView(image: UIImage.appBackground)
+        backgroundImageView.contentMode = .scaleAspectFill
+        
+        var backgroundView = UIView()
+        backgroundView.backgroundColor = .poppinLIGHTGOLD
+        
+        backgroundView.addSubview(backgroundImageView)
+        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundImageView.topAnchor.constraint(equalTo: backgroundView.topAnchor).isActive = true
+        backgroundImageView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor).isActive = true
+        backgroundImageView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor).isActive = true
+        backgroundImageView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor).isActive = true
+        
+        return backgroundView
+        
+    }()
+    
+    lazy private var searchTablePlaceholderView: UIView = {
+        
+        let placeholderImageView = UIImageView(image: UIImage(systemSymbol: .nosign, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .bold)).withTintColor(UIColor.white, renderingMode: .alwaysOriginal))
+        placeholderImageView.contentMode = .scaleAspectFit
+        
+        placeholderImageView.translatesAutoresizingMaskIntoConstraints = false
+        placeholderImageView.heightAnchor.constraint(equalTo: placeholderImageView.widthAnchor).isActive = true
+        
+        let placeholderLabel = UILabel()
+        placeholderLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        placeholderLabel.text = "No Results Found..."
+        placeholderLabel.textColor = .white
+        placeholderLabel.textAlignment = .center
+        
+        placeholderLabel.translatesAutoresizingMaskIntoConstraints = false
+        placeholderLabel.heightAnchor.constraint(equalToConstant: placeholderLabel.intrinsicContentSize.height).isActive = true
+        
+        var searchTablePlaceholderView = UIView()
+        searchTablePlaceholderView.backgroundColor = .clear
+        searchTablePlaceholderView.isHidden = true
+        
+        searchTablePlaceholderView.addSubview(placeholderImageView)
+        placeholderImageView.bottomAnchor.constraint(equalTo: searchTablePlaceholderView.centerYAnchor, constant: -searchVerticalEdgeInset/4).isActive = true
+        placeholderImageView.centerXAnchor.constraint(equalTo: searchTablePlaceholderView.centerXAnchor).isActive = true
+        placeholderImageView.widthAnchor.constraint(equalTo: searchTablePlaceholderView.widthAnchor, multiplier: 0.17).isActive = true
+        
+        searchTablePlaceholderView.addSubview(placeholderLabel)
+        placeholderLabel.topAnchor.constraint(equalTo: searchTablePlaceholderView.centerYAnchor, constant: searchVerticalEdgeInset/4).isActive = true
+        placeholderLabel.leadingAnchor.constraint(equalTo: searchTablePlaceholderView.leadingAnchor).isActive = true
+        placeholderLabel.trailingAnchor.constraint(equalTo: searchTablePlaceholderView.trailingAnchor).isActive = true
+        
+        return searchTablePlaceholderView
         
     }()
     
     lazy private var searchScrollView: UIScrollView = {
         
-        let searchStackView = UIStackView(arrangedSubviews: [searchTableView, loadingIndicatorView])
-        searchStackView.axis = .vertical
-        searchStackView.alignment = .fill
-        searchStackView.distribution = .fill
-        searchStackView.spacing = searchVerticalEdgeInset
-        
         var searchScrollView = UIScrollView()
         searchScrollView.alwaysBounceVertical = true
         searchScrollView.showsVerticalScrollIndicator = false
         searchScrollView.delaysContentTouches = false
-        searchScrollView.contentInset = UIEdgeInsets(top: searchVerticalEdgeInset/2, left: 0.0, bottom: searchVerticalEdgeInset, right: 0.0)
+        searchScrollView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: searchVerticalEdgeInset, right: 0.0)
         
-        searchScrollView.addSubview(searchStackView)
-        searchStackView.translatesAutoresizingMaskIntoConstraints = false
-        searchStackView.topAnchor.constraint(equalTo: searchScrollView.topAnchor).isActive = true
-        searchStackView.bottomAnchor.constraint(equalTo: searchScrollView.bottomAnchor).isActive = true
-        searchStackView.leadingAnchor.constraint(equalTo: searchScrollView.leadingAnchor).isActive = true
-        searchStackView.trailingAnchor.constraint(equalTo: searchScrollView.trailingAnchor).isActive = true
-        searchStackView.widthAnchor.constraint(equalTo: searchScrollView.widthAnchor).isActive = true
+        searchScrollView.addSubview(searchTableView)
+        searchTableView.translatesAutoresizingMaskIntoConstraints = false
+        searchTableView.topAnchor.constraint(equalTo: searchScrollView.topAnchor).isActive = true
+        searchTableView.bottomAnchor.constraint(equalTo: searchScrollView.bottomAnchor).isActive = true
+        searchTableView.leadingAnchor.constraint(equalTo: searchScrollView.leadingAnchor).isActive = true
+        searchTableView.trailingAnchor.constraint(equalTo: searchScrollView.trailingAnchor).isActive = true
+        searchTableView.widthAnchor.constraint(equalTo: searchScrollView.widthAnchor).isActive = true
         
         return searchScrollView
         
@@ -70,7 +108,7 @@ final class SearchViewController: UIViewController {
     
     lazy private var loadingIndicatorView: UIActivityIndicatorView = {
         
-        var loadingIndicatorView = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.medium)
+        var loadingIndicatorView = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.large)
         loadingIndicatorView.color = .white
         loadingIndicatorView.hidesWhenStopped = true
         return loadingIndicatorView
@@ -84,8 +122,8 @@ final class SearchViewController: UIViewController {
         searchTableView.isScrollEnabled = false
         searchTableView.clipsToBounds = true
         searchTableView.separatorInset = .zero
-        searchTableView.separatorColor = UIColor.mainDARKPURPLE.withAlphaComponent(0.5)
-        searchTableView.backgroundColor = .mainDARKPURPLE
+        searchTableView.separatorColor = UIColor.mainDARKPURPLE
+        searchTableView.backgroundColor = .white
         searchTableView.rowHeight = UITableView.automaticDimension
         searchTableView.estimatedRowHeight = UITableView.automaticDimension
         searchTableView.delegate = self
@@ -325,29 +363,45 @@ final class SearchViewController: UIViewController {
             
         }*/
         
-        view.backgroundColor = .mainDARKPURPLE
+        view.backgroundColor = .poppinLIGHTGOLD
         
         view.addSubview(searchTopStackView)
         searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
         searchTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: searchVerticalEdgeInset).isActive = true
         searchTopStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
-        view.addSubview(fadeView)
-        view.sendSubviewToBack(fadeView)
-        fadeView.translatesAutoresizingMaskIntoConstraints = false
-        fadeView.topAnchor.constraint(equalTo: searchTopStackView.topAnchor).isActive = true
-        fadeView.bottomAnchor.constraint(equalTo: searchTopStackView.bottomAnchor, constant: searchVerticalEdgeInset*0.33).isActive = true
-        fadeView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        fadeView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        
         view.addSubview(searchScrollView)
         view.sendSubviewToBack(searchScrollView)
         searchScrollView.translatesAutoresizingMaskIntoConstraints = false
-        searchScrollView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor, constant: searchVerticalEdgeInset/2).isActive = true
+        searchScrollView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor, constant: searchVerticalEdgeInset).isActive = true
         searchScrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         searchScrollView.leadingAnchor.constraint(equalTo: searchTopStackView.leadingAnchor).isActive = true
         searchScrollView.trailingAnchor.constraint(equalTo: searchTopStackView.trailingAnchor).isActive = true
         
+        view.addSubview(loadingIndicatorView)
+        view.sendSubviewToBack(loadingIndicatorView)
+        loadingIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        loadingIndicatorView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor).isActive = true
+        loadingIndicatorView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -searchVerticalEdgeInset).isActive = true
+        loadingIndicatorView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: searchHorizontalEdgeInset).isActive = true
+        loadingIndicatorView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -searchHorizontalEdgeInset).isActive = true
+        
+        view.addSubview(searchTablePlaceholderView)
+        view.sendSubviewToBack(searchTablePlaceholderView)
+        searchTablePlaceholderView.translatesAutoresizingMaskIntoConstraints = false
+        searchTablePlaceholderView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor).isActive = true
+        searchTablePlaceholderView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        searchTablePlaceholderView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: searchHorizontalEdgeInset).isActive = true
+        searchTablePlaceholderView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -searchHorizontalEdgeInset).isActive = true
+        
+        view.addSubview(backgroundView)
+        view.sendSubviewToBack(backgroundView)
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+
         fetchUsers()
         
     }
@@ -373,6 +427,8 @@ final class SearchViewController: UIViewController {
     
     private func fetchUsers() {
         
+        isFetchingUsers = true
+        searchTablePlaceholderView.isHidden = true
         loadingIndicatorView.startAnimating()
         
         let ref = Database.database().reference(withPath:"users")
@@ -400,8 +456,9 @@ final class SearchViewController: UIViewController {
                     }
                 }
                 
-                self.isDisplayingAllCells = true
-                self.searchTableView.reloadData()
+                self.loadingIndicatorView.stopAnimating()
+                self.searchTablePlaceholderView.isHidden = false
+                self.isFetchingUsers = false
                 
             }
         })
@@ -519,25 +576,42 @@ final class SearchViewController: UIViewController {
 
 extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        
+        let lastSeparator = UIView()
+        lastSeparator.backgroundColor = .white
+        return lastSeparator
+        
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if searchType == .Main {
+        if searchType == .Main, filteredUsers.count == 0 {
             
-            if searchBar.text != "" { return filteredUsers.count }
+            if !isFetchingUsers { searchTablePlaceholderView.isHidden = false }
+            tableView.sectionFooterHeight = 0.0
             
-        }/* else if searchType == "showFollowers" || searchType == "showFollowing" {
+        } else if searchType == .Main {
+            
+            searchTablePlaceholderView.isHidden = true
+            tableView.sectionFooterHeight = 1.0
+            
+        }
+        
+        /* else if searchType == "showFollowers" || searchType == "showFollowing" {
             
             return users!.count
             
         }*/
         
-        return users.count
+        return filteredUsers.count
         
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let userCell = tableView.dequeueReusableCell(withIdentifier: UserSearchCell.cellIdentifier, for: indexPath) as! UserSearchCell
+        userCell.selectionStyle = .none
         var userData: UserData?
         
         if searchType == .Main {
@@ -652,38 +726,22 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         
     }
     
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        
-        loadingIndicatorView.stopAnimating()
-        
-        if isDisplayingAllCells {
-            
-            cell.alpha = 0
-            
-            UIView.animate(withDuration: 0.5, delay: 0.05 * Double(indexPath.row), usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                
-                cell.alpha = 1
-                
-            })
-            
-            if let lastVisibleIndexPath = tableView.indexPathsForVisibleRows?.last, lastVisibleIndexPath == indexPath {
-                
-                isDisplayingAllCells = false
-                
-            }
-            
-        }
-        
-    }
-    
 }
 
 extension SearchViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
-        loadingIndicatorView.startAnimating()
-        filterUsers(for: searchText)
+        if searchText == "" {
+            
+            filteredUsers = []
+            searchTableView.reloadData()
+            
+        } else {
+            
+            filterUsers(for: searchText)
+            
+        }
         
     }
     

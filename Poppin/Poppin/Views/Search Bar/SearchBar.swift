@@ -45,7 +45,8 @@ final class SearchBar: UISearchBar {
         
         isTranslucent = true
         searchBarStyle = .minimal
-        setImage(UIImage(systemSymbol: .magnifyingglass).applyingSymbolConfiguration(UIImage.SymbolConfiguration(weight: .heavy)), for: .search, state: .normal)
+        setImage(UIImage(systemSymbol: .magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .heavy)).withTintColor(UIColor.white, renderingMode: .alwaysOriginal), for: .search, state: .normal)
+        setImage(UIImage(systemSymbol: .xmarkCircleFill, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .bold)).withTintColor(UIColor.white, renderingMode: .alwaysOriginal), for: .clear, state: .normal)
         
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.topAnchor.constraint(equalTo: topAnchor).isActive = true
@@ -67,7 +68,6 @@ final class SearchBar: UISearchBar {
         searchTextField.layer.cornerRadius = .getWidthFitSize(minSize: 12.0, maxSize: 16.0)
         searchTextField.layer.cornerCurve = .continuous
         searchTextField.layer.masksToBounds = true
-        searchTextField.leftView?.tintColor = searchBarTintColor
         searchTextField.attributedPlaceholder = NSAttributedString(string: "Search...", attributes: [NSAttributedString.Key.foregroundColor: searchBarTintColor])
         
     }

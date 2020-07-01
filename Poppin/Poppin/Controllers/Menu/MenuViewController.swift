@@ -309,8 +309,7 @@ final class MenuButtonView: UIView {
     
     lazy private var menuButtonImageView: UIImageView = {
         
-        var menuButtonImageView = UIImageView(image: menuButtonImage?.withRenderingMode(.alwaysTemplate))
-        menuButtonImageView.tintColor = .white
+        var menuButtonImageView = UIImageView(image: menuButtonImage?.withTintColor(UIColor.white, renderingMode: .alwaysOriginal))
         menuButtonImageView.contentMode = .scaleAspectFill
         
         menuButtonImageView.translatesAutoresizingMaskIntoConstraints = false
