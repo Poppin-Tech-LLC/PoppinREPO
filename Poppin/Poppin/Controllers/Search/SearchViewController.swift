@@ -133,16 +133,7 @@ final class SearchViewController: UIViewController {
         return searchTableView
         
     }()
-    
-    /*lazy private var purpleView: UIView = {
-        
-        let purpleView = UIView()
-        purpleView.backgroundColor = .white
-        purpleView.addShadowAndRoundCorners(shadowOffset: CGSize(width: 5.0, height: 5.0))
-        return purpleView
-        
-    }()
-    
+    /*
     lazy private var followingLabel: UILabel = {
         
         let followingLabel = UILabel()
@@ -217,6 +208,8 @@ final class SearchViewController: UIViewController {
         
         self.searchType = searchType
         
+        configureController()
+        
     }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
@@ -225,8 +218,7 @@ final class SearchViewController: UIViewController {
         
         /* FOR TRIAL PURPOSES */
         
-        modalPresentationStyle = .overFullScreen
-        modalTransitionStyle = .crossDissolve
+        configureController()
         
     }
     
@@ -236,8 +228,16 @@ final class SearchViewController: UIViewController {
         
         /* FOR TRIAL PURPOSES */
         
+        configureController()
+        
+    }
+    
+    private func configureController() {
+        
         modalPresentationStyle = .overFullScreen
         modalTransitionStyle = .crossDissolve
+        
+        fetchUsers()
         
     }
     
@@ -277,7 +277,6 @@ final class SearchViewController: UIViewController {
         }
         
     }*/
-    
     
     override func viewDidLoad() {
         
@@ -401,8 +400,14 @@ final class SearchViewController: UIViewController {
         backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-
-        fetchUsers()
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        
+        super.viewDidAppear(animated)
+        
+        print("APPEARED")
         
     }
     
@@ -426,6 +431,8 @@ final class SearchViewController: UIViewController {
     }
     
     private func fetchUsers() {
+        
+        print("FETCHING")
         
         isFetchingUsers = true
         searchTablePlaceholderView.isHidden = true
@@ -459,6 +466,8 @@ final class SearchViewController: UIViewController {
                 self.loadingIndicatorView.stopAnimating()
                 self.searchTablePlaceholderView.isHidden = false
                 self.isFetchingUsers = false
+                
+                print("LOADED")
                 
             }
         })
@@ -654,34 +663,9 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        let ref = Database.database().reference()
-        let uid = Auth.auth().currentUser!.uid
-        let profileVC = ProfileViewController()
+        let profileVC = ProfileViewController(with: filteredUsers[indexPath.row])
         
         if searchType == .Main {
-            
-            ref.child("users/\(uid)/following").observeSingleEvent(of: .value, with: { (snapshot) in
-                
-                if snapshot.hasChild(self.filteredUsers[indexPath.row].uid){
-                    
-                    profileVC.followButton.setTitle("following", for: .normal)
-                    profileVC.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-                    profileVC.followButton.backgroundColor = .white
-                    
-                } else {
-                    
-                    profileVC.followButton.setTitle("follow", for: .normal)
-                    profileVC.followButton.setTitleColor(.white, for: .normal)
-                    profileVC.followButton.backgroundColor = .mainDARKPURPLE
-                    
-                }
-                
-            })
-            
-            profileVC.nameLabel.text = filteredUsers[indexPath.row].fullName
-            profileVC.usernameLabel.text = "@" + filteredUsers[indexPath.row].username
-            profileVC.bioLabel.text = filteredUsers[indexPath.row].bio
-            profileVC.uid = filteredUsers[indexPath.row].uid
             
             //vc.userImage.image = filteredUser![indexPath.row].userImage.image
             //            let transition = CATransition()
