@@ -100,6 +100,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         followersButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline)
         followersButton.setTitle(followers, for: .normal)
         followersButton.titleLabel?.textAlignment = .center
+        followersButton.addTarget(self, action: #selector(showFollowers), for: .touchUpInside)
         return followersButton
         
     }()
@@ -128,6 +129,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         followingButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline)
         followingButton.setTitle(following, for: .normal)
         followingButton.titleLabel?.textAlignment = .center
+        followingButton.addTarget(self, action: #selector(showFollowing), for: .touchUpInside)
         return followingButton
         
     }()
@@ -246,42 +248,6 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
     }()
     
-    /*lazy private var userImage: UIImageView = {
-        var userImage = UIImageView()
-        userImage.layer.borderColor = UIColor.white.cgColor
-        //userImage.image = .defaultUserPicture128
-        userImage.contentMode = .scaleToFill
-        
-        userImage.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.09).isActive = true
-        userImage.widthAnchor.constraint(equalToConstant: view.bounds.height * 0.09).isActive = true
-        userImage.frame = CGRect(x: 0, y: 0, width: view.bounds.height * 0.09, height: view.bounds.height * 0.09)
-        userImage.layer.masksToBounds = true
-        
-       // userImage.addShadowAndRoundCorners(cornerRadius: userImage.bounds.height/2)
-        userImage.layer.cornerRadius = userImage.bounds.height/2
-        userImage.layer.cornerCurve = .continuous
-        userImage.layer.shadowColor = UIColor.black.cgColor
-        userImage.layer.shadowOffset = CGSize(width: 0.0, height: 3.0) // Shifts shadow
-        userImage.layer.shadowOpacity = 0.3 // Higher value means more opaque
-        userImage.layer.shadowRadius = 3 // Higher value means more blurry
-        var maskedCorners = CACornerMask()
-
-        maskedCorners.insert(.layerMaxXMinYCorner)
-        maskedCorners.insert(.layerMinXMinYCorner)
-        maskedCorners.insert(.layerMaxXMaxYCorner)
-        maskedCorners.insert(.layerMinXMaxYCorner)
-        if !maskedCorners.isEmpty { userImage.layer.maskedCorners = maskedCorners }
-        
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
-        userImage.isUserInteractionEnabled = true
-        userImage.addGestureRecognizer(tapGestureRecognizer)
-        //userImage.frame.size = CGSize(width: 40.0, height: 20.0)
-        //userImage.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        //userImage.getPercentage
-        //userImage.clipsToBounds = true
-        return userImage
-    }()*/
-    
     lazy private var followButton: BouncyButton = {
         
         let innerEdgeInset: CGFloat = .getPercentageWidth(percentage: 2)
@@ -330,16 +296,6 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     override func viewDidLoad() {
         
         super.viewDidLoad()
-    
-        // Load the image using SDWebImage
-        //cell.userImageHolder.sd_setImage(with: reference, placeholderImage: placeholderImage)
-        
-        // view.backgroundColor = .white
-        //view.backgroundColor = UIColor(patternImage: .newAppBackground)
-        //        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(goBack))
-        //        swipeRight.direction = .right
-        //        self.view.addGestureRecognizer(swipeRight)
-        //view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleDismiss)))
         
         view.addSubview(backgroundView)
         backgroundView.translatesAutoresizingMaskIntoConstraints = false
@@ -375,11 +331,9 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     @objc private func displayImageViewController() {
         
-        print("IMAGE TAPPED")
-        let vc = ProfileImageViewController()
-        vc.uid = userData.uid
-        vc.modalPresentationStyle = .overCurrentContext
-        self.present(vc, animated: true, completion: nil)
+        let profileImageVC = ProfileImageViewController(profileImage: profilePictureButton.image(for: .normal))
+        
+        self.present(profileImageVC, animated: true, completion: nil)
         
     }
     
@@ -451,25 +405,19 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
     }
     
-    /*@objc func viewFollowers(){
+    @objc private func showFollowers(){
         
-        let vc = SearchViewController()
-        vc.uid = uid
-        vc.searchType = "showFollowers"
-        vc.modalPresentationStyle = .fullScreen
-        self.present(vc, animated: true, completion: nil)
+        let searchVC = SearchViewController(searchType: .Followers, userID: userData.uid)
+        navigationController?.pushViewController(searchVC, animated: true)
 
     }
     
-    @objc func viewFollowing(){
+    @objc func showFollowing(){
         
-         let vc = SearchViewController()
-         vc.uid = uid
-         vc.searchType = "showFollowing"
-         vc.modalPresentationStyle = .fullScreen
-         self.present(vc, animated: true, completion: nil)
+         let searchVC = SearchViewController(searchType: .Following, userID: userData.uid)
+         navigationController?.pushViewController(searchVC, animated: true)
 
-     }*/
+     }
     
     private func fetchFollowersFollowingPicture() {
         
@@ -545,96 +493,86 @@ extension ProfileViewController: UIGestureRecognizerDelegate {
 }
 
 final class ProfileImageViewController: UIViewController {
-
-    var uid: String?
-    var storage: Storage?
     
-    lazy var imageView: UIImageView = {
+    private var profileImage: UIImage = UIImage.defaultUserPicture256
+    
+    lazy var profileImageView: BubbleImageView = {
         
-        let imageView = UIImageView()
-        imageView.contentMode = UIView.ContentMode.scaleAspectFill
-        imageView.layer.masksToBounds = true
-        imageView.frame = CGRect(x: 0, y: 0, width: view.bounds.width * 0.8, height: view.bounds.width * 0.8)
-        // userImage.addShadowAndRoundCorners(cornerRadius: userImage.bounds.height/2)
-         imageView.layer.cornerRadius = imageView.bounds.height/2
-        return imageView
+        var profileImageView = BubbleImageView(image: profileImage)
+        profileImageView.contentMode = .scaleAspectFill
+        
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.heightAnchor.constraint(equalTo: profileImageView.widthAnchor).isActive = true
+        
+        return profileImageView
         
     }()
     
-    lazy var backButton: ImageBubbleButton = {
+    lazy var tapToHideLabel: UILabel = {
         
-         let purpleArrow = UIImage(systemName: "arrow.left.circle.fill")!.withTintColor(.mainDARKPURPLE)
-         let backButton = ImageBubbleButton(bouncyButtonImage: purpleArrow)
-         backButton.contentMode = .scaleToFill
-        // backButton.setTitle("Back", for: .normal)
-         //backButton.setTitleColor(.newPurple, for: .normal)
-         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-         return backButton
+        var tapToHideLabel = UILabel()
+        tapToHideLabel.text = "Tap anywhere to hide"
+        tapToHideLabel.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
+        tapToHideLabel.textColor = .white
+        tapToHideLabel.textAlignment = .center
         
-     }()
+        tapToHideLabel.translatesAutoresizingMaskIntoConstraints = false
+        tapToHideLabel.heightAnchor.constraint(equalToConstant: tapToHideLabel.intrinsicContentSize.height).isActive = true
+        tapToHideLabel.widthAnchor.constraint(equalToConstant: tapToHideLabel.intrinsicContentSize.width).isActive = true
+        
+        return tapToHideLabel
+        
+    }()
+    
+    init(profileImage: UIImage?) {
+        
+        super.init(nibName: nil, bundle: nil)
+
+        if let profileImage = profileImage { self.profileImage = profileImage }
+        
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        
+        super.init(coder: coder)
+        
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+        
+    }
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
-        storage = Storage.storage()
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(transitionToPreviousPage)))
         
-        let reference = (self.storage?.reference().child("images/\(uid!)/profilepic.jpg"))!
+        let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = view.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        view.addSubview(blurEffectView)
 
-        // Placeholder image
-        let placeholderImage = UIImage.defaultUserPicture256
-
-        // Load the image using SDWebImage
-        //cell.userImageHolder.sd_setImage(with: reference, placeholderImage: placeholderImage)
-        imageView.sd_setImage(with: reference, placeholderImage: placeholderImage)
+        view.addSubview(profileImageView)
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        profileImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6).isActive = true
         
-        view.backgroundColor = UIColor(white: 0, alpha: 0.9)
-        
-        view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleDismiss)))
-
-        view.addSubview(imageView)
-        imageView.isUserInteractionEnabled = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: view.bounds.width * 0.8).isActive = true
-        imageView.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.8).isActive = true
-        
-        view.addSubview(backButton)
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: view.bounds.width * 0.04).isActive = true
-        backButton.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.04).isActive = true
-        backButton.widthAnchor.constraint(equalToConstant: view.bounds.height * 0.04).isActive = true
+        view.addSubview(tapToHideLabel)
+        tapToHideLabel.translatesAutoresizingMaskIntoConstraints = false
+        tapToHideLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: .getPercentageWidth(percentage: 5)).isActive = true
+        tapToHideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
 
     }
     
-    @objc func goBack() {
+    @objc private func transitionToPreviousPage() {
         
         self.dismiss(animated: true, completion: nil)
-        
-    }
-
-    var viewTranslation = CGPoint(x: 0, y: 0)
-
-    @objc func handleDismiss(sender: UIPanGestureRecognizer) {
-        switch sender.state {
-          case .changed:
-              viewTranslation = sender.translation(in: view)
-              UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                  self.view.transform = CGAffineTransform(translationX: 0, y: self.viewTranslation.y)
-              })
-          case .ended:
-              if viewTranslation.y < 200 {
-                  UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                      self.view.transform = .identity
-                  })
-              } else {
-                  dismiss(animated: true, completion: nil)
-              }
-          default:
-              break
-          }
         
     }
 

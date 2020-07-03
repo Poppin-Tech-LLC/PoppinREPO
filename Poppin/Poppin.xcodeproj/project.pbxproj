@@ -45,6 +45,7 @@
 		64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECF24A3AB9600824E9B /* ProfileViewController.swift */; };
 		64941ED624A3B15000824E9B /* CreatePopsicleFirstPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ED524A3B15000824E9B /* CreatePopsicleFirstPageViewController.swift */; };
 		64941ED824A3B27800824E9B /* CreatePopsicleSecondPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ED724A3B27800824E9B /* CreatePopsicleSecondPageViewController.swift */; };
+		64B7248424AF5C5600BB48C5 /* PagingCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B7248324AF5C5600BB48C5 /* PagingCollectionView.swift */; };
 		64BF883A24AB2DB10008659D /* BubbleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BF883924AB2DB10008659D /* BubbleImageView.swift */; };
 		64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CF0C8624A48A580077C1D7 /* MenuViewController.swift */; };
 		DF9361364A8A4D79034EA69F /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F652D2BA96ABB01F0DF64A78 /* Pods_PoppinTests.framework */; };
@@ -116,6 +117,7 @@
 		64941ECF24A3AB9600824E9B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		64941ED524A3B15000824E9B /* CreatePopsicleFirstPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePopsicleFirstPageViewController.swift; sourceTree = "<group>"; };
 		64941ED724A3B27800824E9B /* CreatePopsicleSecondPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePopsicleSecondPageViewController.swift; sourceTree = "<group>"; };
+		64B7248324AF5C5600BB48C5 /* PagingCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingCollectionView.swift; sourceTree = "<group>"; };
 		64BF883924AB2DB10008659D /* BubbleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleImageView.swift; sourceTree = "<group>"; };
 		64CF0C8624A48A580077C1D7 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		750AA0A58BE046A14348C685 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -277,6 +279,7 @@
 		6417BCA724A25BE6006AE467 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				64B7248224AF5C1500BB48C5 /* Collection */,
 				64BF883824AB2D8D0008659D /* Image */,
 				6417BCBF24A26755006AE467 /* Search Bar */,
 				6417BCB424A26177006AE467 /* Map */,
@@ -355,6 +358,14 @@
 				64941ED724A3B27800824E9B /* CreatePopsicleSecondPageViewController.swift */,
 			);
 			path = Create;
+			sourceTree = "<group>";
+		};
+		64B7248224AF5C1500BB48C5 /* Collection */ = {
+			isa = PBXGroup;
+			children = (
+				64B7248324AF5C5600BB48C5 /* PagingCollectionView.swift */,
+			);
+			path = Collection;
 			sourceTree = "<group>";
 		};
 		64BF883824AB2D8D0008659D /* Image */ = {
@@ -626,6 +637,7 @@
 				64941ED624A3B15000824E9B /* CreatePopsicleFirstPageViewController.swift in Sources */,
 				6417BCA624A25684006AE467 /* Extensions.swift in Sources */,
 				6417BCAC24A25CE3006AE467 /* RefreshButton.swift in Sources */,
+				64B7248424AF5C5600BB48C5 /* PagingCollectionView.swift in Sources */,
 				6417BCC524A2695D006AE467 /* LocationSearchCell.swift in Sources */,
 				6417BCBC24A2650A006AE467 /* Popsicles.swift in Sources */,
 				6417BCAF24A25FFE006AE467 /* UserLocationAnnotationView.swift in Sources */,
