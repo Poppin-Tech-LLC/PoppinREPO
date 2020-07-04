@@ -268,7 +268,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     lazy private var profileBackButton: BouncyButton = {
         
-        var profileBackButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .arrowLeft).withTintColor(UIColor.mainDARKPURPLE))
+        var profileBackButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .arrowLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.mainDARKPURPLE))
        profileBackButton.addTarget(self, action: #selector(transitionToPreviousPage), for: .touchUpInside)
        
        profileBackButton.translatesAutoresizingMaskIntoConstraints = false
@@ -407,14 +407,14 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     @objc private func showFollowers(){
         
-        let searchVC = SearchViewController(searchType: .Followers, userID: userData.uid)
+        let searchVC = SearchViewController(searchType: .Followers, userID: userData.uid, username: userData.username)
         navigationController?.pushViewController(searchVC, animated: true)
 
     }
     
     @objc func showFollowing(){
         
-         let searchVC = SearchViewController(searchType: .Following, userID: userData.uid)
+         let searchVC = SearchViewController(searchType: .Following, userID: userData.uid, username: userData.username)
          navigationController?.pushViewController(searchVC, animated: true)
 
      }
