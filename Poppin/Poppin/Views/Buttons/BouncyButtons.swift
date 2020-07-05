@@ -198,3 +198,24 @@ final class LoadingButton: BouncyButton {
     }
     
 }
+
+final class SectionButton: BouncyButton {
+    
+    var section = 0
+    var didFetchSection = false
+    
+    init(bouncyButtonImage: UIImage?, section: Int?) {
+        
+        super.init(bouncyButtonImage: bouncyButtonImage)
+        
+        if let section = section { self.section = section }
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        
+        super.init(coder: aDecoder)
+        
+    }
+    
+}

@@ -17,14 +17,11 @@ final class SearchViewController: UIViewController {
     private let searchHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
     private let searchInnerInset: CGFloat = .getPercentageWidth(percentage: 5)
     
-    private var searchType: SearchType = .Default
+    private var searchTypes: [SearchType] = []
     private var userID: String = Auth.auth().currentUser!.uid
-    private var username: String = "username"
+    private var username: String?
     private var storage: Storage = Storage.storage()
-    private var currentPage: Int = 0
-    private var isFetchingUsers: Bool = false
-    private var didFetchFollowers: Bool = false
-    private var didFetchFollowing: Bool = false
+    private var isFetching: Bool = false
     
     lazy private var backgroundView: UIView = {
         
@@ -93,15 +90,23 @@ final class SearchViewController: UIViewController {
         
         let innerInset: CGFloat = .getPercentageWidth(percentage: 2)
         
-        var searchTopStackView = UIStackView(arrangedSubviews: [searchHeaderView, searchBarView, searchSectionsView])
+        var searchTopStackView = UIStackView()
         searchTopStackView.axis = .vertical
         searchTopStackView.alignment = .fill
         searchTopStackView.distribution = .fill
         searchTopStackView.spacing = innerInset
         
-        if searchType == .Main {
+        if username != nil {
         
-            searchHeaderView.isHidden = true
+            searchTopStackView.addArrangedSubview(searchHeaderView)
+            
+        }
+        
+        searchTopStackView.addArrangedSubview(searchBarView)
+        
+        if !searchTypes.isEmpty {
+            
+            searchTopStackView.addArrangedSubview(searchSectionsView)
             
         }
         
@@ -150,7 +155,7 @@ final class SearchViewController: UIViewController {
         searchHeaderUsernameLabel.textColor = .white
         searchHeaderUsernameLabel.textAlignment = .center
         searchHeaderUsernameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .callout)
-        searchHeaderUsernameLabel.text = "@" + username.lowercased()
+        searchHeaderUsernameLabel.text = "@" + (username ?? "username").lowercased()
         return searchHeaderUsernameLabel
         
     }()
@@ -182,13 +187,6 @@ final class SearchViewController: UIViewController {
     lazy private var searchBar: UISearchBar = {
         
         var searchBar = SearchBar(tintColor: UIColor.white)
-        
-        if searchType == .Main || searchType == .Default {
-            
-            searchBar.becomeFirstResponder()
-            
-        }
-        
         searchBar.delegate = self
         return searchBar
         
@@ -258,43 +256,23 @@ final class SearchViewController: UIViewController {
         
     }()
     
-    lazy private var searchSectionButtons: [BouncyButton] = {
+    lazy private var searchSectionButtons: [SectionButton] = {
         
-        var searchSectionButtons: [BouncyButton] = []
+        var searchSectionButtons: [SectionButton] = []
         
-        if searchType == .Main {
+        for searchType in searchTypes {
             
-            let usersSectionButton = BouncyButton(bouncyButtonImage: nil)
-            usersSectionButton.backgroundColor = .clear
-            usersSectionButton.setTitleColor(UIColor.white, for: .normal)
-            usersSectionButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .callout)
-            usersSectionButton.setTitle("Users", for: .normal)
-            usersSectionButton.titleLabel?.textAlignment = .center
-            //usersSectionButton.addTarget(self, action: #selector(showFollowers), for: .touchUpInside)
+            let sectionButton = SectionButton(bouncyButtonImage: nil, section: searchSectionButtons.count)
+            sectionButton.backgroundColor = .clear
+            sectionButton.setTitleColor(UIColor.white, for: .normal)
+            sectionButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .callout)
+            sectionButton.titleLabel?.textAlignment = .center
+            sectionButton.setTitle(searchType.rawValue, for: .normal)
+            sectionButton.addTarget(self, action: #selector(showSection(sender:)), for: .touchUpInside)
             
-            searchSectionButtons.append(usersSectionButton)
+            if sectionButton.section != 0 { sectionButton.alpha = 0.7 }
             
-        } else if searchType == .Followers || searchType == .Following {
-            
-            let followersSectionButton = BouncyButton(bouncyButtonImage: nil)
-            followersSectionButton.backgroundColor = .clear
-            followersSectionButton.setTitleColor(UIColor.white, for: .normal)
-            followersSectionButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .callout)
-            followersSectionButton.setTitle("Followers", for: .normal)
-            followersSectionButton.titleLabel?.textAlignment = .center
-            followersSectionButton.addTarget(self, action: #selector(showFollowers), for: .touchUpInside)
-            
-            let followingSectionButton = BouncyButton(bouncyButtonImage: nil)
-            followingSectionButton.backgroundColor = .clear
-            followingSectionButton.setTitleColor(UIColor.white, for: .normal)
-            followingSectionButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .callout)
-            followingSectionButton.setTitle("Following", for: .normal)
-            followingSectionButton.titleLabel?.textAlignment = .center
-            followingSectionButton.alpha = 0.7
-            followingSectionButton.addTarget(self, action: #selector(showFollowing), for: .touchUpInside)
-            
-            searchSectionButtons.append(followersSectionButton)
-            searchSectionButtons.append(followingSectionButton)
+            searchSectionButtons.append(sectionButton)
             
         }
         
@@ -325,15 +303,16 @@ final class SearchViewController: UIViewController {
         
     }()
     
-    init(searchType: SearchType, userID: String?, username: String?) {
+    init(searchTypes: [SearchType], userID: String?, username: String?, shouldActivateSearchBar: Bool) {
         
         super.init(nibName: nil, bundle: nil)
         
-        self.searchType = searchType
+        self.searchTypes = searchTypes
+        self.username = username
+        
+        if shouldActivateSearchBar { searchBar.becomeFirstResponder() }
         
         if let userID = userID { self.userID = userID }
-        
-        if let username = username { self.username = username }
         
         configureController()
         
@@ -361,11 +340,12 @@ final class SearchViewController: UIViewController {
     
     private func configureController() {
         
-        switch searchType {
+        switch searchTypes[0] {
             
-        case .Followers: fetchFollowers()
-        case .Following: fetchFollowing()
-        case .Main, .Default: fetchUsers()
+        case .Followers: fetchFollowers(section: 0)
+        case .Following: fetchFollowing(section: 0)
+        case .Users: fetchUsers(section: 0)
+        case .Events: fetchEvents(section: 0)
             
         }
         
@@ -380,11 +360,11 @@ final class SearchViewController: UIViewController {
         view.addSubview(searchTopStackView)
         searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
         
-        if searchType == .Main || searchType == .Default {
+        if username == nil {
             
             searchTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: searchVerticalEdgeInset).isActive = true
             
-        } else if searchType == .Followers || searchType == .Following {
+        } else {
             
             searchTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
             
@@ -430,7 +410,7 @@ final class SearchViewController: UIViewController {
         
         super.viewWillAppear(animated)
         
-        if searchType == .Followers || searchType == .Following {
+        if username != nil {
             
             navigationController?.interactivePopGestureRecognizer?.delegate = self
             
@@ -446,31 +426,42 @@ final class SearchViewController: UIViewController {
         
     }
     
-    @objc private func showFollowers() {
+    @objc private func showSection(sender: SectionButton) {
         
-        if currentPage != 0 {
+        if let currentIndex = searchPagingCollectionView.indexPathsForVisibleItems.first?.item, currentIndex != sender.section {
             
-            self.searchSectionButtons[0].alpha = 1.0
-            self.searchSectionButtons[1].alpha = 0.7
-            if !self.didFetchFollowers { self.fetchFollowers() }
-            self.currentPage = 0
+            for sectionButton in searchSectionButtons {
+                
+                if sectionButton.section == sender.section {
+                    
+                    sectionButton.alpha = 1.0
+                    
+                } else {
+                    
+                    sectionButton.alpha = 0.7
+                    
+                }
+                
+            }
             
-            self.searchPagingCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .centeredHorizontally, animated: true)
+            searchPagingCollectionView.scrollToItem(at: IndexPath(item: sender.section, section: 0), at: .centeredHorizontally, animated: true)
             
-        }
-        
-    }
-    
-    @objc private func showFollowing() {
-        
-        if currentPage != 1 {
+            if !sender.didFetchSection {
+                
+                switch searchTypes[sender.section] {
+                    
+                case .Users: fetchUsers(section: sender.section)
+                case .Events: fetchEvents(section: sender.section)
+                case .Followers: fetchFollowers(section: sender.section)
+                case .Following: fetchFollowing(section: sender.section)
+                    
+                }
+                
+            }
             
-            searchSectionButtons[0].alpha = 0.7
-            searchSectionButtons[1].alpha = 1.0
-            if !self.didFetchFollowing { self.fetchFollowing() }
-            self.currentPage = 1
+        } else {
             
-            self.searchPagingCollectionView.scrollToItem(at: IndexPath(item: 1, section: 0), at: .centeredHorizontally, animated: true)
+            print("ERROR: Unable to show " + searchTypes[sender.section].rawValue + ".")
             
         }
         
@@ -484,7 +475,7 @@ final class SearchViewController: UIViewController {
     
     @objc private func cancelButtonAction(sender: BouncyButton) {
         
-        if searchType == .Main || searchType == .Default {
+        if username == nil {
             
             self.dismiss(animated: true, completion: nil)
             
@@ -496,9 +487,32 @@ final class SearchViewController: UIViewController {
         
     }
     
-    private func fetchUsers() {
+    private func fetchEvents(section: Int) {
+     
+        isFetching = true
+        searchTablePlaceholderView.isHidden = true
+        loadingIndicatorView.startAnimating()
         
-        isFetchingUsers = true
+        // Future Action
+        
+        if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Events {
+            
+            searchCell.users = []
+            searchCell.filteredUsers = []
+            searchCell.searchTableView.reloadData()
+            
+        }
+        
+        searchSectionButtons[section].didFetchSection = true
+        loadingIndicatorView.stopAnimating()
+        searchTablePlaceholderView.isHidden = false
+        isFetching = false
+        
+    }
+    
+    private func fetchUsers(section: Int) {
+        
+        isFetching = true
         searchTablePlaceholderView.isHidden = true
         loadingIndicatorView.startAnimating()
         
@@ -523,7 +537,7 @@ final class SearchViewController: UIViewController {
                         let fullName = dat["fullName"] as? String ?? ""
                         let userToAdd = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
                         
-                        if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Main {
+                        if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Users {
                             
                             searchCell.users.append(userToAdd)
                             searchCell.filteredUsers.append(userToAdd)
@@ -531,21 +545,30 @@ final class SearchViewController: UIViewController {
                         }
                 
                     }
+                    
                 }
+                
+                if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Users {
+                    
+                    searchCell.searchTableView.reloadData()
+                    
+                }
+                
+                self.searchSectionButtons[section].didFetchSection = true
                 
             }
             
             self.loadingIndicatorView.stopAnimating()
             self.searchTablePlaceholderView.isHidden = false
-            self.isFetchingUsers = false
+            self.isFetching = false
             
         })
         
     }
     
-    private func fetchFollowers() {
+    private func fetchFollowers(section: Int) {
         
-        isFetchingUsers = true
+        isFetching = true
         searchTablePlaceholderView.isHidden = true
         loadingIndicatorView.startAnimating()
         
@@ -565,7 +588,7 @@ final class SearchViewController: UIViewController {
                     
                     self.loadingIndicatorView.stopAnimating()
                     self.searchTablePlaceholderView.isHidden = false
-                    self.isFetchingUsers = false
+                    self.isFetching = false
                     
                     return
                     
@@ -613,8 +636,8 @@ final class SearchViewController: UIViewController {
                     
                     self.loadingIndicatorView.stopAnimating()
                     self.searchTablePlaceholderView.isHidden = false
-                    self.isFetchingUsers = false
-                    self.didFetchFollowers = true
+                    self.isFetching = false
+                    self.searchSectionButtons[section].didFetchSection = true
                     
                     if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Followers {
                         
@@ -628,15 +651,15 @@ final class SearchViewController: UIViewController {
                 
                 self.loadingIndicatorView.stopAnimating()
                 self.searchTablePlaceholderView.isHidden = false
-                self.isFetchingUsers = false
+                self.isFetching = false
                 
             }
         })
     }
     
-    private func fetchFollowing() {
+    private func fetchFollowing(section: Int) {
         
-        isFetchingUsers = true
+        isFetching = true
         searchTablePlaceholderView.isHidden = true
         loadingIndicatorView.startAnimating()
         
@@ -656,7 +679,7 @@ final class SearchViewController: UIViewController {
                     
                     self.loadingIndicatorView.stopAnimating()
                     self.searchTablePlaceholderView.isHidden = false
-                    self.isFetchingUsers = false
+                    self.isFetching = false
                     
                     return
                     
@@ -701,8 +724,8 @@ final class SearchViewController: UIViewController {
                     
                     self.loadingIndicatorView.stopAnimating()
                     self.searchTablePlaceholderView.isHidden = false
-                    self.isFetchingUsers = false
-                    self.didFetchFollowing = true
+                    self.isFetching = false
+                    self.searchSectionButtons[section].didFetchSection = true
                     
                     if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Following {
                         
@@ -716,7 +739,7 @@ final class SearchViewController: UIViewController {
                 
                 self.loadingIndicatorView.stopAnimating()
                 self.searchTablePlaceholderView.isHidden = false
-                self.isFetchingUsers = false
+                self.isFetching = false
                 
             }
             
@@ -734,7 +757,7 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
             
             if searchCell.filteredUsers.count == 0 {
                 
-                if !isFetchingUsers { searchTablePlaceholderView.isHidden = false }
+                if !isFetching { searchTablePlaceholderView.isHidden = false }
                 
             } else {
                 
@@ -863,7 +886,6 @@ extension SearchViewController: UISearchBarDelegate {
             if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell {
                 
                 searchCell.filteredUsers = searchCell.users
-                
                 searchCell.searchTableView.reloadData()
                 
             }
@@ -900,9 +922,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         
         if collectionView is PagingCollectionView {
             
-            if searchType == .Main || searchType == .Default { return 1 }
-            
-            else { return 2 }
+            return searchTypes.count
             
         }
         
@@ -916,7 +936,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
             
             if let searchPageCell = pagingCollectionView.dequeueReusableCell(withReuseIdentifier: pagingCollectionView.cellID, for: indexPath) as? SearchPageCell {
                 
-                searchPageCell.searchType = self.searchType
+                searchPageCell.searchType = searchTypes[indexPath.item]
                 searchPageCell.searchTableView.delegate = self
                 searchPageCell.searchTableView.dataSource = self
                 
@@ -962,11 +982,11 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
             
             if scrollView.contentOffset.x < (view.frame.width / 2) {
                 
-                self.searchSectionBarView.transform = CGAffineTransform(translationX: scrollView.contentOffset.x/2, y: 0.0)
+                self.searchSectionBarView.transform = CGAffineTransform(translationX: scrollView.contentOffset.x/CGFloat(searchTypes.count), y: 0.0)
                 
             } else {
                 
-                self.searchSectionBarView.transform = CGAffineTransform(translationX: (scrollView.contentOffset.x/2) - searchVerticalEdgeInset, y: 0.0)
+                self.searchSectionBarView.transform = CGAffineTransform(translationX: (scrollView.contentOffset.x/CGFloat(searchTypes.count)) - searchVerticalEdgeInset, y: 0.0)
                 
             }
             
@@ -976,31 +996,40 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
-        if scrollView is PagingCollectionView {
+        if let pagingCollectionView = scrollView as? PagingCollectionView {
             
-            let index = Int(targetContentOffset.pointee.x / view.frame.width)
+            let newSection = Int(targetContentOffset.pointee.x / view.frame.width)
             
-            if index != currentPage {
+            if let currentSection = pagingCollectionView.indexPathsForVisibleItems.first?.item, currentSection != newSection, newSection >= 0, newSection < searchSectionButtons.count {
                 
-                switch index {
+                print("Showing " + searchTypes[newSection].rawValue)
+                
+                for sectionButton in searchSectionButtons {
                     
-                case 0:
-                    
-                    searchSectionButtons[0].alpha = 1.0
-                    searchSectionButtons[1].alpha = 0.7
-                    if !didFetchFollowers { fetchFollowers() }
-                    currentPage = 0
-                    
-                case 1:
-                    
-                    searchSectionButtons[0].alpha = 0.7
-                    searchSectionButtons[1].alpha = 1.0
-                    if !didFetchFollowing { fetchFollowing() }
-                    currentPage = 1
-                    
-                default: print("ERROR: ScrollView index is out bounds. Rejecting Change.")
+                    if sectionButton.section == newSection {
+                        
+                        sectionButton.alpha = 1.0
+                        
+                    } else {
+                        
+                        sectionButton.alpha = 0.7
+                        
+                    }
                     
                 }
+                
+                switch searchTypes[newSection] {
+                    
+                case .Users: fetchUsers(section: newSection)
+                case .Events: fetchEvents(section: newSection)
+                case .Followers: fetchFollowers(section: newSection)
+                case .Following: fetchFollowing(section: newSection)
+                    
+                }
+                
+            } else {
+                
+                print("ERROR: Unable to show new section.")
                 
             }
             

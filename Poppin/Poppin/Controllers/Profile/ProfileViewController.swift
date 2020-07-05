@@ -407,14 +407,14 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     @objc private func showFollowers(){
         
-        let searchVC = SearchViewController(searchType: .Followers, userID: userData.uid, username: userData.username)
+        let searchVC = SearchViewController(searchTypes: [.Followers, .Following], userID: userData.uid, username: userData.username, shouldActivateSearchBar: false)
         navigationController?.pushViewController(searchVC, animated: true)
 
     }
     
     @objc func showFollowing(){
         
-         let searchVC = SearchViewController(searchType: .Following, userID: userData.uid, username: userData.username)
+         let searchVC = SearchViewController(searchTypes: [.Followers, .Following], userID: userData.uid, username: userData.username, shouldActivateSearchBar: false)
          navigationController?.pushViewController(searchVC, animated: true)
 
      }
