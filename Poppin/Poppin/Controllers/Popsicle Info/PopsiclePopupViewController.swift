@@ -425,7 +425,7 @@ class PopsiclePopupViewController : UIViewController, HashtagViewDelegate {
             goingButton.backgroundColor = .white
             goingButton.setTitleColor(catColor1, for: .normal)
         } else {
-            goingButton.backgroundColor = .sportsGREEN
+            goingButton.backgroundColor = .sportsLIGHTGREEN
             goingButton.setTitleColor(.white, for: .normal)
         }
         isGoing = !isGoing
