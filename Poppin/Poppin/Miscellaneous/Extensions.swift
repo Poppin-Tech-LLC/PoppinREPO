@@ -146,6 +146,9 @@ extension UIImage {
     // App Background
     
     static let appBackground = UIImage(named: "appBackground")!
+    
+    static let sadPopsicle = UIImage(named: "sadPopsicle")
+    static let happyPopsicle = UIImage(named: "happyPopsicle")
 
 }
 
@@ -366,4 +369,13 @@ extension CGSize {
         
     }
     
+}
+extension Notification.Name {
+
+    static let detailsWritten = Notification.Name("detailsWritten")
+    static let eventCreated = Notification.Name("eventCreated")
+    static let locationSelected = Notification.Name("locationSelected")
+    static let switchCategory = Notification.Name("switchCategory")
+
+
 }

@@ -1,9 +1,9 @@
 //
-//  Popsicles.swift
+//  NewPopsicleAnnotation.swift - Abstraction of a popsicle annotation.
 //  Poppin
 //
 //  Created by Manuel Alejandro Martin Callejo on 4/28/20.
-//  Copyright © 2020 Poppin Tech LLC. All rights reserved.
+//  Copyright © 2020 whatspoppinREPO. All rights reserved.
 //
 
 import UIKit
@@ -11,13 +11,13 @@ import MapKit
 
 enum PopsicleCategory: String {
     
-    case Default = "Default"
-    case Poppin = "Poppin"
-    case Culture = "Culture"
-    case Social = "Social"
-    case Food = "Food"
-    case Sports = "Sports"
     case Education = "Education"
+    case Food = "Food"
+    case Social = "Social"
+    case Sports = "Sports"
+    case Culture = "Culture"
+    case Poppin = "Poppin"
+    case Default = "Default"
     
 }
 
@@ -25,26 +25,24 @@ struct PopsicleAnnotationData {
     
     var eventTitle: String
     var eventDetails: String? = ""
-    var eventDate: String
-    var eventStartTime: String
-    var eventEndTime: String? = "11:59p"
+    var eventStartDate: String
+    var eventEndDate: String? = "11:59p"
     var eventCategory: PopsicleCategory
-    var eventSubcategory1: PopsicleCategory? = PopsicleCategory.Default
-    var eventSubcategory2: PopsicleCategory? = PopsicleCategory.Default
+    var eventHashtags: String
     var eventLocation: CLLocationCoordinate2D
     var eventAttendees: [String]? = []
     
 }
 
-final class PopsicleAnnotation: MKPointAnnotation {
+class PopsicleAnnotation: MKPointAnnotation {
     
-    public static let defaultPopsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotationData(eventTitle: "Default Event", eventDate: "Today", eventStartTime: "12:00a", eventCategory: PopsicleCategory.Default, eventLocation: CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619))
+    public static let defaultPopsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotationData(eventTitle: "Default Event", eventDetails: "Today", eventStartDate: PopsicleCategory.Default.rawValue, eventEndDate: "", eventCategory: PopsicleCategory.Default, eventHashtags: "", eventLocation: CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619))
     
     private(set) var popsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotation.defaultPopsicleAnnotationData
     
-    convenience init(eventTitle: String, eventDetails: String?, eventDate: String, eventStartTime: String, eventEndTime: String?, eventCategory: PopsicleCategory, eventSubcategory1: PopsicleCategory?, eventSubcategory2: PopsicleCategory?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]?) {
+    convenience init(eventTitle: String, eventDetails: String?, eventStartDate: String, eventEndDate: String?, eventCategory: PopsicleCategory, eventHashtags: String, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]?) {
         
-        self.init(popsicleAnnotationData: PopsicleAnnotationData(eventTitle: eventTitle, eventDetails: eventDetails, eventDate: eventDate, eventStartTime: eventStartTime, eventEndTime: eventEndTime, eventCategory: eventCategory, eventSubcategory1: eventSubcategory1, eventSubcategory2: eventSubcategory2, eventLocation: eventLocation, eventAttendees: eventAttendees))
+        self.init(popsicleAnnotationData: PopsicleAnnotationData(eventTitle: eventTitle, eventDetails: eventDetails, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: eventCategory, eventHashtags: eventHashtags, eventLocation: eventLocation, eventAttendees: eventAttendees))
         
     }
     
@@ -62,13 +60,13 @@ final class PopsicleAnnotation: MKPointAnnotation {
         
         switch popsicleAnnotationData.eventCategory {
             
-        case .Default: return .defaultPopsicleIcon256
-        case .Poppin: return .poppinEventPopsicleIcon64
-        case .Culture: return .culturePopsicleIcon64
-        case .Social: return .socialPopsicleIcon64
-        case .Food: return .foodPopsicleIcon64
-        case .Sports: return .sportsPopsicleIcon64
         case .Education: return .educationPopsicleIcon64
+        case .Food: return .foodPopsicleIcon64
+        case .Social: return .socialPopsicleIcon64
+        case .Sports: return .sportsPopsicleIcon64
+        case .Culture: return .culturePopsicleIcon64
+        case .Poppin: return .poppinEventPopsicleIcon64
+        case .Default: return .defaultPopsicleIcon256
             
         }
         
@@ -95,4 +93,3 @@ final class PopsicleAnnotation: MKPointAnnotation {
     }
     
 }
-

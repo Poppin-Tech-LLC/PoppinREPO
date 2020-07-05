@@ -13,6 +13,8 @@ import Firebase
 import Network
 import Kronos
 import Contacts
+import GeoFire
+import Geofirestore
 
 protocol MenuDelegate: class {
     
@@ -34,7 +36,13 @@ final class MapViewController: UIViewController {
     private var shouldPresentLoginVC: Bool = false
     private var menuIsVisible: Bool = false
     
+    let monitor = NWPathMonitor()
+    
+    let queue = DispatchQueue(label: "InternetConnectionMonitor")
+    
     lazy private var userPicture: UIImage = .defaultUserPicture64
+    
+    var mapPopsicles: [PopsicleAnnotation] = []
     
     lazy private var launchScreenOverlayView: UIView = {
         
@@ -292,6 +300,37 @@ final class MapViewController: UIViewController {
     
     }()
     
+    
+    lazy var noInternetView: UIView = {
+       let noInternetView = UIView()
+        noInternetView.backgroundColor = .clear
+        noInternetView.sizeToFit()
+        return noInternetView
+    }()
+    
+    lazy var noInternetLabel: UILabel = {
+         let noInternetLabel = UILabel()
+          noInternetLabel.backgroundColor = .clear
+        noInternetLabel.text = "No Internet Connection"
+        noInternetLabel.textColor = .mainDARKPURPLE
+        noInternetLabel.textAlignment = .center
+          noInternetLabel.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
+          noInternetLabel.sizeToFit()
+        noInternetLabel.alpha = 0.0
+          return noInternetLabel
+      }()
+    
+    lazy var noInternetIcon: UIImageView = {
+        let purpleWifi = UIImage(systemName: "wifi.exclamationmark")!.withTintColor(.mainDARKPURPLE, renderingMode: .alwaysOriginal)
+       let noInternetIcon = UIImageView()
+        noInternetIcon.image = .sadPopsicle
+        noInternetIcon.contentMode = .scaleAspectFit
+        noInternetIcon.alpha = 0.0
+        //noInternetIcon.backgroundColor = .clear
+        return noInternetIcon
+    }()
+    
+    
     @objc func toggleMapDarkOverlayView() {
         
         mapDarkOverlayView.toggleDarkOverlayView()
@@ -326,7 +365,7 @@ final class MapViewController: UIViewController {
         // For trial purposes, present the new create event view controller modally
         // later, need to change to using navigation controller
         //self.modalPresentationStyle = .overFullScreen
-        self.present(CreatePopsicleFirstPageViewController(), animated: true, completion: nil)
+        self.present(NewCreateEventViewController(), animated: true, completion: nil)
         
     }
     
@@ -466,6 +505,26 @@ final class MapViewController: UIViewController {
         
         mapMenuViewController.didMove(toParent: self)
         
+        view.addSubview(noInternetView)
+        noInternetView.translatesAutoresizingMaskIntoConstraints = false
+        noInternetView.topAnchor.constraint(equalTo: view.topAnchor, constant: view.bounds.height * 0.3).isActive = true
+        noInternetView.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.6).isActive = true
+        noInternetView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        //noInternetView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        noInternetView.addSubview(noInternetLabel)
+        noInternetLabel.translatesAutoresizingMaskIntoConstraints = false
+        noInternetLabel.bottomAnchor.constraint(equalTo: noInternetView.bottomAnchor).isActive = true
+        noInternetLabel.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.6).isActive = true
+        noInternetLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
+        noInternetView.addSubview(noInternetIcon)
+        noInternetIcon.translatesAutoresizingMaskIntoConstraints = false
+        noInternetIcon.bottomAnchor.constraint(equalTo: noInternetLabel.topAnchor, constant: -view.bounds.height * 0.02).isActive = true
+        noInternetIcon.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.2).isActive = true
+        noInternetIcon.heightAnchor.constraint(equalToConstant: view.bounds.width * 0.2).isActive = true
+        noInternetIcon.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
         if shouldPresentLoginVC {
             
             view.addSubview(launchScreenOverlayView)
@@ -479,6 +538,63 @@ final class MapViewController: UIViewController {
         
         mapLocationManager.requestWhenInUseAuthorization()
         mapLocationManager.startUpdatingLocation()
+        
+        monitor.pathUpdateHandler = { pathUpdateHandler in
+                if pathUpdateHandler.status == .satisfied {
+                    DispatchQueue.main.async {
+                        self.noInternetIcon.image = .happyPopsicle
+                        self.view.layoutIfNeeded()
+                        
+                        UIView.animate(withDuration: 0.5, delay: 0.5, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                            //self.view.layoutIfNeeded()
+                            
+                            self.noInternetView.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                            
+                            //self.confirmLocView.alpha = 1.0
+                            self.noInternetIcon.alpha = 0.0
+                            self.noInternetLabel.alpha = 0.0
+                            self.mapCreateEventButton.isUserInteractionEnabled = true
+                            self.mapCreateEventButton.alpha = 1.0
+                            
+                            self.view.layoutIfNeeded()
+                            
+                            
+                        })
+                    }
+                    print("Internet connection is on.")
+                } else {
+                    DispatchQueue.main.async {
+                        
+                        if(self.noInternetIcon.alpha != 1.0){
+                            // UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                            self.noInternetIcon.image = .sadPopsicle
+                        self.noInternetView.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                        self.view.layoutIfNeeded()
+                        
+                            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                            //self.view.layoutIfNeeded()
+                            
+                            self.noInternetView.transform = .identity
+                            
+                            //self.confirmLocView.alpha = 1.0
+                            self.noInternetIcon.alpha = 1.0
+                            self.noInternetLabel.alpha = 1.0
+                            self.mapCreateEventButton.isUserInteractionEnabled = false
+                            self.mapCreateEventButton.alpha = 0.6
+                            
+                            self.view.layoutIfNeeded()
+                            
+                            
+                        })
+                        }
+                    }
+                    print("There's no internet connection.")
+                }
+            }
+            
+            monitor.start(queue: queue)
+            
+            getPopsicles()
         
     }
     
@@ -503,6 +619,87 @@ final class MapViewController: UIViewController {
         }
         
     }
+    
+     public func getPopsicles(){
+            
+            for annotation in mapView.annotations{
+                
+                if annotation is PopsicleAnnotation{
+                    
+                    mapView.removeAnnotation(annotation)
+                    
+                }
+                
+            }
+            
+            mapPopsicles = []
+        
+        let geoFirestoreRef = Firestore.firestore()
+
+        let geoFirestore = GeoFirestore(collectionRef: geoFirestoreRef.collection("geolocs"))
+        
+        let popRef = geoFirestoreRef.collection("currentPopsicles")
+        // Query using CLLocation
+        let center = CLLocation(latitude: 39.6766, longitude: -104.9619)
+        // Query locations at [37.7832889, -122.4056973] with a radius of 600 meters
+        var circleQuery2 = geoFirestore.query(withCenter: center, radius: 3)
+        
+        let queryHandle = circleQuery2.observe(.documentEntered, with: { (key, location) in
+            print("The document with documentID '\(key)' entered the search area and is at location '\(location)'")
+            popRef.document(key!).getDocument{ (document, error) in
+                if let document = document, document.exists {
+    //                let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
+                    let data = document.data()
+                    print(document.data())
+                    
+                    let eventStartDate = data!["startDate"] as! String
+                    let eventEndDate = data!["endDate"] as! String
+
+                    let eventName = data!["eventName"] as! String
+                    let eventCategory = data!["category"] as! String
+                    let hashtags = data!["hashtags"] as! String
+                    let eventInfo = data!["eventDetails"] as! String
+                    let latitude = data!["latitude"] as! CLLocationDegrees
+                    let longitude = data!["longitude"] as! CLLocationDegrees
+                    
+                    let popsicleCategory: PopsicleCategory
+
+                    if (eventCategory == "education") {
+
+                        popsicleCategory = PopsicleCategory.Education
+
+
+
+                    } else if (eventCategory == "food") {
+
+                        popsicleCategory = PopsicleCategory.Food
+
+
+                    } else if (eventCategory == "social") {
+
+                        popsicleCategory = PopsicleCategory.Social
+
+
+                    } else if (eventCategory == "sports") {
+
+                        popsicleCategory = PopsicleCategory.Sports
+                    } else {
+
+                        popsicleCategory = PopsicleCategory.Culture
+                    }
+                            
+                    let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
+                    
+                    self.mapPopsicles.append(popsicleToAdd)
+                    self.mapView.addAnnotation(popsicleToAdd)
+                   // print("Document data: \(dataDescription)")
+                } else {
+                    print("Document does not exist")
+                }
+            
+        }
+        })
+        }
     
 }
 

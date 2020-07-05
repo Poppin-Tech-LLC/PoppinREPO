@@ -13,6 +13,9 @@ target 'Poppin' do
   pod 'Kronos'
   pod 'SFSafeSymbols', '~> 1.2.0'
   pod 'GeoFire', '~> 4.0'
+  pod 'Firebase/Firestore'
+  pod 'FirebaseFirestoreSwift'
+  pod 'Geofirestore', :git => 'https://github.com/imperiumlabs/GeoFirestore-iOS.git'
 
   target 'PoppinTests' do
     inherit! :search_paths
