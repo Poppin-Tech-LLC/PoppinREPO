@@ -642,15 +642,15 @@ final class MapViewController: UIViewController {
         // Query using CLLocation
         let center = CLLocation(latitude: 39.6766, longitude: -104.9619)
         // Query locations at [37.7832889, -122.4056973] with a radius of 600 meters
-        var circleQuery2 = geoFirestore.query(withCenter: center, radius: 3)
+        let circleQuery2 = geoFirestore.query(withCenter: center, radius: 3)
         
-        let queryHandle = circleQuery2.observe(.documentEntered, with: { (key, location) in
-            print("The document with documentID '\(key)' entered the search area and is at location '\(location)'")
+        _ = circleQuery2.observe(.documentEntered, with: { (key, location) in
+            print("The document with documentID '\(String(describing: key))' entered the search area and is at location '\(String(describing: location))'")
             popRef.document(key!).getDocument{ (document, error) in
                 if let document = document, document.exists {
     //                let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
                     let data = document.data()
-                    print(document.data())
+                    print(document.data() ?? "data")
                     
                     let eventStartDate = data!["startDate"] as! String
                     let eventEndDate = data!["endDate"] as! String

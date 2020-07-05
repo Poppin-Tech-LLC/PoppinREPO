@@ -121,6 +121,8 @@ open class AlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
             default:
                 break
             }
+        @unknown default:
+            print("ERROR: Unable to layout direction - Hashtag Library.")
         }
 
         // It's safe to force-unwrap as `.leading` and `.trailing` are covered

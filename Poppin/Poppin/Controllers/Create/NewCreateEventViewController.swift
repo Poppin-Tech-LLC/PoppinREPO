@@ -458,6 +458,8 @@ extension NewCreateEventViewController : UIScrollViewDelegate {
         default:
            break
          }
+        
+        print(bColor)
 
         let newColors = [ secondColour.cgColor, secondColour.cgColor]
         

@@ -901,8 +901,8 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         
         var ref2: DocumentReference? = nil
         ref2 = db.collection("currentPopsicles").addDocument(data: [
-            "longitude": location?.longitude,
-            "latitude": location?.latitude,
+            "longitude": location?.longitude as Any,
+            "latitude": location?.latitude as Any,
             "eventName": eventNameTextField.text!,
             "eventDetails": detailsButton.text!,
             "startDate": startDateFormatted!,
@@ -1005,6 +1005,6 @@ extension NewCreateEventCardViewController: UIViewControllerTransitioningDelegat
             }
 
             
-            return FlipDismissAnimationController(destinationFrame: backgroundView.frame)
+            //return FlipDismissAnimationController(destinationFrame: backgroundView.frame)
     }
 }
