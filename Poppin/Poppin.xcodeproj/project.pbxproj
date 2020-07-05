@@ -55,6 +55,15 @@
 		F5FC3F3224B2447F00FA1AB0 /* FlipDismissAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3024B2447F00FA1AB0 /* FlipDismissAnimationController.swift */; };
 		F5FC3F3324B2447F00FA1AB0 /* FlipPresentAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3124B2447F00FA1AB0 /* FlipPresentAnimationController.swift */; };
 		F5FC3F3524B248C100FA1AB0 /* AnimationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3424B248C100FA1AB0 /* AnimationHelper.swift */; };
+		F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */; };
+		F6498EBB24B24892002F8A1B /* Hashtag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB424B24892002F8A1B /* Hashtag.swift */; };
+		F6498EBC24B24892002F8A1B /* HashtagCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */; };
+		F6498EBD24B24892002F8A1B /* HashtagViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB624B24892002F8A1B /* HashtagViewDelegate.swift */; };
+		F6498EBE24B24892002F8A1B /* HashtagConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB724B24892002F8A1B /* HashtagConfiguration.swift */; };
+		F6498EBF24B24892002F8A1B /* HashtagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB824B24892002F8A1B /* HashtagView.swift */; };
+		F6498EC024B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB924B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift */; };
+		F6498EC324B248F4002F8A1B /* PopsiclePopupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EC224B248F4002F8A1B /* PopsiclePopupViewController.swift */; };
+		F6498EC624B24919002F8A1B /* ActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EC524B24919002F8A1B /* ActivityViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -135,6 +144,15 @@
 		F5FC3F3024B2447F00FA1AB0 /* FlipDismissAnimationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlipDismissAnimationController.swift; sourceTree = "<group>"; };
 		F5FC3F3124B2447F00FA1AB0 /* FlipPresentAnimationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlipPresentAnimationController.swift; sourceTree = "<group>"; };
 		F5FC3F3424B248C100FA1AB0 /* AnimationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationHelper.swift; sourceTree = "<group>"; };
+		F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlignedCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
+		F6498EB424B24892002F8A1B /* Hashtag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hashtag.swift; sourceTree = "<group>"; };
+		F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashtagCollectionViewCell.swift; sourceTree = "<group>"; };
+		F6498EB624B24892002F8A1B /* HashtagViewDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashtagViewDelegate.swift; sourceTree = "<group>"; };
+		F6498EB724B24892002F8A1B /* HashtagConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashtagConfiguration.swift; sourceTree = "<group>"; };
+		F6498EB824B24892002F8A1B /* HashtagView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashtagView.swift; sourceTree = "<group>"; };
+		F6498EB924B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemovableHashtagCollectionViewCell.swift; sourceTree = "<group>"; };
+		F6498EC224B248F4002F8A1B /* PopsiclePopupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopsiclePopupViewController.swift; sourceTree = "<group>"; };
+		F6498EC524B24919002F8A1B /* ActivityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityViewController.swift; sourceTree = "<group>"; };
 		F652D2BA96ABB01F0DF64A78 /* Pods_PoppinTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -259,6 +277,8 @@
 		6417BCA024A2559E006AE467 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				F6498EC424B2490C002F8A1B /* Activity */,
+				F6498EC124B248D0002F8A1B /* Popsicle Info */,
 				64CF0C8524A48A450077C1D7 /* Menu */,
 				64941ED424A3B0E100824E9B /* Create */,
 				64941ECE24A3AB7F00824E9B /* Profile */,
@@ -282,6 +302,7 @@
 		6417BCA424A25652006AE467 /* Miscellaneous */ = {
 			isa = PBXGroup;
 			children = (
+				F6498EB224B24892002F8A1B /* Hashtag Library */,
 				6417BCA524A25684006AE467 /* Extensions.swift */,
 				6417BCBB24A2650A006AE467 /* Popsicles.swift */,
 			);
@@ -431,6 +452,36 @@
 				750AA0A58BE046A14348C685 /* Pods-PoppinUITests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		F6498EB224B24892002F8A1B /* Hashtag Library */ = {
+			isa = PBXGroup;
+			children = (
+				F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */,
+				F6498EB424B24892002F8A1B /* Hashtag.swift */,
+				F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */,
+				F6498EB624B24892002F8A1B /* HashtagViewDelegate.swift */,
+				F6498EB724B24892002F8A1B /* HashtagConfiguration.swift */,
+				F6498EB824B24892002F8A1B /* HashtagView.swift */,
+				F6498EB924B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift */,
+			);
+			path = "Hashtag Library";
+			sourceTree = "<group>";
+		};
+		F6498EC124B248D0002F8A1B /* Popsicle Info */ = {
+			isa = PBXGroup;
+			children = (
+				F6498EC224B248F4002F8A1B /* PopsiclePopupViewController.swift */,
+			);
+			path = "Popsicle Info";
+			sourceTree = "<group>";
+		};
+		F6498EC424B2490C002F8A1B /* Activity */ = {
+			isa = PBXGroup;
+			children = (
+				F6498EC524B24919002F8A1B /* ActivityViewController.swift */,
+			);
+			path = Activity;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -661,19 +712,28 @@
 			files = (
 				6409061824A37AA600AD4FF6 /* LoginViewController.swift in Sources */,
 				6417BCA624A25684006AE467 /* Extensions.swift in Sources */,
+				F6498EBF24B24892002F8A1B /* HashtagView.swift in Sources */,
 				6417BCAC24A25CE3006AE467 /* RefreshButton.swift in Sources */,
 				64B7248424AF5C5600BB48C5 /* PagingCollectionView.swift in Sources */,
 				6417BCC524A2695D006AE467 /* LocationSearchCell.swift in Sources */,
+				F6498EBC24B24892002F8A1B /* HashtagCollectionViewCell.swift in Sources */,
 				6417BCBC24A2650A006AE467 /* Popsicles.swift in Sources */,
 				6417BCAF24A25FFE006AE467 /* UserLocationAnnotationView.swift in Sources */,
+				F6498EBB24B24892002F8A1B /* Hashtag.swift in Sources */,
 				6417BCB824A26339006AE467 /* DarkOverlayView.swift in Sources */,
 				6409061A24A37B1500AD4FF6 /* ForgotPasswordViewController.swift in Sources */,
+				F6498EBE24B24892002F8A1B /* HashtagConfiguration.swift in Sources */,
 				6409061E24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift in Sources */,
 				64BF883A24AB2DB10008659D /* BubbleImageView.swift in Sources */,
 				64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */,
 				F5FC3F2C24B243B200FA1AB0 /* writeDetailsViewController.swift in Sources */,
+				F6498EBD24B24892002F8A1B /* HashtagViewDelegate.swift in Sources */,
+				64941ED824A3B27800824E9B /* CreatePopsicleSecondPageViewController.swift in Sources */,
+				64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */,
+				F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */,
 				6417BCB624A261CA006AE467 /* FiltersView.swift in Sources */,
 				6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */,
+				F6498EC024B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift in Sources */,
 				6403142924A1F136006A55EB /* AppDelegate.swift in Sources */,
 				6409061C24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift in Sources */,
 				F5FC3F2E24B243B200FA1AB0 /* EditLocationViewController.swift in Sources */,
@@ -685,8 +745,10 @@
 				64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */,
 				F5FC3F2F24B243B200FA1AB0 /* NewCreateEventCardViewController.swift in Sources */,
 				6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */,
+				F6498EC324B248F4002F8A1B /* PopsiclePopupViewController.swift in Sources */,
 				64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */,
 				F5FC3F3324B2447F00FA1AB0 /* FlipPresentAnimationController.swift in Sources */,
+				F6498EC624B24919002F8A1B /* ActivityViewController.swift in Sources */,
 				6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */,
 				64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */,
 				F5FC3F3224B2447F00FA1AB0 /* FlipDismissAnimationController.swift in Sources */,
