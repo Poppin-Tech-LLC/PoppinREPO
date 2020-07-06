@@ -6,54 +6,224 @@
 //  Copyright © 2020 whatspoppinREPO. All rights reserved.
 //
 
-import UIKit
+//
+//  MenuViewController.swift
+//  Poppin
+//
+//  Created by Manuel Alejandro Martin Callejo on 6/25/20.
+//  Copyright © 2020 Poppin Tech LLC. All rights reserved.
+//
 
-class ActivityViewController : UIViewController {
+import UIKit
+import FirebaseAuth
+
+final class ActivityViewController: UIViewController {
     
-    lazy var activityTitle : UILabel = {
-        var l = UILabel()
-        l.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .title1)
-        l.text = "Activity"
-        l.textColor = .white
-        l.textAlignment = .center
-        return l
-    }()
+    let menuInsetY: CGFloat = .getPercentageWidth(percentage: 4)
+    let menuInsetX: CGFloat = .getPercentageWidth(percentage: 3)
+    let menuInnerInset: CGFloat = .getPercentageWidth(percentage: 5.5)
     
-    lazy var tableView : UITableView = {
-        var t = UITableView()
-        return t
-    }()
+    private var fullName: String = "Full Name"
+    private var username: String = "@username"
+    private var following: String = "0"
+    private var followers: String = "0"
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    weak var delegate: ActivityDelegate?
+    
+    lazy private var menuTopStackView: UIStackView = {
         
-        /* FOR TRIAL PURPOSES */
-        modalPresentationStyle = .fullScreen
-    }
+        let menuProfileButtonSpacing: CGFloat = .getPercentageWidth(percentage: 4)
+        let menuUsernameSpacing: CGFloat = .getPercentageWidth(percentage: 2.5)
+        let menuFollowingFollowersSpacing: CGFloat = .getPercentageWidth(percentage: 1)
+        let menuTopStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 3)
+        
+        let menuFollowingFollowersStackView = UIStackView(arrangedSubviews: [menuFollowingButton, menuFollowersButton])
+        menuFollowingFollowersStackView.axis = .horizontal
+        menuFollowingFollowersStackView.alignment = .fill
+        menuFollowingFollowersStackView.distribution = .fill
+        menuFollowingFollowersStackView.spacing = menuFollowingFollowersSpacing
+        
+        var menuTopStackView = UIStackView(arrangedSubviews: [menuProfileButton, menuFullNameLabel, menuUsernameLabel, menuFollowingFollowersStackView])
+        menuTopStackView.axis = .vertical
+        menuTopStackView.alignment = .center
+        menuTopStackView.distribution = .fill
+        menuTopStackView.spacing = menuTopStackViewSpacing
+        menuTopStackView.setCustomSpacing(menuProfileButtonSpacing, after: menuProfileButton)
+        menuTopStackView.setCustomSpacing(menuUsernameSpacing, after: menuFullNameLabel)
+        return menuTopStackView
+        
+    }()
     
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
+    lazy private var menuProfileButton: ImageBubbleButton = {
+        
+        var menuProfileButton = ImageBubbleButton(bouncyButtonImage: UIImage.defaultUserPicture256)
+        
+        menuProfileButton.translatesAutoresizingMaskIntoConstraints = false
+        menuProfileButton.heightAnchor.constraint(equalToConstant: menuFullNameLabel.intrinsicContentSize.height*3.5).isActive = true
+        menuProfileButton.widthAnchor.constraint(equalTo: menuProfileButton.heightAnchor).isActive = true
+        
+        return menuProfileButton
+        
+    }()
     
-        /* FOR TRIAL PURPOSES */
-        modalPresentationStyle = .fullScreen
-    }
+    lazy private var menuFullNameLabel: UILabel = {
+        
+        var menuFullNameLabel = UILabel()
+        menuFullNameLabel.numberOfLines = 0
+        menuFullNameLabel.sizeToFit()
+        menuFullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        menuFullNameLabel.textColor = .white
+        menuFullNameLabel.text = fullName
+        menuFullNameLabel.textAlignment = .center
+        
+        return menuFullNameLabel
+        
+    }()
+    
+    lazy private var menuUsernameLabel: UILabel = {
+        
+        var menuUsernameLabel = UILabel()
+        menuUsernameLabel.numberOfLines = 0
+        menuUsernameLabel.sizeToFit()
+        menuUsernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .footnote)
+        menuUsernameLabel.textColor = .white
+        menuUsernameLabel.text = username
+        menuUsernameLabel.textAlignment = .center
+        
+        menuUsernameLabel.translatesAutoresizingMaskIntoConstraints = false
+        menuUsernameLabel.heightAnchor.constraint(equalToConstant: menuUsernameLabel.intrinsicContentSize.height).isActive = true
+        
+        return menuUsernameLabel
+        
+    }()
+    
+    lazy private var menuFollowingButton: BouncyButton = {
+        
+        let edgeInset: CGFloat = .getPercentageWidth(percentage: 2)
+        
+        let buttonText = NSMutableAttributedString(string: following + " Following", attributes: [.foregroundColor : UIColor.white])
+        let lightRange = buttonText.mutableString.range(of: "Following")
+        let boldRange = buttonText.mutableString.range(of: following)
+        buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Light", style: .footnote), range: lightRange)
+        buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote), range: boldRange)
+        
+        let menuFollowingButton = BouncyButton(bouncyButtonImage: nil)
+        menuFollowingButton.backgroundColor = .mainDARKPURPLE
+        menuFollowingButton.setAttributedTitle(buttonText, for: .normal)
+        menuFollowingButton.titleLabel?.textAlignment = .center
+        
+        menuFollowingButton.translatesAutoresizingMaskIntoConstraints = false
+        menuFollowingButton.heightAnchor.constraint(equalToConstant: menuFollowingButton.intrinsicContentSize.height+edgeInset).isActive = true
+        menuFollowingButton.widthAnchor.constraint(equalToConstant: menuFollowingButton.intrinsicContentSize.width+edgeInset).isActive = true
+        
+        return menuFollowingButton
+        
+    }()
+    
+    lazy private var menuFollowersButton: BouncyButton = {
+        
+        let edgeInset: CGFloat = .getPercentageWidth(percentage: 2)
+        
+        let buttonText = NSMutableAttributedString(string: followers + " Followers", attributes: [.foregroundColor : UIColor.white])
+        let lightRange = buttonText.mutableString.range(of: "Followers")
+        let boldRange = buttonText.mutableString.range(of: followers)
+        buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Light", style: .footnote), range: lightRange)
+        buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote), range: boldRange)
+        
+        let menuFollowersButton = BouncyButton(bouncyButtonImage: nil)
+        menuFollowersButton.backgroundColor = .mainDARKPURPLE
+        menuFollowersButton.setAttributedTitle(buttonText, for: .normal)
+        menuFollowersButton.titleLabel?.textAlignment = .center
+        
+        menuFollowersButton.translatesAutoresizingMaskIntoConstraints = false
+        menuFollowersButton.heightAnchor.constraint(equalToConstant: menuFollowersButton.intrinsicContentSize.height+edgeInset).isActive = true
+        menuFollowersButton.widthAnchor.constraint(equalToConstant: menuFollowersButton.intrinsicContentSize.width+edgeInset).isActive = true
+        
+        return menuFollowersButton
+        
+    }()
+    
+    lazy private var menuButtonsScrollView: UIScrollView = {
+        
+        let menuButtonsStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 9)
+        
+        let menuButtonsStackView = UIStackView(arrangedSubviews: [])
+        menuButtonsStackView.axis = .vertical
+        menuButtonsStackView.alignment = .leading
+        menuButtonsStackView.distribution = .fill
+        menuButtonsStackView.spacing = menuButtonsStackViewSpacing
+        
+        var menuButtonsScrollView = UIScrollView()
+        menuButtonsScrollView.alwaysBounceVertical = true
+        menuButtonsScrollView.showsVerticalScrollIndicator = false
+        menuButtonsScrollView.automaticallyAdjustsScrollIndicatorInsets = false
+        menuButtonsScrollView.delaysContentTouches = false
+        menuButtonsScrollView.contentInset = UIEdgeInsets(top: .getPercentageWidth(percentage: 9), left: 0.0, bottom: .getPercentageWidth(percentage: 9), right: 0.0)
+        
+        menuButtonsScrollView.addSubview(menuButtonsStackView)
+        menuButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        menuButtonsStackView.topAnchor.constraint(equalTo: menuButtonsScrollView.topAnchor).isActive = true
+        menuButtonsStackView.bottomAnchor.constraint(equalTo: menuButtonsScrollView.bottomAnchor).isActive = true
+        menuButtonsStackView.leadingAnchor.constraint(equalTo: menuButtonsScrollView.leadingAnchor).isActive = true
+        menuButtonsStackView.trailingAnchor.constraint(equalTo: menuButtonsScrollView.trailingAnchor).isActive = true
+        menuButtonsStackView.widthAnchor.constraint(equalTo: menuButtonsScrollView.widthAnchor).isActive = true
+        
+        return menuButtonsScrollView
+        
+    }()
+    
+    lazy private var menuPopsicleBorderImageView: UIImageView = {
+        
+        var menuPopsicleBorderImageView = UIImageView(image: UIImage.popsicleBorder1024.withTintColor(.white))
+        menuPopsicleBorderImageView.contentMode = .scaleAspectFit
+        return menuPopsicleBorderImageView
+        
+    }()
+    
+    lazy private var menuBorderView: UIView = {
+        
+        var menuBorderView = UIView()
+        menuBorderView.backgroundColor = .white
+        menuBorderView.alpha = 1.0
+        
+        menuBorderView.translatesAutoresizingMaskIntoConstraints = false
+        menuBorderView.widthAnchor.constraint(equalToConstant: 1).isActive = true
+        
+        return menuBorderView
+        
+    }()
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
+        
         view.backgroundColor = .mainDARKPURPLE
         
-        view.addSubview(activityTitle)
-        activityTitle.translatesAutoresizingMaskIntoConstraints = false
-        activityTitle.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 30)).isActive = true
-        activityTitle.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 3)).isActive = true
-        activityTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: .getPercentageHeight(percentage: 3)).isActive = true
-        activityTitle.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        view.addSubview(menuBorderView)
+        menuBorderView.translatesAutoresizingMaskIntoConstraints = false
+        menuBorderView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        menuBorderView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        menuBorderView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         
-        view.addSubview(tableView)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 100)).isActive = true
-        tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: .getPercentageHeight(percentage: 9)).isActive = true
-        tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0).isActive = true
-        tableView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        view.addSubview(menuTopStackView)
+        menuTopStackView.translatesAutoresizingMaskIntoConstraints = false
+        menuTopStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: menuInsetY).isActive = true
+        menuTopStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: menuInsetX).isActive = true
+        menuTopStackView.trailingAnchor.constraint(equalTo: menuBorderView.leadingAnchor, constant: -menuInsetX).isActive = true
+        
+        view.addSubview(menuButtonsScrollView)
+        menuButtonsScrollView.translatesAutoresizingMaskIntoConstraints = false
+        menuButtonsScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: menuInnerInset).isActive = true
+        menuButtonsScrollView.trailingAnchor.constraint(equalTo: menuBorderView.leadingAnchor, constant: -menuInnerInset).isActive = true
+        menuButtonsScrollView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        
+        view.addSubview(menuPopsicleBorderImageView)
+        menuPopsicleBorderImageView.translatesAutoresizingMaskIntoConstraints = false
+        menuPopsicleBorderImageView.widthAnchor.constraint(equalTo: menuButtonsScrollView.widthAnchor).isActive = true
+        menuPopsicleBorderImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        menuPopsicleBorderImageView.topAnchor.constraint(equalTo: menuTopStackView.bottomAnchor).isActive = true
+        menuPopsicleBorderImageView.centerYAnchor.constraint(equalTo: menuButtonsScrollView.topAnchor).isActive = true
+        
     }
+    
 }

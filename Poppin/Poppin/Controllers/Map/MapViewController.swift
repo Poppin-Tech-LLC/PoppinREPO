@@ -23,6 +23,12 @@ protocol MenuDelegate: class {
     
 }
 
+protocol ActivityDelegate: class {
+    
+    func toggleAV()
+    
+}
+
 final class MapViewController: UIViewController {
     
     public static let defaultMapViewRegionRadius = 3000.0 // 3km
@@ -32,9 +38,11 @@ final class MapViewController: UIViewController {
     private let mapHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
     
     private let mapMenuWidth: CGFloat = .getPercentageWidth(percentage: 83)
+    private let avWidth: CGFloat = .getPercentageWidth(percentage: 83)
     
     private var shouldPresentLoginVC: Bool = false
     private var menuIsVisible: Bool = false
+    private var avIsVisible: Bool = false
     
     let monitor = NWPathMonitor()
     
@@ -202,7 +210,7 @@ final class MapViewController: UIViewController {
     
     lazy private var mapTopStackView: UIStackView = {
 
-        var mapTopStackView = UIStackView(arrangedSubviews: [mapMenuButton, mapSearchBar, mapRefreshButton])
+        var mapTopStackView = UIStackView(arrangedSubviews: [mapMenuButton, mapSearchBar, mapAVButton])
         mapTopStackView.axis = .horizontal
         mapTopStackView.alignment = .fill
         mapTopStackView.distribution = .fill
@@ -251,15 +259,32 @@ final class MapViewController: UIViewController {
         
     }()
     
-    lazy private var mapRefreshButton: RefreshButton = {
+    lazy private var mapAVButton: ImageBubbleButton = {
         
-        var mapRefreshButton = RefreshButton()
+        var mapAVButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .flameFill).withTintColor(.mainDARKPURPLE).imageWithInsets(insets: UIEdgeInsets(top: .getPercentageWidth(percentage: 1), left: .getPercentageWidth(percentage: 1), bottom: .getPercentageWidth(percentage: 1), right: .getPercentageWidth(percentage: 1))))
+        mapAVButton.backgroundColor = .white
+        mapAVButton.addTarget(self, action: #selector(toggleAV(sender:)), for: .touchUpInside)
         
-        mapRefreshButton.translatesAutoresizingMaskIntoConstraints = false
-        mapRefreshButton.heightAnchor.constraint(equalTo: mapRefreshButton.widthAnchor).isActive = true
+        mapAVButton.translatesAutoresizingMaskIntoConstraints = false
+        mapAVButton.heightAnchor.constraint(equalTo: mapAVButton.widthAnchor).isActive = true
         
-        return mapRefreshButton
+        return mapAVButton
         
+    }()
+    
+    lazy private var mapAVController: ActivityViewController = {
+           
+           var mapAVController = ActivityViewController()
+           mapAVController.delegate = self
+           return mapAVController
+           
+    }()
+       
+    lazy private var avLeadingConstraint: NSLayoutConstraint = {
+           
+        var avLeadingConstraint = NSLayoutConstraint(item: mapAVController.view!, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0)
+        return avLeadingConstraint
+           
     }()
     
     lazy private var mapFiltersView: FiltersView = {
@@ -439,6 +464,12 @@ final class MapViewController: UIViewController {
         
     }
     
+    @objc private func toggleAV(sender: BouncyButton) {
+        
+        toggleAV()
+        
+    }
+    
     @objc func zoomToUserLocation(_ sender: UIButton) {
         
         let region = MKCoordinateRegion(center: userLocation, latitudinalMeters: 50.0, longitudinalMeters: 50.0)
@@ -504,6 +535,17 @@ final class MapViewController: UIViewController {
         mapMenuViewController.view.widthAnchor.constraint(equalToConstant: mapMenuWidth).isActive = true
         
         mapMenuViewController.didMove(toParent: self)
+        
+        addChild(mapAVController)
+        
+        view.addSubview(mapAVController.view)
+        mapAVController.view.translatesAutoresizingMaskIntoConstraints = false
+        mapAVController.view.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        mapAVController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        avLeadingConstraint.isActive = true
+        mapAVController.view.widthAnchor.constraint(equalToConstant: avWidth).isActive = true
+        
+        mapAVController.didMove(toParent: self)
         
         view.addSubview(noInternetView)
         noInternetView.translatesAutoresizingMaskIntoConstraints = false
@@ -1074,6 +1116,52 @@ extension MapViewController: MenuDelegate {
                 self.mapView.isUserInteractionEnabled = false
                 self.mapEdgePanView.removeGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
                 self.view.addGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
+            
+            })
+            
+        }
+        
+    }
+        
+}
+
+extension MapViewController: ActivityDelegate {
+
+    func toggleAV() {
+        
+        if avIsVisible {
+         
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.avLeadingConstraint.constant = 0
+                self.mapContainerLeadingConstraint.constant = 0
+                self.mapContainerView.alpha = 1.0
+                self.mapAVButton.alpha = 1.0
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+                
+                self.avIsVisible = !self.avIsVisible
+                self.mapView.isUserInteractionEnabled = true
+                
+            })
+            
+        } else {
+            
+            view.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.avLeadingConstraint.constant = -(self.avWidth)
+                self.mapContainerLeadingConstraint.constant = -(self.avWidth)
+                self.mapContainerView.alpha = 0.2
+                self.mapAVButton.alpha = 0.0
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+            
+                self.avIsVisible = !self.avIsVisible
+                self.mapView.isUserInteractionEnabled = false
             
             })
             
