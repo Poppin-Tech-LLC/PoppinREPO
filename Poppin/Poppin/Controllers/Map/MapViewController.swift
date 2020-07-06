@@ -158,6 +158,7 @@ final class MapViewController: UIViewController {
     lazy private var mapCloseMenuTapGestureRecognizer: UITapGestureRecognizer = {
         
         var mapCloseMenuTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeMenu(sender:)))
+        mapCloseMenuTapGestureRecognizer.addTarget(self, action: #selector(toggleAV(sender:)))
         return mapCloseMenuTapGestureRecognizer
         
     }()
@@ -455,7 +456,7 @@ final class MapViewController: UIViewController {
     @objc private func closeMenu(sender: BouncyButton) {
         
         closeMenu(with: nil)
-        
+
     }
     
     @objc private func openMenu(sender: BouncyButton) {
@@ -1142,11 +1143,13 @@ extension MapViewController: ActivityDelegate {
             }, completion: { finished in
                 
                 self.avIsVisible = !self.avIsVisible
+                self.mapContainerView.removeGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
                 self.mapView.isUserInteractionEnabled = true
+                //print("av not visible")
                 
             })
             
-        } else {
+        } else if(!avIsVisible && !menuIsVisible){
             
             view.layoutIfNeeded()
             
@@ -1161,7 +1164,9 @@ extension MapViewController: ActivityDelegate {
             }, completion: { finished in
             
                 self.avIsVisible = !self.avIsVisible
+                self.mapContainerView.addGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
                 self.mapView.isUserInteractionEnabled = false
+                //print("av is visible")
             
             })
             
