@@ -937,6 +937,24 @@ extension MapViewController: MKMapViewDelegate {
             
             print("Popsicle selected.")
             
+            let bottomSheetVC = PopsiclePopupViewController()
+            
+            bottomSheetVC.popsicleCategory = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventCategory
+            bottomSheetVC.popsicleName = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventTitle
+            bottomSheetVC.popsicleStartDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventStartDate
+            bottomSheetVC.popsicleEndDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventEndDate!
+            bottomSheetVC.popsicleDetails = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventDetails!
+            bottomSheetVC.popsicleAddy = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventLocation
+//            bottomSheetVC.popsicleHashtags = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventHashtags
+            
+            self.addChild(bottomSheetVC)
+            self.view.addSubview(bottomSheetVC.view)
+            bottomSheetVC.didMove(toParent: self)
+            
+            let height = self.view.frame.height
+            let width  = self.view.frame.width
+            bottomSheetVC.view.frame = CGRect(x: 0, y: self.view.frame.maxY, width: width, height: height)
+            
         } else if let selectedPopsicle = view.annotation, selectedPopsicle is MKUserLocation {
             
             print("User location selected.")
