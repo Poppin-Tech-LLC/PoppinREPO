@@ -440,18 +440,25 @@ class PopsiclePopupViewController : UIViewController, HashtagViewDelegate {
     @objc private func panGesture(_ recognizer: UIPanGestureRecognizer) {
         moveView(panGestureRecognizer: recognizer)
         
+        var dismissed = false
+        
         if recognizer.state == .ended {
             UIView.animate(withDuration: 0.6, delay: 0.0, options: [.allowUserInteraction], animations: {
                 if(recognizer.velocity(in: self.view).y < 0) {
                     self.moveView(state: .full)
                 } else if(recognizer.velocity(in: self.view).y >= 0 && self.view.frame.minY > Constant.partialViewYPosition) {
                     self.moveView(state: .dismissed)
-                    // need to remove view from superview 
-                    print("dismissed")
+                    dismissed = true
                 } else {
                     self.moveView(state: .partial)
                 }
-            }, completion: nil)
+            }, completion: { (finished: Bool) in
+                if(dismissed) {
+                    // dismiss posicle info view
+                    self.view.removeFromSuperview()
+                    print("dismissed")
+                }
+            })
         }
         
     }
