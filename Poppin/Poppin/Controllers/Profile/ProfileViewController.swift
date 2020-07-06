@@ -13,467 +13,566 @@ import FirebaseAuth
 
 final class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
-    var storage: Storage?
+    let profileInsetY: CGFloat = .getPercentageWidth(percentage: 5)
+    let profileInsetX: CGFloat = .getPercentageWidth(percentage: 5)
+    
+    let containerInsetY: CGFloat = .getPercentageWidth(percentage: 3.5)
+    let containerInsetX: CGFloat = .getPercentageWidth(percentage: 3.5)
+    
+    private var storage: Storage = Storage.storage()
+    
+    private var userData: UserData = UserData(username: "@username", uid: "", bio: "Bio", fullName: "Full Name")
+    
+    private var followers: String = "0" {
+        
+        didSet { followersButton.setTitle(followers, for: .normal) }
+        
+    }
+    
+    private var following: String = "0" {
+        
+        didSet { followingButton.setTitle(following, for: .normal) }
+        
+    }
+    
+    private var profilePictureURL: URL? {
+        
+        didSet {
+            
+            profilePictureButton.sd_setImage(with: profilePictureURL, for: .normal, placeholderImage: UIImage.defaultUserPicture256, options: .continueInBackground, completed: nil)
+            
+        }
+        
+    }
 
-    lazy var nameLabel: UILabel = {
-        let nameLabel = UILabel()
-        nameLabel.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
-        nameLabel.textColor = UIColor.mainDARKPURPLE
-        return nameLabel
+    lazy private var fullNameLabel: UILabel = {
+        
+        var fullNameLabel = UILabel()
+        fullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        fullNameLabel.textColor = UIColor.mainDARKPURPLE
+        fullNameLabel.textAlignment = .center
+        fullNameLabel.text = userData.fullName
+        
+        fullNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        fullNameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height).isActive = true
+        
+        return fullNameLabel
+        
     }()
     
-    lazy var usernameLabel: UILabel = {
-        let usernameLabel = UILabel()
-        usernameLabel.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
+    lazy private var usernameLabel: UILabel = {
+        
+        var usernameLabel = UILabel()
+        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .callout)
         usernameLabel.textColor = UIColor.mainDARKPURPLE
+        usernameLabel.textAlignment = .center
+        usernameLabel.text = "@" + userData.username.lowercased()
+        
+        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
+        usernameLabel.heightAnchor.constraint(equalToConstant: usernameLabel.intrinsicContentSize.height).isActive = true
+        
         return usernameLabel
+        
     }()
     
-    lazy var bioLabel: UILabel = {
-        let bioLabel = UILabel()
-        bioLabel.font = UIFont(name: "Octarine-Light", size: .getWidthFitSize(minSize: 10.0, maxSize: 14.0))
+    lazy private var bioLabel: UILabel = {
+        
+        var bioLabel = UILabel()
+        bioLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
         bioLabel.textColor = UIColor.mainDARKPURPLE
-        bioLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
+        bioLabel.lineBreakMode = .byWordWrapping
+        bioLabel.sizeToFit()
         bioLabel.numberOfLines = 0
         bioLabel.textAlignment = .center
-        //bioLabel.numberOfLines = 10
+        bioLabel.text = userData.bio
+        
+        if userData.bio == "" { bioLabel.isHidden = true }
+        
         return bioLabel
+        
     }()
     
-    lazy var followerLabel: UILabel = {
-        let followerLabel = UILabel()
-        followerLabel.text = "followers"
-        followerLabel.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
-        followerLabel.textColor = UIColor.mainDARKPURPLE
-        return followerLabel
-    }()
-    
-    lazy var followerCountButton: UIButton = {
-        let followerCountButton = UIButton()
-        followerCountButton.titleLabel!.font = UIFont(name: "Octarine-Light", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
-        followerCountButton.titleLabel!.textAlignment = .center
-        followerCountButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-        followerCountButton.addTarget(self, action: #selector(viewFollowers), for: .touchUpInside)
+    lazy private var followersButton: BouncyButton = {
 
-        return followerCountButton
+        var followersButton = BouncyButton(bouncyButtonImage: nil)
+        followersButton.backgroundColor = .clear
+        followersButton.setTitleColor(UIColor.mainDARKPURPLE, for: .normal)
+        followersButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline)
+        followersButton.setTitle(followers, for: .normal)
+        followersButton.titleLabel?.textAlignment = .center
+        followersButton.addTarget(self, action: #selector(showFollowers), for: .touchUpInside)
+        return followersButton
+        
     }()
     
-    lazy var followingLabel: UILabel = {
-        let followingLabel = UILabel()
-        followingLabel.text = "following"
-        followingLabel.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
-        followingLabel.textColor = UIColor.mainDARKPURPLE
+    lazy private var followersLabel: UILabel = {
+        
+        var followersLabel = UILabel()
+        followersLabel.backgroundColor = .clear
+        followersLabel.textColor = .mainDARKPURPLE
+        followersLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote)
+        followersLabel.text = "Followers"
+        followersLabel.textAlignment = .center
+        
+        followersLabel.translatesAutoresizingMaskIntoConstraints = false
+        followersLabel.heightAnchor.constraint(equalToConstant: followersLabel.intrinsicContentSize.height).isActive = true
+        
+        return followersLabel
+        
+    }()
+    
+    lazy private var followingButton: BouncyButton = {
+        
+        var followingButton = BouncyButton(bouncyButtonImage: nil)
+        followingButton.backgroundColor = .clear
+        followingButton.setTitleColor(UIColor.mainDARKPURPLE, for: .normal)
+        followingButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline)
+        followingButton.setTitle(following, for: .normal)
+        followingButton.titleLabel?.textAlignment = .center
+        followingButton.addTarget(self, action: #selector(showFollowing), for: .touchUpInside)
+        return followingButton
+        
+    }()
+    
+    lazy private var followingLabel: UILabel = {
+        
+        var followingLabel = UILabel()
+        followingLabel.backgroundColor = .clear
+        followingLabel.textColor = .mainDARKPURPLE
+        followingLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote)
+        followingLabel.text = "Following"
+        followingLabel.textAlignment = .center
+        
+        followingLabel.translatesAutoresizingMaskIntoConstraints = false
+        followingLabel.heightAnchor.constraint(equalToConstant: followingLabel.intrinsicContentSize.height).isActive = true
+        
         return followingLabel
+        
     }()
     
-    lazy var followingCountButton: UIButton = {
-        let followingCountButton = UIButton()
-        followingCountButton.titleLabel!.font = UIFont(name: "Octarine-Light", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
-        followingCountButton.titleLabel!.textAlignment = .center
-        followingCountButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-        followingCountButton.addTarget(self, action: #selector(viewFollowing), for: .touchUpInside)
-        return followingCountButton
+    lazy private var profileContainerView: UIView = {
+        
+        let profileContainerStackView = UIStackView(arrangedSubviews: [fullNameLabel, bioLabel])
+        profileContainerStackView.axis = .vertical
+        profileContainerStackView.alignment = .fill
+        profileContainerStackView.distribution = .fill
+        profileContainerStackView.spacing = containerInsetY
+        
+        var profileContainerView = UIView()
+        profileContainerView.backgroundColor = .white
+        profileContainerView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.3, shadowRadius: 8.0)
+        
+        profileContainerView.addSubview(usernameLabel)
+        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
+        usernameLabel.topAnchor.constraint(equalTo: profileContainerView.topAnchor, constant: profileInsetY).isActive = true
+        usernameLabel.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
+        
+        profileContainerView.addSubview(profileBackButton)
+        profileBackButton.translatesAutoresizingMaskIntoConstraints = false
+        profileBackButton.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor).isActive = true
+        profileBackButton.heightAnchor.constraint(equalTo: usernameLabel.heightAnchor).isActive = true
+        profileBackButton.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor, constant: profileInsetX).isActive = true
+        
+        profileContainerView.addSubview(profilePictureButton)
+        profilePictureButton.translatesAutoresizingMaskIntoConstraints = false
+        profilePictureButton.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: containerInsetY).isActive = true
+        profilePictureButton.widthAnchor.constraint(equalTo: profileContainerView.widthAnchor, multiplier: 0.25).isActive = true
+        profilePictureButton.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
+        
+        profileContainerView.addSubview(followersLabel)
+        followersLabel.translatesAutoresizingMaskIntoConstraints = false
+        followersLabel.trailingAnchor.constraint(equalTo: profilePictureButton.leadingAnchor, constant: -containerInsetX).isActive = true
+        followersLabel.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor, constant: profileInsetX).isActive = true
+        followersLabel.topAnchor.constraint(equalTo: profilePictureButton.centerYAnchor).isActive = true
+        
+        profileContainerView.addSubview(followersButton)
+        followersButton.translatesAutoresizingMaskIntoConstraints = false
+        followersButton.centerXAnchor.constraint(equalTo: followersLabel.centerXAnchor).isActive = true
+        followersButton.bottomAnchor.constraint(equalTo: profilePictureButton.centerYAnchor).isActive = true
+        
+        profileContainerView.addSubview(followingLabel)
+        followingLabel.translatesAutoresizingMaskIntoConstraints = false
+        followingLabel.trailingAnchor.constraint(equalTo: profileContainerView.trailingAnchor, constant: -profileInsetX).isActive = true
+        followingLabel.leadingAnchor.constraint(equalTo: profilePictureButton.trailingAnchor, constant: containerInsetX).isActive = true
+        followingLabel.topAnchor.constraint(equalTo: profilePictureButton.centerYAnchor).isActive = true
+        
+        profileContainerView.addSubview(followingButton)
+        followingButton.translatesAutoresizingMaskIntoConstraints = false
+        followingButton.centerXAnchor.constraint(equalTo: followingLabel.centerXAnchor).isActive = true
+        followingButton.bottomAnchor.constraint(equalTo: profilePictureButton.centerYAnchor).isActive = true
+        
+        profileContainerView.addSubview(profileContainerStackView)
+        profileContainerStackView.translatesAutoresizingMaskIntoConstraints = false
+        profileContainerStackView.topAnchor.constraint(equalTo: profilePictureButton.bottomAnchor, constant: containerInsetY).isActive = true
+        profileContainerStackView.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor, constant: containerInsetX).isActive = true
+        profileContainerStackView.trailingAnchor.constraint(equalTo: profileContainerView.trailingAnchor, constant: -containerInsetX).isActive = true
+        
+        profileContainerView.addSubview(followButton)
+        followButton.translatesAutoresizingMaskIntoConstraints = false
+        followButton.topAnchor.constraint(equalTo: profileContainerStackView.bottomAnchor, constant: containerInsetY).isActive = true
+        followButton.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
+        
+        return profileContainerView
+        
     }()
     
-    lazy var purpleView: UIView = {
-        let purpleView = UIView()
-        purpleView.backgroundColor = .white
-        purpleView.addShadowAndRoundCorners(shadowOffset: CGSize(width: 5.0, height: 5.0))
-        return purpleView
-    }()
-    
-    lazy var backgroundView: UIImageView = {
-        let backgroundView = UIImageView(image: UIImage.appBackground)
-        backgroundView.contentMode = UIView.ContentMode.scaleAspectFill
+    lazy private var backgroundView: UIView = {
+        
+        let backgroundImageView = UIImageView(image: UIImage.appBackground)
+        backgroundImageView.contentMode = .scaleAspectFill
+        
+        var backgroundView = UIView()
+        backgroundView.backgroundColor = .poppinLIGHTGOLD
+        
+        backgroundView.addSubview(backgroundImageView)
+        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
+        backgroundImageView.topAnchor.constraint(equalTo: backgroundView.topAnchor).isActive = true
+        backgroundImageView.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor).isActive = true
+        backgroundImageView.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor).isActive = true
+        backgroundImageView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor).isActive = true
+        
         return backgroundView
+        
     }()
     
-    lazy var userImage: UIImageView = {
-        var userImage = UIImageView()
-        userImage.layer.borderColor = UIColor.white.cgColor
-        //userImage.image = .defaultUserPicture128
-        userImage.contentMode = .scaleToFill
+    lazy private var profilePictureButton: ImageBubbleButton = {
         
-        userImage.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.09).isActive = true
-        userImage.widthAnchor.constraint(equalToConstant: view.bounds.height * 0.09).isActive = true
-        userImage.frame = CGRect(x: 0, y: 0, width: view.bounds.height * 0.09, height: view.bounds.height * 0.09)
-        userImage.layer.masksToBounds = true
+        var profilePictureButton = ImageBubbleButton(bouncyButtonImage: UIImage.defaultUserPicture256)
+        profilePictureButton.imageView?.contentMode = .scaleToFill
+        profilePictureButton.addTarget(self, action: #selector(displayImageViewController), for: .touchUpInside)
         
-       // userImage.addShadowAndRoundCorners(cornerRadius: userImage.bounds.height/2)
-        userImage.layer.cornerRadius = userImage.bounds.height/2
-        userImage.layer.cornerCurve = .continuous
-        userImage.layer.shadowColor = UIColor.black.cgColor
-        userImage.layer.shadowOffset = CGSize(width: 0.0, height: 3.0) // Shifts shadow
-        userImage.layer.shadowOpacity = 0.3 // Higher value means more opaque
-        userImage.layer.shadowRadius = 3 // Higher value means more blurry
-        var maskedCorners = CACornerMask()
-
-        maskedCorners.insert(.layerMaxXMinYCorner)
-        maskedCorners.insert(.layerMinXMinYCorner)
-        maskedCorners.insert(.layerMaxXMaxYCorner)
-        maskedCorners.insert(.layerMinXMaxYCorner)
-        if !maskedCorners.isEmpty { userImage.layer.maskedCorners = maskedCorners }
+        profilePictureButton.translatesAutoresizingMaskIntoConstraints = false
+        profilePictureButton.heightAnchor.constraint(equalTo: profilePictureButton.widthAnchor).isActive = true
         
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped(tapGestureRecognizer:)))
-        userImage.isUserInteractionEnabled = true
-        userImage.addGestureRecognizer(tapGestureRecognizer)
-        //userImage.frame.size = CGSize(width: 40.0, height: 20.0)
-        //userImage.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        //userImage.getPercentage
-        //userImage.clipsToBounds = true
-        return userImage
+        return profilePictureButton
+        
     }()
     
-    lazy var followButton: BubbleButton = {
-        var followButton = BubbleButton(bouncyButtonImage: nil)
+    lazy private var followButton: BouncyButton = {
+        
+        let innerEdgeInset: CGFloat = .getPercentageWidth(percentage: 2)
+        
+        var followButton = BouncyButton(bouncyButtonImage: nil)
         followButton.titleLabel!.textAlignment = .center
-        followButton.titleLabel!.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 14.0, maxSize: 17.0))
-        followButton.addTarget(self, action: #selector(follow), for: .touchUpInside)
+        followButton.titleLabel!.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
+        followButton.setTitle("Follow", for: .normal)
+        followButton.setTitleColor(.white, for: .normal)
+        followButton.backgroundColor = .mainDARKPURPLE
+        followButton.addTarget(self, action: #selector(performFollow), for: .touchUpInside)
+        followButton.contentEdgeInsets = UIEdgeInsets(top: innerEdgeInset, left: innerEdgeInset*2, bottom: innerEdgeInset, right: innerEdgeInset*2)
+        followButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 10.0, maxSize: 12.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
+        
         return followButton
+        
     }()
     
-    var uid: String?
-    
-    lazy var backButton: ImageBubbleButton = {
-        let purpleArrow = UIImage(systemName: "arrow.left.circle.fill")!.withTintColor(.mainDARKPURPLE)
-        let backButton = ImageBubbleButton(bouncyButtonImage: purpleArrow)
-        backButton.contentMode = .scaleToFill
-       // backButton.setTitle("Back", for: .normal)
-        //backButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-        return backButton
+    lazy private var profileBackButton: BouncyButton = {
+        
+        var profileBackButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .arrowLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.mainDARKPURPLE))
+       profileBackButton.addTarget(self, action: #selector(transitionToPreviousPage), for: .touchUpInside)
+       
+       profileBackButton.translatesAutoresizingMaskIntoConstraints = false
+       profileBackButton.widthAnchor.constraint(equalTo: profileBackButton.heightAnchor).isActive = true
+       
+       return profileBackButton
+        
     }()
     
+    init(with data: UserData) {
+        
+        super.init(nibName: nil, bundle: nil)
+        
+        userData = data
+        fetchFollowersFollowingPicture()
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        
+        super.init(coder: coder)
+        
+    }
     
     override func viewDidLoad() {
+        
         super.viewDidLoad()
         
-        getFollowerCount()
-        storage = Storage.storage()
-
-        
-        let reference = (self.storage?.reference().child("images/\(uid!)/profilepic.jpg"))!
-
-
-        // Placeholder image
-        let placeholderImage = UIImage.defaultUserPicture256
-
-        // Load the image using SDWebImage
-        //cell.userImageHolder.sd_setImage(with: reference, placeholderImage: placeholderImage)
-        userImage.sd_setImage(with: reference, placeholderImage: placeholderImage)
-        
-        // view.backgroundColor = .white
-        //view.backgroundColor = UIColor(patternImage: .newAppBackground)
-        //        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(goBack))
-        //        swipeRight.direction = .right
-        //        self.view.addGestureRecognizer(swipeRight)
-        view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleDismiss)))
-        
         view.addSubview(backgroundView)
-        backgroundView.isUserInteractionEnabled = true
         backgroundView.translatesAutoresizingMaskIntoConstraints = false
-        backgroundView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        backgroundView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        backgroundView.heightAnchor.constraint(equalToConstant: view.bounds.height).isActive = true
-        backgroundView.widthAnchor.constraint(equalToConstant: view.bounds.width).isActive = true
-        backgroundView.safeAreaLayoutGuide.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        backgroundView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
+        backgroundView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         
-        backgroundView.addSubview(purpleView)
-        purpleView.isUserInteractionEnabled = true
-        purpleView.translatesAutoresizingMaskIntoConstraints = false
-        purpleView.topAnchor.constraint(equalTo: backgroundView.safeAreaLayoutGuide.topAnchor).isActive = true
-        purpleView.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor, constant: -backgroundView.bounds.height * 0.025).isActive = true
-        purpleView.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        //purpleView.heightAnchor.constraint(equalToConstant: backgroundView.bounds.height * 0.4).isActive = true
-        purpleView.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.9).isActive = true
-        //purpleView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height)
-        
-        purpleView.addSubview(usernameLabel)
-        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20 ).isActive = true
-        usernameLabel.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        
-        purpleView.addSubview(userImage)
-        userImage.translatesAutoresizingMaskIntoConstraints = false
-        userImage.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: backgroundView.bounds.height * 0.025).isActive = true
-        userImage.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-
-        
-        purpleView.addSubview(followerLabel)
-        followerLabel.translatesAutoresizingMaskIntoConstraints = false
-        followerLabel.trailingAnchor.constraint(equalTo: userImage.leadingAnchor, constant: -25).isActive = true
-        followerLabel.topAnchor.constraint(equalTo: userImage.topAnchor, constant: 25).isActive = true
-        
-        purpleView.addSubview(followerCountButton)
-        followerCountButton.translatesAutoresizingMaskIntoConstraints = false
-        followerCountButton.trailingAnchor.constraint(equalTo: followerLabel.trailingAnchor).isActive = true
-        followerCountButton.leadingAnchor.constraint(equalTo: followerLabel.leadingAnchor).isActive = true
-        followerCountButton.topAnchor.constraint(equalTo: followerLabel.bottomAnchor, constant: 5).isActive = true
-        
-        purpleView.addSubview(followingLabel)
-        followingLabel.translatesAutoresizingMaskIntoConstraints = false
-        followingLabel.leadingAnchor.constraint(equalTo: userImage.trailingAnchor, constant: 25).isActive = true
-        followingLabel.topAnchor.constraint(equalTo: userImage.topAnchor, constant: 25).isActive = true
-        
-        purpleView.addSubview(followingCountButton)
-        followingCountButton.translatesAutoresizingMaskIntoConstraints = false
-        followingCountButton.trailingAnchor.constraint(equalTo: followingLabel.trailingAnchor).isActive = true
-        followingCountButton.leadingAnchor.constraint(equalTo: followingLabel.leadingAnchor).isActive = true
-        followingCountButton.topAnchor.constraint(equalTo: followingLabel.bottomAnchor, constant: 5).isActive = true
-        
-        purpleView.addSubview(nameLabel)
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        nameLabel.topAnchor.constraint(equalTo: userImage.bottomAnchor, constant: backgroundView.bounds.height * 0.025).isActive = true
-        nameLabel.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        
-        purpleView.addSubview(bioLabel)
-        bioLabel.translatesAutoresizingMaskIntoConstraints = false
-        bioLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: backgroundView.bounds.height * 0.01).isActive = true
-        bioLabel.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        bioLabel.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.75).isActive = true
-        
-        purpleView.addSubview(followButton)
-        followButton.translatesAutoresizingMaskIntoConstraints = false
-        if(bioLabel.text == ""){
-            followButton.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: backgroundView.bounds.height * 0.01).isActive = true
-        }else{
-            followButton.topAnchor.constraint(equalTo: bioLabel.bottomAnchor, constant: backgroundView.bounds.height * 0.01).isActive = true
-        }
-        followButton.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        followButton.heightAnchor.constraint(equalToConstant: backgroundView.bounds.height * 0.04).isActive = true
-        followButton.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.3).isActive = true
-        
-        purpleView.addSubview(backButton)
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        backButton.topAnchor.constraint(equalTo: purpleView.topAnchor).isActive = true
-        backButton.leadingAnchor.constraint(equalTo: purpleView.leadingAnchor).isActive = true
-        backButton.heightAnchor.constraint(equalToConstant: backgroundView.bounds.height * 0.04).isActive = true
-        backButton.widthAnchor.constraint(equalToConstant: backgroundView.bounds.height * 0.04).isActive = true
+        view.addSubview(profileContainerView)
+        profileContainerView.translatesAutoresizingMaskIntoConstraints = false
+        profileContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: profileInsetY).isActive = true
+        profileContainerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -profileInsetY).isActive = true
+        profileContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: profileInsetX).isActive = true
+        profileContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -profileInsetX).isActive = true
 
     }
     
-    @objc func imageTapped(tapGestureRecognizer: UITapGestureRecognizer)
-    {
-        print("IMAGE TAPPED")
-        let vc = ProfileImageViewController()
-        vc.uid = uid
-        vc.modalPresentationStyle = .overCurrentContext
-        self.present(vc, animated: true, completion: nil)
-        //let tappedImage = tapGestureRecognizer.view as! UIImageView
-
-        // Your action
-    }
-    
-    var viewTranslation = CGPoint(x: 0, y: 0)
-
-    @objc func handleDismiss(sender: UIPanGestureRecognizer) {
+    override func viewWillAppear(_ animated: Bool) {
         
-        switch sender.state {
-          case .changed:
-              viewTranslation = sender.translation(in: view)
-              UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                self.view.transform = CGAffineTransform(translationX: self.viewTranslation.x, y: 0)
-              })
-          case .ended:
-              if viewTranslation.x < 200 {
-                  UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                      self.view.transform = .identity
-                  })
-              } else {
-                self.dismiss(animated: true, completion: nil)
-                //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "myNotification"), object: nil)
-              }
-          default:
-              break
-          }
+        super.viewWillAppear(animated)
+        
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
         
     }
     
-    
-    @objc func goBack() {
+    override func viewWillDisappear(_ animated: Bool) {
         
-        self.dismiss(animated: true, completion: nil)
-        //NotificationCenter.default.post(name: NSNotification.Name(rawValue: "myNotification"), object: nil)
+        super.viewWillDisappear(animated)
+        
+        navigationController?.interactivePopGestureRecognizer?.delegate = nil
         
     }
     
-    @objc func follow(){
+    @objc private func displayImageViewController() {
+        
+        let profileImageVC = ProfileImageViewController(profileImage: profilePictureButton.image(for: .normal))
+        
+        self.present(profileImageVC, animated: true, completion: nil)
+        
+    }
+    
+    @objc func transitionToPreviousPage() {
+        
+        navigationController?.popViewController(animated: true)
+        
+    }
+    
+    @objc private func performFollow() {
         
         let userId = Auth.auth().currentUser!.uid
         
         let ref = Database.database().reference(withPath:"users")
         
-        if(followButton.titleLabel!.text == "following"){
+        if followButton.titleLabel!.text == "Following" {
             
             let button1 = AlertButton(alertTitle: "Cancel", alertButtonAction: nil)
             
-            let button2 = AlertButton(alertTitle: "Continue", alertButtonAction: {
+            let button2 = AlertButton(alertTitle: "Unfollow", alertButtonAction: {
             
-                ref.child(self.uid!).child("followers").child(userId).removeValue()
-                ref.child(userId).child("following").child(self.uid!).removeValue()
+                ref.child(self.userData.uid).child("followers").child(userId).removeValue { [weak self] (error, reference) in
+                    
+                    guard let self = self else { return }
+                    
+                    ref.child(self.userData.uid).child("followers").observeSingleEvent(of: .value, with: { (snapshot) in
+                        
+                        self.followers = String(snapshot.childrenCount - 1)
+                        
+                    })
+                    
+                }
+                
+                ref.child(userId).child("following").child(self.userData.uid).removeValue()
             
-            
-            
-                ref.child(self.uid!).child("followers").observeSingleEvent(of: .value, with: { (snapshot) in
-                self.followerCountButton.setTitle(String(snapshot.childrenCount - 1), for: .normal)
-            })
-            
-                self.followButton.setTitle("follow", for: .normal)
+                self.followButton.setTitle("Follow", for: .normal)
                 self.followButton.setTitleColor(.white, for: .normal)
                 self.followButton.backgroundColor = .mainDARKPURPLE
+                
             })
             
-            let alertVC = AlertViewController(alertTitle: "Are you sure you wish to unfollow this user?", alertMessage: "You wish", alertButtons: [button1, button2])
+            let alertVC = AlertViewController(alertTitle: "Unfollow " + userData.fullName, alertMessage: "Are you sure you wish to unfollow this user?", alertButtons: [button1, button2])
             
             self.present(alertVC, animated: true, completion: nil)
             
-        }else{
+        } else {
             
-            ref.child(uid!).child("followers").child(userId).setValue(true)
-            ref.child(userId).child("following").child(uid!).setValue(true)
+            ref.child(self.userData.uid).child("followers").child(userId).setValue(true) { [weak self] (error, reference) in
+                
+                guard let self = self else { return }
+                
+                ref.child(self.userData.uid).child("followers").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+                    
+                    guard let self = self else { return }
+                    
+                    self.followers = String(snapshot.childrenCount - 1)
+                    
+                })
+                
+            }
             
+            ref.child(userId).child("following").child(self.userData.uid).setValue(true)
             
-            
-            ref.child(uid!).child("followers").observeSingleEvent(of: .value, with: { (snapshot) in
-                self.followerCountButton.setTitle(String(snapshot.childrenCount - 1), for: .normal)
-            })
-            
-            followButton.setTitle("following", for: .normal)
+            followButton.setTitle("Following", for: .normal)
             followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
             followButton.backgroundColor = .white
+            
         }
         
     }
     
-    @objc func viewFollowers(){
+    @objc private func showFollowers(){
         
-        let vc = SearchViewController()
-        vc.uid = uid
-        vc.searchType = "showFollowers"
-        vc.modalPresentationStyle = .fullScreen
-        self.present(vc, animated: true, completion: nil)
+        let searchVC = SearchViewController(searchTypes: [.Followers, .Following], userID: userData.uid, username: userData.username, shouldActivateSearchBar: false)
+        navigationController?.pushViewController(searchVC, animated: true)
 
     }
     
-    @objc func viewFollowing(){
+    @objc func showFollowing(){
         
-         let vc = SearchViewController()
-         vc.uid = uid
-         vc.searchType = "showFollowing"
-         vc.modalPresentationStyle = .fullScreen
-         self.present(vc, animated: true, completion: nil)
+         let searchVC = SearchViewController(searchTypes: [.Followers, .Following], userID: userData.uid, username: userData.username, shouldActivateSearchBar: false)
+         navigationController?.pushViewController(searchVC, animated: true)
 
      }
     
-    func getFollowerCount(){
+    private func fetchFollowersFollowingPicture() {
         
+        let uid = Auth.auth().currentUser!.uid
         let ref = Database.database().reference(withPath:"users")
+        let ref2 = storage.reference().child("images/\(userData.uid)/profilepic.jpg")
+        let ref3 = Database.database().reference()
         
-        
-        ref.child(uid!).child("followers").observeSingleEvent(of: .value, with: { (snapshot) in
-            self.followerCountButton.setTitle(String(snapshot.childrenCount - 1), for: .normal)
+        ref3.child("users/\(uid)/following").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+            
+            guard let self = self else { return }
+            
+            if snapshot.hasChild(self.userData.uid){
+                
+                self.followButton.setTitle("Following", for: .normal)
+                self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+                self.followButton.backgroundColor = .white
+                
+            } else {
+                
+                self.followButton.setTitle("Follow", for: .normal)
+                self.followButton.setTitleColor(.white, for: .normal)
+                self.followButton.backgroundColor = .mainDARKPURPLE
+                
+            }
+            
         })
         
-        ref.child(uid!).child("following").observeSingleEvent(of: .value, with: { (snapshot) in
-            self.followingCountButton.setTitle(String(snapshot.childrenCount - 1), for: .normal)
+        ref.child(userData.uid).child("followers").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+            
+            guard let self = self else { return }
+            
+            self.followers = String(snapshot.childrenCount - 1)
+
         })
+        
+        ref.child(userData.uid).child("following").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+            
+            guard let self = self else { return }
+            
+            self.following = String(snapshot.childrenCount - 1)
+            
+        })
+        
+        ref2.downloadURL { [weak self] url, error in
+            
+            guard let self = self else { return }
+            
+            if error != nil {
+                
+                print("Error: Unable to download profile image.")
+
+            } else {
+
+                self.profilePictureURL = url
+                
+            }
+            
+        }
+        
+    }
+    
+}
+
+extension ProfileViewController: UIGestureRecognizerDelegate {
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
         
     }
     
 }
 
 final class ProfileImageViewController: UIViewController {
-
-    var uid: String?
-    var storage: Storage?
     
-    lazy var imageView: UIImageView = {
+    private var profileImage: UIImage = UIImage.defaultUserPicture256
+    
+    lazy var profileImageView: BubbleImageView = {
         
-        let imageView = UIImageView()
-        imageView.contentMode = UIView.ContentMode.scaleAspectFill
-        imageView.layer.masksToBounds = true
-        imageView.frame = CGRect(x: 0, y: 0, width: view.bounds.width * 0.8, height: view.bounds.width * 0.8)
-        // userImage.addShadowAndRoundCorners(cornerRadius: userImage.bounds.height/2)
-         imageView.layer.cornerRadius = imageView.bounds.height/2
-        return imageView
+        var profileImageView = BubbleImageView(image: profileImage)
+        profileImageView.contentMode = .scaleAspectFill
+        
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.heightAnchor.constraint(equalTo: profileImageView.widthAnchor).isActive = true
+        
+        return profileImageView
         
     }()
     
-    lazy var backButton: ImageBubbleButton = {
+    lazy var tapToHideLabel: UILabel = {
         
-         let purpleArrow = UIImage(systemName: "arrow.left.circle.fill")!.withTintColor(.mainDARKPURPLE)
-         let backButton = ImageBubbleButton(bouncyButtonImage: purpleArrow)
-         backButton.contentMode = .scaleToFill
-        // backButton.setTitle("Back", for: .normal)
-         //backButton.setTitleColor(.newPurple, for: .normal)
-         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-         return backButton
+        var tapToHideLabel = UILabel()
+        tapToHideLabel.text = "Tap anywhere to hide"
+        tapToHideLabel.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
+        tapToHideLabel.textColor = .white
+        tapToHideLabel.textAlignment = .center
         
-     }()
+        tapToHideLabel.translatesAutoresizingMaskIntoConstraints = false
+        tapToHideLabel.heightAnchor.constraint(equalToConstant: tapToHideLabel.intrinsicContentSize.height).isActive = true
+        tapToHideLabel.widthAnchor.constraint(equalToConstant: tapToHideLabel.intrinsicContentSize.width).isActive = true
+        
+        return tapToHideLabel
+        
+    }()
+    
+    init(profileImage: UIImage?) {
+        
+        super.init(nibName: nil, bundle: nil)
+
+        if let profileImage = profileImage { self.profileImage = profileImage }
+        
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        
+        super.init(coder: coder)
+        
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+        
+    }
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
-        storage = Storage.storage()
+        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(transitionToPreviousPage)))
         
-        let reference = (self.storage?.reference().child("images/\(uid!)/profilepic.jpg"))!
+        let blurEffect = UIBlurEffect(style: UIBlurEffect.Style.dark)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = view.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        view.addSubview(blurEffectView)
 
-        // Placeholder image
-        let placeholderImage = UIImage.defaultUserPicture256
-
-        // Load the image using SDWebImage
-        //cell.userImageHolder.sd_setImage(with: reference, placeholderImage: placeholderImage)
-        imageView.sd_setImage(with: reference, placeholderImage: placeholderImage)
+        view.addSubview(profileImageView)
+        profileImageView.translatesAutoresizingMaskIntoConstraints = false
+        profileImageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        profileImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        profileImageView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6).isActive = true
         
-        view.backgroundColor = UIColor(white: 0, alpha: 0.9)
-        
-        view.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handleDismiss)))
-
-        view.addSubview(imageView)
-        imageView.isUserInteractionEnabled = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        imageView.heightAnchor.constraint(equalToConstant: view.bounds.width * 0.8).isActive = true
-        imageView.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.8).isActive = true
-        
-        view.addSubview(backButton)
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: view.bounds.width * 0.04).isActive = true
-        backButton.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.04).isActive = true
-        backButton.widthAnchor.constraint(equalToConstant: view.bounds.height * 0.04).isActive = true
+        view.addSubview(tapToHideLabel)
+        tapToHideLabel.translatesAutoresizingMaskIntoConstraints = false
+        tapToHideLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: .getPercentageWidth(percentage: 5)).isActive = true
+        tapToHideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
 
     }
     
-    @objc func goBack() {
+    @objc private func transitionToPreviousPage() {
         
         self.dismiss(animated: true, completion: nil)
-        
-    }
-
-    var viewTranslation = CGPoint(x: 0, y: 0)
-
-    @objc func handleDismiss(sender: UIPanGestureRecognizer) {
-        switch sender.state {
-          case .changed:
-              viewTranslation = sender.translation(in: view)
-              UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                  self.view.transform = CGAffineTransform(translationX: 0, y: self.viewTranslation.y)
-              })
-          case .ended:
-              if viewTranslation.y < 200 {
-                  UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                      self.view.transform = .identity
-                  })
-              } else {
-                  dismiss(animated: true, completion: nil)
-              }
-          default:
-              break
-          }
         
     }
 

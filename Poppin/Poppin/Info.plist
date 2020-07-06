@@ -27,9 +27,9 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>Octarine-Bold.otf</string>
+		<string>Octarine-BoldOblique.otf</string>
 		<string>Octarine-Light.otf</string>
 		<string>Octarine-LightOblique.otf</string>
-		<string>Octarine-BoldOblique.otf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

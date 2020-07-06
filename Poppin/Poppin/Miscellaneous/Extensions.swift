@@ -137,9 +137,18 @@ extension UIImage {
     static let refreshPopsiclesIcon256 = UIImage(named: "refreshPopsiclesIcon256")!
     static let refreshPopsiclesIcon1024 = UIImage(named: "refreshPopsiclesIcon1024")!
     
+    // Menu Icons
+    
+    static let popsicleBorder128 = UIImage(named: "popsicleBorder128")!
+    static let popsicleBorder256 = UIImage(named: "popsicleBorder256")!
+    static let popsicleBorder1024 = UIImage(named: "popsicleBorder1024")!
+    
     // App Background
     
     static let appBackground = UIImage(named: "appBackground")!
+    
+    static let sadPopsicle = UIImage(named: "sadPopsicle")
+    static let happyPopsicle = UIImage(named: "happyPopsicle")
 
 }
 
@@ -360,4 +369,13 @@ extension CGSize {
         
     }
     
+}
+extension Notification.Name {
+
+    static let detailsWritten = Notification.Name("detailsWritten")
+    static let eventCreated = Notification.Name("eventCreated")
+    static let locationSelected = Notification.Name("locationSelected")
+    static let switchCategory = Notification.Name("switchCategory")
+
+
 }

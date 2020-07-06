@@ -85,6 +85,18 @@ class BouncyButton: UIButton {
 
 class BubbleButton: BouncyButton {
     
+    override init(bouncyButtonImage: UIImage?) {
+        
+        super.init(bouncyButtonImage: bouncyButtonImage)
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        
+        super.init(coder: aDecoder)
+        
+    }
+    
     override func layoutSubviews() {
         
         super.layoutSubviews()
@@ -96,6 +108,18 @@ class BubbleButton: BouncyButton {
 }
 
 final class ImageBubbleButton: BubbleButton {
+    
+    override init(bouncyButtonImage: UIImage?) {
+        
+        super.init(bouncyButtonImage: bouncyButtonImage)
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        
+        super.init(coder: aDecoder)
+        
+    }
     
     override func layoutSubviews() {
         
@@ -170,6 +194,27 @@ final class LoadingButton: BouncyButton {
         loadingIndicatorView.stopAnimating()
         
         setTitle(buttonTitle, for: .normal)
+        
+    }
+    
+}
+
+final class SectionButton: BouncyButton {
+    
+    var section = 0
+    var didFetchSection = false
+    
+    init(bouncyButtonImage: UIImage?, section: Int?) {
+        
+        super.init(bouncyButtonImage: bouncyButtonImage)
+        
+        if let section = section { self.section = section }
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        
+        super.init(coder: aDecoder)
         
     }
     
