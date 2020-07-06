@@ -412,7 +412,15 @@ class PopsiclePopupViewController : UIViewController, HashtagViewDelegate {
     }
     
     private func moveView(state: State) {
-        let yPosition = state == .partial ? Constant.partialViewYPosition : Constant.fullViewYPosition
+        var yPosition = CGFloat()
+        if(state == .partial) {
+            yPosition = Constant.partialViewYPosition
+        } else if(state == .full) {
+            yPosition = Constant.fullViewYPosition
+        } else if(state == .dismissed) {
+            yPosition = Constant.dismissedYPosition
+        }
+//        let yPosition = state == .partial ? Constant.partialViewYPosition : Constant.fullViewYPosition
         view.frame = CGRect(x: 0, y: yPosition, width: view.frame.width, height: view.frame.height)
     }
 
@@ -423,6 +431,9 @@ class PopsiclePopupViewController : UIViewController, HashtagViewDelegate {
         if (minY + translation.y >= Constant.fullViewYPosition) && (minY + translation.y <= Constant.partialViewYPosition) {
             view.frame = CGRect(x: 0, y: minY + translation.y, width: view.frame.width, height: view.frame.height)
             recognizer.setTranslation(CGPoint.zero, in: view)
+        } else if(minY + translation.y > Constant.partialViewYPosition) {
+            view.frame = CGRect(x: 0, y: minY + translation.y, width: view.frame.width, height: view.frame.height)
+            recognizer.setTranslation(CGPoint.zero, in: view)
         }
     }
     
@@ -431,10 +442,18 @@ class PopsiclePopupViewController : UIViewController, HashtagViewDelegate {
         
         if recognizer.state == .ended {
             UIView.animate(withDuration: 0.6, delay: 0.0, options: [.allowUserInteraction], animations: {
-                let state: State = recognizer.velocity(in: self.view).y >= 0 ? .partial : .full
-                self.moveView(state: state)
+                if(recognizer.velocity(in: self.view).y < 0) {
+                    self.moveView(state: .full)
+                } else if(recognizer.velocity(in: self.view).y >= 0 && self.view.frame.minY > Constant.partialViewYPosition) {
+                    self.moveView(state: .dismissed)
+                    // need to remove view from superview 
+                    print("dismissed")
+                } else {
+                    self.moveView(state: .partial)
+                }
             }, completion: nil)
         }
+        
     }
     
     func roundViews() {
@@ -517,5 +536,6 @@ extension PopsiclePopupViewController {
     private enum Constant {
         static let fullViewYPosition: CGFloat = .getPercentageHeight(percentage: 5)
         static let partialViewYPosition: CGFloat = .getPercentageHeight(percentage: 76)
+        static let dismissedYPosition: CGFloat = .getPercentageHeight(percentage: 100)
     }
 }
