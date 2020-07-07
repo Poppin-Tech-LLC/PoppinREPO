@@ -30,6 +30,14 @@ class PopsicleAnnotationView: MKAnnotationView {
         popsicleIconImageView.trailingAnchor.constraint(equalTo: popsicleContainerView.trailingAnchor).isActive = true
         popsicleIconImageView.bottomAnchor.constraint(equalTo: popsicleContainerView.bottomAnchor).isActive = true
         
+        popsicleContainerView.addSubview(popsicleIconShadowImageView)
+        popsicleContainerView.sendSubviewToBack(popsicleIconShadowImageView)
+        popsicleIconShadowImageView.translatesAutoresizingMaskIntoConstraints = false
+        popsicleIconShadowImageView.centerYAnchor.constraint(equalTo: popsicleIconImageView.bottomAnchor, constant: -1.5).isActive = true
+        popsicleIconShadowImageView.centerXAnchor.constraint(equalTo: popsicleIconImageView.centerXAnchor).isActive = true
+        popsicleIconShadowImageView.widthAnchor.constraint(equalTo: popsicleIconImageView.widthAnchor, multiplier: 0.85).isActive = true
+        popsicleIconShadowImageView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.25).isActive = true
+        
         return popsicleContainerView
         
     }()
@@ -40,6 +48,15 @@ class PopsicleAnnotationView: MKAnnotationView {
         popsicleGroupIconImageView.image = (annotation as! PopsicleAnnotation).getPopsicleAnnotationImage()
         popsicleGroupIconImageView.contentMode = .scaleAspectFit
         return popsicleGroupIconImageView
+        
+    }()
+    
+    lazy private var popsicleIconShadowImageView: UIImageView = {
+        
+        var popsicleIconShadowImageView = UIImageView()
+        popsicleIconShadowImageView.image = (annotation as! PopsicleAnnotation).getPopsicleShadowImage()
+        popsicleIconShadowImageView.contentMode = .scaleToFill
+        return popsicleIconShadowImageView
         
     }()
     

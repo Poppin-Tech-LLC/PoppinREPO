@@ -88,6 +88,22 @@ class PopsicleAnnotation: MKPointAnnotation {
         
     }
     
+    public func getPopsicleShadowImage() -> UIImage {
+        
+        switch popsicleAnnotationData.eventCategory {
+            
+        case .Education: return .educationIconShadow256
+        case .Food: return .foodPopsicleIconShadow256
+        case .Social: return .socialPopsicleIconShadow256
+        case .Sports: return .sportsIconShadow256
+        case .Culture: return .cultureIconShadow256
+        case .Poppin: return .poppinIconShadow256
+        case .Default: return .defaultPopsicleIconShadow256
+            
+        }
+        
+    }
+    
     static func == (lhs: PopsicleAnnotation, rhs: PopsicleAnnotation) -> Bool {
         
         return lhs.popsicleAnnotationData.eventTitle == rhs.popsicleAnnotationData.eventTitle && lhs.popsicleAnnotationData.eventLocation.latitude == rhs.popsicleAnnotationData.eventLocation.latitude && lhs.popsicleAnnotationData.eventLocation.longitude == rhs.popsicleAnnotationData.eventLocation.longitude
