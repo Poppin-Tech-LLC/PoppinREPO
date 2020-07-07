@@ -38,7 +38,7 @@ final class MapViewController: UIViewController {
     private let mapHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
     
     private let mapMenuWidth: CGFloat = .getPercentageWidth(percentage: 83)
-    private let avWidth: CGFloat = .getPercentageWidth(percentage: 83)
+    private let avWidth: CGFloat = .getPercentageWidth(percentage: 90)
     
     private var shouldPresentLoginVC: Bool = false
     private var menuIsVisible: Bool = false
@@ -262,7 +262,7 @@ final class MapViewController: UIViewController {
     
     lazy private var mapAVButton: ImageBubbleButton = {
         
-        var mapAVButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .flameFill).withTintColor(.mainDARKPURPLE).imageWithInsets(insets: UIEdgeInsets(top: .getPercentageWidth(percentage: 1), left: .getPercentageWidth(percentage: 1), bottom: .getPercentageWidth(percentage: 1), right: .getPercentageWidth(percentage: 1))))
+        var mapAVButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .flameFill).withTintColor(.mainDARKPURPLE).imageWithInsets(insets: UIEdgeInsets(top: .getPercentageWidth(percentage: 1.5), left: .getPercentageWidth(percentage: 1.5), bottom: .getPercentageWidth(percentage: 1.5), right: .getPercentageWidth(percentage: 1.5))))
         mapAVButton.backgroundColor = .white
         mapAVButton.addTarget(self, action: #selector(toggleAV(sender:)), for: .touchUpInside)
         
