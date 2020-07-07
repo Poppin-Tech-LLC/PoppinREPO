@@ -38,7 +38,7 @@ class PopsicleAnnotation: MKPointAnnotation {
     
     public static let defaultPopsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotationData(eventTitle: "Default Event", eventDetails: "Today", eventStartDate: PopsicleCategory.Default.rawValue, eventEndDate: "", eventCategory: PopsicleCategory.Default, eventHashtags: "", eventLocation: CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619))
     
-    private(set) var popsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotation.defaultPopsicleAnnotationData
+    lazy private(set) var popsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotation.defaultPopsicleAnnotationData
     
     convenience init(eventTitle: String, eventDetails: String?, eventStartDate: String, eventEndDate: String?, eventCategory: PopsicleCategory, eventHashtags: String, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]?) {
         
@@ -60,13 +60,29 @@ class PopsicleAnnotation: MKPointAnnotation {
         
         switch popsicleAnnotationData.eventCategory {
             
-        case .Education: return .educationPopsicleIcon64
-        case .Food: return .foodPopsicleIcon64
-        case .Social: return .socialPopsicleIcon64
-        case .Sports: return .sportsPopsicleIcon64
-        case .Culture: return .culturePopsicleIcon64
-        case .Poppin: return .poppinEventPopsicleIcon64
+        case .Education: return .educationPopsicleIcon256
+        case .Food: return .foodPopsicleIcon256
+        case .Social: return .socialPopsicleIcon256
+        case .Sports: return .sportsPopsicleIcon256
+        case .Culture: return .culturePopsicleIcon256
+        case .Poppin: return .poppinEventPopsicleIcon256
         case .Default: return .defaultPopsicleIcon256
+            
+        }
+        
+    }
+    
+    public func getPopsicleColor() -> UIColor {
+        
+        switch popsicleAnnotationData.eventCategory {
+            
+        case .Education: return .educationDARKBLUE
+        case .Food: return .foodDARKORANGE
+        case .Social: return .socialDARKRED
+        case .Sports: return .sportsDARKGREEN
+        case .Culture: return .cultureDARKPURPLE
+        case .Poppin: return .poppinDARKGOLD
+        case .Default: return .defaultGRAY
             
         }
         

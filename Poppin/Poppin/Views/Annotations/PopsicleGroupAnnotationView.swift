@@ -13,11 +13,20 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
     
     public static let defaultPopsicleGroupAnnotationViewReuseIdentifier = "PopsicleGroupAnnotationView"
     
+    private let popsicleHeight: CGFloat = .getPercentageWidth(percentage: 12.5)
+    private let popsicleWidth: CGFloat = .getPercentageWidth(percentage: 7.5)
+    
+    private let innerInsetX: CGFloat = .getPercentageWidth(percentage: 3)
+    private let innerInsetY: CGFloat = .getPercentageWidth(percentage: 2.5)
+    
     private(set) var popsicleGroupCount: Int = 0 {
         
         didSet {
             
-            popsicleGroupCountLabel.text = String(popsicleGroupCount)
+            frame = CGRect(x: 0.0, y: 0.0, width: popsicleWidth + ((popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX)/2), height: popsicleHeight)
+            
+            addSubview(popsicleGroupContainerView)
+            popsicleGroupContainerView.frame = bounds
             
         }
         
@@ -30,17 +39,27 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
         
         popsicleGroupContainerView.addSubview(popsicleGroupIconImageView)
         popsicleGroupIconImageView.translatesAutoresizingMaskIntoConstraints = false
-        popsicleGroupIconImageView.topAnchor.constraint(equalTo: popsicleGroupContainerView.topAnchor).isActive = true
+        popsicleGroupIconImageView.centerYAnchor.constraint(equalTo: popsicleGroupContainerView.centerYAnchor).isActive = true
         popsicleGroupIconImageView.leadingAnchor.constraint(equalTo: popsicleGroupContainerView.leadingAnchor).isActive = true
-        popsicleGroupIconImageView.trailingAnchor.constraint(equalTo: popsicleGroupContainerView.trailingAnchor).isActive = true
-        popsicleGroupIconImageView.bottomAnchor.constraint(equalTo: popsicleGroupContainerView.bottomAnchor).isActive = true
+        popsicleGroupIconImageView.heightAnchor.constraint(equalToConstant: popsicleHeight).isActive = true
+        popsicleGroupIconImageView.widthAnchor.constraint(equalToConstant: popsicleWidth).isActive = true
         
         popsicleGroupContainerView.addSubview(popsicleGroupCountBubbleView)
         popsicleGroupCountBubbleView.translatesAutoresizingMaskIntoConstraints = false
-        popsicleGroupCountBubbleView.topAnchor.constraint(equalTo: popsicleGroupContainerView.topAnchor).isActive = true
-        popsicleGroupCountBubbleView.trailingAnchor.constraint(equalTo: popsicleGroupContainerView.trailingAnchor).isActive = true
-        popsicleGroupCountBubbleView.heightAnchor.constraint(equalTo: popsicleGroupIconImageView.heightAnchor, multiplier: 1/2).isActive = true
-        popsicleGroupCountBubbleView.widthAnchor.constraint(equalTo: popsicleGroupCountBubbleView.heightAnchor).isActive = true
+        popsicleGroupCountBubbleView.topAnchor.constraint(equalTo: popsicleGroupIconImageView.topAnchor).isActive = true
+        popsicleGroupCountBubbleView.centerXAnchor.constraint(equalTo: popsicleGroupIconImageView.trailingAnchor).isActive = true
+        
+        if popsicleGroupCount >= 0 && popsicleGroupCount < 10 {
+            
+            popsicleGroupCountBubbleView.widthAnchor.constraint(equalToConstant: popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX).isActive = true
+            popsicleGroupCountBubbleView.heightAnchor.constraint(equalTo: popsicleGroupCountBubbleView.widthAnchor).isActive = true
+            
+        } else if popsicleGroupCount >= 10 {
+            
+            popsicleGroupCountBubbleView.widthAnchor.constraint(equalToConstant: popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX).isActive = true
+            popsicleGroupCountBubbleView.heightAnchor.constraint(equalToConstant: popsicleGroupCountLabel.intrinsicContentSize.height + innerInsetY).isActive = true
+            
+        }
         
         return popsicleGroupContainerView
         
@@ -49,7 +68,8 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
     lazy private var popsicleGroupIconImageView: UIImageView = {
         
         var popsicleGroupIconImageView = UIImageView()
-        popsicleGroupIconImageView.image = .popsicleGroupIcon128
+        popsicleGroupIconImageView.addShadowAndRoundCorners(cornerRadius: 0.0, shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.35, shadowRadius: 6.0)
+        popsicleGroupIconImageView.image = .popsicleGroupIcon256
         popsicleGroupIconImageView.contentMode = .scaleAspectFit
         return popsicleGroupIconImageView
         
@@ -74,10 +94,21 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
         
         var popsicleGroupCountLabel = UILabel()
         popsicleGroupCountLabel.textAlignment = .center
-        popsicleGroupCountLabel.text = String(popsicleGroupCount)
+        
+        if popsicleGroupCount > 99 {
+            
+            popsicleGroupCountLabel.text = "99+"
+            
+        } else if popsicleGroupCount >= 0 {
+            
+            popsicleGroupCountLabel.text = String(popsicleGroupCount)
+            
+        }
+        
         popsicleGroupCountLabel.numberOfLines = 1
         popsicleGroupCountLabel.textColor = .white
-        popsicleGroupCountLabel.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 12.0, maxSize: 14.0))
+        popsicleGroupCountLabel.backgroundColor = .mainDARKPURPLE
+        popsicleGroupCountLabel.font = .dynamicFont(with: "Octarine-Bold", style: .caption1)
         return popsicleGroupCountLabel
         
     }()
@@ -101,16 +132,8 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
     private func configureView() {
         
         canShowCallout = false
-        collisionMode = .circle
-        frame.size = CGSize(width: .getPercentageWidth(percentage: 12.5), height: .getPercentageWidth(percentage: 12.5))
         displayPriority = .required
-        
-        addSubview(popsicleGroupContainerView)
-        popsicleGroupContainerView.translatesAutoresizingMaskIntoConstraints = false
-        popsicleGroupContainerView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        popsicleGroupContainerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        popsicleGroupContainerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        popsicleGroupContainerView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        collisionMode = .rectangle
         
     }
     
@@ -128,6 +151,7 @@ class BubbleView: UIView {
         
         super.layoutSubviews()
         
+        layer.cornerCurve = .continuous
         layer.cornerRadius = min(frame.width, frame.height)/2
         
     }

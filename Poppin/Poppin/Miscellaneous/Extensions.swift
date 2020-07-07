@@ -61,6 +61,7 @@ extension UIColor {
     static let sportsLIGHTGREEN = UIColor(named: "sportsLIGHTGREEN")!
     static let cultureDARKPURPLE = UIColor(named: "cultureDARKPURPLE")!
     static let cultureLIGHTPURPLE = UIColor(named: "cultureLIGHTPURPLE")!
+    static let defaultGRAY = UIColor(named: "defaultGRAY")!
     
     static func UIColorFromHex(rgbValue: UInt32, alpha: Double = 1.0) -> UIColor {
         

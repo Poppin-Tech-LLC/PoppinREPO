@@ -624,9 +624,9 @@ final class MapViewController: UIViewController {
             
             for annotation in mapView.annotations{
                 
-                if annotation is PopsicleAnnotation{
+                if let popsicleAnnotation = annotation as? PopsicleAnnotation{
                     
-                    mapView.removeAnnotation(annotation)
+                    mapView.removeAnnotation(popsicleAnnotation)
                     
                 }
                 
@@ -892,7 +892,7 @@ extension MapViewController: MKMapViewDelegate {
         
     }
     
-    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
+    /*func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
         
         for annotationView in views {
             
@@ -929,7 +929,7 @@ extension MapViewController: MKMapViewDelegate {
             
         }
         
-    }
+    }*/
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         

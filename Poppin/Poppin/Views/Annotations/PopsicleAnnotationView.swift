@@ -12,6 +12,9 @@ import MapKit
 class PopsicleAnnotationView: MKAnnotationView {
     
     public static let defaultPopsicleAnnotationViewReuseIdentifier = "PopsicleAnnotationView"
+    
+    private let popsicleHeight: CGFloat = .getPercentageWidth(percentage: 12.5)
+    private let popsicleWidth: CGFloat = .getPercentageWidth(percentage: 7.5)
 
     private(set) var popsicleCategory: PopsicleCategory = .Default
     
@@ -34,6 +37,7 @@ class PopsicleAnnotationView: MKAnnotationView {
     lazy private var popsicleIconImageView: UIImageView = {
         
         var popsicleGroupIconImageView = UIImageView()
+        popsicleGroupIconImageView.addShadowAndRoundCorners(cornerRadius: 0.0, shadowColor: UIColor.mainDARKGRAY, shadowOffset: CGSize(width: 0.0, height: 0.0), shadowOpacity: 0.5, shadowRadius: 2.0)
         popsicleGroupIconImageView.image = (annotation as! PopsicleAnnotation).getPopsicleAnnotationImage()
         popsicleGroupIconImageView.contentMode = .scaleAspectFit
         return popsicleGroupIconImageView
@@ -78,17 +82,15 @@ class PopsicleAnnotationView: MKAnnotationView {
             
         }
         
-        canShowCallout = false
-        frame.size = CGSize(width: .getPercentageWidth(percentage: 12.5), height: .getPercentageWidth(percentage: 12.5))
-        clusteringIdentifier = "Popsicle Group"
-        displayPriority = .required
+        frame = CGRect(x: 0.0, y: 0.0, width: popsicleWidth, height: popsicleHeight)
         
         addSubview(popsicleContainerView)
-        popsicleContainerView.translatesAutoresizingMaskIntoConstraints = false
-        popsicleContainerView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        popsicleContainerView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        popsicleContainerView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        popsicleContainerView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        popsicleContainerView.frame = bounds
+        
+        canShowCallout = false
+        clusteringIdentifier = "Popsicle Group"
+        collisionMode = .rectangle
+        displayPriority = .required
         
     }
     
