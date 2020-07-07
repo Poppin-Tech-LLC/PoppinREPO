@@ -25,21 +25,21 @@ struct Activity {
 }
 
 enum ActivityType: String {
-    case ff // follow/following type activity
-    case ce // created event type activity
+    case ff = "ff" // follow/following type activity
+    case ce = "ce" // created event type activity
 }
 
 final class ActivityViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     var activities = [
-        Activity(user: "@somelibyanguy", type: .ff, timeCreated: "2s", category: nil),
-        Activity(user: "@mrchoperini", type: .ff, timeCreated: "3d", category: nil),
-        Activity(user: "@yosi", type: .ce, timeCreated: "1w", category: .Food),
-        Activity(user: "@andres_p", type: .ff, timeCreated: "1w", category: nil),
-        Activity(user: "@max_ptr$", type: .ce, timeCreated: "2w", category: .Social),
-        Activity(user: "@helino", type: .ff, timeCreated: "4w", category: nil),
-        Activity(user: "@josiahis_dope", type: .ff, timeCreated: "3mo", category: nil),
-        Activity(user: "@amine", type: .ce, timeCreated: "4y", category: .Culture)
+        Activity(user: "@somelibyanguy", type: .ff, timeCreated: "2020-02-02 02:00", category: nil),
+        Activity(user: "@mrchoperini", type: .ff, timeCreated: "2020-06-30 08:00", category: nil),
+        Activity(user: "@yosi", type: .ce, timeCreated: "2019-11-03 12:00", category: .Food),
+        Activity(user: "@andres_p", type: .ff, timeCreated: "2020-07-07 14:00", category: nil),
+        Activity(user: "@max_ptr$", type: .ce, timeCreated: "2020-07-07 13:58", category: .Social),
+        Activity(user: "@helino_is_so_dope_the_coolest_sister_ever", type: .ff, timeCreated: "2014-04-11 02:10", category: nil),
+        Activity(user: "@josiahis_dope", type: .ff, timeCreated: "2017-03-25 06:31", category: nil),
+        Activity(user: "@amine", type: .ce, timeCreated: "2020-07-07 12:51", category: .Culture)
     ]
     
     let avInsetY: CGFloat = .getPercentageWidth(percentage: 4)
@@ -143,6 +143,7 @@ final class ActivityViewController: UIViewController, UITableViewDataSource, UIT
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return .getPercentageHeight(percentage: 10)
     }
+    
 }
 
 class ActivityCell : UITableViewCell {
@@ -300,7 +301,7 @@ class ActivityCell : UITableViewCell {
             }
            
             if let date = activityItem.timeCreated {
-                attributedText.append(NSAttributedString(string: date, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .body), NSAttributedString.Key.foregroundColor: UIColor.gray]))
+                attributedText.append(NSAttributedString(string: agoTime(date: date), attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .body), NSAttributedString.Key.foregroundColor: UIColor.gray]))
             }
             
             avDetails.attributedText = attributedText
@@ -330,6 +331,66 @@ class ActivityCell : UITableViewCell {
 
     required init?(coder aDecoder: NSCoder) {
        super.init(coder: aDecoder)
+    }
+    
+    /* HELPER function for converting date string into more concise "ago" string */
+    func agoTime(date: String) -> String {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy'-'MM'-'dd' 'HH':'mm'"
+        let fromDate = dateFormatter.date(from: date)
+        //let fromDate = Date()
+        let toDate = Date()
+
+        // Year
+        if let interval = Calendar.current.dateComponents([.year], from: fromDate!, to: toDate).year, interval > 0  {
+
+            if(interval >= 1) {
+                return "\(interval)" + "y"
+            }
+        }
+
+        // Month
+        if let interval = Calendar.current.dateComponents([.month], from: fromDate!, to: toDate).month, interval > 0  {
+
+            if(interval >= 1) {
+                return "\(interval)" + "mo"
+            }
+        }
+
+        // Day
+        if let interval = Calendar.current.dateComponents([.day], from: fromDate!, to: toDate).day, interval > 0  {
+
+            if(interval >= 1) {
+                return "\(interval)" + "d"
+            }
+        }
+
+        // Hours
+        if let interval = Calendar.current.dateComponents([.hour], from: fromDate!, to: toDate).hour, interval > 0 {
+
+            if(interval >= 1) {
+                return "\(interval)" + "h"
+            }
+        }
+
+        // Minute
+        if let interval = Calendar.current.dateComponents([.minute], from: fromDate!, to: toDate).minute, interval > 0 {
+
+            if(interval >= 1) {
+                return "\(interval)" + "m"
+            }
+        }
+        
+        // Seconds
+        if let interval = Calendar.current.dateComponents([.second], from: fromDate!, to: toDate).minute, interval > 0 {
+
+            if(interval >= 1) {
+                return "\(interval)" + "s"
+            }
+        }
+
+        return ""
     }
 
 }
