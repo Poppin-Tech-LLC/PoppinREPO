@@ -68,7 +68,6 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
     lazy private var popsicleGroupIconImageView: UIImageView = {
         
         var popsicleGroupIconImageView = UIImageView()
-        popsicleGroupIconImageView.addShadowAndRoundCorners(cornerRadius: 0.0, shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.35, shadowRadius: 6.0)
         popsicleGroupIconImageView.image = .popsicleGroupIcon256
         popsicleGroupIconImageView.contentMode = .scaleAspectFit
         return popsicleGroupIconImageView
