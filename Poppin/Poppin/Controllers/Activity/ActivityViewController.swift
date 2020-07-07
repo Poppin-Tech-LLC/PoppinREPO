@@ -57,6 +57,10 @@ final class ActivityViewController: UIViewController, UITableViewDataSource, UIT
         
         var t = UITableView()
         t.backgroundColor = .mainDARKPURPLE
+        t.isSpringLoaded = true
+        t.allowsSelection = false
+        t.showsHorizontalScrollIndicator = false
+        t.showsVerticalScrollIndicator = false
         return t
         
     }()
@@ -199,7 +203,7 @@ class ActivityCell : UITableViewCell {
         avDetails.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 50)).isActive = true
         
         avFollowButton.centerYAnchor.constraint(equalTo:self.contentView.centerYAnchor).isActive = true
-        avFollowButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 14)).isActive = true
+        avFollowButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 16)).isActive = true
         avFollowButton.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 3)).isActive = true
         avFollowButton.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -(.getPercentageWidth(percentage: 1))).isActive = true
      }
