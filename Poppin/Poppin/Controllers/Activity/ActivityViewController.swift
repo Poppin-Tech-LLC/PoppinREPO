@@ -19,13 +19,28 @@ import FirebaseAuth
 
 struct Activity {
     var user: String?
-    var fIndicator: Bool?
+    var type: ActivityType?
     var timeCreated: String?
+    var category: PopsicleCategory?
+}
+
+enum ActivityType: String {
+    case ff // follow/following type activity
+    case ce // created event type activity
 }
 
 final class ActivityViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    var activities = [Activity(user: "@somelibyanguy", fIndicator: true, timeCreated: "2s"), Activity(user: "@mrchoperini", fIndicator: true, timeCreated: "3d"), Activity(user: "@yosi", fIndicator: true, timeCreated: "1w"), Activity(user: "@andres_p", fIndicator: true, timeCreated: "1w"), Activity(user: "@max_ptr$", fIndicator: true, timeCreated: "2w"), Activity(user: "@helino", fIndicator: true, timeCreated: "4w"), Activity(user: "@josiahisdope", fIndicator: true, timeCreated: "3mo"), Activity(user: "@amine", fIndicator: true, timeCreated: "4y")]
+    var activities = [
+        Activity(user: "@somelibyanguy", type: .ff, timeCreated: "2s", category: nil),
+        Activity(user: "@mrchoperini", type: .ff, timeCreated: "3d", category: nil),
+        Activity(user: "@yosi", type: .ce, timeCreated: "1w", category: .Food),
+        Activity(user: "@andres_p", type: .ff, timeCreated: "1w", category: nil),
+        Activity(user: "@max_ptr$", type: .ce, timeCreated: "2w", category: .Social),
+        Activity(user: "@helino", type: .ff, timeCreated: "4w", category: nil),
+        Activity(user: "@josiahis_dope", type: .ff, timeCreated: "3mo", category: nil),
+        Activity(user: "@amine", type: .ce, timeCreated: "4y", category: .Culture)
+    ]
     
     let avInsetY: CGFloat = .getPercentageWidth(percentage: 4)
     let avInsetX: CGFloat = .getPercentageWidth(percentage: 3)
@@ -132,55 +147,164 @@ final class ActivityViewController: UIViewController, UITableViewDataSource, UIT
 
 class ActivityCell : UITableViewCell {
     
+    var following : Bool = false
+    var going : Bool = false
+    
     lazy var avProfile : ImageBubbleButton = {
+        
         var i = ImageBubbleButton(bouncyButtonImage: .defaultUserPicture256)
+        i.backgroundColor = UIColor.white.withAlphaComponent(0.25)
         i.translatesAutoresizingMaskIntoConstraints = false
         return i
+        
     }()
     
     lazy var avDetails : UILabel = {
+        
         let l = UILabel()
         l.font = .dynamicFont(with: "Octarine-Light", style: .caption2)
+        l.adjustsFontSizeToFitWidth = true
         l.textColor = .white
-        l.numberOfLines = 2
-        l.sizeToFit()
+        
+        l.numberOfLines = 3
+//        l.sizeToFit()
         l.textAlignment = .left
+        
         l.translatesAutoresizingMaskIntoConstraints = false
+        
         return l
     }()
     
     lazy var avFollowButton : BouncyButton = {
+        
         let f = BouncyButton(bouncyButtonImage: nil)
         f.setTitle("follow", for: .normal)
         f.setTitleColor(.mainDARKPURPLE, for: .normal)
         f.titleLabel?.font = UIFont(name: "Octarine-Bold", size: 14)
+        
         f.backgroundColor = .white
         f.contentHorizontalAlignment = .center
         f.layer.cornerRadius = 8
         f.layer.masksToBounds = true
+        
         f.translatesAutoresizingMaskIntoConstraints = false
+        
+        f.addTarget(self, action: #selector(toggleFollow), for: .touchUpInside)
+        
         return f
+        
     }()
+    
+    @objc func toggleFollow() {
+        if(following) {
+            avFollowButton.backgroundColor = .white
+            avFollowButton.setTitle("follow", for: .normal)
+            avFollowButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+        } else {
+            avFollowButton.backgroundColor = .gray
+            avFollowButton.setTitle("following", for: .normal)
+            avFollowButton.setTitleColor(.white, for: .normal)
+        }
+        following = !following
+    }
+    
+    lazy var avGoingButton : BouncyButton = {
+        
+        let f = BouncyButton(bouncyButtonImage: nil)
+        f.setTitle("going?", for: .normal)
+        f.setTitleColor(.mainDARKPURPLE, for: .normal)
+        f.titleLabel?.font = UIFont(name: "Octarine-Bold", size: 15)
+        
+        f.backgroundColor = .white
+        f.contentHorizontalAlignment = .center
+        f.layer.cornerRadius = 8
+        f.layer.masksToBounds = true
+        
+        f.translatesAutoresizingMaskIntoConstraints = false
+        
+        f.addTarget(self, action: #selector(toggleGoing), for: .touchUpInside)
+        
+        return f
+        
+    }()
+    
+    @objc func toggleGoing() {
+        if(going) {
+            avGoingButton.backgroundColor = .white
+            avGoingButton.setTitle("going?", for: .normal)
+            avGoingButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+        } else {
+            avGoingButton.backgroundColor = .sportsDARKGREEN
+            avGoingButton.setTitle("going", for: .normal)
+            avGoingButton.setTitleColor(.white, for: .normal)
+        }
+        going = !going
+    }
     
     var activity : Activity? {
         didSet {
             print("didSet")
             guard let activityItem = activity else {return}
+            
             let attributedText = NSMutableAttributedString(string: "", attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 17)])
+            
             if let user = activityItem.user {
                 //avProfile.setImage(, for: .normal)
                 attributedText.append(NSAttributedString(string: user, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .body), NSAttributedString.Key.foregroundColor: UIColor.white]))
             }
-            if let fIndicator = activityItem.fIndicator {
-                if(fIndicator) {
+            
+            if let type = activityItem.type {
+                switch(type) {
+                case ActivityType.ff :
+                    
                     attributedText.append(NSAttributedString(string: " started following you. ", attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .body), NSAttributedString.Key.foregroundColor: UIColor.white]))
-                }
+                    
+                    self.contentView.addSubview(avFollowButton)
+                    avFollowButton.centerYAnchor.constraint(equalTo:self.contentView.centerYAnchor).isActive = true
+                    avFollowButton.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -(.getPercentageWidth(percentage: 0))).isActive = true
+                    avFollowButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 21)).isActive = true
+                    avFollowButton.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 3.25)).isActive = true
+                    
+                case ActivityType.ce :
+                    
+                    attributedText.append(NSAttributedString(string: "'s event is about to start. ", attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .body), NSAttributedString.Key.foregroundColor: UIColor.white]))
+                    
+                    avProfile.contentEdgeInsets = UIEdgeInsets(top: .getPercentageWidth(percentage: 1), left: .getPercentageWidth(percentage: 1), bottom: .getPercentageWidth(percentage: 1), right: .getPercentageWidth(percentage: 1))
+                    
+                    self.contentView.addSubview(avGoingButton)
+                    avGoingButton.centerYAnchor.constraint(equalTo:self.contentView.centerYAnchor).isActive = true
+                    avGoingButton.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -(.getPercentageWidth(percentage: 0))).isActive = true
+                    avGoingButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 21)).isActive = true
+                    avGoingButton.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 3.25)).isActive = true
+                    
+                    if let cat = activityItem.category {
+                        switch(cat) {
+                        case PopsicleCategory.Education :
+                            avProfile.changeBouncyButtonImage(image: .educationPopsicleIcon256)
+                        case PopsicleCategory.Food :
+                            avProfile.changeBouncyButtonImage(image: .foodPopsicleIcon256)
+                        case PopsicleCategory.Social :
+                            avProfile.changeBouncyButtonImage(image: .socialPopsicleIcon256)
+                        case PopsicleCategory.Sports :
+                            avProfile.changeBouncyButtonImage(image: .sportsPopsicleIcon256)
+                        case PopsicleCategory.Culture :
+                            avProfile.changeBouncyButtonImage(image: .culturePopsicleIcon256)
+                        case PopsicleCategory.Poppin :
+                            avProfile.changeBouncyButtonImage(image: .poppinEventPopsicleIcon256)
+                        default:
+                            avProfile.changeBouncyButtonImage(image: .defaultPopsicleIcon256)
+                        }
+                     }
+
+                 }
             }
            
             if let date = activityItem.timeCreated {
                 attributedText.append(NSAttributedString(string: date, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .body), NSAttributedString.Key.foregroundColor: UIColor.gray]))
             }
+            
             avDetails.attributedText = attributedText
+            
         }
     }
     
@@ -191,21 +315,17 @@ class ActivityCell : UITableViewCell {
         
         self.contentView.addSubview(avProfile)
         self.contentView.addSubview(avDetails)
-        self.contentView.addSubview(avFollowButton)
         
         avProfile.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
-        avProfile.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: .getPercentageWidth(percentage: 1)).isActive = true
-        avProfile.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 9)).isActive = true
+        avProfile.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: .getPercentageWidth(percentage: 0.5)).isActive = true
+        avProfile.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 10)).isActive = true
         avProfile.heightAnchor.constraint(equalTo: avProfile.widthAnchor).isActive = true
         
         avDetails.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
         avDetails.leadingAnchor.constraint(equalTo: self.avProfile.leadingAnchor, constant: .getPercentageWidth(percentage: 12)).isActive = true
-        avDetails.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 50)).isActive = true
+        avDetails.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 44)).isActive = true
+         avDetails.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 6)).isActive = true
         
-        avFollowButton.centerYAnchor.constraint(equalTo:self.contentView.centerYAnchor).isActive = true
-        avFollowButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 16)).isActive = true
-        avFollowButton.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 3)).isActive = true
-        avFollowButton.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -(.getPercentageWidth(percentage: 1))).isActive = true
      }
 
     required init?(coder aDecoder: NSCoder) {
