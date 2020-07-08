@@ -8,6 +8,9 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
+import FirebaseFirestoreSwift
+import CoreData
 
 final class SignUpThirdPageViewController: UIViewController {
     
@@ -27,6 +30,8 @@ final class SignUpThirdPageViewController: UIViewController {
     
     private let termsLink = "Terms"
     private let privacyPolicyLink = "Privacy"
+    
+    let db = Firestore.firestore()
     
     lazy private var signUpContainerView: UIView = {
         
@@ -367,9 +372,9 @@ final class SignUpThirdPageViewController: UIViewController {
         
         if validSteps == 2 {
             
-            self.navigationController?.dismiss(animated: true, completion: nil)
+            //self.navigationController?.dismiss(animated: true, completion: nil)
             
-            /*signUpButton.startLoading()
+            signUpButton.startLoading()
             view.isUserInteractionEnabled = false
             
             // Check if username is in db
@@ -412,20 +417,73 @@ final class SignUpThirdPageViewController: UIViewController {
                     }
                     
                     let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                    let alertVC = NewAlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
                     
                     self.present(alertVC, animated: true, completion: nil)
                     
                 } else {
                     
+                    self.db.collection("users").document(Auth.auth().currentUser!.uid).setData([
+                        "username": self.usernameTextField.text ?? "",
+                        "bio": "",
+                        "followers": [Auth.auth().currentUser?.uid : false],
+                        "following": [Auth.auth().currentUser?.uid : false],
+                        "fullName": self.fullName
+                    ]) { err in
+                        if let err = err {
+                            print("Error adding document: \(err)")
+                        } else {
+                            print("Document added with ID: ")
+                        }
+                    }
+                    
+                    self.save(uid: Auth.auth().currentUser?.uid ?? "no id")
                     self.navigationController?.dismiss(animated: true, completion: nil)
                     
                 }
                 
-            }*/
+            }
             
         }
         
+    }
+    
+    func save(uid: String) {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        //2
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "User")
+        
+        let entity =
+            NSEntityDescription.entity(forEntityName: "User",
+                                       in: managedContext)!
+        
+        let userData = NSManagedObject(entity: entity, insertInto: managedContext)
+        
+        //3
+        do {
+            let user = try managedContext.fetch(fetchRequest)
+            for data in user {
+                managedContext.delete(data)
+            }
+            
+            userData.setValue(Auth.auth().currentUser?.uid, forKey: "uid")
+            userData.setValue(usernameTextField.text, forKey: "username")
+            userData.setValue(fullName, forKey: "fullName")
+            userData.setValue("", forKey: "bio")
+            NotificationCenter.default.post(name: .userSignedIn, object: nil)
+            try managedContext.save()
+            
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
     }
     
     @objc private func switchToLogin(sender: BouncyButton) {

@@ -15,6 +15,7 @@ import Kronos
 import Contacts
 import GeoFire
 import Geofirestore
+import CoreData
 
 protocol MenuDelegate: class {
     
@@ -43,6 +44,14 @@ final class MapViewController: UIViewController {
     lazy private var userPicture: UIImage = .defaultUserPicture64
     
     var mapPopsicles: [PopsicleAnnotation] = []
+    
+    var username: String = ""
+    
+    var uid: String = ""
+    
+    var bio: String = ""
+    
+    var fullName: String = ""
     
     lazy private var launchScreenOverlayView: UIView = {
         
@@ -481,11 +490,49 @@ final class MapViewController: UIViewController {
         
     }
     
+    @objc func contextDidSave(_ notification: Notification) {
+        print("SAVED USER")
+
+        //1
+        guard let appDelegate =
+          UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let managedContext =
+          appDelegate.persistentContainer.viewContext
+        
+        //2
+        let fetchRequest =
+          NSFetchRequest<NSManagedObject>(entityName: "User")
+        
+        //3
+        do {
+          let user = try managedContext.fetch(fetchRequest)
+            for data in user {
+                //managedContext.delete(data)
+                
+                uid = data.value(forKey: "uid") as! String
+                username = data.value(forKey: "username") as! String
+                fullName = data.value(forKey: "fullName") as! String
+                bio = data.value(forKey: "bio") as! String
+                
+                break
+            }
+            //try managedContext.save()
+           
+        } catch let error as NSError {
+          print("Could not fetch. \(error), \(error.userInfo)")
+        }
+    }
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
         view.backgroundColor = .black
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(contextDidSave(_:)), name: .userSignedIn, object: nil)
         
         view.addSubview(mapContainerView)
         mapContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -601,6 +648,7 @@ final class MapViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
     
         super.viewDidAppear(animated)
+
         
         if shouldPresentLoginVC {
             

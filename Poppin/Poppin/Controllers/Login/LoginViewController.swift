@@ -8,6 +8,9 @@
 
 import UIKit
 import FirebaseAuth
+import CoreData
+import FirebaseFirestoreSwift
+import FirebaseFirestore
 
 final class LoginViewController: UIViewController {
     
@@ -328,7 +331,10 @@ final class LoginViewController: UIViewController {
                     
                 } else {
                     
+                    self.save(uid: Auth.auth().currentUser?.uid ?? "no id")
+                    
                     self.navigationController?.dismiss(animated: true, completion: nil)
+                     NotificationCenter.default.post(name: .userSignedIn, object: nil)
                     
                 }
                 
@@ -343,6 +349,75 @@ final class LoginViewController: UIViewController {
             
         }
         
+    }
+    
+    func save(uid: String) {
+      
+       guard let appDelegate =
+               UIApplication.shared.delegate as? AppDelegate else {
+                 return
+             }
+             
+             let managedContext =
+               appDelegate.persistentContainer.viewContext
+             
+             //2
+             let fetchRequest =
+               NSFetchRequest<NSManagedObject>(entityName: "User")
+        
+            let entity =
+                NSEntityDescription.entity(forEntityName: "User",
+                                   in: managedContext)!
+        
+            let userData = NSManagedObject(entity: entity, insertInto: managedContext)
+
+        let deleteFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
+
+        do {
+            try managedContext.execute(deleteRequest)
+            //try managedContext.save()
+        } catch {
+            print ("There was an error")
+        }
+    
+             //3
+             do {
+
+                
+                let ref = Firestore.firestore().collection("users")
+                ref.document(uid).getDocument{ (document, error) in
+                            if let document = document, document.exists {
+
+                                let data = document.data()
+                                
+                                let username = data!["username"] as! String
+                                let fullName = data!["fullName"] as! String
+
+                                let bio = data!["bio"] as! String
+                                print("OONNNEEE")
+                                userData.setValue(uid, forKey: "uid")
+                                userData.setValue(username, forKey: "username")
+                                userData.setValue(fullName, forKey: "fullName")
+                                userData.setValue(bio, forKey: "bio")
+                                
+                                
+                                
+                    }
+                    do{
+                         print("TWOOOOO")
+                        try managedContext.save()
+                        //self.navigationController?.dismiss(animated: true, completion: nil)
+                    }catch let error as NSError {
+                      print("Could not fetch. \(error), \(error.userInfo)")
+                    }
+                }
+                
+                //try managedContext.save()
+                
+             } catch let error as NSError {
+               print("Could not fetch. \(error), \(error.userInfo)")
+             }
     }
     
     @objc private func switchToSignUp(sender: BouncyButton) {
