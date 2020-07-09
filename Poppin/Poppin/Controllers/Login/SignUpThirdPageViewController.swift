@@ -437,8 +437,12 @@ final class SignUpThirdPageViewController: UIViewController {
                         }
                     }
                     
-                    self.save(uid: Auth.auth().currentUser?.uid ?? "no id")
+                   // self.save(uid: Auth.auth().currentUser?.uid ?? "no id")
+                    DataController.eraseAll(forEntity: "User")
+                    DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid)
                     self.navigationController?.dismiss(animated: true, completion: nil)
+//                    NotificationCenter.default.post(name: .userSignedIn, object: nil)
+
                     
                 }
                 

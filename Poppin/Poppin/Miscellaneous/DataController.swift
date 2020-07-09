@@ -32,6 +32,7 @@ class DataController{
         } catch {
             print ("There was an error")
         }
+        
     }
     
     static func save(){
@@ -66,6 +67,8 @@ class DataController{
         
         let userData = NSManagedObject(entity: entity, insertInto: managedContext)
         
+        //managedContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        
         if(bio == nil || username == nil || fullName == nil || uid == nil){
             do {
 
@@ -79,6 +82,8 @@ class DataController{
                             let fullName2 = data!["fullName"] as! String
                             let bio2 = data!["bio"] as! String
                             
+                            self.removeWithID(uid: Auth.auth().currentUser?.uid ?? "")
+                            
                             userData.setValue(Auth.auth().currentUser?.uid ?? "", forKey: "uid")
                             userData.setValue(username2, forKey: "username")
                             userData.setValue(fullName2, forKey: "fullName")
@@ -89,7 +94,7 @@ class DataController{
                 }
                 do{
                     try managedContext.save()
-
+                    NotificationCenter.default.post(name: .userSignedIn, object: nil)
                 }catch let error as NSError {
                   print("Could not fetch. \(error), \(error.userInfo)")
                 }
@@ -97,6 +102,7 @@ class DataController{
             }
             
         }else{
+            self.removeWithID(uid: uid!)
             
             userData.setValue(uid, forKey: "uid")
             userData.setValue(username, forKey: "username")
@@ -105,6 +111,7 @@ class DataController{
             
             do{
                 try managedContext.save()
+                NotificationCenter.default.post(name: .userSignedIn, object: nil)
 
             }catch let error as NSError {
               print("Could not fetch. \(error), \(error.userInfo)")
@@ -113,7 +120,109 @@ class DataController{
         
     }
     
+    static func removeWithID(uid: String){
+        guard let appDelegate =
+          UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let managedContext =
+          appDelegate.persistentContainer.viewContext
+        
+         let fetchRequest =
+                        NSFetchRequest<NSManagedObject>(entityName: "User")
+        
+        fetchRequest.predicate = NSPredicate(format: "uid == %@", uid)
+        do{
+            let user = try managedContext.fetch(fetchRequest)
+            for data in user{
+                managedContext.delete(data)
+            }
+        }catch let error as NSError {
+          print("Could not fetch. \(error), \(error.userInfo)")
+        }
+    }
     
+    static func getUser() -> NSManagedObject{
+        //1
+               guard let appDelegate =
+                 UIApplication.shared.delegate as? AppDelegate else {
+                   return NSManagedObject()
+               }
+               
+               let managedContext =
+                 appDelegate.persistentContainer.viewContext
+               
+               //2
+               let fetchRequest =
+                 NSFetchRequest<NSManagedObject>(entityName: "User")
+        
+        do {
+          let user = try managedContext.fetch(fetchRequest)
+            if(user.count > 0){
+                return user[0]
+            }
+           
+        } catch let error as NSError {
+          print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        return NSManagedObject()
+    }
+    
+    static func clearRecentSearches (){
+        guard let appDelegate =
+          UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let managedContext =
+          appDelegate.persistentContainer.viewContext
+        
+         let fetchRequest =
+                        NSFetchRequest<NSManagedObject>(entityName: "User")
+        
+        let uid = Auth.auth().currentUser?.uid
+        
+        fetchRequest.predicate = NSPredicate(format: "uid != %@", uid!)
+        do{
+            let user = try managedContext.fetch(fetchRequest)
+            for data in user{
+                print(data.value(forKey: "username"))
+                managedContext.delete(data)
+            }
+            try managedContext.save()
+            NotificationCenter.default.post(name: .clearedRecents, object: nil)
+        }catch let error as NSError {
+          print("Could not fetch. \(error), \(error.userInfo)")
+        }
+    }
+    
+    static func getOtherUsers() -> [NSManagedObject]{
+        //1
+               guard let appDelegate =
+                 UIApplication.shared.delegate as? AppDelegate else {
+                   return [NSManagedObject()]
+               }
+               
+               let managedContext =
+                 appDelegate.persistentContainer.viewContext
+               
+               //2
+               let fetchRequest =
+                 NSFetchRequest<NSManagedObject>(entityName: "User")
+        
+        do {
+          let user = try managedContext.fetch(fetchRequest)
+            if(user.count > 0){
+                return Array(user.dropFirst())
+            }
+           
+        } catch let error as NSError {
+          print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        return [NSManagedObject()]
+    }
     
     
 }

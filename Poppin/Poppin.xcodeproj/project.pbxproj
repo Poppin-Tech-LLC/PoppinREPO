@@ -57,6 +57,7 @@
 		F5FC3F3524B248C100FA1AB0 /* AnimationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3424B248C100FA1AB0 /* AnimationHelper.swift */; };
 		F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3624B48B4000FA1AB0 /* dataModel.xcdatamodeld */; };
 		F5FC3F3A24B5E26400FA1AB0 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3924B5E26400FA1AB0 /* DataController.swift */; };
+		F5FC3F3C24B737DD00FA1AB0 /* UniversitiesJSON.json in Resources */ = {isa = PBXBuildFile; fileRef = F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */; };
 		F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */; };
 		F6498EBB24B24892002F8A1B /* Hashtag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB424B24892002F8A1B /* Hashtag.swift */; };
 		F6498EBC24B24892002F8A1B /* HashtagCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */; };
@@ -148,6 +149,7 @@
 		F5FC3F3424B248C100FA1AB0 /* AnimationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationHelper.swift; sourceTree = "<group>"; };
 		F5FC3F3724B48B4000FA1AB0 /* dataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = dataModel.xcdatamodel; sourceTree = "<group>"; };
 		F5FC3F3924B5E26400FA1AB0 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
+		F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UniversitiesJSON.json; sourceTree = "<group>"; };
 		F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlignedCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		F6498EB424B24892002F8A1B /* Hashtag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hashtag.swift; sourceTree = "<group>"; };
 		F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashtagCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 				6417BC8C24A22B88006AE467 /* GoogleService-Info.plist */,
 				6417BC9924A22E54006AE467 /* CustomLocation.gpx */,
 				F5FC3F3624B48B4000FA1AB0 /* dataModel.xcdatamodeld */,
+				F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */,
 			);
 			path = Poppin;
 			sourceTree = "<group>";
@@ -601,6 +604,7 @@
 				6403143524A1F138006A55EB /* LaunchScreen.storyboard in Resources */,
 				645DE3D124A636F60007E159 /* Octarine-BoldOblique.otf in Resources */,
 				645DE3D324A637390007E159 /* Octarine-LightOblique.otf in Resources */,
+				F5FC3F3C24B737DD00FA1AB0 /* UniversitiesJSON.json in Resources */,
 				645DE3D524A637750007E159 /* Octarine-Bold.otf in Resources */,
 				645DE3CF24A6367A0007E159 /* Octarine-Light.otf in Resources */,
 				6403143224A1F138006A55EB /* Assets.xcassets in Resources */,

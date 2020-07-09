@@ -294,6 +294,46 @@ final class SearchViewController: UIViewController {
         
     }()
     
+    lazy private var recentSearchesView: UIView = {
+       let recentSearchesView = UIView()
+        recentSearchesView.backgroundColor = .clear
+        recentSearchesView.isUserInteractionEnabled = true
+        return recentSearchesView
+    }()
+    
+    lazy private var clearRecentSearchesButton: ImageBubbleButton = {
+        let close = UIImage(systemName: "multiply.circle.fill")!.withTintColor(.white)
+        let clearRecentSearchesButton = ImageBubbleButton(bouncyButtonImage: close)
+        clearRecentSearchesButton.isUserInteractionEnabled = true
+        clearRecentSearchesButton.addTarget(self, action: #selector(clearRecent), for: .touchUpInside)
+        return clearRecentSearchesButton
+    }()
+    
+    @objc func clearRecent(){
+        DataController.clearRecentSearches()
+        recentSearchesView.transform = CGAffineTransform(scaleX: 1, y: 0)
+        searchPagingCollectionView.transform = CGAffineTransform(translationX: 0, y: -view.bounds.height * 0.05)
+        self.view.layoutIfNeeded()
+        
+    }
+    
+     @objc func clearedRecents(_ notification: Notification) {
+        if let searchCell = searchPagingCollectionView.visibleCells.first as? SearchPageCell {
+            searchCell.filteredUsers = fetchRecentUsers()
+            print(searchCell.filteredUsers.count)
+            searchCell.searchTableView.reloadData()
+        }
+    }
+    
+    lazy private var recentSearchesLabel: UILabel = {
+       let recentSearchesLabel = UILabel()
+        recentSearchesLabel.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
+        recentSearchesLabel.textColor = .white
+        recentSearchesLabel.text = "Recent searches"
+        recentSearchesLabel.backgroundColor = .clear
+        return recentSearchesLabel
+    }()
+    
     lazy private var searchPagingCollectionView: PagingCollectionView = {
         
         var searchPagingCollectionView = PagingCollectionView(pageType: .Search)
@@ -357,6 +397,8 @@ final class SearchViewController: UIViewController {
         
         view.backgroundColor = .poppinLIGHTGOLD
         
+        NotificationCenter.default.addObserver(self, selector: #selector(clearedRecents(_:)), name: .clearedRecents, object: nil)
+        
         view.addSubview(searchTopStackView)
         searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -372,10 +414,35 @@ final class SearchViewController: UIViewController {
     
         searchTopStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
+        view.addSubview(recentSearchesView)
+        recentSearchesView.translatesAutoresizingMaskIntoConstraints = false
+        recentSearchesView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor).isActive = true
+        recentSearchesView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        recentSearchesView.widthAnchor.constraint(equalToConstant: view.bounds.width).isActive = true
+        recentSearchesView.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.05).isActive = true
+        
+        recentSearchesView.addSubview(clearRecentSearchesButton)
+        clearRecentSearchesButton.translatesAutoresizingMaskIntoConstraints = false
+        clearRecentSearchesButton.trailingAnchor.constraint(equalTo: recentSearchesView.trailingAnchor, constant: -view.bounds.width * 0.05).isActive = true
+        clearRecentSearchesButton.centerYAnchor.constraint(equalTo: recentSearchesView.centerYAnchor).isActive = true
+        clearRecentSearchesButton.widthAnchor.constraint(equalToConstant: view.bounds.height * 0.03).isActive = true
+        clearRecentSearchesButton.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.03).isActive = true
+        
+        recentSearchesView.addSubview(recentSearchesLabel)
+        recentSearchesLabel.translatesAutoresizingMaskIntoConstraints = false
+        recentSearchesLabel.leadingAnchor.constraint(equalTo: recentSearchesView.leadingAnchor, constant: view.bounds.width * 0.05).isActive = true
+        recentSearchesLabel.centerYAnchor.constraint(equalTo: recentSearchesView.centerYAnchor).isActive = true
+        recentSearchesLabel.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.8).isActive = true
+       // recentSearchesLabel.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.03).isActive = true
+        
+        recentSearchesView.transform = CGAffineTransform(scaleX: 1, y: 0)
+        searchPagingCollectionView.transform = CGAffineTransform(translationX: 0, y: -view.bounds.height * 0.05)
+        self.view.layoutIfNeeded()
+        
         view.addSubview(searchPagingCollectionView)
         view.sendSubviewToBack(searchPagingCollectionView)
         searchPagingCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        searchPagingCollectionView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor).isActive = true
+        searchPagingCollectionView.topAnchor.constraint(equalTo: recentSearchesView.bottomAnchor).isActive = true
         searchPagingCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         searchPagingCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         searchPagingCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -510,6 +577,36 @@ final class SearchViewController: UIViewController {
         
     }
     
+    private func fetchRecentUsers() -> [UserData]{
+        let user = DataController.getOtherUsers()
+        
+        var recentUsers: [UserData] = []
+        
+        for u in user {
+            let username = u.value(forKey: "username") as! String
+            let uid = u.value(forKey: "uid") as! String
+            let bio = u.value(forKey: "bio") as! String
+            let fullName = u.value(forKey: "fullName") as! String
+
+            print(username)
+            let userToAdd = UserData(username: username, uid: uid, bio: bio, fullName: fullName)
+            
+            recentUsers.append(userToAdd)
+        }
+        
+        if(recentUsers.count > 0){
+            recentSearchesView.transform = .identity
+            searchPagingCollectionView.transform = .identity
+            self.view.layoutIfNeeded()
+        }else{
+            recentSearchesView.transform = CGAffineTransform(scaleX: 1, y: 0)
+            searchPagingCollectionView.transform = CGAffineTransform(translationX: 0, y: -view.bounds.height * 0.05)
+            self.view.layoutIfNeeded()
+        }
+        
+        return recentUsers.reversed()
+    }
+    
     private func fetchUsers(section: Int) {
         
         isFetching = true
@@ -540,8 +637,8 @@ final class SearchViewController: UIViewController {
                         if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Users {
                             
                             searchCell.users.append(userToAdd)
-                            searchCell.filteredUsers.append(userToAdd)
-                            
+                           // searchCell.filteredUsers.append(userToAdd)
+//                            searchCell.filteredUsers = self.fetchRecentUsers()
                         }
                 
                     }
@@ -549,7 +646,13 @@ final class SearchViewController: UIViewController {
                 }
                 
                 if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Users {
-                    
+                    searchCell.filteredUsers = self.fetchRecentUsers()
+                    if(searchCell.filteredUsers.count < 1){
+                        self.searchTablePlaceholderView.isHidden = false
+                    }else{
+                        self.searchTablePlaceholderView.isHidden = true
+                    }
+
                     searchCell.searchTableView.reloadData()
                     
                 }
@@ -557,9 +660,8 @@ final class SearchViewController: UIViewController {
                 self.searchSectionButtons[section].didFetchSection = true
                 
             }
-            
             self.loadingIndicatorView.stopAnimating()
-            self.searchTablePlaceholderView.isHidden = false
+            //self.searchTablePlaceholderView.isHidden = false
             self.isFetching = false
             
         })
@@ -820,9 +922,17 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         if let searchCell = searchPagingCollectionView.visibleCells.first as? SearchPageCell {
             
             let profileVC = ProfileViewController(with: searchCell.filteredUsers[indexPath.row])
+            DataController.addUser(bio: searchCell.filteredUsers[indexPath.row].bio, username: searchCell.filteredUsers[indexPath.row].username, fullName: searchCell.filteredUsers[indexPath.row].fullName, uid: searchCell.filteredUsers[indexPath.row].uid)
+            
+            //searchCell.filteredUsers = fetchRecentUsers()
+//            recentSearchesView.transform = .identity
+//            searchPagingCollectionView.transform = .identity
+//            self.view.layoutIfNeeded()
+
             
             navigationController?.pushViewController(profileVC, animated: true)
             
+            searchCell.searchTableView.reloadData()
         }
         
     }
@@ -882,10 +992,14 @@ extension SearchViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         if searchText == "" {
-            
+//            recentSearchesView.transform = .identity
+//            searchPagingCollectionView.transform = .identity
+
+           // self.view.layoutIfNeeded()
             if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell {
                 
                 searchCell.filteredUsers = searchCell.users
+                searchCell.filteredUsers = self.fetchRecentUsers()
                 searchCell.searchTableView.reloadData()
                 
             }
@@ -893,7 +1007,9 @@ extension SearchViewController: UISearchBarDelegate {
         } else {
             
             filterUsers(for: searchText)
-            
+//            recentSearchesView.transform = CGAffineTransform(scaleX: 1, y: 0)
+//            searchPagingCollectionView.transform = CGAffineTransform(translationX: 0, y: -view.bounds.height * 0.05)
+//            self.view.layoutIfNeeded()
         }
         
     }

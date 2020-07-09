@@ -377,6 +377,7 @@ extension Notification.Name {
     static let locationSelected = Notification.Name("locationSelected")
     static let switchCategory = Notification.Name("switchCategory")
     static let userSignedIn = Notification.Name("userSignedIn")
+    static let clearedRecents = Notification.Name("clearedRecents")
 
 
 }

@@ -331,10 +331,13 @@ final class LoginViewController: UIViewController {
                     
                 } else {
                     
-                    self.save(uid: Auth.auth().currentUser?.uid ?? "no id")
+                    //self.save(uid: Auth.auth().currentUser?.uid ?? "no id")
+                    
+                    DataController.eraseAll(forEntity: "User")
+                    DataController.addUser()
                     
                     self.navigationController?.dismiss(animated: true, completion: nil)
-                     NotificationCenter.default.post(name: .userSignedIn, object: nil)
+//                     NotificationCenter.default.post(name: .userSignedIn, object: nil)
                     
                 }
                 
