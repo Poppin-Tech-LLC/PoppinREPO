@@ -59,6 +59,7 @@
 		F5FC3F3A24B5E26400FA1AB0 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3924B5E26400FA1AB0 /* DataController.swift */; };
 		F5FC3F3C24B737DD00FA1AB0 /* UniversitiesJSON.json in Resources */ = {isa = PBXBuildFile; fileRef = F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */; };
 		F5FC3F3E24B74CD700FA1AB0 /* SignUpSelectUniversityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3D24B74CD700FA1AB0 /* SignUpSelectUniversityViewController.swift */; };
+		F5FC3F4024B750BB00FA1AB0 /* Uni.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3F24B750BB00FA1AB0 /* Uni.swift */; };
 		F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */; };
 		F6498EBB24B24892002F8A1B /* Hashtag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB424B24892002F8A1B /* Hashtag.swift */; };
 		F6498EBC24B24892002F8A1B /* HashtagCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */; };
@@ -152,6 +153,7 @@
 		F5FC3F3924B5E26400FA1AB0 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UniversitiesJSON.json; sourceTree = "<group>"; };
 		F5FC3F3D24B74CD700FA1AB0 /* SignUpSelectUniversityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpSelectUniversityViewController.swift; sourceTree = "<group>"; };
+		F5FC3F3F24B750BB00FA1AB0 /* Uni.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Uni.swift; sourceTree = "<group>"; };
 		F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlignedCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		F6498EB424B24892002F8A1B /* Hashtag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hashtag.swift; sourceTree = "<group>"; };
 		F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashtagCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -317,6 +319,7 @@
 				6417BCA524A25684006AE467 /* Extensions.swift */,
 				6417BCBB24A2650A006AE467 /* Popsicles.swift */,
 				F5FC3F3924B5E26400FA1AB0 /* DataController.swift */,
+				F5FC3F3F24B750BB00FA1AB0 /* Uni.swift */,
 			);
 			path = Miscellaneous;
 			sourceTree = "<group>";
@@ -752,6 +755,7 @@
 				6409061624A37A2F00AD4FF6 /* StartViewController.swift in Sources */,
 				6417BCB124A2606E006AE467 /* PopsicleAnnotationView.swift in Sources */,
 				6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */,
+				F5FC3F4024B750BB00FA1AB0 /* Uni.swift in Sources */,
 				64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */,
 				6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */,
 				64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */,

@@ -334,7 +334,9 @@ final class SignUpFirstPageViewController: UIViewController {
         
         if validSteps == 2 {
             
-            self.navigationController?.pushViewController(SignUpSecondPageViewController(fullName: fullNameTextField.text!, age: age!), animated: true)
+//            self.navigationController?.pushViewController(SignUpSecondPageViewController(fullName: fullNameTextField.text!, age: age!), animated: true)
+            
+             self.navigationController?.pushViewController(SignUpSelectUniversityViewController(), animated: true)
             
         }
         
