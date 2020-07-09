@@ -92,12 +92,12 @@ class PopsicleAnnotation: MKPointAnnotation {
         
         switch popsicleAnnotationData.eventCategory {
             
-        case .Education: return .educationIconShadow256
+        case .Education: return .educationPopsicleIconShadow256
         case .Food: return .foodPopsicleIconShadow256
         case .Social: return .socialPopsicleIconShadow256
-        case .Sports: return .sportsIconShadow256
-        case .Culture: return .cultureIconShadow256
-        case .Poppin: return .poppinIconShadow256
+        case .Sports: return .sportsPopsicleIconShadow256
+        case .Culture: return .culturePopsicleIconShadow256
+        case .Poppin: return .poppinPopsicleIconShadow256
         case .Default: return .defaultPopsicleIconShadow256
             
         }

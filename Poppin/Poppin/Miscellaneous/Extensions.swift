@@ -133,15 +133,15 @@ extension UIImage {
     static let popsicleGroupIconShadow256 = UIImage(named: "popsicleGroupIconShadow256")!
     static let popsicleGroupIconShadow1024 = UIImage(named: "popsicleGroupIconShadow1024")!
     
-    static let poppinIconShadow64 = UIImage(named: "poppinIconShadow64")!
-    static let poppinIconShadow128 = UIImage(named: "poppinIconShadow128")!
-    static let poppinIconShadow256 = UIImage(named: "poppinIconShadow256")!
-    static let poppinIconShadow1024 = UIImage(named: "poppinIconShadow1024")!
+    static let poppinPopsicleIconShadow64 = UIImage(named: "poppinPopsicleIconShadow64")!
+    static let poppinPopsicleIconShadow128 = UIImage(named: "poppinPopsicleIconShadow128")!
+    static let poppinPopsicleIconShadow256 = UIImage(named: "poppinPopsicleIconShadow256")!
+    static let poppinPopsicleIconShadow1024 = UIImage(named: "poppinPopsicleIconShadow1024")!
     
-    static let cultureIconShadow64 = UIImage(named: "cultureIconShadow64")!
-    static let cultureIconShadow128 = UIImage(named: "cultureIconShadow128")!
-    static let cultureIconShadow256 = UIImage(named: "cultureIconShadow256")!
-    static let cultureIconShadow1024 = UIImage(named: "cultureIconShadow1024")!
+    static let culturePopsicleIconShadow64 = UIImage(named: "culturePopsicleIconShadow64")!
+    static let culturePopsicleIconShadow128 = UIImage(named: "culturePopsicleIconShadow128")!
+    static let culturePopsicleIconShadow256 = UIImage(named: "culturePopsicleIconShadow256")!
+    static let culturePopsicleIconShadow1024 = UIImage(named: "culturePopsicleIconShadow1024")!
     
     static let socialPopsicleIconShadow64 = UIImage(named: "socialPopsicleIconShadow64")!
     static let socialPopsicleIconShadow128 = UIImage(named: "socialPopsicleIconShadow128")!
@@ -153,15 +153,15 @@ extension UIImage {
     static let foodPopsicleIconShadow256 = UIImage(named: "foodPopsicleIconShadow256")!
     static let foodPopsicleIconShadow1024 = UIImage(named: "foodPopsicleIconShadow1024")!
     
-    static let sportsIconShadow64 = UIImage(named: "sportsIconShadow64")!
-    static let sportsIconShadow128 = UIImage(named: "sportsIconShadow128")!
-    static let sportsIconShadow256 = UIImage(named: "sportsIconShadow256")!
-    static let sportsIconShadow1024 = UIImage(named: "sportsIconShadow1024")!
+    static let sportsPopsicleIconShadow64 = UIImage(named: "sportsPopsicleIconShadow64")!
+    static let sportsPopsicleIconShadow128 = UIImage(named: "sportsPopsicleIconShadow128")!
+    static let sportsPopsicleIconShadow256 = UIImage(named: "sportsPopsicleIconShadow256")!
+    static let sportsPopsicleIconShadow1024 = UIImage(named: "sportsPopsicleIconShadow1024")!
     
-    static let educationIconShadow64 = UIImage(named: "educationIconShadow64")!
-    static let educationIconShadow128 = UIImage(named: "educationIconShadow128")!
-    static let educationIconShadow256 = UIImage(named: "educationIconShadow256")!
-    static let educationIconShadow1024 = UIImage(named: "educationIconShadow1024")!
+    static let educationPopsicleIconShadow64 = UIImage(named: "educationPopsicleIconShadow64")!
+    static let educationPopsicleIconShadow128 = UIImage(named: "educationPopsicleIconShadow128")!
+    static let educationPopsicleIconShadow256 = UIImage(named: "educationPopsicleIconShadow256")!
+    static let educationPopsicleIconShadow1024 = UIImage(named: "educationPopsicleIconShadow1024")!
     
     // Map Icons
     

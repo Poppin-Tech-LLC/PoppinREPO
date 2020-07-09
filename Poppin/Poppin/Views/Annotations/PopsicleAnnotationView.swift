@@ -15,8 +15,6 @@ class PopsicleAnnotationView: MKAnnotationView {
     
     private let popsicleHeight: CGFloat = .getPercentageWidth(percentage: 12.5)
     private let popsicleWidth: CGFloat = .getPercentageWidth(percentage: 7.5)
-
-    private(set) var popsicleCategory: PopsicleCategory = .Default
     
     lazy private var popsicleContainerView: UIView = {
         
@@ -35,8 +33,8 @@ class PopsicleAnnotationView: MKAnnotationView {
         popsicleIconShadowImageView.translatesAutoresizingMaskIntoConstraints = false
         popsicleIconShadowImageView.centerYAnchor.constraint(equalTo: popsicleIconImageView.bottomAnchor, constant: -1.5).isActive = true
         popsicleIconShadowImageView.centerXAnchor.constraint(equalTo: popsicleIconImageView.centerXAnchor).isActive = true
-        popsicleIconShadowImageView.widthAnchor.constraint(equalTo: popsicleIconImageView.widthAnchor, multiplier: 0.85).isActive = true
-        popsicleIconShadowImageView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.25).isActive = true
+        popsicleIconShadowImageView.widthAnchor.constraint(equalTo: popsicleIconImageView.widthAnchor, multiplier: 0.87).isActive = true
+        popsicleIconShadowImageView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.27).isActive = true
         
         return popsicleContainerView
         
@@ -45,7 +43,7 @@ class PopsicleAnnotationView: MKAnnotationView {
     lazy private var popsicleIconImageView: UIImageView = {
         
         var popsicleGroupIconImageView = UIImageView()
-        popsicleGroupIconImageView.image = (annotation as! PopsicleAnnotation).getPopsicleAnnotationImage()
+        popsicleGroupIconImageView.image = .defaultPopsicleIcon256
         popsicleGroupIconImageView.contentMode = .scaleAspectFit
         return popsicleGroupIconImageView
         
@@ -54,7 +52,8 @@ class PopsicleAnnotationView: MKAnnotationView {
     lazy private var popsicleIconShadowImageView: UIImageView = {
         
         var popsicleIconShadowImageView = UIImageView()
-        popsicleIconShadowImageView.image = (annotation as! PopsicleAnnotation).getPopsicleShadowImage()
+        popsicleIconShadowImageView.image = .defaultPopsicleIconShadow256
+        popsicleIconShadowImageView.alpha = 0.6
         popsicleIconShadowImageView.contentMode = .scaleToFill
         return popsicleIconShadowImageView
         
@@ -78,35 +77,24 @@ class PopsicleAnnotationView: MKAnnotationView {
     
     private func configureView() {
         
-        if let popsicleAnnotation = self.annotation {
-            
-            if popsicleAnnotation is PopsicleAnnotation {
-                
-                popsicleCategory = (annotation as! PopsicleAnnotation).popsicleAnnotationData.eventCategory
-                
-            } else {
-                
-                print("ERROR: Trying to create a PopsicleAnnotationView with an annotation that is not PopsicleAnnotation. Adding a default one.")
-                annotation = PopsicleAnnotation(popsicleAnnotationData: PopsicleAnnotation.defaultPopsicleAnnotationData)
-                
-            }
-            
-        } else {
-            
-            print("ERROR: Trying to create a PopsicleAnnotationView without an annotation. Adding a default one.")
-            annotation = PopsicleAnnotation(popsicleAnnotationData: PopsicleAnnotation.defaultPopsicleAnnotationData)
-            
-        }
-        
         frame = CGRect(x: 0.0, y: 0.0, width: popsicleWidth, height: popsicleHeight)
+        centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
         
         addSubview(popsicleContainerView)
         popsicleContainerView.frame = bounds
         
+    }
+    
+    func setPopsicleAnnotation(popsicleAnnotation: PopsicleAnnotation) {
+        
         canShowCallout = false
-        clusteringIdentifier = "Popsicle Group"
+        clusteringIdentifier = "PopsicleGroup"
         collisionMode = .rectangle
         displayPriority = .required
+        
+        annotation = popsicleAnnotation
+        popsicleIconImageView.image = popsicleAnnotation.getPopsicleAnnotationImage()
+        popsicleIconShadowImageView.image = popsicleAnnotation.getPopsicleShadowImage()
         
     }
     

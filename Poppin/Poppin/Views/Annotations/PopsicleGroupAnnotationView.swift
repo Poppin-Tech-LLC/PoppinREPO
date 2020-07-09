@@ -19,18 +19,21 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
     private let innerInsetX: CGFloat = .getPercentageWidth(percentage: 3)
     private let innerInsetY: CGFloat = .getPercentageWidth(percentage: 2.5)
     
-    private(set) var popsicleGroupCount: Int = 0 {
+    private(set) var popsicleGroupCount: Int = 0
+    
+    lazy private var bubbleViewWidthConstraint: NSLayoutConstraint = {
         
-        didSet {
-            
-            frame = CGRect(x: 0.0, y: 0.0, width: popsicleWidth + ((popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX)/2), height: popsicleHeight)
-            
-            addSubview(popsicleGroupContainerView)
-            popsicleGroupContainerView.frame = bounds
-            
-        }
+        var bubbleViewWidthConstraint = NSLayoutConstraint(item: popsicleGroupCountBubbleView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX)
+        return bubbleViewWidthConstraint
         
-    }
+    }()
+    
+    lazy private var bubbleViewHeightConstraint: NSLayoutConstraint = {
+        
+        var bubbleViewHeightConstraint = NSLayoutConstraint(item: popsicleGroupCountBubbleView, attribute: .height, relatedBy: .equal, toItem: popsicleGroupCountBubbleView, attribute: .width, multiplier: 1.0, constant: 0.0)
+        return bubbleViewHeightConstraint
+        
+    }()
     
     lazy private var popsicleGroupContainerView: UIView = {
         
@@ -48,18 +51,16 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
         popsicleGroupCountBubbleView.translatesAutoresizingMaskIntoConstraints = false
         popsicleGroupCountBubbleView.topAnchor.constraint(equalTo: popsicleGroupIconImageView.topAnchor).isActive = true
         popsicleGroupCountBubbleView.centerXAnchor.constraint(equalTo: popsicleGroupIconImageView.trailingAnchor).isActive = true
+        bubbleViewWidthConstraint.isActive = true
+        bubbleViewHeightConstraint.isActive = true
         
-        if popsicleGroupCount >= 0 && popsicleGroupCount < 10 {
-            
-            popsicleGroupCountBubbleView.widthAnchor.constraint(equalToConstant: popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX).isActive = true
-            popsicleGroupCountBubbleView.heightAnchor.constraint(equalTo: popsicleGroupCountBubbleView.widthAnchor).isActive = true
-            
-        } else if popsicleGroupCount >= 10 {
-            
-            popsicleGroupCountBubbleView.widthAnchor.constraint(equalToConstant: popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX).isActive = true
-            popsicleGroupCountBubbleView.heightAnchor.constraint(equalToConstant: popsicleGroupCountLabel.intrinsicContentSize.height + innerInsetY).isActive = true
-            
-        }
+        popsicleGroupContainerView.addSubview(popsicleGroupIconShadowImageView)
+        popsicleGroupContainerView.sendSubviewToBack(popsicleGroupIconShadowImageView)
+        popsicleGroupIconShadowImageView.translatesAutoresizingMaskIntoConstraints = false
+        popsicleGroupIconShadowImageView.centerYAnchor.constraint(equalTo: popsicleGroupIconImageView.bottomAnchor, constant: -1.5).isActive = true
+        popsicleGroupIconShadowImageView.centerXAnchor.constraint(equalTo: popsicleGroupIconImageView.centerXAnchor).isActive = true
+        popsicleGroupIconShadowImageView.widthAnchor.constraint(equalTo: popsicleGroupIconImageView.widthAnchor, multiplier: 0.87).isActive = true
+        popsicleGroupIconShadowImageView.heightAnchor.constraint(equalTo: popsicleGroupIconImageView.heightAnchor, multiplier: 0.27).isActive = true
         
         return popsicleGroupContainerView
         
@@ -93,22 +94,22 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
         
         var popsicleGroupCountLabel = UILabel()
         popsicleGroupCountLabel.textAlignment = .center
-        
-        if popsicleGroupCount > 99 {
-            
-            popsicleGroupCountLabel.text = "99+"
-            
-        } else if popsicleGroupCount >= 0 {
-            
-            popsicleGroupCountLabel.text = String(popsicleGroupCount)
-            
-        }
-        
+        popsicleGroupCountLabel.text = "0"
         popsicleGroupCountLabel.numberOfLines = 1
         popsicleGroupCountLabel.textColor = .white
         popsicleGroupCountLabel.backgroundColor = .mainDARKPURPLE
         popsicleGroupCountLabel.font = .dynamicFont(with: "Octarine-Bold", style: .caption1)
         return popsicleGroupCountLabel
+        
+    }()
+    
+    lazy private var popsicleGroupIconShadowImageView: UIImageView = {
+        
+        var popsicleGroupIconShadowImageView = UIImageView()
+        popsicleGroupIconShadowImageView.image = .defaultPopsicleIconShadow256
+        popsicleGroupIconShadowImageView.alpha = 0.6
+        popsicleGroupIconShadowImageView.contentMode = .scaleToFill
+        return popsicleGroupIconShadowImageView
         
     }()
     
@@ -130,21 +131,65 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
     
     private func configureView() {
         
-        canShowCallout = false
-        displayPriority = .required
-        collisionMode = .rectangle
+        frame = CGRect(x: 0.0, y: 0.0, width: popsicleWidth + ((popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX)/2), height: popsicleHeight)
+        centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
+        
+        addSubview(popsicleGroupContainerView)
+        popsicleGroupContainerView.frame = bounds
         
     }
     
     func setGroupCount(count: Int) {
         
-        popsicleGroupCount = count
+        canShowCallout = false
+        displayPriority = .required
+        collisionMode = .rectangle
+        
+        if count < 0 {
+            
+            popsicleGroupCount = 0
+            popsicleGroupCountLabel.text = "0"
+            
+        } else if count > 99 {
+            
+            popsicleGroupCount = count
+            popsicleGroupCountLabel.text = "99+"
+            
+        } else {
+            
+            popsicleGroupCount = count
+            popsicleGroupCountLabel.text = String(count)
+            
+        }
+        
+        bubbleViewWidthConstraint.isActive = false
+        bubbleViewWidthConstraint = NSLayoutConstraint(item: popsicleGroupCountBubbleView, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX)
+        bubbleViewWidthConstraint.isActive = true
+        
+        if popsicleGroupCount >= 0 && popsicleGroupCount < 10 {
+            
+            bubbleViewHeightConstraint.isActive = false
+            bubbleViewHeightConstraint = NSLayoutConstraint(item: popsicleGroupCountBubbleView, attribute: .height, relatedBy: .equal, toItem: popsicleGroupCountBubbleView, attribute: .width, multiplier: 1.0, constant: 0.0)
+            bubbleViewHeightConstraint.isActive = true
+            
+        } else if popsicleGroupCount >= 10 {
+            
+            bubbleViewHeightConstraint.isActive = false
+            bubbleViewHeightConstraint = NSLayoutConstraint(item: popsicleGroupCountBubbleView, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1.0, constant: popsicleGroupCountLabel.intrinsicContentSize.height + innerInsetY)
+            bubbleViewHeightConstraint.isActive = true
+            
+        }
+        
+        frame = CGRect(x: 0.0, y: 0.0, width: popsicleWidth + ((popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX)/2), height: popsicleHeight)
+        centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
+        
+        popsicleGroupContainerView.frame = bounds
         
     }
     
 }
 
-class BubbleView: UIView {
+final class BubbleView: UIView {
     
     override func layoutSubviews() {
         
