@@ -19,6 +19,16 @@ final class SignUpFirstPageViewController: UIViewController {
     
     let innerElementsSpacing: CGFloat = .getPercentageWidth(percentage: 3)
     
+    private var email: String = ""
+    
+    private var radius: Double = 0.0
+    
+    private var longitude: Double = 0.0
+
+    private var latitude: Double = 0.0
+
+
+    
     private let datePicker: UIDatePicker = {
         
         let datePicker = UIDatePicker()
@@ -204,6 +214,17 @@ final class SignUpFirstPageViewController: UIViewController {
         
     }()
     
+    init(email: String, radius: Double, latitude: Double, longitude: Double) {
+           
+           super.init(nibName: nil, bundle: nil)
+           
+        self.email = email
+        self.latitude = latitude
+        self.radius = radius
+        self.longitude = longitude
+           
+       }
+    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -334,9 +355,9 @@ final class SignUpFirstPageViewController: UIViewController {
         
         if validSteps == 2 {
             
-//            self.navigationController?.pushViewController(SignUpSecondPageViewController(fullName: fullNameTextField.text!, age: age!), animated: true)
+            self.navigationController?.pushViewController(SignUpSecondPageViewController(fullName: fullNameTextField.text!, age: age!, email: email, radius: radius, latitude: latitude, longitude: longitude), animated: true)
             
-             self.navigationController?.pushViewController(SignUpSelectUniversityViewController(), animated: true)
+             //self.navigationController?.pushViewController(SignUpSelectUniversityViewController(fullName: fullNameTextField.text!, age: age!), animated: true)
             
         }
         

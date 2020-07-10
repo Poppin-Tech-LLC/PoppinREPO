@@ -216,7 +216,8 @@ final class StartViewController: UIViewController {
     
     @objc private func showSignUp(sender: BouncyButton) {
         
-        navigationController?.pushViewController(SignUpFirstPageViewController(), animated: true)
+//        navigationController?.pushViewController(SignUpFirstPageViewController(), animated: true)
+        navigationController?.pushViewController(SignUpSelectUniversityViewController(), animated: true)
         
     }
     

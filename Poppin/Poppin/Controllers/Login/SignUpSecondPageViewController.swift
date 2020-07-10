@@ -22,6 +22,13 @@ final class SignUpSecondPageViewController: UIViewController {
     
     private var fullName: String = ""
     private var age: Int = 0
+    private var email: String = ""
+    
+    private var radius: Double = 0.0
+    
+    private var longitude: Double = 0.0
+
+    private var latitude: Double = 0.0
     
     lazy private var signUpContainerView: UIView = {
         
@@ -316,12 +323,16 @@ final class SignUpSecondPageViewController: UIViewController {
         
     }()
     
-    init(fullName: String, age: Int) {
+    init(fullName: String, age: Int, email: String, radius: Double, latitude: Double, longitude: Double) {
         
         super.init(nibName: nil, bundle: nil)
         
         self.fullName = fullName
         self.age = age
+        self.email = email
+        self.latitude = latitude
+        self.radius = radius
+        self.longitude = longitude
         
     }
     
@@ -393,8 +404,8 @@ final class SignUpSecondPageViewController: UIViewController {
     
     @objc private func transitionToNextPage(sender: BouncyButton) {
         
-        let emailFormat = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailFormat)
+       // let emailFormat = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+//        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailFormat)
         
         let passwordFormat = "(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,}"
         let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordFormat)
@@ -403,8 +414,8 @@ final class SignUpSecondPageViewController: UIViewController {
         
         var validSteps: Int = 0
         
-        if emailPredicate.evaluate(with: emailTextField.text) {
-            
+       // if emailPredicate.evaluate(with: emailTextField.text) {
+        if(emailTextField.text!.hasSuffix("@" + email)){
             validSteps+=1
             
         } else {
@@ -529,8 +540,8 @@ final class SignUpSecondPageViewController: UIViewController {
                         self.present(alertVC, animated: true, completion: nil)
                         
                     } else {
-                        
-                        self.navigationController?.pushViewController(SignUpThirdPageViewController(fullName: self.fullName, age: self.age, email: self.emailTextField.text!, password: self.passwordTextField.text!), animated: true)
+                        NotificationCenter.default.post(name: .universitySelected, object: nil)
+                        self.navigationController?.pushViewController(SignUpThirdPageViewController(fullName: self.fullName, age: self.age, email: self.emailTextField.text!, password: self.passwordTextField.text!, radius: self.radius, latitude: self.latitude, longitude: self.longitude), animated: true)
                         
                     }
                     

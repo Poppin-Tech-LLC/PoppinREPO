@@ -8,7 +8,17 @@
 
 import UIKit
 
-final class SignUpSelectUniversityViewController: UIViewController {
+struct College {
+    
+    var universityName: String
+    var email: String
+    var latitude: Double
+    var longitude: Double
+    var radius: Double
+    
+}
+
+final class SignUpSelectUniversityViewController: UIViewController, UIPickerViewDelegate, UITextFieldDelegate, UIPickerViewDataSource {
     
     let loginInsetY: CGFloat = .getPercentageWidth(percentage: 5)
     let loginInsetX: CGFloat = .getPercentageWidth(percentage: 5)
@@ -18,6 +28,14 @@ final class SignUpSelectUniversityViewController: UIViewController {
     let containerInsetX: CGFloat = .getPercentageWidth(percentage: 9)
     
     let innerElementsSpacing: CGFloat = .getPercentageWidth(percentage: 3)
+    
+    var unis: [String: College] = [:]
+    
+    var uniNames: [String] = [""]
+    
+    private var fullName: String = ""
+    
+    private var age: Int = 0
     
     
     lazy private var signUpContainerView: UIView = {
@@ -131,7 +149,7 @@ final class SignUpSelectUniversityViewController: UIViewController {
         selectUniversityTextField.textColor = .mainDARKPURPLE
         selectUniversityTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         selectUniversityTextField.attributedPlaceholder = NSAttributedString(string: "Select University", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
-        //selectUniversityTextField.delegate = self
+        selectUniversityTextField.delegate = self
         selectUniversityTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: selectUniversityTextField.intrinsicContentSize.height))
         selectUniversityTextField.leftViewMode = .always
         selectUniversityTextField.clearButtonMode = .whileEditing
@@ -139,13 +157,46 @@ final class SignUpSelectUniversityViewController: UIViewController {
         selectUniversityTextField.autocapitalizationType = .none
         selectUniversityTextField.autocorrectionType = .no
         selectUniversityTextField.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0)
-        //selectUniversityTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
+        let uniToolbar = UIToolbar()
+               
+        uniToolbar.sizeToFit()
+               
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneStartActionDate))
+               
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+               
+        uniToolbar.setItems([flexSpace,doneButton], animated: true)
+               
+        selectUniversityTextField.inputAccessoryView = uniToolbar
+        
+        selectUniversityTextField.inputView = universityPicker
+        selectUniversityTextField.isUserInteractionEnabled = true
         
         selectUniversityTextField.translatesAutoresizingMaskIntoConstraints = false
         selectUniversityTextField.heightAnchor.constraint(equalToConstant: selectUniversityTextField.intrinsicContentSize.height+(loginInnerInset*0.4)).isActive = true
         
         return selectUniversityTextField
         
+    }()
+    
+    @objc func doneStartActionDate() {
+        
+        if(selectUniversityTextField.text != ""){
+            signUpNextButton.isUserInteractionEnabled = true
+            signUpNextButton.alpha = 1.0
+        }
+                
+           view.endEditing(true)
+           
+       }
+
+    
+    lazy private var universityPicker: UIPickerView = {
+        let universityPicker = UIPickerView()
+        universityPicker.delegate = self
+        universityPicker.dataSource = self
+        universityPicker.setValue(UIColor.mainDARKPURPLE, forKeyPath: "textColor")
+        return universityPicker
     }()
     
     lazy private var poppinTitleLabel: UILabel = {
@@ -162,6 +213,15 @@ final class SignUpSelectUniversityViewController: UIViewController {
         return poppinTitleLabel
         
     }()
+    
+//    init(fullName: String, age: Int) {
+//        
+//        super.init(nibName: nil, bundle: nil)
+//        
+//        self.fullName = fullName
+//        self.age = age
+//        
+//    }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         
@@ -184,12 +244,15 @@ final class SignUpSelectUniversityViewController: UIViewController {
         modalTransitionStyle = .coverVertical
         
     }
+
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
         view.backgroundColor = .poppinLIGHTGOLD
+        
+        readFromJSON()
         
         let dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         dismissKeyboardGesture.cancelsTouchesInView = false
@@ -213,13 +276,89 @@ final class SignUpSelectUniversityViewController: UIViewController {
         poppinTitleLabel.topAnchor.constraint(equalTo: signUpContainerView.topAnchor, constant: containerInsetY).isActive = true
         poppinTitleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
+        
+        
     }
+    
+    private func readFromJSON(){
+        
+            var json: [[String:Any]]
+            json = []
+            if let path = Bundle.main.path(forResource: "UniversitiesJSON", ofType: "json") {
+                do {
+                    let fileUrl = URL(fileURLWithPath: path)
+                    let data = try Data(contentsOf: fileUrl, options: .mappedIfSafe)
+                    json = try! JSONSerialization.jsonObject(with: data) as! [[String:Any]]
+                } catch {
+                }
+            }
+            
+            for info in json{
+                var uni: College
+                uni = College(universityName: "", email: "", latitude: 0, longitude: 0, radius: 0)
+                
+                
+                if let universityName = info["universityName"] as? String{
+                    uni.universityName = universityName
+                }
+                if let email = info["email"] as? String{
+                    uni.email = email
+                }
+                if let latitude = info["latitude"] as? Double{
+                    uni.latitude = latitude
+                }
+                if let longitude = info["longitude"] as? Double{
+                    uni.longitude = longitude
+                }
+                if let radius = info["radius"] as? Double{
+                    uni.radius = radius
+                }
+                unis[uni.universityName] = uni
+                uniNames.append(uni.universityName)
+            }
+        }
+    
+    // returns the number of 'columns' to display.
+    func numberOfComponents(in pickerView: UIPickerView) -> Int{
+        return 1
+    }
+
+    // returns the # of rows in each component..
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int{
+        return uniNames.count
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String?{
+        return uniNames[row]
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int)
+    {
+        selectUniversityTextField.text = uniNames[row]
+       // universityPicker.isHidden = true;
+    }
+
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+       // universityPicker.isHidden = false
+        return true
+    }
+    
+    func textField(_ textView: UITextField, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        return false
+    }
+    
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
     
     
     @objc private func transitionToNextPage(sender: BouncyButton) {
-        
+        //let universityName = unis[selectUniversityTextField.text!]!.universityName
+        let radius = unis[selectUniversityTextField.text!]!.radius
+        let latitude = unis[selectUniversityTextField.text!]!.latitude
+        let longitude = unis[selectUniversityTextField.text!]!.longitude
+        let email = unis[selectUniversityTextField.text!]!.email
+
+        self.navigationController?.pushViewController(SignUpFirstPageViewController( email: email, radius: radius, latitude: latitude, longitude: longitude), animated: true)
     }
     
     @objc private func switchToLogin(sender: BouncyButton) {

@@ -11,6 +11,8 @@ import FirebaseAuth
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import CoreData
+import Geofirestore
+import MapKit
 
 final class SignUpThirdPageViewController: UIViewController {
     
@@ -28,11 +30,17 @@ final class SignUpThirdPageViewController: UIViewController {
     private var email: String = ""
     private var password: String = ""
     
-    private let termsLink = "Terms"
-    private let privacyPolicyLink = "Privacy"
+    private var radius: Double = 0.0
+    
+    private var longitude: Double = 0.0
+
+    private var latitude: Double = 0.0
     
     let db = Firestore.firestore()
     
+    private let termsLink = "Terms"
+    private let privacyPolicyLink = "Privacy"
+        
     lazy private var signUpContainerView: UIView = {
         
         let contentStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 6.5)
@@ -249,7 +257,7 @@ final class SignUpThirdPageViewController: UIViewController {
         
     }()
     
-    init(fullName: String, age: Int, email: String, password: String) {
+    init(fullName: String, age: Int, email: String, password: String, radius: Double, latitude: Double, longitude: Double) {
         
         super.init(nibName: nil, bundle: nil)
         
@@ -257,6 +265,9 @@ final class SignUpThirdPageViewController: UIViewController {
         self.age = age
         self.email = email
         self.password = password
+        self.latitude = latitude
+        self.radius = radius
+        self.longitude = longitude
         
     }
     
@@ -422,24 +433,34 @@ final class SignUpThirdPageViewController: UIViewController {
                     self.present(alertVC, animated: true, completion: nil)
                     
                 } else {
+                    let geoFirestore = GeoFirestore(collectionRef: self.db.collection("userLocs"))
                     
                     self.db.collection("users").document(Auth.auth().currentUser!.uid).setData([
                         "username": self.usernameTextField.text ?? "",
                         "bio": "",
                         "followers": [Auth.auth().currentUser?.uid : false],
                         "following": [Auth.auth().currentUser?.uid : false],
-                        "fullName": self.fullName
+                        "fullName": self.fullName,
+                        "latitude": self.latitude,
+                        "longitude": self.longitude,
+                        "radius": self.radius
                     ]) { err in
                         if let err = err {
                             print("Error adding document: \(err)")
                         } else {
                             print("Document added with ID: ")
+                            geoFirestore.setLocation(location: CLLocation(latitude: self.latitude, longitude: self.longitude), forDocumentWithID: Auth.auth().currentUser!.uid) { (error) in
+                            if let error = error {
+                                print("An error occured: \(error)")
+                            } else {
+                                print("Saved location successfully!")
+                            }
                         }
                     }
+                    }
                     
-                   // self.save(uid: Auth.auth().currentUser?.uid ?? "no id")
                     DataController.eraseAll(forEntity: "User")
-                    DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid)
+                    DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid, radius: self.radius, latitude: self.latitude, longitude: self.longitude)
                     self.navigationController?.dismiss(animated: true, completion: nil)
 //                    NotificationCenter.default.post(name: .userSignedIn, object: nil)
 

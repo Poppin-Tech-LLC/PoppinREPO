@@ -51,7 +51,7 @@ class DataController{
         }
     }
     
-    static func addUser(bio: String? = nil, username: String? = nil, fullName: String? = nil, uid: String? = nil){
+    static func addUser(bio: String? = nil, username: String? = nil, fullName: String? = nil, uid: String? = nil, radius: Double? = 0.0, latitude: Double? = 0.0, longitude: Double? = 0.0){
         
         guard let appDelegate =
           UIApplication.shared.delegate as? AppDelegate else {
@@ -66,9 +66,7 @@ class DataController{
                            in: managedContext)!
         
         let userData = NSManagedObject(entity: entity, insertInto: managedContext)
-        
-        //managedContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-        
+                
         if(bio == nil || username == nil || fullName == nil || uid == nil){
             do {
 
@@ -81,6 +79,10 @@ class DataController{
                             let username2 = data!["username"] as! String
                             let fullName2 = data!["fullName"] as! String
                             let bio2 = data!["bio"] as! String
+                            let radius2 = data!["radius"] as! Double
+                            let latitude2 = data!["latitude"] as! Double
+                            let longitude2 = data!["longitude"] as! Double
+
                             
                             self.removeWithID(uid: Auth.auth().currentUser?.uid ?? "")
                             
@@ -88,6 +90,10 @@ class DataController{
                             userData.setValue(username2, forKey: "username")
                             userData.setValue(fullName2, forKey: "fullName")
                             userData.setValue(bio2, forKey: "bio")
+                            userData.setValue(radius2, forKey: "radius")
+                            userData.setValue(latitude2, forKey: "latitude")
+                            userData.setValue(longitude2, forKey: "longitude")
+                            
                             
                             
                             
@@ -108,6 +114,9 @@ class DataController{
             userData.setValue(username, forKey: "username")
             userData.setValue(fullName, forKey: "fullName")
             userData.setValue(bio, forKey: "bio")
+            userData.setValue(radius, forKey: "radius")
+            userData.setValue(latitude, forKey: "latitude")
+            userData.setValue(longitude, forKey: "longitude")
             
             do{
                 try managedContext.save()
@@ -187,7 +196,6 @@ class DataController{
         do{
             let user = try managedContext.fetch(fetchRequest)
             for data in user{
-                print(data.value(forKey: "username"))
                 managedContext.delete(data)
             }
             try managedContext.save()
@@ -223,6 +231,4 @@ class DataController{
         
         return [NSManagedObject()]
     }
-    
-    
 }

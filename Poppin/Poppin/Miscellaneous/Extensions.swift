@@ -379,5 +379,4 @@ extension Notification.Name {
     static let userSignedIn = Notification.Name("userSignedIn")
     static let clearedRecents = Notification.Name("clearedRecents")
 
-
 }
