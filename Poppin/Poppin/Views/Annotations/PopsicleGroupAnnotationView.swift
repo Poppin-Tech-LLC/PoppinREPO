@@ -98,7 +98,7 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
         popsicleGroupCountLabel.numberOfLines = 1
         popsicleGroupCountLabel.textColor = .white
         popsicleGroupCountLabel.backgroundColor = .mainDARKPURPLE
-        popsicleGroupCountLabel.font = .dynamicFont(with: "Octarine-Bold", style: .caption1)
+        popsicleGroupCountLabel.font = .dynamicFont(with: "Octarine-Bold", style: .caption2)
         return popsicleGroupCountLabel
         
     }()

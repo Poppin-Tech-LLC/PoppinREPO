@@ -65,7 +65,7 @@ enum SearchType: String {
 
 final class SearchPageCell: UICollectionViewCell {
     
-    private let searchVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 4)
+    private let searchVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 6)
     private let searchHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     
     var searchType: SearchType = .Users
@@ -77,7 +77,7 @@ final class SearchPageCell: UICollectionViewCell {
         var searchScrollView = UIScrollView()
         searchScrollView.alwaysBounceVertical = true
         searchScrollView.showsVerticalScrollIndicator = false
-        searchScrollView.canCancelContentTouches = false
+        searchScrollView.keyboardDismissMode = .onDrag
         searchScrollView.contentInset = UIEdgeInsets(top: searchVerticalEdgeInset, left: 0.0, bottom: searchVerticalEdgeInset, right: 0.0)
         
         searchScrollView.addSubview(searchTableView)
@@ -96,7 +96,7 @@ final class SearchPageCell: UICollectionViewCell {
         
         var searchTableView = SelfSizedTableView()
         searchTableView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 16.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.3, shadowRadius: 8.0)
-        searchTableView.isScrollEnabled = false
+        searchTableView.isScrollEnabled = true
         searchTableView.clipsToBounds = true
         searchTableView.separatorColor = UIColor.mainDARKPURPLE.withAlphaComponent(0.7)
         searchTableView.backgroundColor = .white

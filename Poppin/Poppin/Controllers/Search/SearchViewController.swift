@@ -22,6 +22,11 @@ final class SearchViewController: UIViewController {
     private var username: String?
     private var storage: Storage = Storage.storage()
     private var isFetching: Bool = false
+    private var currentPage: Int = 0
+    private var shouldActivateSearchBar: Bool = false
+    private var searchBarWasActive: Bool = false
+    private var alwaysShowsCancelButton: Bool = false
+    private var startIndex: Int = 0
     
     lazy private var backgroundView: UIView = {
         
@@ -121,11 +126,11 @@ final class SearchViewController: UIViewController {
     
     lazy private var searchHeaderView: UIView = {
         
-        let searchHeaderBackButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .arrowLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .bold)).withTintColor(UIColor.white))
+        let searchHeaderBackButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .bold)).withTintColor(UIColor.white))
         searchHeaderBackButton.addTarget(self, action: #selector(transitionToPreviousPage), for: .touchUpInside)
         
         searchHeaderBackButton.translatesAutoresizingMaskIntoConstraints = false
-        searchHeaderBackButton.heightAnchor.constraint(equalToConstant: searchHeaderUsernameLabel.intrinsicContentSize.height).isActive = true
+        searchHeaderBackButton.heightAnchor.constraint(equalToConstant: searchHeaderUsernameLabel.intrinsicContentSize.height*0.8).isActive = true
         searchHeaderBackButton.widthAnchor.constraint(equalTo: searchHeaderBackButton.heightAnchor).isActive = true
         
         var searchHeaderView = UIView()
@@ -154,7 +159,7 @@ final class SearchViewController: UIViewController {
         var searchHeaderUsernameLabel = UILabel()
         searchHeaderUsernameLabel.textColor = .white
         searchHeaderUsernameLabel.textAlignment = .center
-        searchHeaderUsernameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .callout)
+        searchHeaderUsernameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         searchHeaderUsernameLabel.text = "@" + (username ?? "username").lowercased()
         return searchHeaderUsernameLabel
         
@@ -184,7 +189,7 @@ final class SearchViewController: UIViewController {
         
     }()
     
-    lazy private var searchBar: UISearchBar = {
+    lazy private var searchBar: SearchBar = {
         
         var searchBar = SearchBar(tintColor: UIColor.white)
         searchBar.delegate = self
@@ -198,7 +203,7 @@ final class SearchViewController: UIViewController {
         searchBarCancelButton.setTitle("Cancel", for: .normal)
         searchBarCancelButton.titleLabel?.textAlignment = .center
         searchBarCancelButton.setTitleColor(.white, for: .normal)
-        searchBarCancelButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        searchBarCancelButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
         searchBarCancelButton.addTarget(self, action: #selector(cancelButtonAction(sender:)), for: .touchUpInside)
         searchBarCancelButton.alpha = 0.0
         
@@ -265,12 +270,12 @@ final class SearchViewController: UIViewController {
             let sectionButton = SectionButton(bouncyButtonImage: nil, section: searchSectionButtons.count)
             sectionButton.backgroundColor = .clear
             sectionButton.setTitleColor(UIColor.white, for: .normal)
-            sectionButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .callout)
+            sectionButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
             sectionButton.titleLabel?.textAlignment = .center
             sectionButton.setTitle(searchType.rawValue, for: .normal)
             sectionButton.addTarget(self, action: #selector(showSection(sender:)), for: .touchUpInside)
             
-            if sectionButton.section != 0 { sectionButton.alpha = 0.7 }
+            if sectionButton.section != startIndex { sectionButton.alpha = 0.7 }
             
             searchSectionButtons.append(sectionButton)
             
@@ -303,14 +308,16 @@ final class SearchViewController: UIViewController {
         
     }()
     
-    init(searchTypes: [SearchType], userID: String?, username: String?, shouldActivateSearchBar: Bool) {
+    init(searchTypes: [SearchType], startIndex: Int, userID: String?, username: String?, shouldActivateSearchBar: Bool, alwaysShowsCancelButton: Bool) {
         
         super.init(nibName: nil, bundle: nil)
         
         self.searchTypes = searchTypes
         self.username = username
+        self.shouldActivateSearchBar = shouldActivateSearchBar
+        self.alwaysShowsCancelButton = alwaysShowsCancelButton
         
-        if shouldActivateSearchBar { searchBar.becomeFirstResponder() }
+        if startIndex >= 0 && startIndex < searchTypes.count { self.startIndex = startIndex }
         
         if let userID = userID { self.userID = userID }
         
@@ -340,7 +347,7 @@ final class SearchViewController: UIViewController {
     
     private func configureController() {
         
-        switch searchTypes[0] {
+        switch searchTypes[startIndex] {
             
         case .Followers: fetchFollowers(section: 0)
         case .Following: fetchFollowing(section: 0)
@@ -410,11 +417,25 @@ final class SearchViewController: UIViewController {
         
         super.viewWillAppear(animated)
         
-        if username != nil {
+        if username != nil { navigationController?.interactivePopGestureRecognizer?.delegate = self }
+        
+        if shouldActivateSearchBar {
             
-            navigationController?.interactivePopGestureRecognizer?.delegate = self
+            searchBar.becomeFirstResponder()
+            shouldActivateSearchBar = false
             
         }
+        
+        searchPagingCollectionView.layoutIfNeeded()
+        showSection(sender: searchSectionButtons[startIndex])
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        
+        super.viewDidAppear(animated)
+        
+        if searchBarWasActive { searchBar.becomeFirstResponder() }
         
     }
     
@@ -424,11 +445,20 @@ final class SearchViewController: UIViewController {
         
         navigationController?.interactivePopGestureRecognizer?.delegate = nil
         
+        if searchBar.isFirstResponder {
+            
+            searchBarWasActive = true
+            searchBar.resignFirstResponder()
+            
+        }
+        
     }
     
     @objc private func showSection(sender: SectionButton) {
         
-        if let currentIndex = searchPagingCollectionView.indexPathsForVisibleItems.first?.item, currentIndex != sender.section {
+        if currentPage != sender.section {
+            
+            currentPage = sender.section
             
             for sectionButton in searchSectionButtons {
                 
@@ -820,7 +850,6 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         if let searchCell = searchPagingCollectionView.visibleCells.first as? SearchPageCell {
             
             let profileVC = ProfileViewController(with: searchCell.filteredUsers[indexPath.row])
-            
             navigationController?.pushViewController(profileVC, animated: true)
             
         }
@@ -840,6 +869,12 @@ extension SearchViewController: UIGestureRecognizerDelegate {
 }
 
 extension SearchViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        searchBar.resignFirstResponder()
+        
+    }
     
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         
@@ -862,7 +897,7 @@ extension SearchViewController: UISearchBarDelegate {
     
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
         
-        if searchBar is SearchBar {
+        if searchBar is SearchBar, !alwaysShowsCancelButton {
             
             UIView.animate(withDuration: 0.2, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
                 
@@ -996,17 +1031,19 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
-        if let pagingCollectionView = scrollView as? PagingCollectionView {
+        if scrollView is PagingCollectionView {
             
-            let newSection = Int(targetContentOffset.pointee.x / view.frame.width)
+            let newPage = Int(targetContentOffset.pointee.x / view.frame.width)
             
-            if let currentSection = pagingCollectionView.indexPathsForVisibleItems.first?.item, currentSection != newSection, newSection >= 0, newSection < searchSectionButtons.count {
+            if currentPage != newPage, newPage >= 0, newPage < searchSectionButtons.count {
                 
-                print("Showing " + searchTypes[newSection].rawValue)
+                currentPage = newPage
+                
+                print("Showing " + searchTypes[currentPage].rawValue)
                 
                 for sectionButton in searchSectionButtons {
                     
-                    if sectionButton.section == newSection {
+                    if sectionButton.section == currentPage {
                         
                         sectionButton.alpha = 1.0
                         
@@ -1018,12 +1055,12 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
                     
                 }
                 
-                switch searchTypes[newSection] {
+                switch searchTypes[currentPage] {
                     
-                case .Users: fetchUsers(section: newSection)
-                case .Events: fetchEvents(section: newSection)
-                case .Followers: fetchFollowers(section: newSection)
-                case .Following: fetchFollowing(section: newSection)
+                case .Users: fetchUsers(section: currentPage)
+                case .Events: fetchEvents(section: currentPage)
+                case .Followers: fetchFollowers(section: currentPage)
+                case .Following: fetchFollowing(section: currentPage)
                     
                 }
                 

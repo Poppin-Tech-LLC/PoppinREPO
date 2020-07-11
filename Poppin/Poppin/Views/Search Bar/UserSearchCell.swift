@@ -21,13 +21,13 @@ final class UserSearchCell: UITableViewCell {
     
     static let cellIdentifier: String = "UserSearchCell"
     
-    private let cellYInset: CGFloat = .getPercentageWidth(percentage: 4)
-    private let cellInnerSet: CGFloat = .getPercentageWidth(percentage: 1)
-    private let cellXInset: CGFloat = .getPercentageWidth(percentage: 5)
+    private let cellYInset: CGFloat = .getPercentageWidth(percentage: 4.2)
+    private let cellXInset: CGFloat = .getPercentageWidth(percentage: 5.5)
+    private let cellInnerInset: CGFloat = .getPercentageWidth(percentage: 1)
     
     lazy private var cellTextStackView: UIStackView = {
         
-        let cellTextStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 0.5)
+        let cellTextStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 0.7)
         
         var cellTextStackView = UIStackView(arrangedSubviews: [fullNameLabel, usernameLabel])
         cellTextStackView.axis = .vertical
@@ -46,11 +46,11 @@ final class UserSearchCell: UITableViewCell {
         fullNameLabel.numberOfLines = 1
         fullNameLabel.textAlignment = .left
         fullNameLabel.text = "Full Name"
-        fullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        fullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
         fullNameLabel.textColor = UIColor.mainDARKPURPLE
         
         fullNameLabel.translatesAutoresizingMaskIntoConstraints = false
-        fullNameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height + cellInnerSet).isActive = true
+        fullNameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height).isActive = true
         
         return fullNameLabel
         
@@ -63,11 +63,11 @@ final class UserSearchCell: UITableViewCell {
         usernameLabel.numberOfLines = 1
         usernameLabel.textAlignment = .left
         usernameLabel.text = "@username"
-        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
         usernameLabel.textColor = UIColor.mainDARKPURPLE
         
         usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height + cellInnerSet).isActive = true
+        usernameLabel.heightAnchor.constraint(equalToConstant: fullNameLabel.intrinsicContentSize.height).isActive = true
         
         return usernameLabel
         
@@ -84,19 +84,6 @@ final class UserSearchCell: UITableViewCell {
         return userImageView
         
     }()
-    
-    //    lazy var userImageHolder: UIImageView = {
-    //        var userImageHolder = UIImageView()
-    //        userImageHolder.layer.borderColor = UIColor.white.cgColor
-    //        //userImage.image = .defaultUserPicture128
-    //        userImageHolder.contentMode = .scaleAspectFit
-    //        userImageHolder.frame = CGRect(x: 0, y: 0, width: contentView.bounds.height * 0.8, height: contentView.bounds.height * 0.8)
-    //        //userImageHolder.layer.cornerRadius = userImage.bounds.height/2
-    //
-    //        //userImage.imageEdgeInsets = UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
-    //        //userImage.clipsToBounds = true
-    //        return userImageHolder
-    //    }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         
@@ -126,10 +113,10 @@ final class UserSearchCell: UITableViewCell {
         
         contentView.addSubview(userImageView)
         userImageView.translatesAutoresizingMaskIntoConstraints = false
-        userImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: cellYInset).isActive = true
-        userImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellYInset).isActive = true
+        userImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: cellYInset*0.65).isActive = true
+        userImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellYInset*0.65).isActive = true
         userImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -cellXInset).isActive = true
-        userImageView.leadingAnchor.constraint(equalTo: cellTextStackView.trailingAnchor, constant: cellInnerSet).isActive = true
+        userImageView.leadingAnchor.constraint(equalTo: cellTextStackView.trailingAnchor, constant: cellInnerInset).isActive = true
         
     }
     

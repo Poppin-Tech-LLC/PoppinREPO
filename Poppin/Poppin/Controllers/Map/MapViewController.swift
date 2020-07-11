@@ -138,8 +138,8 @@ final class MapViewController: UIViewController {
         var mapView = MKMapView()
         mapView.isPitchEnabled = false
         mapView.isRotateEnabled = false
-        //mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
-        //mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
+        mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
+        mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius*0.07, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
         mapView.setRegion(mapViewRegion, animated: true)
         mapView.delegate = self
         mapView.showsUserLocation = false
@@ -439,6 +439,13 @@ final class MapViewController: UIViewController {
         
     }
     
+    @objc private func handleMapTap(sender: UITapGestureRecognizer? = nil) {
+        
+        mapView.isZoomEnabled = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.mapView.isZoomEnabled = true }
+        
+    }
+    
     @objc func zoomToUserLocation(_ sender: UIButton) {
         
         let region = MKCoordinateRegion(center: userLocation, latitudinalMeters: 50.0, longitudinalMeters: 50.0)
@@ -486,6 +493,11 @@ final class MapViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .black
+        
+        let mapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
+        mapGestureRecognizer.numberOfTapsRequired = 1
+        mapGestureRecognizer.numberOfTouchesRequired = 1
+        mapView.addGestureRecognizer(mapGestureRecognizer)
         
         view.addSubview(mapContainerView)
         mapContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -736,7 +748,7 @@ extension MapViewController: CLLocationManagerDelegate {
             if !mapView.visibleMapRect.contains(MKMapPoint(userLocation)) {
                 
                 mapViewRegion.center = userLocation
-                //mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
+                mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
                 
             }
             
@@ -757,6 +769,12 @@ extension MapViewController: CLLocationManagerDelegate {
 }
 
 extension MapViewController: MKMapViewDelegate {
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
+        
+    }
     
     func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
         
@@ -945,6 +963,8 @@ extension MapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
+        mapView.isZoomEnabled = true
+        
         if let selectedPopsicle = view.annotation, selectedPopsicle is PopsicleAnnotation {
             
             print("Popsicle selected.")
@@ -990,13 +1010,16 @@ extension MapViewController: MKMapViewDelegate {
             let midLat = (minLat + maxLat) / 2
             let midLng = (minLng + maxLng) / 2
 
-            let deltaLat = (maxLat - minLat) * 4
-            let deltaLng = (maxLng - minLng) * 4
+            let deltaLat = (maxLat - minLat) * 5
+            let deltaLng = (maxLng - minLng) * 5
             
             let expandedRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: midLat, longitude: midLng), span: MKCoordinateSpan(latitudeDelta: deltaLat, longitudeDelta: deltaLng))
             
-            mapView.setRegion(expandedRegion, animated: true)
-            
+            MKMapView.animate(withDuration: 0.35, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+                
+                self.mapView.setRegion(expandedRegion, animated: true)
+                
+            }, completion: nil)
             
         }
         
@@ -1016,9 +1039,10 @@ extension MapViewController: UISearchBarDelegate {
             
         }
         
-        let searchNavigationController = UINavigationController(rootViewController: SearchViewController(searchTypes: [.Users, .Events], userID: nil, username: nil, shouldActivateSearchBar: true))
+        let searchNavigationController = UINavigationController(rootViewController: SearchViewController(searchTypes: [.Users, .Events], startIndex: 0, userID: nil, username: nil, shouldActivateSearchBar: true, alwaysShowsCancelButton: true))
         searchNavigationController.modalPresentationStyle = .overFullScreen
         searchNavigationController.modalTransitionStyle = .crossDissolve
+        searchNavigationController.isModalInPresentation = false
         searchNavigationController.setNavigationBarHidden(true, animated: false)
         present(searchNavigationController, animated: true, completion: nil)
         
