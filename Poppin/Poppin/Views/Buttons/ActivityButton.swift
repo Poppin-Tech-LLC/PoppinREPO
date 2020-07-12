@@ -8,13 +8,13 @@
 
 import UIKit
 
-final class RefreshButton: BubbleButton {
+final class ActivityButton: BubbleButton {
     
     private let edgeInset: CGFloat = .getPercentageWidth(percentage: 1.8)
     
-    private let refreshButtonIcon: UIImage = UIImage(systemSymbol: .flameFill).withTintColor(.mainDARKPURPLE, renderingMode: .alwaysOriginal)
+    private let activityButtonIcon: UIImage = UIImage(systemSymbol: .flameFill).withTintColor(.mainDARKPURPLE, renderingMode: .alwaysOriginal)
     
-    lazy var refreshCounter : UILabel = {
+    lazy var activityCounter : UILabel = {
         
         var v = UILabel()
         v.backgroundColor = .mainDARKPURPLE
@@ -34,38 +34,36 @@ final class RefreshButton: BubbleButton {
         
     }()
     
-    private(set) var refreshButtonCount: Int = 0 {
+    private(set) var activityButtonCount: Int = 0 {
         
         willSet(newCount) {
             
-            if newCount != refreshButtonCount {
+            if newCount != activityButtonCount {
                 
                 if newCount == 0 { // Hide Counter
                     
                     UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 3,
                                    options: .curveEaseOut, animations: {
                                     
-                                    self.backgroundColor = .white
-                                    self.setImage(self.refreshButtonIcon, for: .normal)
-                                    //self.setTitle(nil, for: .normal)
+                                    //self.backgroundColor = .white
+                                    self.setImage(self.activityButtonIcon, for: .normal)
                                     self.contentEdgeInsets = UIEdgeInsets(top: self.edgeInset, left: self.edgeInset, bottom: self.edgeInset, right: self.edgeInset)
                                     
-                                    self.refreshCounter.isHidden = true
+                                    self.activityCounter.isHidden = true
                                     
                     }, completion: nil)
                     
-                } else if refreshButtonCount == 0 { // Show Counter
+                } else if activityButtonCount == 0 { // Show Counter
                     
                     UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 3,
                                    options: .curveEaseOut, animations: {
                                     
-                                    self.backgroundColor = .white
-                                    self.setImage(self.refreshButtonIcon, for: .normal)
-                                    //self.setTitleColor(.white, for: .normal)
+                                    //self.backgroundColor = .white
+                                    self.setImage(self.activityButtonIcon, for: .normal)
                                     self.contentEdgeInsets = UIEdgeInsets(top: self.edgeInset, left: self.edgeInset, bottom: self.edgeInset, right: self.edgeInset)
                                     
-                                    self.refreshCounter.isHidden = false
-                                    self.refreshCounter.text = "\(self.refreshButtonCount)"
+                                    self.activityCounter.isHidden = false
+                                    self.activityCounter.text = "\(self.activityButtonCount)"
                                     
                     }, completion: nil)
                     
@@ -74,8 +72,7 @@ final class RefreshButton: BubbleButton {
                     UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 3,
                                    options: .curveEaseOut, animations: {
                                     
-//                                    self.setTitle(String(newCount), for: .normal)
-                                    self.refreshCounter.text = "\(self.refreshButtonCount)"
+                                    self.activityCounter.text = "\(self.activityButtonCount)"
                                     
                     }, completion: nil)
                     
@@ -89,15 +86,14 @@ final class RefreshButton: BubbleButton {
     
     init() {
         
-        super.init(bouncyButtonImage: refreshButtonIcon)
+        super.init(bouncyButtonImage: activityButtonIcon)
         
         configureButton()
         
-        self.addSubview(refreshCounter)
-        refreshCounter.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: .getPercentageWidth(percentage: 1.15)).isActive = true
-        refreshCounter.topAnchor.constraint(equalTo: self.topAnchor, constant: -(.getPercentageHeight(percentage: 0.25))).isActive = true
-        
-        //refreshCounter.text = "\(refreshButtonCount)"
+        self.addSubview(activityCounter)
+        activityCounter.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: .getPercentageWidth(percentage: 1.15)).isActive = true
+        activityCounter.topAnchor.constraint(equalTo: self.topAnchor, constant: -(.getPercentageHeight(percentage: 0.25))).isActive = true
+     
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -111,7 +107,7 @@ final class RefreshButton: BubbleButton {
     private func configureButton() {
         
         addTarget(self, action: #selector(resetCounter), for: .touchUpInside)
-        backgroundColor = .poppinDARKGOLD
+        backgroundColor = .poppinLIGHTGOLD
 //        titleLabel!.textAlignment = .center
 //        titleLabel!.textColor = .white
 //        titleLabel!.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 12, maxSize: 14))
@@ -121,7 +117,7 @@ final class RefreshButton: BubbleButton {
     
     @objc private func resetCounter() {
         
-        refreshButtonCount = 0
+        activityButtonCount = 0
         
     }
     
@@ -129,14 +125,14 @@ final class RefreshButton: BubbleButton {
         
         if let newStep = step {
             
-            if refreshButtonCount + newStep > 99 {
+            if activityButtonCount + newStep > 99 {
                 
-                refreshButtonCount = 99
+                activityButtonCount = 99
                 print("ERROR: Refresh Counter has reached max. Setting it to 999.")
                 
             } else {
                 
-                refreshButtonCount += newStep
+                activityButtonCount += newStep
                 
             }
             
@@ -148,14 +144,14 @@ final class RefreshButton: BubbleButton {
         
         if let newStep = step {
             
-            if refreshButtonCount - newStep < 0 {
+            if activityButtonCount - newStep < 0 {
                 
-                refreshButtonCount = 0
+                activityButtonCount = 0
                 print("ERROR: Refresh Counter is negative. Setting it to 0.")
                 
             } else {
                 
-                refreshButtonCount -= newStep
+                activityButtonCount -= newStep
                 
             }
             

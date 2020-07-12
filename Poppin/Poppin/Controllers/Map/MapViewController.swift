@@ -101,10 +101,7 @@ final class MapViewController: UIViewController {
         
         var mapContainerView = UIView(frame: .zero)
         mapContainerView.backgroundColor = .clear
-        
-//        mapContainerView.addGestureRecognizer(mapMenuSlidePanGestureRecognizer)
-//        mapContainerView.addGestureRecognizer(mapAVSlidePanGestureRecognizer)
-        
+
         mapContainerView.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.topAnchor.constraint(equalTo: mapContainerView.topAnchor).isActive = true
@@ -256,9 +253,9 @@ final class MapViewController: UIViewController {
         
     }()
     
-    lazy private var mapAVButton: RefreshButton = {
+    lazy private var mapAVButton: ActivityButton = {
         
-        var mapAVButton = RefreshButton()
+        var mapAVButton = ActivityButton()
         
         mapAVButton.addTarget(self, action: #selector(openAV(sender:)), for: .touchUpInside)
         
