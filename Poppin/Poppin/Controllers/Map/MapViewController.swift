@@ -25,7 +25,8 @@ protocol MenuDelegate: class {
 
 protocol ActivityDelegate: class {
     
-    func toggleAV()
+    func closeAV()
+    func openAV()
     
 }
 
@@ -82,10 +83,27 @@ final class MapViewController: UIViewController {
         
     }()
     
+    lazy private var mapView: MKMapView = {
+        
+        var mv = MKMapView()
+        mv.isPitchEnabled = false
+        mv.isRotateEnabled = false
+        mv.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
+        mv.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
+        mv.setRegion(mapViewRegion, animated: true)
+        mv.delegate = self
+        mv.showsUserLocation = false
+        return mv
+        
+    }()
+    
     lazy private var mapContainerView: UIView = {
         
         var mapContainerView = UIView(frame: .zero)
         mapContainerView.backgroundColor = .clear
+        
+//        mapContainerView.addGestureRecognizer(mapMenuSlidePanGestureRecognizer)
+//        mapContainerView.addGestureRecognizer(mapAVSlidePanGestureRecognizer)
         
         mapContainerView.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,13 +111,6 @@ final class MapViewController: UIViewController {
         mapView.bottomAnchor.constraint(equalTo: mapContainerView.bottomAnchor).isActive = true
         mapView.leadingAnchor.constraint(equalTo: mapContainerView.leadingAnchor).isActive = true
         mapView.trailingAnchor.constraint(equalTo: mapContainerView.trailingAnchor).isActive = true
-        
-        mapContainerView.addSubview(mapEdgePanView)
-        mapEdgePanView.translatesAutoresizingMaskIntoConstraints = false
-        mapEdgePanView.topAnchor.constraint(equalTo: mapContainerView.topAnchor).isActive = true
-        mapEdgePanView.bottomAnchor.constraint(equalTo: mapContainerView.bottomAnchor).isActive = true
-        mapEdgePanView.leadingAnchor.constraint(equalTo: mapContainerView.leadingAnchor).isActive = true
-        mapEdgePanView.widthAnchor.constraint(equalTo: mapContainerView.widthAnchor, multiplier: 0.03).isActive = true
         
         mapContainerView.addSubview(mapDarkOverlayView)
         mapDarkOverlayView.translatesAutoresizingMaskIntoConstraints = false
@@ -132,41 +143,26 @@ final class MapViewController: UIViewController {
         
     }()
     
-    lazy private var mapEdgePanView: UIView = {
+    lazy private var mapCloseTapGestureRecognizer: UITapGestureRecognizer = {
         
-        var mapEdgePanView = UIView()
-        mapEdgePanView.backgroundColor = .clear
-        mapEdgePanView.addGestureRecognizer(mapMenuSlidePanGestureRecognizer)
-        return mapEdgePanView
-        
-    }()
-        
-    lazy private var mapView: MKMapView = {
-        
-        var mapView = MKMapView()
-        mapView.isPitchEnabled = false
-        mapView.isRotateEnabled = false
-        mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
-        mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
-        mapView.setRegion(mapViewRegion, animated: true)
-        mapView.delegate = self
-        mapView.showsUserLocation = false
-        return mapView
+        var mapCloseTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeMenu(sender:)))
+        mapCloseTapGestureRecognizer.addTarget(self, action: #selector(closeAV(sender:)))
+        return mapCloseTapGestureRecognizer
         
     }()
-    
-    lazy private var mapCloseMenuTapGestureRecognizer: UITapGestureRecognizer = {
-        
-        var mapCloseMenuTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeMenu(sender:)))
-        mapCloseMenuTapGestureRecognizer.addTarget(self, action: #selector(toggleAV(sender:)))
-        return mapCloseMenuTapGestureRecognizer
-        
-    }()
-    
+
     lazy private var mapMenuSlidePanGestureRecognizer: UIPanGestureRecognizer = {
-     
+        
         var mapMenuSlidePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleMenuPan(sender:)))
+
         return mapMenuSlidePanGestureRecognizer
+        
+    }()
+    
+    lazy private var mapAVSlidePanGestureRecognizer: UIPanGestureRecognizer = {
+        var mapAVSlidePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleAVPan(sender:)))
+        
+        return mapAVSlidePanGestureRecognizer
         
     }()
     
@@ -260,11 +256,13 @@ final class MapViewController: UIViewController {
         
     }()
     
-    lazy private var mapAVButton: ImageBubbleButton = {
+    lazy private var mapAVButton: RefreshButton = {
         
-        var mapAVButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .flameFill).withTintColor(.mainDARKPURPLE).imageWithInsets(insets: UIEdgeInsets(top: .getPercentageWidth(percentage: 1.5), left: .getPercentageWidth(percentage: 1.5), bottom: .getPercentageWidth(percentage: 1.5), right: .getPercentageWidth(percentage: 1.5))))
-        mapAVButton.backgroundColor = .white
-        mapAVButton.addTarget(self, action: #selector(toggleAV(sender:)), for: .touchUpInside)
+        var mapAVButton = RefreshButton()
+        
+        mapAVButton.addTarget(self, action: #selector(openAV(sender:)), for: .touchUpInside)
+        
+        mapAVButton.increaseCounter(by: self.mapAVController.activities.count)
         
         mapAVButton.translatesAutoresizingMaskIntoConstraints = false
         mapAVButton.heightAnchor.constraint(equalTo: mapAVButton.widthAnchor).isActive = true
@@ -401,31 +399,17 @@ final class MapViewController: UIViewController {
         
         if sender.state == .ended || sender.state == .failed || sender.state == .cancelled {
             
-            if menuIsVisible, translation.x < 0 {
-                
+            if menuIsVisible, !avIsVisible, translation.x < 0 {
                 closeMenu(with: nil)
-                
-            } else if menuIsVisible, translation.x > 0 {
-                
-                menuIsVisible = !menuIsVisible
+            } else if !menuIsVisible, !avIsVisible, translation.x > 0 {
                 openMenu()
-                
-            } else if translation.x > 100.0 {
-                
-                openMenu()
-                
-            } else {
-                
-                menuIsVisible = !menuIsVisible
-                closeMenu(with: nil)
-                
             }
             
             return
             
         }
         
-        if !menuIsVisible, translation.x > 0.0, translation.x <= mapMenuWidth {
+        if !menuIsVisible, translation.x > 0.0, translation.x <= mapMenuWidth, !avIsVisible {
             
             let alphaFactorMenuButton = 1 - (translation.x / mapMenuWidth)
             let alphaFactorContainerView = 1.2 - ((translation.x * 0.8) / mapMenuWidth)
@@ -438,7 +422,7 @@ final class MapViewController: UIViewController {
             
         }
         
-        if menuIsVisible, translation.x >= -mapMenuWidth, translation.x < 0.0 {
+        if menuIsVisible, translation.x >= -mapMenuWidth, translation.x < 0.0, !avIsVisible {
             
             let alphaFactorMenuButton = translation.x / -mapMenuWidth
             let alphaFactorContainerView = 0.2 + ((0.8 * translation.x) / -mapMenuWidth)
@@ -448,6 +432,50 @@ final class MapViewController: UIViewController {
             
             menuLeadingConstraint.constant = translation.x
             mapContainerLeadingConstraint.constant = mapMenuWidth + translation.x
+            
+        }
+        
+    }
+    
+    @objc private func handleAVPan(sender: UIPanGestureRecognizer) {
+        
+        let translation = sender.translation(in: self.view)
+        
+        if sender.state == .ended || sender.state == .failed || sender.state == .cancelled {
+            
+            if avIsVisible, !menuIsVisible, translation.x > 0 {
+                closeAV()
+            } else if !avIsVisible, !menuIsVisible, translation.x < 0 {
+                openAV()
+            }
+            
+            return
+            
+        }
+        
+        if !avIsVisible, translation.x < 0.0, translation.x >= -avWidth, !menuIsVisible {
+            
+            let alphaFactorAVButton = 1 - (translation.x / -avWidth)
+            let alphaFactorContainerView = 1.2 - ((translation.x * 0.8) / -avWidth)
+            
+            mapAVButton.alpha = alphaFactorAVButton
+            mapContainerView.alpha = alphaFactorContainerView
+            
+            avLeadingConstraint.constant = translation.x
+            mapContainerLeadingConstraint.constant = translation.x
+            
+        }
+        
+        if avIsVisible, translation.x > 0.0, translation.x <= avWidth, !menuIsVisible {
+            
+            let alphaFactorAVButton = translation.x / avWidth
+            let alphaFactorContainerView = 0.2 + ((0.8 * translation.x) / avWidth)
+            
+            mapAVButton.alpha = alphaFactorAVButton
+            mapContainerView.alpha = alphaFactorContainerView
+            
+            avLeadingConstraint.constant = translation.x - avWidth
+            mapContainerLeadingConstraint.constant = translation.x - avWidth
             
         }
         
@@ -465,9 +493,15 @@ final class MapViewController: UIViewController {
         
     }
     
-    @objc private func toggleAV(sender: BouncyButton) {
+    @objc private func closeAV(sender: BouncyButton) {
         
-        toggleAV()
+        closeAV()
+        
+    }
+    
+    @objc private func openAV(sender: BouncyButton) {
+        
+        openAV()
         
     }
     
@@ -547,6 +581,8 @@ final class MapViewController: UIViewController {
         mapAVController.view.widthAnchor.constraint(equalToConstant: avWidth).isActive = true
         
         mapAVController.didMove(toParent: self)
+        
+        mapAVButton.increaseCounter(by: self.mapAVController.activities.count)
         
         view.addSubview(noInternetView)
         noInternetView.translatesAutoresizingMaskIntoConstraints = false
@@ -1048,11 +1084,11 @@ extension MapViewController: MenuDelegate {
                 
             }, completion: { finished in
                 
-                self.menuIsVisible = !self.menuIsVisible
-                self.mapContainerView.removeGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
-                self.mapView.isUserInteractionEnabled = true
                 self.view.removeGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
-                self.mapEdgePanView.addGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
+                
+                self.menuIsVisible = false
+                self.mapContainerView.removeGestureRecognizer(self.mapCloseTapGestureRecognizer)
+                self.mapView.isUserInteractionEnabled = true
                 
                 guard let action = action else { return }
                 
@@ -1098,7 +1134,7 @@ extension MapViewController: MenuDelegate {
     
     func openMenu() {
      
-        if !menuIsVisible {
+        if(!menuIsVisible && !avIsVisible) {
         
             view.layoutIfNeeded()
             
@@ -1112,11 +1148,11 @@ extension MapViewController: MenuDelegate {
                 
             }, completion: { finished in
             
-                self.menuIsVisible = !self.menuIsVisible
-                self.mapContainerView.addGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
-                self.mapView.isUserInteractionEnabled = false
-                self.mapEdgePanView.removeGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
                 self.view.addGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
+                
+                self.menuIsVisible = true
+                self.mapContainerView.addGestureRecognizer(self.mapCloseTapGestureRecognizer)
+                self.mapView.isUserInteractionEnabled = false
             
             })
             
@@ -1128,7 +1164,7 @@ extension MapViewController: MenuDelegate {
 
 extension MapViewController: ActivityDelegate {
 
-    func toggleAV() {
+    func closeAV() {
         
         if avIsVisible {
          
@@ -1142,14 +1178,22 @@ extension MapViewController: ActivityDelegate {
                 
             }, completion: { finished in
                 
-                self.avIsVisible = !self.avIsVisible
-                self.mapContainerView.removeGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
+                self.view.removeGestureRecognizer(self.mapAVSlidePanGestureRecognizer)
+                
+                self.avIsVisible = false
+                self.mapContainerView.removeGestureRecognizer(self.mapCloseTapGestureRecognizer)
                 self.mapView.isUserInteractionEnabled = true
-                //print("av not visible")
+                print("av not visible")
                 
             })
             
-        } else if(!avIsVisible && !menuIsVisible){
+        }
+            
+    }
+    
+    func openAV() {
+        
+        if(!avIsVisible && !menuIsVisible){
             
             view.layoutIfNeeded()
             
@@ -1162,12 +1206,14 @@ extension MapViewController: ActivityDelegate {
                 self.view.layoutIfNeeded()
                 
             }, completion: { finished in
+                
+                self.view.addGestureRecognizer(self.mapAVSlidePanGestureRecognizer)
             
-                self.avIsVisible = !self.avIsVisible
-                self.mapContainerView.addGestureRecognizer(self.mapCloseMenuTapGestureRecognizer)
+                self.avIsVisible = true
+                self.mapContainerView.addGestureRecognizer(self.mapCloseTapGestureRecognizer)
                 self.mapView.isUserInteractionEnabled = false
-                //print("av is visible")
-            
+                print("av is visible")
+                
             })
             
         }

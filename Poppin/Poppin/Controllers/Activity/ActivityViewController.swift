@@ -128,6 +128,7 @@ final class ActivityViewController: UIViewController, UITableViewDataSource, UIT
         avFeed.dataSource = self
         avFeed.delegate = self
         avFeed.register(ActivityCell.self, forCellReuseIdentifier: "avCell")
+
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

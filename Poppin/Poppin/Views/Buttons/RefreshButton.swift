@@ -12,7 +12,27 @@ final class RefreshButton: BubbleButton {
     
     private let edgeInset: CGFloat = .getPercentageWidth(percentage: 1.8)
     
-    private let refreshButtonIcon: UIImage = UIImage.refreshPopsiclesIcon128.withTintColor(.mainDARKPURPLE)
+    private let refreshButtonIcon: UIImage = UIImage(systemSymbol: .flameFill).withTintColor(.mainDARKPURPLE, renderingMode: .alwaysOriginal)
+    
+    lazy var refreshCounter : UILabel = {
+        
+        var v = UILabel()
+        v.backgroundColor = .mainDARKPURPLE
+        
+        v.textColor = .white
+        v.textAlignment = .center
+        v.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 8, maxSize: 10))
+        
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 4.5)).isActive = true
+        v.heightAnchor.constraint(equalTo: v.widthAnchor).isActive = true
+        
+        v.layer.cornerRadius = .getPercentageWidth(percentage: 4.5)/2
+        v.layer.masksToBounds = true
+        
+        return v
+        
+    }()
     
     private(set) var refreshButtonCount: Int = 0 {
         
@@ -27,8 +47,10 @@ final class RefreshButton: BubbleButton {
                                     
                                     self.backgroundColor = .white
                                     self.setImage(self.refreshButtonIcon, for: .normal)
-                                    self.setTitle(nil, for: .normal)
+                                    //self.setTitle(nil, for: .normal)
                                     self.contentEdgeInsets = UIEdgeInsets(top: self.edgeInset, left: self.edgeInset, bottom: self.edgeInset, right: self.edgeInset)
+                                    
+                                    self.refreshCounter.isHidden = true
                                     
                     }, completion: nil)
                     
@@ -37,10 +59,13 @@ final class RefreshButton: BubbleButton {
                     UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 3,
                                    options: .curveEaseOut, animations: {
                                     
-                                    self.backgroundColor = .mainDARKPURPLE
-                                    self.setImage(nil, for: .normal)
-                                    self.setTitle(String(newCount), for: .normal)
-                                    self.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+                                    self.backgroundColor = .white
+                                    self.setImage(self.refreshButtonIcon, for: .normal)
+                                    //self.setTitleColor(.white, for: .normal)
+                                    self.contentEdgeInsets = UIEdgeInsets(top: self.edgeInset, left: self.edgeInset, bottom: self.edgeInset, right: self.edgeInset)
+                                    
+                                    self.refreshCounter.isHidden = false
+                                    self.refreshCounter.text = "\(self.refreshButtonCount)"
                                     
                     }, completion: nil)
                     
@@ -49,7 +74,8 @@ final class RefreshButton: BubbleButton {
                     UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 3,
                                    options: .curveEaseOut, animations: {
                                     
-                                    self.setTitle(String(newCount), for: .normal)
+//                                    self.setTitle(String(newCount), for: .normal)
+                                    self.refreshCounter.text = "\(self.refreshButtonCount)"
                                     
                     }, completion: nil)
                     
@@ -67,6 +93,11 @@ final class RefreshButton: BubbleButton {
         
         configureButton()
         
+        self.addSubview(refreshCounter)
+        refreshCounter.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: .getPercentageWidth(percentage: 1.15)).isActive = true
+        refreshCounter.topAnchor.constraint(equalTo: self.topAnchor, constant: -(.getPercentageHeight(percentage: 0.25))).isActive = true
+        
+        //refreshCounter.text = "\(refreshButtonCount)"
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -80,10 +111,10 @@ final class RefreshButton: BubbleButton {
     private func configureButton() {
         
         addTarget(self, action: #selector(resetCounter), for: .touchUpInside)
-        backgroundColor = .white
-        titleLabel!.textAlignment = .center
-        titleLabel!.textColor = .white
-        titleLabel!.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 12, maxSize: 14))
+        backgroundColor = .poppinDARKGOLD
+//        titleLabel!.textAlignment = .center
+//        titleLabel!.textColor = .white
+//        titleLabel!.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 12, maxSize: 14))
         contentEdgeInsets = UIEdgeInsets(top: edgeInset, left: edgeInset, bottom: edgeInset, right: edgeInset)
         
     }
@@ -98,9 +129,9 @@ final class RefreshButton: BubbleButton {
         
         if let newStep = step {
             
-            if refreshButtonCount + newStep > 999 {
+            if refreshButtonCount + newStep > 99 {
                 
-                refreshButtonCount = 999
+                refreshButtonCount = 99
                 print("ERROR: Refresh Counter has reached max. Setting it to 999.")
                 
             } else {
