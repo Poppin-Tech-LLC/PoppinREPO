@@ -507,7 +507,7 @@ final class SearchViewController: UIViewController {
         
         if username == nil {
             
-            self.dismiss(animated: true, completion: nil)
+            navigationController?.dismiss(animated: true, completion: nil)
             
         } else {
             

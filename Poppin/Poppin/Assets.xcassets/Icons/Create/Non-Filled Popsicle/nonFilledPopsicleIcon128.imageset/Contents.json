@@ -1,0 +1,23 @@
+{
+  "images" : [
+    {
+      "filename" : "nonFilledPopsicleIcon128.png",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "nonFilledPopsicleIcon128-1.png",
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "filename" : "nonFilledPopsicleIcon128-2.png",
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -362,10 +362,11 @@ final class MapViewController: UIViewController {
             
         }
         
-        // For trial purposes, present the new create event view controller modally
-        // later, need to change to using navigation controller
-        //self.modalPresentationStyle = .overFullScreen
-        self.present(NewCreateEventViewController(), animated: true, completion: nil)
+        let createEventNavigationController = UINavigationController(rootViewController: NewCreateEventViewController())
+        createEventNavigationController.modalPresentationStyle = .overFullScreen
+        createEventNavigationController.modalTransitionStyle = .coverVertical
+        createEventNavigationController.setNavigationBarHidden(true, animated: false)
+        self.present(createEventNavigationController, animated: true, completion: nil)
         
     }
     
@@ -1042,7 +1043,6 @@ extension MapViewController: UISearchBarDelegate {
         let searchNavigationController = UINavigationController(rootViewController: SearchViewController(searchTypes: [.Users, .Events], startIndex: 0, userID: nil, username: nil, shouldActivateSearchBar: true, alwaysShowsCancelButton: true))
         searchNavigationController.modalPresentationStyle = .overFullScreen
         searchNavigationController.modalTransitionStyle = .crossDissolve
-        searchNavigationController.isModalInPresentation = false
         searchNavigationController.setNavigationBarHidden(true, animated: false)
         present(searchNavigationController, animated: true, completion: nil)
         

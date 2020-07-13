@@ -19,6 +19,70 @@ enum PopsicleCategory: String {
     case Poppin = "Poppin"
     case Default = "Default"
     
+    func getPopsicleCategoryIcon() -> UIImage {
+        
+        switch self {
+            
+        case .Education: return .educationPopsicleIcon256
+        case .Food: return .foodPopsicleIcon256
+        case .Social: return .socialPopsicleIcon256
+        case .Sports: return .sportsPopsicleIcon256
+        case .Culture: return .culturePopsicleIcon256
+        case .Poppin: return .poppinEventPopsicleIcon256
+        case .Default: return .defaultPopsicleIcon256
+            
+        }
+        
+    }
+    
+    func getPopsicleCategoryColor() -> UIColor {
+        
+        switch self {
+            
+        case .Education: return .educationDARKBLUE
+        case .Food: return .foodDARKORANGE
+        case .Social: return .socialDARKRED
+        case .Sports: return .sportsDARKGREEN
+        case .Culture: return .cultureDARKPURPLE
+        case .Poppin: return .poppinDARKGOLD
+        case .Default: return .defaultGRAY
+            
+        }
+        
+    }
+    
+    func getPopsicleCategoryShadow() -> UIImage {
+        
+        switch self {
+            
+        case .Education: return .educationPopsicleIconShadow256
+        case .Food: return .foodPopsicleIconShadow256
+        case .Social: return .socialPopsicleIconShadow256
+        case .Sports: return .sportsPopsicleIconShadow256
+        case .Culture: return .culturePopsicleIconShadow256
+        case .Poppin: return .poppinPopsicleIconShadow256
+        case .Default: return .defaultPopsicleIconShadow256
+            
+        }
+        
+    }
+    
+    func getPopsicleCategoryGradient() -> UIImage {
+        
+        switch self {
+            
+        case .Education: return .educationBLUEBackground
+        case .Food: return .foodORANGEBackground
+        case .Social: return .socialREDBackground
+        case .Sports: return .sportsGREENBackground
+        case .Culture: return .culturePURPLEBackground
+        case .Poppin: return .appBackground
+        case .Default: return .appBackground
+            
+        }
+        
+    }
+    
 }
 
 struct PopsicleAnnotationData {

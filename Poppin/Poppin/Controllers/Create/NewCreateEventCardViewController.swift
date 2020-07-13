@@ -39,9 +39,51 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     let db = Firestore.firestore()
     
-   
-
+    private let createEventVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
+    private let createEventHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
+    private let createEventInnerInset: CGFloat = .getPercentageWidth(percentage: 7)
     
+    lazy private var cardContainerView: UIView = {
+        
+        let backButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.white))
+        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
+        
+        var cardContainerView = UIView()
+        cardContainerView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
+        cardContainerView.backgroundColor = UIColor(cgColor: backgroundGradientColors![0])
+        
+        cardContainerView.addSubview(createButton)
+        createButton.translatesAutoresizingMaskIntoConstraints = false
+        createButton.bottomAnchor.constraint(equalTo: cardContainerView.bottomAnchor, constant: -createEventHorizontalEdgeInset).isActive = true
+        createButton.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
+        
+        cardContainerView.addSubview(backButton)
+        backButton.translatesAutoresizingMaskIntoConstraints = false
+        backButton.heightAnchor.constraint(equalTo: createButton.heightAnchor, multiplier: 0.75).isActive = true
+        backButton.widthAnchor.constraint(equalTo: backButton.heightAnchor).isActive = true
+        backButton.centerYAnchor.constraint(equalTo: createButton.centerYAnchor).isActive = true
+        backButton.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: createEventHorizontalEdgeInset).isActive = true
+        
+        return cardContainerView
+        
+    }()
+    
+    lazy private(set) var createButton: BouncyButton = {
+        
+        let innerEdgeInset: CGFloat = .getPercentageWidth(percentage: 1.5)
+        
+        var createButton = BouncyButton(bouncyButtonImage: nil)
+        createButton.backgroundColor = .white
+        createButton.setTitle("Create", for: .normal)
+        createButton.titleLabel?.textAlignment = .center
+        createButton.setTitleColor(UIColor(cgColor: backgroundGradientColors![1]), for: .normal)
+        createButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        createButton.contentEdgeInsets = UIEdgeInsets(top: innerEdgeInset, left: innerEdgeInset*2, bottom: innerEdgeInset, right: innerEdgeInset*2)
+        createButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 10.0, maxSize: 12.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
+        createButton.addTarget(self, action: #selector(createEvent), for: .touchUpInside)
+        return createButton
+        
+    }()
     
     lazy private var startDatePicker: UIDatePicker = {
         
@@ -78,7 +120,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         mainMapView.delegate = self
         mainMapView.showsUserLocation = false
         var maskedCorners = CACornerMask()
-        mainMapView.layer.cornerRadius = 20 - backgroundView.bounds.width * 0.015
+        mainMapView.layer.cornerRadius = 20 - cardContainerView.bounds.width * 0.015
         maskedCorners.insert(.layerMaxXMaxYCorner)
         maskedCorners.insert(.layerMinXMaxYCorner)
         mainMapView.layer.maskedCorners = maskedCorners
@@ -215,38 +257,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         return eventNameTextField
     }()
     
-    
-    lazy var createButton: BouncyButton = {
-        
-        var cb = BouncyButton(bouncyButtonImage: nil)
-        cb.backgroundColor = .white
-        cb.setTitle("Create", for: .normal)
-        cb.titleLabel?.textAlignment = .center
-        cb.setTitleColor(UIColor(cgColor: backgroundGradientColors![1]), for: .normal)
-        cb.titleLabel?.font = UIFont(name: "Octarine-Bold", size: 18)
-        cb.contentEdgeInsets = UIEdgeInsets(top: .getPercentageWidth(percentage: 2), left: .getPercentageWidth(percentage: 2), bottom: .getPercentageWidth(percentage: 2), right: .getPercentageWidth(percentage: 2))
-        
-        cb.addShadowAndRoundCorners(cornerRadius: 16)
-        
-//        cb.isUserInteractionEnabled = false
-//        cb.alpha = 0.6
-        
-        cb.addTarget(self, action: #selector(createEvent), for: .touchUpInside)
-        
-        return cb
-        
-    }()
-    
-    lazy var backButton: ImageBubbleButton = {
-        let purpleArrow = UIImage(systemName: "arrow.left")!.withTintColor(.white)
-        let backButton = ImageBubbleButton(bouncyButtonImage: purpleArrow)
-        backButton.contentMode = .scaleToFill
-        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-        return backButton
-    }()
-    
-    
-    
     lazy var purpleView: UIView = {
         let purpleView = UIView()
         purpleView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
@@ -309,13 +319,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         detailsButton.backgroundColor = .clear
         detailsButton.isUserInteractionEnabled = true
         return detailsButton
-    }()
-    
-    lazy var backgroundView: UIView = {
-        let backgroundView = UIView()
-        backgroundView.layer.cornerRadius = 30
-        backgroundView.backgroundColor = UIColor(cgColor: backgroundGradientColors![0])
-        return backgroundView
     }()
     
     lazy var hashtagTextView: UITextView = {
@@ -419,73 +422,63 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         view.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
         transitioningDelegate = self
         
-        view.addSubview(backgroundView)
-        backgroundView.translatesAutoresizingMaskIntoConstraints = false
-        backgroundView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 90)).isActive = true
-        backgroundView.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 90)).isActive = true
-        backgroundView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        backgroundView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        backgroundView.frame = CGRect(x: 0, y: 0, width: .getPercentageWidth(percentage: 90), height: .getPercentageHeight(percentage: 90))
+        view.addSubview(cardContainerView)
+        cardContainerView.translatesAutoresizingMaskIntoConstraints = false
+        cardContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: createEventVerticalEdgeInset).isActive = true
+        cardContainerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -createEventVerticalEdgeInset).isActive = true
+        cardContainerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: createEventHorizontalEdgeInset).isActive = true
+        cardContainerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -createEventHorizontalEdgeInset).isActive = true
         
-        backgroundView.addSubview(purplePopsicle)
+        cardContainerView.addSubview(purplePopsicle)
         purplePopsicle.translatesAutoresizingMaskIntoConstraints = false
-        purplePopsicle.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.05).isActive = true
-        purplePopsicle.heightAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.05).isActive = true
+        purplePopsicle.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.05).isActive = true
+        purplePopsicle.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.05).isActive = true
         purplePopsicle.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        purplePopsicle.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: backgroundView.bounds.height * 0.1).isActive = true
+        purplePopsicle.topAnchor.constraint(equalTo: cardContainerView.topAnchor, constant: cardContainerView.bounds.height * 0.1).isActive = true
         
-        backgroundView.addSubview(purpleLineOne)
+        cardContainerView.addSubview(purpleLineOne)
         purpleLineOne.translatesAutoresizingMaskIntoConstraints = false
-        purpleLineOne.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.35).isActive = true
-        purpleLineOne.heightAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.005).isActive = true
-        purpleLineOne.leadingAnchor.constraint(equalTo: purplePopsicle.trailingAnchor, constant: backgroundView.bounds.width * 0.01).isActive = true
+        purpleLineOne.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.35).isActive = true
+        purpleLineOne.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.005).isActive = true
+        purpleLineOne.leadingAnchor.constraint(equalTo: purplePopsicle.trailingAnchor, constant: cardContainerView.bounds.width * 0.01).isActive = true
         purpleLineOne.topAnchor.constraint(equalTo: purplePopsicle.centerYAnchor).isActive = true
         
-        backgroundView.addSubview(purpleLineTwo)
+        cardContainerView.addSubview(purpleLineTwo)
         purpleLineTwo.translatesAutoresizingMaskIntoConstraints = false
-        purpleLineTwo.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.35).isActive = true
-        purpleLineTwo.heightAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.005).isActive = true
-        purpleLineTwo.trailingAnchor.constraint(equalTo: purplePopsicle.leadingAnchor, constant: -backgroundView.bounds.width * 0.01).isActive = true
+        purpleLineTwo.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.35).isActive = true
+        purpleLineTwo.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.005).isActive = true
+        purpleLineTwo.trailingAnchor.constraint(equalTo: purplePopsicle.leadingAnchor, constant: -cardContainerView.bounds.width * 0.01).isActive = true
         purpleLineTwo.topAnchor.constraint(equalTo: purplePopsicle.centerYAnchor).isActive = true
         
-        
-        
-        backgroundView.addSubview(eventNameTextField)
+        cardContainerView.addSubview(eventNameTextField)
         eventNameTextField.translatesAutoresizingMaskIntoConstraints = false
         eventNameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        eventNameTextField.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.8).isActive = true
-        eventNameTextField.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: backgroundView.bounds.height * 0.03).isActive = true
-        eventNameTextField.bottomAnchor.constraint(equalTo: purplePopsicle.topAnchor, constant: backgroundView.bounds.height * 0.015).isActive = true
+        eventNameTextField.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
+        eventNameTextField.topAnchor.constraint(equalTo: cardContainerView.topAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
+        eventNameTextField.bottomAnchor.constraint(equalTo: purplePopsicle.topAnchor, constant: cardContainerView.bounds.height * 0.015).isActive = true
         
-        view.addSubview(backButton)
-        backButton.translatesAutoresizingMaskIntoConstraints = false
-        backButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 7)).isActive = true
-        backButton.heightAnchor.constraint(equalTo: backButton.widthAnchor).isActive = true
-        backButton.topAnchor.constraint(equalTo: backgroundView.topAnchor, constant: view.bounds.height * 0.02).isActive = true
-        backButton.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: view.bounds.height * 0.02).isActive = true
-        
-        backgroundView.addSubview(startDateTextField)
+        cardContainerView.addSubview(startDateTextField)
         startDateTextField.translatesAutoresizingMaskIntoConstraints = false
-        startDateTextField.leadingAnchor.constraint(equalTo: backgroundView.leadingAnchor, constant: backgroundView.bounds.width * 0.02).isActive = true
-        startDateTextField.topAnchor.constraint(equalTo: purplePopsicle.bottomAnchor, constant: backgroundView.bounds.height * 0).isActive = true
-        startDateTextField.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.43).isActive = true
-        startDateTextField.heightAnchor.constraint(equalToConstant: backgroundView.bounds.height * 0.04).isActive = true
+        startDateTextField.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: cardContainerView.bounds.width * 0.02).isActive = true
+        startDateTextField.topAnchor.constraint(equalTo: purplePopsicle.bottomAnchor, constant: cardContainerView.bounds.height * 0).isActive = true
+        startDateTextField.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.43).isActive = true
+        startDateTextField.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.height * 0.04).isActive = true
         
-        backgroundView.addSubview(endDateTextField)
+        cardContainerView.addSubview(endDateTextField)
         endDateTextField.translatesAutoresizingMaskIntoConstraints = false
-        endDateTextField.trailingAnchor.constraint(equalTo: backgroundView.trailingAnchor, constant: -backgroundView.bounds.width * 0.02).isActive = true
-        endDateTextField.topAnchor.constraint(equalTo: purplePopsicle.bottomAnchor, constant: backgroundView.bounds.height * 0).isActive = true
-        endDateTextField.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.43).isActive = true
-        endDateTextField.heightAnchor.constraint(equalToConstant: backgroundView.bounds.height * 0.04).isActive = true
+        endDateTextField.trailingAnchor.constraint(equalTo: cardContainerView.trailingAnchor, constant: -cardContainerView.bounds.width * 0.02).isActive = true
+        endDateTextField.topAnchor.constraint(equalTo: purplePopsicle.bottomAnchor, constant: cardContainerView.bounds.height * 0).isActive = true
+        endDateTextField.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.43).isActive = true
+        endDateTextField.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.height * 0.04).isActive = true
         
         
-        backgroundView.addSubview(purpleView)
+        cardContainerView.addSubview(purpleView)
         purpleView.translatesAutoresizingMaskIntoConstraints = false
         purpleView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        purpleView.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.8).isActive = true
-        purpleView.heightAnchor.constraint(equalToConstant: backgroundView.bounds.height * 0.085).isActive = true
-        purpleView.topAnchor.constraint(equalTo: startDateTextField.bottomAnchor, constant: backgroundView.bounds.height * 0.03).isActive = true
-        purpleView.frame = CGRect(x: 0, y: 0, width: backgroundView.bounds.width * 0.8, height: backgroundView.bounds.height * 0.085)
+        purpleView.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
+        purpleView.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.height * 0.085).isActive = true
+        purpleView.topAnchor.constraint(equalTo: startDateTextField.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
+        purpleView.frame = CGRect(x: 0, y: 0, width: cardContainerView.bounds.width * 0.8, height: cardContainerView.bounds.height * 0.085)
         
         purpleView.addSubview(userImage)
         userImage.translatesAutoresizingMaskIntoConstraints = false
@@ -502,53 +495,45 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         createdByLabel.leadingAnchor.constraint(equalTo: purpleView.leadingAnchor, constant: purpleView.bounds.width * 0.04).isActive = true
         createdByLabel.bottomAnchor.constraint(equalTo: usernameLabel.topAnchor, constant: -purpleView.bounds.height * 0.07).isActive = true
         
-        backgroundView.addSubview(detailsButton)
+        cardContainerView.addSubview(detailsButton)
         detailsButton.translatesAutoresizingMaskIntoConstraints = false
-        detailsButton.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        detailsButton.topAnchor.constraint(equalTo: purpleView.bottomAnchor, constant: backgroundView.bounds.height * 0.03).isActive = true
-        detailsButton.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.8).isActive = true
+        detailsButton.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
+        detailsButton.topAnchor.constraint(equalTo: purpleView.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
+        detailsButton.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
         
-        backgroundView.addSubview(hashtagTextView)
+        cardContainerView.addSubview(hashtagTextView)
         hashtagTextView.translatesAutoresizingMaskIntoConstraints = false
         hashtagTextView.leadingAnchor.constraint(equalTo: purpleView.leadingAnchor).isActive = true
-        hashtagTextView.topAnchor.constraint(equalTo: detailsButton.bottomAnchor, constant: backgroundView.bounds.height * 0.03).isActive = true
-        hashtagTextView.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.8).isActive = true
+        hashtagTextView.topAnchor.constraint(equalTo: detailsButton.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
+        hashtagTextView.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
         
-        backgroundView.addSubview(purpleMapView)
+        cardContainerView.addSubview(purpleMapView)
         purpleMapView.translatesAutoresizingMaskIntoConstraints = false
-        purpleMapView.topAnchor.constraint(equalTo: hashtagTextView.bottomAnchor, constant: backgroundView.bounds.height * 0.03).isActive = true
-        purpleMapView.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        purpleMapView.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.8).isActive = true
-        purpleMapView.heightAnchor.constraint(equalToConstant: backgroundView.bounds.height * 0.2).isActive = true
+        purpleMapView.topAnchor.constraint(equalTo: hashtagTextView.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
+        purpleMapView.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
+        purpleMapView.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
+        purpleMapView.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.height * 0.2).isActive = true
         
         purpleMapView.addSubview(mainMapView)
         mainMapView.translatesAutoresizingMaskIntoConstraints = false
-        mainMapView.topAnchor.constraint(equalTo: purpleMapView.topAnchor, constant: backgroundView.bounds.height * 0.05).isActive = true
-        mainMapView.bottomAnchor.constraint(equalTo: purpleMapView.bottomAnchor, constant: -backgroundView.bounds.width * 0.015).isActive = true
-        mainMapView.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        mainMapView.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.77).isActive = true
+        mainMapView.topAnchor.constraint(equalTo: purpleMapView.topAnchor, constant: cardContainerView.bounds.height * 0.05).isActive = true
+        mainMapView.bottomAnchor.constraint(equalTo: purpleMapView.bottomAnchor, constant: -cardContainerView.bounds.width * 0.015).isActive = true
+        mainMapView.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
+        mainMapView.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.77).isActive = true
         
         purpleMapView.addSubview(locationLabel)
         locationLabel.translatesAutoresizingMaskIntoConstraints = false
         locationLabel.topAnchor.constraint(equalTo: purpleMapView.topAnchor).isActive = true
         locationLabel.bottomAnchor.constraint(equalTo: mainMapView.topAnchor).isActive = true
-        locationLabel.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        locationLabel.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.77).isActive = true
+        locationLabel.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
+        locationLabel.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.77).isActive = true
         
-        backgroundView.addSubview(editLocationButton)
+        cardContainerView.addSubview(editLocationButton)
         editLocationButton.translatesAutoresizingMaskIntoConstraints = false
         editLocationButton.topAnchor.constraint(equalTo: purpleMapView.bottomAnchor).isActive = true
         //editLocationButton.bottomAnchor.constraint(equalTo: mainMapView.topAnchor).isActive = true
-        editLocationButton.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
-        editLocationButton.widthAnchor.constraint(equalToConstant: backgroundView.bounds.width * 0.2).isActive = true
-        
-        backgroundView.addSubview(createButton)
-        createButton.translatesAutoresizingMaskIntoConstraints = false
-        createButton.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 24)).isActive = true
-        createButton.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 4.5)).isActive = true
-        //createButton.topAnchor.constraint(equalTo: whiteView.topAnchor, constant: 1000).isActive = true
-        createButton.bottomAnchor.constraint(equalTo: backgroundView.bottomAnchor, constant: -10).isActive = true
-        createButton.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor).isActive = true
+        editLocationButton.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
+        editLocationButton.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.2).isActive = true
         
     }
     
@@ -556,7 +541,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     @objc func goBack() {
         
         let textInfo = ["location": locationLabel.text!, "eventName": eventNameTextField.text!, "eventInfo": detailsButton.text!, "eventStartDate": startDateTextField.text!, "eventEndDate": endDateTextField.text!, "hashtags": hashtagTextView.text!, "coordinates": location ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)] as [String : Any]
-        self.dismiss(animated: true, completion: nil)
+        navigationController?.popViewController(animated: true)
         NotificationCenter.default.post(name: .switchCategory, object: nil, userInfo: textInfo)
         
         
@@ -986,7 +971,7 @@ extension NewCreateEventCardViewController: UIViewControllerTransitioningDelegat
                              presenting: UIViewController,
                              source: UIViewController)
         -> UIViewControllerAnimatedTransitioning? {
-            return FlipPresentAnimationController(originFrame: backgroundView.frame)
+            return FlipPresentAnimationController(originFrame: cardContainerView.frame)
     }
     
     func animationController(forDismissed dismissed: UIViewController)
@@ -996,15 +981,15 @@ extension NewCreateEventCardViewController: UIViewControllerTransitioningDelegat
 //            }
             
             if let _ = dismissed as? writeDetailsViewController {
-                return FlipDismissAnimationController(destinationFrame: backgroundView.frame)
+                return FlipDismissAnimationController(destinationFrame: cardContainerView.frame)
             }else if let _ = dismissed as? EditLocationViewController{
-                return FlipDismissAnimationController(destinationFrame: backgroundView.frame)
+                return FlipDismissAnimationController(destinationFrame: cardContainerView.frame)
             }else{
                 
                 return nil
             }
 
             
-            //return FlipDismissAnimationController(destinationFrame: backgroundView.frame)
+            //return FlipDismissAnimationController(destinationFrame: cardContainerView.frame)
     }
 }

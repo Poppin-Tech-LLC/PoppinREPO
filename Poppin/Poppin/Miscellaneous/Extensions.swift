@@ -186,6 +186,18 @@ extension UIImage {
     static let popsicleBorder256 = UIImage(named: "popsicleBorder256")!
     static let popsicleBorder1024 = UIImage(named: "popsicleBorder1024")!
     
+    // Create Event Icons
+    
+    static let filledPopsicleIcon64 = UIImage(named: "filledPopsicleIcon64")!
+    static let filledPopsicleIcon128 = UIImage(named: "filledPopsicleIcon128")!
+    static let filledPopsicleIcon256 = UIImage(named: "filledPopsicleIcon256")!
+    static let filledPopsicleIcon1024 = UIImage(named: "filledPopsicleIcon1024")!
+    
+    static let nonFilledPopsicleIcon64 = UIImage(named: "nonFilledPopsicleIcon64")!
+    static let nonFilledPopsicleIcon128 = UIImage(named: "nonFilledPopsicleIcon128")!
+    static let nonFilledPopsicleIcon256 = UIImage(named: "nonFilledPopsicleIcon256")!
+    static let nonFilledPopsicleIcon1024 = UIImage(named: "nonFilledPopsicleIcon1024")!
+    
     // Gradient Backgrounds
     
     static let appBackground = UIImage(named: "appBackground")!
