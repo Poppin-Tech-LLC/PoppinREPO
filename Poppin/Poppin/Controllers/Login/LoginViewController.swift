@@ -227,11 +227,33 @@ final class LoginViewController: UIViewController {
         
     }
     
+    @objc func userSignedUp(_ notification: Notification) {
+//        do{
+//            try Auth.auth().signOut()
+//            print("SIGNED OUT")
+//
+//        }catch let error{
+//            print("ERROR CANNOT SIGN OUT IDK WHY: \(error)")
+//        }
+        
+    }
+
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
         view.backgroundColor = .poppinLIGHTGOLD
+        
+//        do{
+//            try Auth.auth().signOut()
+//            print("SIGNED OUT")
+//
+//        }catch let error{
+//            print("ERROR CANNOT SIGN OUT IDK WHY: \(error)")
+//        }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userSignedUp(_:)), name: .userSignedUp, object: nil)
+        
         
         let dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         dismissKeyboardGesture.cancelsTouchesInView = false
@@ -331,12 +353,30 @@ final class LoginViewController: UIViewController {
                     
                 } else {
                     
-                    //self.save(uid: Auth.auth().currentUser?.uid ?? "no id")
+                    //uncomment for email verification
                     
-                    DataController.eraseAll(forEntity: "User")
-                    DataController.addUser()
+//                    if(authResult!.user.isEmailVerified){
+                        DataController.eraseAll(forEntity: "User")
+                        DataController.addUser()
+                        
+                        self.navigationController?.dismiss(animated: true, completion: nil)
+//                    }else{
+//                        let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
+//                        let button2 = AlertButton(alertTitle: "Re-send email", alertButtonAction: {
+//                            Auth.auth().currentUser!.sendEmailVerification(completion: { (error) in
+//                                if let error = error{
+//                                    print("CANNOT SEND VERIFICATION EMAIL: \(error)")
+//                                }
+//                            })
+//                        })
+//
+//                        let alertVC = AlertViewController(alertTitle: "Email not verified", alertMessage: "Verify your email or re-send a verification link", alertButtons: [button1, button2])
+//
+//                        self.present(alertVC, animated: true, completion: nil)
+//                       // authResult!.user.sendEmailVerification(completion: )
+//                    }
                     
-                    self.navigationController?.dismiss(animated: true, completion: nil)
+                    
 //                     NotificationCenter.default.post(name: .userSignedIn, object: nil)
                     
                 }

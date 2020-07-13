@@ -434,7 +434,6 @@ final class SignUpThirdPageViewController: UIViewController {
                     
                 } else {
                     let geoFirestore = GeoFirestore(collectionRef: self.db.collection("userLocs"))
-                    
                     self.db.collection("users").document(Auth.auth().currentUser!.uid).setData([
                         "username": self.usernameTextField.text ?? "",
                         "bio": "",
@@ -454,16 +453,55 @@ final class SignUpThirdPageViewController: UIViewController {
                                 print("An error occured: \(error)")
                             } else {
                                 print("Saved location successfully!")
+                                Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
+                                        // Notify the user that the mail has sent or couldn't because of an error.
+                                    if let error = error{
+                                        print("CANNOT SEND VERIFICATION EMAIL: \(error)")
+                                    }
+                                    else{
+                                        
+                                        let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
+                                            [weak self] in
+                                            
+                                            guard let self = self else { return }
+                                            DataController.eraseAll(forEntity: "User")
+                                            DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid, radius: self.radius, latitude: self.latitude, longitude: self.longitude)
+                                            
+                                            self.signedUp()
+                                            
+                                            
+                                        })
+                                        
+                                        let button2 = AlertButton(alertTitle: "Re-send email", alertButtonAction: {
+                                            Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
+                                                if let error = error{
+                                                    print("CANNOT SEND VERIFICATION EMAIL: \(error)")
+                                                }
+                                            })
+                                        })
+                                        
+                                        let alertVC = AlertViewController(alertTitle: "Verification", alertMessage: "Email verification sent!", alertButtons: [button1, button2])
+                                        
+                                        self.present(alertVC, animated: true, completion: nil)
+                                    }
+                                    })
+                               
+                               
                             }
                         }
                     }
                     }
                     
-                    DataController.eraseAll(forEntity: "User")
-                    DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid, radius: self.radius, latitude: self.latitude, longitude: self.longitude)
-                    self.navigationController?.dismiss(animated: true, completion: nil)
-//                    NotificationCenter.default.post(name: .userSignedIn, object: nil)
+//                    do{
+//                        try Auth.auth().signOut()
+//
+//                    }catch let error{
+//                        print("error \(error)")
+//                    }
+            
 
+                   
+                    //self.navigationController?.dismiss(animated: true, completion: nil)
                     
                 }
                 
@@ -473,43 +511,22 @@ final class SignUpThirdPageViewController: UIViewController {
         
     }
     
-    func save(uid: String) {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        //2
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "User")
-        
-        let entity =
-            NSEntityDescription.entity(forEntityName: "User",
-                                       in: managedContext)!
-        
-        let userData = NSManagedObject(entity: entity, insertInto: managedContext)
-        
-        //3
-        do {
-            let user = try managedContext.fetch(fetchRequest)
-            for data in user {
-                managedContext.delete(data)
-            }
-            
-            userData.setValue(Auth.auth().currentUser?.uid, forKey: "uid")
-            userData.setValue(usernameTextField.text, forKey: "username")
-            userData.setValue(fullName, forKey: "fullName")
-            userData.setValue("", forKey: "bio")
-            NotificationCenter.default.post(name: .userSignedIn, object: nil)
-            try managedContext.save()
-            
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-    }
+    private func signedUp() {
+          
+          if let firstAfterRootVC = navigationController?.viewControllers[1] as? LoginViewController {
+              
+              firstAfterRootVC.resetTextFields()
+              navigationController?.popToViewController(firstAfterRootVC, animated: true)
+              //NotificationCenter.default.post(name: .userSignedUp, object: nil)
+              
+          } else {
+              
+              navigationController?.pushViewController(LoginViewController(), animated: true)
+             // NotificationCenter.default.post(name: .userSignedUp, object: nil)
+              
+          }
+          
+      }
     
     @objc private func switchToLogin(sender: BouncyButton) {
         

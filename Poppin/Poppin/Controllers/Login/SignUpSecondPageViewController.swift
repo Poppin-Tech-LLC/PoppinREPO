@@ -540,7 +540,7 @@ final class SignUpSecondPageViewController: UIViewController {
                         self.present(alertVC, animated: true, completion: nil)
                         
                     } else {
-                        NotificationCenter.default.post(name: .universitySelected, object: nil)
+                        
                         self.navigationController?.pushViewController(SignUpThirdPageViewController(fullName: self.fullName, age: self.age, email: self.emailTextField.text!, password: self.passwordTextField.text!, radius: self.radius, latitude: self.latitude, longitude: self.longitude), animated: true)
                         
                     }

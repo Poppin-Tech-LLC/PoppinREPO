@@ -70,8 +70,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.windowScene = windowScene
         
         let rootVC: UIViewController
-        
-        if Auth.auth().currentUser == nil {
+        //uncomment next line for email verification
+//        if Auth.auth().currentUser == nil || !Auth.auth().currentUser!.isEmailVerified
+        if Auth.auth().currentUser == nil{
             
             rootVC = MapViewController(shouldShowLoginVC: true) // User is not logged in*/
             

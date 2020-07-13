@@ -7,9 +7,10 @@
 //
 
 import UIKit
-import FirebaseDatabase
 import FirebaseUI
 import FirebaseAuth
+import FirebaseFirestoreSwift
+import FirebaseFirestore
 
 final class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
@@ -346,32 +347,38 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     @objc private func performFollow() {
         
         let userId = Auth.auth().currentUser!.uid
-        
-        let ref = Database.database().reference(withPath:"users")
-        
+                
+        let followerRef = Firestore.firestore().collection("users").document(userData.uid)
+        let followingRef = Firestore.firestore().collection("users").document(userId)
+
         if followButton.titleLabel!.text == "Following" {
             
             let button1 = AlertButton(alertTitle: "Cancel", alertButtonAction: nil)
             
             let button2 = AlertButton(alertTitle: "Unfollow", alertButtonAction: {
-            
-                ref.child(self.userData.uid).child("followers").child(userId).removeValue { [weak self] (error, reference) in
-                    
-                    guard let self = self else { return }
-                    
-                    ref.child(self.userData.uid).child("followers").observeSingleEvent(of: .value, with: { (snapshot) in
-                        
-                        self.followers = String(snapshot.childrenCount - 1)
-                        
-                    })
-                    
-                }
                 
-                ref.child(userId).child("following").child(self.userData.uid).removeValue()
-            
-                self.followButton.setTitle("Follow", for: .normal)
-                self.followButton.setTitleColor(.white, for: .normal)
-                self.followButton.backgroundColor = .mainDARKPURPLE
+                followerRef.updateData(["followers.\(userId)" : FieldValue.delete(),
+                ]) { err in
+                    if let err = err {
+                        print("Error updating document: \(err)")
+                    } else {
+                        print("Document successfully updated")
+                    }
+                }
+
+                followingRef.updateData(["following.\(self.userData.uid)" : FieldValue.delete(),
+                ]) { err in
+                    if let err = err {
+                        print("Error updating document: \(err)")
+                    } else {
+                        print("Document successfully updated")
+                        self.followButton.setTitle("Follow", for: .normal)
+                        self.followButton.setTitleColor(.white, for: .normal)
+                        self.followButton.backgroundColor = .mainDARKPURPLE
+                        self.followers = String(Int(self.followers)! - 1)
+                    }
+                }
+
                 
             })
             
@@ -381,25 +388,31 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             
         } else {
             
-            ref.child(self.userData.uid).child("followers").child(userId).setValue(true) { [weak self] (error, reference) in
-                
-                guard let self = self else { return }
-                
-                ref.child(self.userData.uid).child("followers").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
-                    
-                    guard let self = self else { return }
-                    
-                    self.followers = String(snapshot.childrenCount - 1)
-                    
-                })
-                
+            followerRef.updateData(["followers.\(userId)" : true,
+            ]) { err in
+                if let err = err {
+                    print("Error updating document: \(err)")
+                } else {
+                    print("Document successfully updated")
+                }
             }
+
+            followingRef.updateData(["following.\(userData.uid)" : true,
+            ]) { err in
+                if let err = err {
+                    print("Error updating document: \(err)")
+                } else {
+                    print("Document successfully updated")
+                    self.followers = String(Int(self.followers)! + 1)
+                    
+                    self.followButton.setTitle("Following", for: .normal)
+                    self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+                    self.followButton.backgroundColor = .white
+                }
+            }
+
             
-            ref.child(userId).child("following").child(self.userData.uid).setValue(true)
             
-            followButton.setTitle("Following", for: .normal)
-            followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-            followButton.backgroundColor = .white
             
         }
         
@@ -421,46 +434,33 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     private func fetchFollowersFollowingPicture() {
         
-        let uid = Auth.auth().currentUser!.uid
-        let ref = Database.database().reference(withPath:"users")
         let ref2 = storage.reference().child("images/\(userData.uid)/profilepic.jpg")
-        let ref3 = Database.database().reference()
         
-        ref3.child("users/\(uid)/following").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+        let followerRef = Firestore.firestore().collection("users").document(userData.uid)
+        
+        followerRef.getDocument{ (document, error) in
+        if let document = document, document.exists {
+            let data = document.data()
+            let followers = data?["followers"] as? [String: Any] ?? [:]
+            let following = data?["following"] as? [String: Any] ?? [:]
             
-            guard let self = self else { return }
-            
-            if snapshot.hasChild(self.userData.uid){
-                
+            self.followers = String(followers.count - 1)
+            self.following = String(following.count - 1)
+        
+            if(followers[Auth.auth().currentUser?.uid ?? ""] != nil){
                 self.followButton.setTitle("Following", for: .normal)
                 self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
                 self.followButton.backgroundColor = .white
-                
-            } else {
-                
+            }else{
                 self.followButton.setTitle("Follow", for: .normal)
                 self.followButton.setTitleColor(.white, for: .normal)
                 self.followButton.backgroundColor = .mainDARKPURPLE
-                
             }
-            
-        })
-        
-        ref.child(userData.uid).child("followers").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
-            
-            guard let self = self else { return }
-            
-            self.followers = String(snapshot.childrenCount - 1)
 
-        })
-        
-        ref.child(userData.uid).child("following").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
-            
-            guard let self = self else { return }
-            
-            self.following = String(snapshot.childrenCount - 1)
-            
-        })
+        } else {
+            print("Document does not exist")
+        }
+    }
         
         ref2.downloadURL { [weak self] url, error in
             
