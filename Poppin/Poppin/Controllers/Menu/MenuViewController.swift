@@ -24,9 +24,9 @@ enum MenuAction: String {
 
 final class MenuViewController: UIViewController {
     
-    let menuInsetY: CGFloat = .getPercentageWidth(percentage: 4)
-    let menuInsetX: CGFloat = .getPercentageWidth(percentage: 3)
-    let menuInnerInset: CGFloat = .getPercentageWidth(percentage: 5.5)
+    let menuInsetY: CGFloat = .getPercentageWidth(percentage: 4.5)
+    let menuInsetX: CGFloat = .getPercentageWidth(percentage: 4.5)
+    let menuInnerInset: CGFloat = .getPercentageWidth(percentage: 4.5)
     
     private var fullName: String = "Full Name"
     private var username: String = "@username"
@@ -37,10 +37,10 @@ final class MenuViewController: UIViewController {
     
     lazy private var menuTopStackView: UIStackView = {
         
-        let menuProfileButtonSpacing: CGFloat = .getPercentageWidth(percentage: 4)
-        let menuUsernameSpacing: CGFloat = .getPercentageWidth(percentage: 2.5)
-        let menuFollowingFollowersSpacing: CGFloat = .getPercentageWidth(percentage: 1)
-        let menuTopStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 3)
+        let menuProfileButtonSpacing: CGFloat = menuInsetY * 0.7
+        let menuUsernameSpacing: CGFloat = menuInsetY * 0.3
+        let menuFollowingFollowersSpacing: CGFloat = menuInsetY * 0.5
+        let menuTopStackViewSpacing: CGFloat = menuInsetY * 0.5
         
         let menuFollowingFollowersStackView = UIStackView(arrangedSubviews: [menuFollowingButton, menuFollowersButton])
         menuFollowingFollowersStackView.axis = .horizontal
@@ -76,7 +76,7 @@ final class MenuViewController: UIViewController {
         var menuFullNameLabel = UILabel()
         menuFullNameLabel.numberOfLines = 0
         menuFullNameLabel.sizeToFit()
-        menuFullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        menuFullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
         menuFullNameLabel.textColor = .white
         menuFullNameLabel.text = fullName
         menuFullNameLabel.textAlignment = .center
@@ -90,7 +90,7 @@ final class MenuViewController: UIViewController {
         var menuUsernameLabel = UILabel()
         menuUsernameLabel.numberOfLines = 0
         menuUsernameLabel.sizeToFit()
-        menuUsernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .footnote)
+        menuUsernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
         menuUsernameLabel.textColor = .white
         menuUsernameLabel.text = username
         menuUsernameLabel.textAlignment = .center
@@ -104,13 +104,13 @@ final class MenuViewController: UIViewController {
     
     lazy private var menuFollowingButton: BouncyButton = {
         
-        let edgeInset: CGFloat = .getPercentageWidth(percentage: 2)
+        let edgeInset: CGFloat = .getPercentageWidth(percentage: 2.3)
         
         let buttonText = NSMutableAttributedString(string: following + " Following", attributes: [.foregroundColor : UIColor.white])
         let lightRange = buttonText.mutableString.range(of: "Following")
         let boldRange = buttonText.mutableString.range(of: following)
         buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Light", style: .footnote), range: lightRange)
-        buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote), range: boldRange)
+        buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), range: boldRange)
         
         let menuFollowingButton = BouncyButton(bouncyButtonImage: nil)
         menuFollowingButton.backgroundColor = .mainDARKPURPLE
@@ -118,7 +118,7 @@ final class MenuViewController: UIViewController {
         menuFollowingButton.titleLabel?.textAlignment = .center
         
         menuFollowingButton.translatesAutoresizingMaskIntoConstraints = false
-        menuFollowingButton.heightAnchor.constraint(equalToConstant: menuFollowingButton.intrinsicContentSize.height+edgeInset).isActive = true
+        menuFollowingButton.heightAnchor.constraint(equalToConstant: menuFollowingButton.intrinsicContentSize.height+(edgeInset*0.2)).isActive = true
         menuFollowingButton.widthAnchor.constraint(equalToConstant: menuFollowingButton.intrinsicContentSize.width+edgeInset).isActive = true
         
         return menuFollowingButton
@@ -127,13 +127,13 @@ final class MenuViewController: UIViewController {
     
     lazy private var menuFollowersButton: BouncyButton = {
         
-        let edgeInset: CGFloat = .getPercentageWidth(percentage: 2)
+        let edgeInset: CGFloat = .getPercentageWidth(percentage: 2.3)
         
         let buttonText = NSMutableAttributedString(string: followers + " Followers", attributes: [.foregroundColor : UIColor.white])
         let lightRange = buttonText.mutableString.range(of: "Followers")
         let boldRange = buttonText.mutableString.range(of: followers)
         buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Light", style: .footnote), range: lightRange)
-        buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote), range: boldRange)
+        buttonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), range: boldRange)
         
         let menuFollowersButton = BouncyButton(bouncyButtonImage: nil)
         menuFollowersButton.backgroundColor = .mainDARKPURPLE
@@ -141,7 +141,7 @@ final class MenuViewController: UIViewController {
         menuFollowersButton.titleLabel?.textAlignment = .center
         
         menuFollowersButton.translatesAutoresizingMaskIntoConstraints = false
-        menuFollowersButton.heightAnchor.constraint(equalToConstant: menuFollowersButton.intrinsicContentSize.height+edgeInset).isActive = true
+        menuFollowersButton.heightAnchor.constraint(equalToConstant: menuFollowersButton.intrinsicContentSize.height+(edgeInset*0.2)).isActive = true
         menuFollowersButton.widthAnchor.constraint(equalToConstant: menuFollowersButton.intrinsicContentSize.width+edgeInset).isActive = true
         
         return menuFollowersButton
@@ -150,7 +150,7 @@ final class MenuViewController: UIViewController {
     
     lazy private var menuButtonsScrollView: UIScrollView = {
         
-        let menuButtonsStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 9)
+        let menuButtonsStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 8.3)
         
         let menuButtonsStackView = UIStackView(arrangedSubviews: [menu24hScheduleButtonView, menuYourEventsButtonView, menuFriendGroupsButtonView, menuYourSubscriptionButtonView, menuSettingsPrivacyButtonView, menuHelpButtonView, menuLogoutButtonView])
         menuButtonsStackView.axis = .vertical
@@ -324,7 +324,7 @@ final class MenuButtonView: UIView {
         
         var menuButtonLabel = UILabel()
         menuButtonLabel.text = menuButtonText
-        menuButtonLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        menuButtonLabel.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
         menuButtonLabel.textColor = .white
         menuButtonLabel.textAlignment = .left
         

@@ -14,11 +14,11 @@ import FirebaseFirestore
 
 final class ProfileViewController: UIViewController, UINavigationControllerDelegate {
     
-    let profileInsetY: CGFloat = .getPercentageWidth(percentage: 5)
-    let profileInsetX: CGFloat = .getPercentageWidth(percentage: 5)
+    let profileInsetY: CGFloat = .getPercentageWidth(percentage: 4.3)
+    let profileInsetX: CGFloat = .getPercentageWidth(percentage: 4.3)
     
-    let containerInsetY: CGFloat = .getPercentageWidth(percentage: 3.5)
-    let containerInsetX: CGFloat = .getPercentageWidth(percentage: 3.5)
+    let containerInsetY: CGFloat = .getPercentageWidth(percentage: 2.7)
+    let containerInsetX: CGFloat = .getPercentageWidth(percentage: 2.7)
     
     private var storage: Storage = Storage.storage()
     
@@ -49,7 +49,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     lazy private var fullNameLabel: UILabel = {
         
         var fullNameLabel = UILabel()
-        fullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        fullNameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
         fullNameLabel.textColor = UIColor.mainDARKPURPLE
         fullNameLabel.textAlignment = .center
         fullNameLabel.text = userData.fullName
@@ -64,7 +64,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     lazy private var usernameLabel: UILabel = {
         
         var usernameLabel = UILabel()
-        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .callout)
+        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
         usernameLabel.textColor = UIColor.mainDARKPURPLE
         usernameLabel.textAlignment = .center
         usernameLabel.text = "@" + userData.username.lowercased()
@@ -79,7 +79,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     lazy private var bioLabel: UILabel = {
         
         var bioLabel = UILabel()
-        bioLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        bioLabel.font = .dynamicFont(with: "Octarine-Light", style: .footnote)
         bioLabel.textColor = UIColor.mainDARKPURPLE
         bioLabel.lineBreakMode = .byWordWrapping
         bioLabel.sizeToFit()
@@ -98,7 +98,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         var followersButton = BouncyButton(bouncyButtonImage: nil)
         followersButton.backgroundColor = .clear
         followersButton.setTitleColor(UIColor.mainDARKPURPLE, for: .normal)
-        followersButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline)
+        followersButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Light", style: .footnote)
         followersButton.setTitle(followers, for: .normal)
         followersButton.titleLabel?.textAlignment = .center
         followersButton.addTarget(self, action: #selector(showFollowers), for: .touchUpInside)
@@ -111,7 +111,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         var followersLabel = UILabel()
         followersLabel.backgroundColor = .clear
         followersLabel.textColor = .mainDARKPURPLE
-        followersLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote)
+        followersLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1)
         followersLabel.text = "Followers"
         followersLabel.textAlignment = .center
         
@@ -127,7 +127,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         var followingButton = BouncyButton(bouncyButtonImage: nil)
         followingButton.backgroundColor = .clear
         followingButton.setTitleColor(UIColor.mainDARKPURPLE, for: .normal)
-        followingButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline)
+        followingButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Light", style: .footnote)
         followingButton.setTitle(following, for: .normal)
         followingButton.titleLabel?.textAlignment = .center
         followingButton.addTarget(self, action: #selector(showFollowing), for: .touchUpInside)
@@ -140,7 +140,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         var followingLabel = UILabel()
         followingLabel.backgroundColor = .clear
         followingLabel.textColor = .mainDARKPURPLE
-        followingLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote)
+        followingLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1)
         followingLabel.text = "Following"
         followingLabel.textAlignment = .center
         
@@ -168,16 +168,10 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         usernameLabel.topAnchor.constraint(equalTo: profileContainerView.topAnchor, constant: profileInsetY).isActive = true
         usernameLabel.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
         
-        profileContainerView.addSubview(profileBackButton)
-        profileBackButton.translatesAutoresizingMaskIntoConstraints = false
-        profileBackButton.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor).isActive = true
-        profileBackButton.heightAnchor.constraint(equalTo: usernameLabel.heightAnchor).isActive = true
-        profileBackButton.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor, constant: profileInsetX).isActive = true
-        
         profileContainerView.addSubview(profilePictureButton)
         profilePictureButton.translatesAutoresizingMaskIntoConstraints = false
         profilePictureButton.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: containerInsetY).isActive = true
-        profilePictureButton.widthAnchor.constraint(equalTo: profileContainerView.widthAnchor, multiplier: 0.25).isActive = true
+        profilePictureButton.widthAnchor.constraint(equalTo: profileContainerView.widthAnchor, multiplier: 0.23).isActive = true
         profilePictureButton.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
         
         profileContainerView.addSubview(followersLabel)
@@ -185,6 +179,12 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         followersLabel.trailingAnchor.constraint(equalTo: profilePictureButton.leadingAnchor, constant: -containerInsetX).isActive = true
         followersLabel.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor, constant: profileInsetX).isActive = true
         followersLabel.topAnchor.constraint(equalTo: profilePictureButton.centerYAnchor).isActive = true
+        
+        profileContainerView.addSubview(profileBackButton)
+        profileBackButton.translatesAutoresizingMaskIntoConstraints = false
+        profileBackButton.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor).isActive = true
+        profileBackButton.heightAnchor.constraint(equalTo: usernameLabel.heightAnchor, multiplier: 0.8).isActive = true
+        profileBackButton.leadingAnchor.constraint(equalTo: followersLabel.leadingAnchor).isActive = true
         
         profileContainerView.addSubview(followersButton)
         followersButton.translatesAutoresizingMaskIntoConstraints = false
@@ -251,11 +251,11 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     lazy private var followButton: BouncyButton = {
         
-        let innerEdgeInset: CGFloat = .getPercentageWidth(percentage: 2)
+        let innerEdgeInset: CGFloat = .getPercentageWidth(percentage: 1.8)
         
         var followButton = BouncyButton(bouncyButtonImage: nil)
         followButton.titleLabel!.textAlignment = .center
-        followButton.titleLabel!.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
+        followButton.titleLabel!.font = .dynamicFont(with: "Octarine-Bold", style: .caption1)
         followButton.setTitle("Follow", for: .normal)
         followButton.setTitleColor(.white, for: .normal)
         followButton.backgroundColor = .mainDARKPURPLE
@@ -269,7 +269,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     lazy private var profileBackButton: BouncyButton = {
         
-        var profileBackButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .arrowLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.mainDARKPURPLE))
+        var profileBackButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.mainDARKPURPLE))
        profileBackButton.addTarget(self, action: #selector(transitionToPreviousPage), for: .touchUpInside)
        
        profileBackButton.translatesAutoresizingMaskIntoConstraints = false
@@ -420,14 +420,14 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     @objc private func showFollowers(){
         
-        let searchVC = SearchViewController(searchTypes: [.Followers, .Following], userID: userData.uid, username: userData.username, shouldActivateSearchBar: false)
+        let searchVC = SearchViewController(searchTypes: [.Followers, .Following], startIndex: 0, userID: userData.uid, username: userData.username, shouldActivateSearchBar: false, alwaysShowsCancelButton: false)
         navigationController?.pushViewController(searchVC, animated: true)
 
     }
     
     @objc func showFollowing(){
         
-         let searchVC = SearchViewController(searchTypes: [.Followers, .Following], userID: userData.uid, username: userData.username, shouldActivateSearchBar: false)
+        let searchVC = SearchViewController(searchTypes: [.Followers, .Following], startIndex: 1, userID: userData.uid, username: userData.username, shouldActivateSearchBar: false, alwaysShowsCancelButton: false)
          navigationController?.pushViewController(searchVC, animated: true)
 
      }

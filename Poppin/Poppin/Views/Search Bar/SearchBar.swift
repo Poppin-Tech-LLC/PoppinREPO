@@ -63,7 +63,7 @@ final class SearchBar: UISearchBar {
         
         super.layoutSubviews()
         
-        searchTextField.font = .dynamicFont(with: "Octarine-Bold", style: .callout)
+        searchTextField.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
         searchTextField.textColor = searchBarTintColor
         searchTextField.layer.cornerRadius = .getWidthFitSize(minSize: 12.0, maxSize: 16.0)
         searchTextField.layer.cornerCurve = .continuous

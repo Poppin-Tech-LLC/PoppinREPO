@@ -92,20 +92,6 @@ final class MapViewController: UIViewController {
         
     }()
     
-    lazy private var mapView: MKMapView = {
-        
-        var mv = MKMapView()
-        mv.isPitchEnabled = false
-        mv.isRotateEnabled = false
-        mv.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
-        mv.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
-        mv.setRegion(mapViewRegion, animated: true)
-        mv.delegate = self
-        mv.showsUserLocation = false
-        return mv
-        
-    }()
-    
     lazy private var mapContainerView: UIView = {
         
         var mapContainerView = UIView(frame: .zero)
@@ -160,8 +146,22 @@ final class MapViewController: UIViewController {
     lazy private var mapMenuSlidePanGestureRecognizer: UIPanGestureRecognizer = {
         
         var mapMenuSlidePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleMenuPan(sender:)))
-
+        
         return mapMenuSlidePanGestureRecognizer
+        
+    }()
+    
+    lazy private var mapView: MKMapView = {
+        
+        var mapView = MKMapView()
+        mapView.isPitchEnabled = false
+        mapView.isRotateEnabled = false
+        mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
+        mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius*0.07, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
+        mapView.setRegion(mapViewRegion, animated: true)
+        mapView.delegate = self
+        mapView.showsUserLocation = false
+        return mapView
         
     }()
     
@@ -395,10 +395,11 @@ final class MapViewController: UIViewController {
             
         }
         
-        // For trial purposes, present the new create event view controller modally
-        // later, need to change to using navigation controller
-        //self.modalPresentationStyle = .overFullScreen
-        self.present(NewCreateEventViewController(), animated: true, completion: nil)
+        let createEventNavigationController = UINavigationController(rootViewController: NewCreateEventViewController())
+        createEventNavigationController.modalPresentationStyle = .overFullScreen
+        createEventNavigationController.modalTransitionStyle = .coverVertical
+        createEventNavigationController.setNavigationBarHidden(true, animated: false)
+        self.present(createEventNavigationController, animated: true, completion: nil)
         
     }
     
@@ -501,7 +502,6 @@ final class MapViewController: UIViewController {
         openMenu()
         
     }
-    
     @objc private func closeAV(sender: BouncyButton) {
         
         closeAV()
@@ -511,6 +511,13 @@ final class MapViewController: UIViewController {
     @objc private func openAV(sender: BouncyButton) {
         
         openAV()
+        
+    }
+    
+    @objc private func handleMapTap(sender: UITapGestureRecognizer? = nil) {
+        
+        mapView.isZoomEnabled = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { self.mapView.isZoomEnabled = true }
         
     }
     
@@ -612,6 +619,11 @@ final class MapViewController: UIViewController {
         setLocation()
     
         NotificationCenter.default.addObserver(self, selector: #selector(contextDidSave(_:)), name: .userSignedIn, object: nil)
+        
+        let mapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
+        mapGestureRecognizer.numberOfTapsRequired = 1
+        mapGestureRecognizer.numberOfTouchesRequired = 1
+        mapView.addGestureRecognizer(mapGestureRecognizer)
         
         view.addSubview(mapContainerView)
         mapContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -760,22 +772,15 @@ final class MapViewController: UIViewController {
         
     }
     
-     public func getPopsicles(){
-            
-            for annotation in mapView.annotations{
-                
-                if annotation is PopsicleAnnotation{
-                    
-                    mapView.removeAnnotation(annotation)
-                    
-                }
-                
-            }
-            
-            mapPopsicles = []
+    public func getPopsicles(){
+        
+        print("Getting popsicles")
+        
+        mapView.removeAnnotations(mapPopsicles)
+        mapPopsicles = []
         
         let geoFirestoreRef = Firestore.firestore()
-
+        
         let geoFirestore = GeoFirestore(collectionRef: geoFirestoreRef.collection("geolocs"))
         
         let popRef = geoFirestoreRef.collection("currentPopsicles")
@@ -784,16 +789,20 @@ final class MapViewController: UIViewController {
 
         let circleQuery2 = geoFirestore.query(withCenter: center, radius: 3)
         
+        let group = DispatchGroup()
+        
         _ = circleQuery2.observe(.documentEntered, with: { (key, location) in
             print("The document with documentID '\(String(describing: key))' entered the search area and is at location '\(String(describing: location))'")
+            
+            group.enter()
             popRef.document(key!).getDocument{ (document, error) in
                 if let document = document, document.exists {
- 
+                    
                     let data = document.data()
                     
                     let eventStartDate = data!["startDate"] as! String
                     let eventEndDate = data!["endDate"] as! String
-
+                    
                     let eventName = data!["eventName"] as! String
                     let eventCategory = data!["category"] as! String
                     let hashtags = data!["hashtags"] as! String
@@ -802,43 +811,53 @@ final class MapViewController: UIViewController {
                     let longitude = data!["longitude"] as! CLLocationDegrees
                     
                     let popsicleCategory: PopsicleCategory
-
+                    
                     if (eventCategory == "education") {
-
+                        
                         popsicleCategory = PopsicleCategory.Education
-
-
-
+                        
+                        
+                        
                     } else if (eventCategory == "food") {
-
+                        
                         popsicleCategory = PopsicleCategory.Food
-
-
+                        
+                        
                     } else if (eventCategory == "social") {
-
+                        
                         popsicleCategory = PopsicleCategory.Social
-
-
+                        
+                        
                     } else if (eventCategory == "sports") {
-
+                        
                         popsicleCategory = PopsicleCategory.Sports
                     } else {
-
+                        
                         popsicleCategory = PopsicleCategory.Culture
                     }
-                            
+                    
                     let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
                     
                     self.mapPopsicles.append(popsicleToAdd)
-                    self.mapView.addAnnotation(popsicleToAdd)
-                   // print("Document data: \(dataDescription)")
+                    
+                    // print("Document data: \(dataDescription)")
+                    
                 } else {
                     print("Document does not exist")
                 }
+                
+                group.leave()
+                
+            }
             
-        }
+            group.notify(queue: .main) {
+             
+                self.mapView.addAnnotations(self.mapPopsicles)
+                
+            }
+            
         })
-        }
+    }
     
 }
 
@@ -889,6 +908,12 @@ extension MapViewController: CLLocationManagerDelegate {
 }
 
 extension MapViewController: MKMapViewDelegate {
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
+        
+    }
     
     func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
         
@@ -985,45 +1010,50 @@ extension MapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
-        if annotation is MKUserLocation {
+        if let userAnnotation = annotation as? MKUserLocation {
             
-            var userLocationAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: UserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier)
-            
-            if userLocationAnnotationView == nil {
+            if let userLocationAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: UserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier) as? UserLocationAnnotationView {
+             
+                userLocationAnnotationView.setUserLocationIcon(icon: nil)
+                return userLocationAnnotationView
                 
-                userLocationAnnotationView = UserLocationAnnotationView(annotation: annotation, reuseIdentifier: UserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier)
-                
-            }
-            
-            (userLocationAnnotationView as! UserLocationAnnotationView).setUserLocationIcon(icon: nil)
-            
-            return userLocationAnnotationView
-            
-        } else if annotation is PopsicleAnnotation {
-            
-            var popsicleAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: PopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier)
-            
-            if popsicleAnnotationView == nil {
-                
-                popsicleAnnotationView = PopsicleAnnotationView(annotation: annotation, reuseIdentifier: PopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier)
+            } else {
+             
+                let userLocationAnnotationView = UserLocationAnnotationView(annotation: userAnnotation, reuseIdentifier: UserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier)
+                userLocationAnnotationView.setUserLocationIcon(icon: nil)
+                return userLocationAnnotationView
                 
             }
             
-            return popsicleAnnotationView
+        } else if let popsicleAnnotation = annotation as? PopsicleAnnotation {
             
-        } else if annotation is MKClusterAnnotation {
-            
-            var popsicleGroupAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: PopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier)
-            
-            if popsicleGroupAnnotationView == nil {
+            if let popsicleAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: PopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier) as? PopsicleAnnotationView {
                 
-                popsicleGroupAnnotationView = PopsicleGroupAnnotationView(annotation: annotation, reuseIdentifier: PopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier)
+                popsicleAnnotationView.setPopsicleAnnotation(popsicleAnnotation: popsicleAnnotation)
+                return popsicleAnnotationView
+                
+            } else {
+                
+                let popsicleAnnotationView = PopsicleAnnotationView(annotation: popsicleAnnotation, reuseIdentifier: PopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier)
+                popsicleAnnotationView.setPopsicleAnnotation(popsicleAnnotation: popsicleAnnotation)
+                return popsicleAnnotationView
                 
             }
             
-            (popsicleGroupAnnotationView as! PopsicleGroupAnnotationView).setGroupCount(count: (annotation as! MKClusterAnnotation).memberAnnotations.count)
+        } else if let popsicleGroupAnnotation = annotation as? MKClusterAnnotation {
             
-            return popsicleGroupAnnotationView
+            if let popsicleGroupAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: PopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier) as? PopsicleGroupAnnotationView {
+             
+                popsicleGroupAnnotationView.setGroupCount(count: popsicleGroupAnnotation.memberAnnotations.count)
+                return popsicleGroupAnnotationView
+                
+            } else {
+             
+                let popsicleGroupAnnotationView = PopsicleGroupAnnotationView(annotation: popsicleGroupAnnotation, reuseIdentifier: PopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier)
+                popsicleGroupAnnotationView.setGroupCount(count: popsicleGroupAnnotation.memberAnnotations.count)
+                return popsicleGroupAnnotationView
+                
+            }
             
         }
         
@@ -1031,7 +1061,7 @@ extension MapViewController: MKMapViewDelegate {
         
     }
     
-    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
+    /*func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
         
         for annotationView in views {
             
@@ -1068,9 +1098,11 @@ extension MapViewController: MKMapViewDelegate {
             
         }
         
-    }
+    }*/
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        
+        mapView.isZoomEnabled = true
         
         if let selectedPopsicle = view.annotation, selectedPopsicle is PopsicleAnnotation {
             
@@ -1098,6 +1130,36 @@ extension MapViewController: MKMapViewDelegate {
             
             print("User location selected.")
             
+        } else if let selectedAnnotation = view.annotation as? MKClusterAnnotation {
+         
+            var minLat = selectedAnnotation.memberAnnotations[0].coordinate.latitude
+            var maxLat = selectedAnnotation.memberAnnotations[0].coordinate.latitude
+            var minLng = selectedAnnotation.memberAnnotations[0].coordinate.longitude
+            var maxLng = selectedAnnotation.memberAnnotations[0].coordinate.longitude
+            
+            for annotation in selectedAnnotation.memberAnnotations {
+             
+                minLat = min(minLat, annotation.coordinate.latitude)
+                maxLat = max(maxLat, annotation.coordinate.latitude)
+                minLng = min(minLng, annotation.coordinate.longitude)
+                maxLng = max(maxLng, annotation.coordinate.longitude)
+                
+            }
+            
+            let midLat = (minLat + maxLat) / 2
+            let midLng = (minLng + maxLng) / 2
+
+            let deltaLat = (maxLat - minLat) * 5
+            let deltaLng = (maxLng - minLng) * 5
+            
+            let expandedRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: midLat, longitude: midLng), span: MKCoordinateSpan(latitudeDelta: deltaLat, longitudeDelta: deltaLng))
+            
+            MKMapView.animate(withDuration: 0.35, delay: 0.0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+                
+                self.mapView.setRegion(expandedRegion, animated: true)
+                
+            }, completion: nil)
+            
         }
         
         mapView.deselectAnnotation(view.annotation, animated: false)
@@ -1116,7 +1178,7 @@ extension MapViewController: UISearchBarDelegate {
             
         }
         
-        let searchNavigationController = UINavigationController(rootViewController: SearchViewController(searchTypes: [.Users, .Events], userID: nil, username: nil, shouldActivateSearchBar: true))
+        let searchNavigationController = UINavigationController(rootViewController: SearchViewController(searchTypes: [.Users, .Events], startIndex: 0, userID: nil, username: nil, shouldActivateSearchBar: true, alwaysShowsCancelButton: true))
         searchNavigationController.modalPresentationStyle = .overFullScreen
         searchNavigationController.modalTransitionStyle = .crossDissolve
         searchNavigationController.setNavigationBarHidden(true, animated: false)

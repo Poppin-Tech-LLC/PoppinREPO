@@ -12,12 +12,14 @@ import MapKit
 final class UserLocationAnnotationView: MKAnnotationView {
     
     public static let defaultUserLocationAnnotationViewReuseIdentifier = "UserLocationAnnotationView"
+
+    private let userLocationAnnotationWidth: CGFloat = .getPercentageWidth(percentage: 8)
     
-    lazy private var userLocationIconImageView: UIImageView = {
+    lazy private var userLocationIconImageView: BubbleImageView = {
         
-        var userLocationIconImageView = UIImageView()
-        userLocationIconImageView.image = .defaultUserPicture64
-        userLocationIconImageView.contentMode = .scaleAspectFit
+        var userLocationIconImageView = BubbleImageView()
+        userLocationIconImageView.image = .defaultUserPicture128
+        userLocationIconImageView.contentMode = .scaleAspectFill
         return userLocationIconImageView
         
     }()
@@ -40,21 +42,15 @@ final class UserLocationAnnotationView: MKAnnotationView {
     
     private func configureView() {
         
-        frame.size = CGSize(width: .getPercentageWidth(percentage: 9), height: .getPercentageWidth(percentage: 9))
+        frame.size = CGSize(width: userLocationAnnotationWidth, height: userLocationAnnotationWidth)
+        centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
         addShadowAndRoundCorners(cornerRadius: min(frame.width, frame.height)/2, shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.3, shadowRadius: 8.0)
-        userLocationIconImageView.layer.cornerRadius = min(frame.width, frame.height)/2
-        userLocationIconImageView.clipsToBounds = true
-        layer.borderColor = UIColor.mainDARKPURPLE.cgColor
-        layer.borderWidth = .getWidthFitSize(minSize: 1, maxSize: 2)
-        displayPriority = .required
-        canShowCallout = false
         
         addSubview(userLocationIconImageView)
-        userLocationIconImageView.translatesAutoresizingMaskIntoConstraints = false
-        userLocationIconImageView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        userLocationIconImageView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        userLocationIconImageView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        userLocationIconImageView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        userLocationIconImageView.frame = bounds
+        
+        displayPriority = .required
+        canShowCallout = false
         
     }
     

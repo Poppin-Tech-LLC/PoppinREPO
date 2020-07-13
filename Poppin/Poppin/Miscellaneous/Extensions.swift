@@ -61,6 +61,7 @@ extension UIColor {
     static let sportsLIGHTGREEN = UIColor(named: "sportsLIGHTGREEN")!
     static let cultureDARKPURPLE = UIColor(named: "cultureDARKPURPLE")!
     static let cultureLIGHTPURPLE = UIColor(named: "cultureLIGHTPURPLE")!
+    static let defaultGRAY = UIColor(named: "defaultGRAY")!
     
     static func UIColorFromHex(rgbValue: UInt32, alpha: Double = 1.0) -> UIColor {
         
@@ -120,6 +121,48 @@ extension UIImage {
     static let educationPopsicleIcon256 = UIImage(named: "educationPopsicleIcon256")!
     static let educationPopsicleIcon1024 = UIImage(named: "educationPopsicleIcon1024")!
     
+    // Popsicle Shadow Icons
+    
+    static let defaultPopsicleIconShadow64 = UIImage(named: "defaultPopsicleIconShadow64")!
+    static let defaultPopsicleIconShadow128 = UIImage(named: "defaultPopsicleIconShadow128")!
+    static let defaultPopsicleIconShadow256 = UIImage(named: "defaultPopsicleIconShadow256")!
+    static let defaultPopsicleIconShadow1024 = UIImage(named: "defaultPopsicleIconShadow1024")!
+    
+    static let popsicleGroupIconShadow64 = UIImage(named: "popsicleGroupIconShadow64")!
+    static let popsicleGroupIconShadow128 = UIImage(named: "popsicleGroupIconShadow128")!
+    static let popsicleGroupIconShadow256 = UIImage(named: "popsicleGroupIconShadow256")!
+    static let popsicleGroupIconShadow1024 = UIImage(named: "popsicleGroupIconShadow1024")!
+    
+    static let poppinPopsicleIconShadow64 = UIImage(named: "poppinPopsicleIconShadow64")!
+    static let poppinPopsicleIconShadow128 = UIImage(named: "poppinPopsicleIconShadow128")!
+    static let poppinPopsicleIconShadow256 = UIImage(named: "poppinPopsicleIconShadow256")!
+    static let poppinPopsicleIconShadow1024 = UIImage(named: "poppinPopsicleIconShadow1024")!
+    
+    static let culturePopsicleIconShadow64 = UIImage(named: "culturePopsicleIconShadow64")!
+    static let culturePopsicleIconShadow128 = UIImage(named: "culturePopsicleIconShadow128")!
+    static let culturePopsicleIconShadow256 = UIImage(named: "culturePopsicleIconShadow256")!
+    static let culturePopsicleIconShadow1024 = UIImage(named: "culturePopsicleIconShadow1024")!
+    
+    static let socialPopsicleIconShadow64 = UIImage(named: "socialPopsicleIconShadow64")!
+    static let socialPopsicleIconShadow128 = UIImage(named: "socialPopsicleIconShadow128")!
+    static let socialPopsicleIconShadow256 = UIImage(named: "socialPopsicleIconShadow256")!
+    static let socialPopsicleIconShadow1024 = UIImage(named: "socialPopsicleIconShadow1024")!
+    
+    static let foodPopsicleIconShadow64 = UIImage(named: "foodPopsicleIconShadow64")!
+    static let foodPopsicleIconShadow128 = UIImage(named: "foodPopsicleIconShadow128")!
+    static let foodPopsicleIconShadow256 = UIImage(named: "foodPopsicleIconShadow256")!
+    static let foodPopsicleIconShadow1024 = UIImage(named: "foodPopsicleIconShadow1024")!
+    
+    static let sportsPopsicleIconShadow64 = UIImage(named: "sportsPopsicleIconShadow64")!
+    static let sportsPopsicleIconShadow128 = UIImage(named: "sportsPopsicleIconShadow128")!
+    static let sportsPopsicleIconShadow256 = UIImage(named: "sportsPopsicleIconShadow256")!
+    static let sportsPopsicleIconShadow1024 = UIImage(named: "sportsPopsicleIconShadow1024")!
+    
+    static let educationPopsicleIconShadow64 = UIImage(named: "educationPopsicleIconShadow64")!
+    static let educationPopsicleIconShadow128 = UIImage(named: "educationPopsicleIconShadow128")!
+    static let educationPopsicleIconShadow256 = UIImage(named: "educationPopsicleIconShadow256")!
+    static let educationPopsicleIconShadow1024 = UIImage(named: "educationPopsicleIconShadow1024")!
+    
     // Map Icons
     
     static let defaultUserPicture64 = UIImage(named: "defaultUserPicture64")!
@@ -143,9 +186,28 @@ extension UIImage {
     static let popsicleBorder256 = UIImage(named: "popsicleBorder256")!
     static let popsicleBorder1024 = UIImage(named: "popsicleBorder1024")!
     
-    // App Background
+    // Create Event Icons
+    
+    static let filledPopsicleIcon64 = UIImage(named: "filledPopsicleIcon64")!
+    static let filledPopsicleIcon128 = UIImage(named: "filledPopsicleIcon128")!
+    static let filledPopsicleIcon256 = UIImage(named: "filledPopsicleIcon256")!
+    static let filledPopsicleIcon1024 = UIImage(named: "filledPopsicleIcon1024")!
+    
+    static let nonFilledPopsicleIcon64 = UIImage(named: "nonFilledPopsicleIcon64")!
+    static let nonFilledPopsicleIcon128 = UIImage(named: "nonFilledPopsicleIcon128")!
+    static let nonFilledPopsicleIcon256 = UIImage(named: "nonFilledPopsicleIcon256")!
+    static let nonFilledPopsicleIcon1024 = UIImage(named: "nonFilledPopsicleIcon1024")!
+    
+    // Gradient Backgrounds
     
     static let appBackground = UIImage(named: "appBackground")!
+    static let culturePURPLEBackground = UIImage(named: "culturePURPLEBackground")!
+    static let educationBLUEBackground = UIImage(named: "educationBLUEBackground")!
+    static let foodORANGEBackground = UIImage(named: "foodORANGEBackground")!
+    static let socialREDBackground = UIImage(named: "socialREDBackground")!
+    static let sportsGREENBackground = UIImage(named: "sportsGREENBackground")!
+    
+    // Internet Connection
     
     static let sadPopsicle = UIImage(named: "sadPopsicle")
     static let happyPopsicle = UIImage(named: "happyPopsicle")
