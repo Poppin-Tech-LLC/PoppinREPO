@@ -71,6 +71,7 @@ final class SearchPageCell: UICollectionViewCell {
     var searchType: SearchType = .Users
     var users: [UserData] = []
     var filteredUsers: [UserData] = []
+    var recentUsers: [UserData] = []
     
     lazy private var searchScrollView: UIScrollView = {
         

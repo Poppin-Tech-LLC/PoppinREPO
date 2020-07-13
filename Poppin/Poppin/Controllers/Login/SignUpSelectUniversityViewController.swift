@@ -8,7 +8,17 @@
 
 import UIKit
 
-final class SignUpFirstPageViewController: UIViewController {
+struct College {
+    
+    var universityName: String
+    var email: String
+    var latitude: Double
+    var longitude: Double
+    var radius: Double
+    
+}
+
+final class SignUpSelectUniversityViewController: UIViewController, UIPickerViewDelegate, UITextFieldDelegate, UIPickerViewDataSource {
     
     let loginInsetY: CGFloat = .getPercentageWidth(percentage: 5)
     let loginInsetX: CGFloat = .getPercentageWidth(percentage: 5)
@@ -19,31 +29,20 @@ final class SignUpFirstPageViewController: UIViewController {
     
     let innerElementsSpacing: CGFloat = .getPercentageWidth(percentage: 3)
     
-    private var email: String = ""
+    var unis: [String: College] = [:]
     
-    private var radius: Double = 0.0
+    var uniNames: [String] = [""]
     
-    private var longitude: Double = 0.0
-
-    private var latitude: Double = 0.0
-
-
+    private var fullName: String = ""
     
-    private let datePicker: UIDatePicker = {
-        
-        let datePicker = UIDatePicker()
-        datePicker.datePickerMode = .date
-        datePicker.maximumDate = Date()
-        datePicker.addTarget(self, action: #selector(setDateFromPicker), for: .valueChanged)
-        return datePicker
-        
-    }()
+    private var age: Int = 0
+    
     
     lazy private var signUpContainerView: UIView = {
         
         let contentStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 6.5)
         
-        let contentStackView = UIStackView(arrangedSubviews: [fullNameTextField, dateOfBirthTextField, signUpNextButton])
+        let contentStackView = UIStackView(arrangedSubviews: [selectUniversityTextField, signUpNextButton])
         contentStackView.axis = .vertical
         contentStackView.alignment = .fill
         contentStackView.distribution = .fill
@@ -68,62 +67,6 @@ final class SignUpFirstPageViewController: UIViewController {
         
     }()
     
-    lazy private var fullNameTextField: UITextField = {
-        
-        var fullNameTextField = UITextField()
-        fullNameTextField.backgroundColor = .clear
-        fullNameTextField.textColor = .mainDARKPURPLE
-        fullNameTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        fullNameTextField.attributedPlaceholder = NSAttributedString(string: "Full name", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
-        fullNameTextField.delegate = self
-        fullNameTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: fullNameTextField.intrinsicContentSize.height))
-        fullNameTextField.leftViewMode = .always
-        fullNameTextField.clearButtonMode = .whileEditing
-        fullNameTextField.returnKeyType = .next
-        fullNameTextField.autocapitalizationType = .none
-        fullNameTextField.autocorrectionType = .no
-        fullNameTextField.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0)
-        fullNameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
-        fullNameTextField.translatesAutoresizingMaskIntoConstraints = false
-        fullNameTextField.heightAnchor.constraint(equalToConstant: fullNameTextField.intrinsicContentSize.height+(loginInnerInset*0.4)).isActive = true
-        
-        return fullNameTextField
-        
-    }()
-    
-    lazy private var dateOfBirthTextField: UITextField = {
-        
-        let dateToolbar = UIToolbar()
-        dateToolbar.sizeToFit()
-        let dateDoneButton = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(dismissDatePicker))
-        let dateFlexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        dateToolbar.setItems([dateFlexSpace, dateDoneButton], animated: true)
-        
-        var dateOfBirthTextField = UITextField()
-        dateOfBirthTextField.backgroundColor = .clear
-        dateOfBirthTextField.textColor = .mainDARKPURPLE
-        dateOfBirthTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        dateOfBirthTextField.attributedPlaceholder = NSAttributedString(string: "Date of birth", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
-        dateOfBirthTextField.delegate = self
-        dateOfBirthTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: dateOfBirthTextField.intrinsicContentSize.height))
-        dateOfBirthTextField.leftViewMode = .always
-        dateOfBirthTextField.clearButtonMode = .whileEditing
-        dateOfBirthTextField.returnKeyType = .next
-        dateOfBirthTextField.autocapitalizationType = .none
-        dateOfBirthTextField.autocorrectionType = .no
-        dateOfBirthTextField.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0)
-        dateOfBirthTextField.addTarget(self, action: #selector(textFieldDidChange), for: .allEditingEvents)
-        
-        dateOfBirthTextField.inputView = datePicker
-        dateOfBirthTextField.inputAccessoryView = dateToolbar
-        
-        dateOfBirthTextField.translatesAutoresizingMaskIntoConstraints = false
-        dateOfBirthTextField.heightAnchor.constraint(equalToConstant: dateOfBirthTextField.intrinsicContentSize.height+(loginInnerInset*0.4)).isActive = true
-        
-        return dateOfBirthTextField
-        
-    }()
     
     lazy private var signUpNextButton: BouncyButton = {
         
@@ -199,6 +142,64 @@ final class SignUpFirstPageViewController: UIViewController {
         
     }()
     
+    lazy private var selectUniversityTextField: UITextField = {
+        
+        var selectUniversityTextField = UITextField()
+        selectUniversityTextField.backgroundColor = .clear
+        selectUniversityTextField.textColor = .mainDARKPURPLE
+        selectUniversityTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        selectUniversityTextField.attributedPlaceholder = NSAttributedString(string: "Select University", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
+        selectUniversityTextField.delegate = self
+        selectUniversityTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: selectUniversityTextField.intrinsicContentSize.height))
+        selectUniversityTextField.leftViewMode = .always
+        selectUniversityTextField.clearButtonMode = .whileEditing
+        selectUniversityTextField.returnKeyType = .next
+        selectUniversityTextField.autocapitalizationType = .none
+        selectUniversityTextField.autocorrectionType = .no
+        selectUniversityTextField.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0)
+        let uniToolbar = UIToolbar()
+               
+        uniToolbar.sizeToFit()
+               
+        let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(doneStartActionDate))
+               
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+               
+        uniToolbar.setItems([flexSpace,doneButton], animated: true)
+               
+        selectUniversityTextField.inputAccessoryView = uniToolbar
+        
+        selectUniversityTextField.inputView = universityPicker
+        selectUniversityTextField.isUserInteractionEnabled = true
+        
+        selectUniversityTextField.translatesAutoresizingMaskIntoConstraints = false
+        selectUniversityTextField.heightAnchor.constraint(equalToConstant: selectUniversityTextField.intrinsicContentSize.height+(loginInnerInset*0.4)).isActive = true
+        
+        return selectUniversityTextField
+        
+    }()
+    
+    
+    @objc func doneStartActionDate() {
+        
+        if(selectUniversityTextField.text != ""){
+            signUpNextButton.isUserInteractionEnabled = true
+            signUpNextButton.alpha = 1.0
+        }
+                
+           view.endEditing(true)
+           
+       }
+
+    
+    lazy private var universityPicker: UIPickerView = {
+        let universityPicker = UIPickerView()
+        universityPicker.delegate = self
+        universityPicker.dataSource = self
+        universityPicker.setValue(UIColor.mainDARKPURPLE, forKeyPath: "textColor")
+        return universityPicker
+    }()
+    
     lazy private var poppinTitleLabel: UILabel = {
         
         var poppinTitleLabel = UILabel()
@@ -214,16 +215,14 @@ final class SignUpFirstPageViewController: UIViewController {
         
     }()
     
-    init(email: String, radius: Double, latitude: Double, longitude: Double) {
-           
-           super.init(nibName: nil, bundle: nil)
-           
-        self.email = email
-        self.latitude = latitude
-        self.radius = radius
-        self.longitude = longitude
-           
-       }
+//    init(fullName: String, age: Int) {
+//        
+//        super.init(nibName: nil, bundle: nil)
+//        
+//        self.fullName = fullName
+//        self.age = age
+//        
+//    }
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         
@@ -246,12 +245,15 @@ final class SignUpFirstPageViewController: UIViewController {
         modalTransitionStyle = .coverVertical
         
     }
+
     
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
         view.backgroundColor = .poppinLIGHTGOLD
+        
+        readFromJSON()
         
         let dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         dismissKeyboardGesture.cancelsTouchesInView = false
@@ -275,92 +277,89 @@ final class SignUpFirstPageViewController: UIViewController {
         poppinTitleLabel.topAnchor.constraint(equalTo: signUpContainerView.topAnchor, constant: containerInsetY).isActive = true
         poppinTitleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
+        
+        
     }
+    
+    private func readFromJSON(){
+        
+            var json: [[String:Any]]
+            json = []
+            if let path = Bundle.main.path(forResource: "UniversitiesJSON", ofType: "json") {
+                do {
+                    let fileUrl = URL(fileURLWithPath: path)
+                    let data = try Data(contentsOf: fileUrl, options: .mappedIfSafe)
+                    json = try! JSONSerialization.jsonObject(with: data) as! [[String:Any]]
+                } catch {
+                }
+            }
+            
+            for info in json{
+                var uni: College
+                uni = College(universityName: "", email: "", latitude: 0, longitude: 0, radius: 0)
+                
+                
+                if let universityName = info["universityName"] as? String{
+                    uni.universityName = universityName
+                }
+                if let email = info["email"] as? String{
+                    uni.email = email
+                }
+                if let latitude = info["latitude"] as? Double{
+                    uni.latitude = latitude
+                }
+                if let longitude = info["longitude"] as? Double{
+                    uni.longitude = longitude
+                }
+                if let radius = info["radius"] as? Double{
+                    uni.radius = radius
+                }
+                unis[uni.universityName] = uni
+                uniNames.append(uni.universityName)
+            }
+        }
+    
+    // returns the number of 'columns' to display.
+    func numberOfComponents(in pickerView: UIPickerView) -> Int{
+        return 1
+    }
+
+    // returns the # of rows in each component..
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int{
+        return uniNames.count
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String?{
+        return uniNames[row]
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int)
+    {
+        selectUniversityTextField.text = uniNames[row]
+       // universityPicker.isHidden = true;
+    }
+
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+       // universityPicker.isHidden = false
+        return true
+    }
+    
+    func textField(_ textView: UITextField, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        return false
+    }
+    
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
     
-    @objc private func dismissDatePicker() {
-        
-        setDateFromPicker()
-        dateOfBirthTextField.resignFirstResponder()
-        
-    }
-    
-    @objc private func setDateFromPicker() {
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy"
-        dateOfBirthTextField.text = formatter.string(from: datePicker.date)
-        
-    }
-    
-    @objc private func textFieldDidChange() {
-        
-        if fullNameTextField.text != "" && dateOfBirthTextField.text != "" && !signUpNextButton.isUserInteractionEnabled {
-            
-            signUpNextButton.isUserInteractionEnabled = true
-            signUpNextButton.alpha = 1.0
-            
-        } else if fullNameTextField.text == "" || dateOfBirthTextField.text == "" && signUpNextButton.isUserInteractionEnabled {
-            
-            signUpNextButton.isUserInteractionEnabled = false
-            signUpNextButton.alpha = 0.6
-            
-        }
-        
-    }
     
     @objc private func transitionToNextPage(sender: BouncyButton) {
-        
-        let currentDate = Date()
-        let dateOfBirth = datePicker.date
-        let calendar = Calendar.current
-        let ageComponents = calendar.dateComponents([.year], from: dateOfBirth, to: currentDate)
-        let age = ageComponents.year
-        
-        var validSteps = 0
-        
-        if let fullName = fullNameTextField.text, fullName != "" {
-            
-            validSteps+=1
-            
-        } else {
-            
-            let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-            let alertVC = AlertViewController(alertTitle: "Invalid name", alertMessage: "The entered name is invalid. Please try again.", alertButtons: [button1])
-            
-            self.present(alertVC, animated: true, completion: nil)
-            
-        }
-        
-        if let age = age, age >= 13 {
-            
-            validSteps+=1
-            
-        } else {
-            
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: { [weak self] in
-            
-                guard let self = self else { return }
-                
-                self.navigationController?.popToRootViewController(animated: true)
-            
-            })
-            
-            let alertVC = AlertViewController(alertTitle: "Unable to proceed with the sign up", alertMessage: "It was not possible to proceed with the sign up. Thanks for checking out Poppin.", alertButtons: [button1])
-            
-            self.present(alertVC, animated: true, completion: nil)
-            
-        }
-        
-        if validSteps == 2 {
-            
-            self.navigationController?.pushViewController(SignUpSecondPageViewController(fullName: fullNameTextField.text!, age: age!, email: email, radius: radius, latitude: latitude, longitude: longitude), animated: true)
-            
-             //self.navigationController?.pushViewController(SignUpSelectUniversityViewController(fullName: fullNameTextField.text!, age: age!), animated: true)
-            
-        }
-        
+        //let universityName = unis[selectUniversityTextField.text!]!.universityName
+        let radius = unis[selectUniversityTextField.text!]!.radius
+        let latitude = unis[selectUniversityTextField.text!]!.latitude
+        let longitude = unis[selectUniversityTextField.text!]!.longitude
+        let email = unis[selectUniversityTextField.text!]!.email
+
+        self.navigationController?.pushViewController(SignUpFirstPageViewController( email: email, radius: radius, latitude: latitude, longitude: longitude), animated: true)
     }
     
     @objc private func switchToLogin(sender: BouncyButton) {
@@ -375,35 +374,6 @@ final class SignUpFirstPageViewController: UIViewController {
             navigationController?.pushViewController(LoginViewController(), animated: true)
             
         }
-        
-    }
-    
-    func resetTextFields() {
-        
-        fullNameTextField.text = ""
-        dateOfBirthTextField.text = ""
-        
-        textFieldDidChange()
-        
-        datePicker.date = Date()
-        
-    }
-    
-}
-
-extension SignUpFirstPageViewController: UITextFieldDelegate {
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        
-        textField.resignFirstResponder()
-        
-        if textField == fullNameTextField {
-            
-            dateOfBirthTextField.becomeFirstResponder()
-            
-        }
-        
-        return true
         
     }
     

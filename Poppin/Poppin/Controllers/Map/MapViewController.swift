@@ -15,6 +15,7 @@ import Kronos
 import Contacts
 import GeoFire
 import Geofirestore
+import CoreData
 
 protocol MenuDelegate: class {
     
@@ -32,8 +33,8 @@ protocol ActivityDelegate: class {
 
 final class MapViewController: UIViewController {
     
-    public static let defaultMapViewRegionRadius = 3000.0 // 3km
-    public static let defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
+    public static var defaultMapViewRegionRadius = 3000.0 // 3km
+    public static var defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
         
     private let mapVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let mapHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
@@ -52,6 +53,14 @@ final class MapViewController: UIViewController {
     lazy private var userPicture: UIImage = .defaultUserPicture64
     
     var mapPopsicles: [PopsicleAnnotation] = []
+    
+    var username: String = ""
+    
+    var uid: String = ""
+    
+    var bio: String = ""
+    
+    var fullName: String = ""
     
     lazy private var launchScreenOverlayView: UIView = {
         
@@ -165,8 +174,11 @@ final class MapViewController: UIViewController {
     
     lazy private var mapViewRegion: MKCoordinateRegion = {
         
-        let mapViewRegionCenter = userLocation
+        let mapViewRegionCenter = MapViewController.defaultMapViewCenterLocation
         let mapViewRegionRadius = MapViewController.defaultMapViewRegionRadius
+        
+        print("LOCAATIOONN")
+        print(userLocation)
         
         var mapViewRegion = MKCoordinateRegion(center: mapViewRegionCenter, latitudinalMeters: mapViewRegionRadius, longitudinalMeters: mapViewRegionRadius)
         return mapViewRegion
@@ -544,11 +556,62 @@ final class MapViewController: UIViewController {
         
     }
     
+    @objc func contextDidSave(_ notification: Notification) {
+        print("SAVED USER")
+
+        let user = DataController.getUser()
+        
+        uid = user.value(forKey: "uid") as? String ?? ""
+        username = user.value(forKey: "username") as? String ?? ""
+        bio = user.value(forKey: "bio") as? String ?? ""
+        fullName = user.value(forKey: "fullName") as? String ?? ""
+        
+        let radius = user.value(forKey: "radius") as? Double ?? 0.0
+        let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
+        let latitude = user.value(forKey: "latitude") as? Double ?? 0.0
+        
+        MapViewController.defaultMapViewRegionRadius = radius * 1000
+        MapViewController.defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+
+        mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
+        mapViewRegion = MKCoordinateRegion(center: MapViewController.defaultMapViewCenterLocation, latitudinalMeters: MapViewController.defaultMapViewRegionRadius, longitudinalMeters: MapViewController.defaultMapViewRegionRadius)
+        mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
+        mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: radius * 1000)
+        mapView.setRegion(mapViewRegion, animated: true)
+        
+        getPopsicles()
+        
+    }
+    
+    private func setLocation() {
+        if(Auth.auth().currentUser != nil){
+        let user = DataController.getUser()
+            
+        uid = user.value(forKey: "uid") as? String ?? ""
+        username = user.value(forKey: "username") as? String ?? ""
+        bio = user.value(forKey: "bio") as? String ?? ""
+        fullName = user.value(forKey: "fullName") as? String ?? ""
+        
+        let radius = user.value(forKey: "radius") as? Double ?? 0.0
+        let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
+        let latitude = user.value(forKey: "latitude") as? Double ?? 0.0
+                
+        MapViewController.defaultMapViewRegionRadius = radius * 1000
+        MapViewController.defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+        }
+    }
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
         view.backgroundColor = .black
+        
+        print("LOADDEDDD")
+        
+        setLocation()
+    
+        NotificationCenter.default.addObserver(self, selector: #selector(contextDidSave(_:)), name: .userSignedIn, object: nil)
         
         view.addSubview(mapContainerView)
         mapContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -677,6 +740,7 @@ final class MapViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
     
         super.viewDidAppear(animated)
+
         
         if shouldPresentLoginVC {
             
@@ -716,17 +780,16 @@ final class MapViewController: UIViewController {
         
         let popRef = geoFirestoreRef.collection("currentPopsicles")
         // Query using CLLocation
-        let center = CLLocation(latitude: 39.6766, longitude: -104.9619)
-        // Query locations at [37.7832889, -122.4056973] with a radius of 600 meters
+        let center = CLLocation(latitude: MapViewController.defaultMapViewCenterLocation.latitude, longitude: MapViewController.defaultMapViewCenterLocation.longitude)
+
         let circleQuery2 = geoFirestore.query(withCenter: center, radius: 3)
         
         _ = circleQuery2.observe(.documentEntered, with: { (key, location) in
             print("The document with documentID '\(String(describing: key))' entered the search area and is at location '\(String(describing: location))'")
             popRef.document(key!).getDocument{ (document, error) in
                 if let document = document, document.exists {
-    //                let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
+ 
                     let data = document.data()
-                    print(document.data() ?? "data")
                     
                     let eventStartDate = data!["startDate"] as! String
                     let eventEndDate = data!["endDate"] as! String
@@ -805,7 +868,7 @@ extension MapViewController: CLLocationManagerDelegate {
             if !mapView.visibleMapRect.contains(MKMapPoint(userLocation)) {
                 
                 mapViewRegion.center = userLocation
-                mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
+               // mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
                 
             }
             

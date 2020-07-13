@@ -209,7 +209,8 @@ class NewCreateEventViewController : UIViewController {
             let value = snapshot.value as? String
             
             
-            self.username = "@" + (value!)
+            self.username = "@"
+                //(value!)
             
             // ...
         }) { (error) in

@@ -10,6 +10,10 @@ import UIKit
 import FirebaseUI
 import FirebaseDatabase
 import FirebaseAuth
+import Geofirestore
+import FirebaseFirestore
+import FirebaseFirestoreSwift
+import MapKit
 
 final class SearchViewController: UIViewController {
     
@@ -294,6 +298,46 @@ final class SearchViewController: UIViewController {
         
     }()
     
+    lazy private var recentSearchesView: UIView = {
+       let recentSearchesView = UIView()
+        recentSearchesView.backgroundColor = .clear
+        recentSearchesView.isUserInteractionEnabled = true
+        return recentSearchesView
+    }()
+    
+    lazy private var clearRecentSearchesButton: ImageBubbleButton = {
+        let close = UIImage(systemName: "multiply.circle.fill")!.withTintColor(.white)
+        let clearRecentSearchesButton = ImageBubbleButton(bouncyButtonImage: close)
+        clearRecentSearchesButton.isUserInteractionEnabled = true
+        clearRecentSearchesButton.addTarget(self, action: #selector(clearRecent), for: .touchUpInside)
+        return clearRecentSearchesButton
+    }()
+    
+    @objc func clearRecent(){
+        DataController.clearRecentSearches()
+        recentSearchesView.transform = CGAffineTransform(scaleX: 1, y: 0)
+        searchPagingCollectionView.transform = CGAffineTransform(translationX: 0, y: -view.bounds.height * 0.05)
+        self.view.layoutIfNeeded()
+        
+    }
+    
+     @objc func clearedRecents(_ notification: Notification) {
+        if let searchCell = searchPagingCollectionView.visibleCells.first as? SearchPageCell {
+            searchCell.filteredUsers = fetchRecentUsers()
+            print(searchCell.filteredUsers.count)
+            searchCell.searchTableView.reloadData()
+        }
+    }
+    
+    lazy private var recentSearchesLabel: UILabel = {
+       let recentSearchesLabel = UILabel()
+        recentSearchesLabel.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
+        recentSearchesLabel.textColor = .white
+        recentSearchesLabel.text = "Recent searches"
+        recentSearchesLabel.backgroundColor = .clear
+        return recentSearchesLabel
+    }()
+    
     lazy private var searchPagingCollectionView: PagingCollectionView = {
         
         var searchPagingCollectionView = PagingCollectionView(pageType: .Search)
@@ -357,6 +401,12 @@ final class SearchViewController: UIViewController {
         
         view.backgroundColor = .poppinLIGHTGOLD
         
+        NotificationCenter.default.addObserver(self, selector: #selector(loadedFollowing(_:)), name: .loadedFollowing, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(loadedFollowers(_:)), name: .loadedFollowers, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(clearedRecents(_:)), name: .clearedRecents, object: nil)
+        
         view.addSubview(searchTopStackView)
         searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -372,10 +422,35 @@ final class SearchViewController: UIViewController {
     
         searchTopStackView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         
+        view.addSubview(recentSearchesView)
+        recentSearchesView.translatesAutoresizingMaskIntoConstraints = false
+        recentSearchesView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor).isActive = true
+        recentSearchesView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        recentSearchesView.widthAnchor.constraint(equalToConstant: view.bounds.width).isActive = true
+        recentSearchesView.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.05).isActive = true
+        
+        recentSearchesView.addSubview(clearRecentSearchesButton)
+        clearRecentSearchesButton.translatesAutoresizingMaskIntoConstraints = false
+        clearRecentSearchesButton.trailingAnchor.constraint(equalTo: recentSearchesView.trailingAnchor, constant: -view.bounds.width * 0.05).isActive = true
+        clearRecentSearchesButton.centerYAnchor.constraint(equalTo: recentSearchesView.centerYAnchor).isActive = true
+        clearRecentSearchesButton.widthAnchor.constraint(equalToConstant: view.bounds.height * 0.03).isActive = true
+        clearRecentSearchesButton.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.03).isActive = true
+        
+        recentSearchesView.addSubview(recentSearchesLabel)
+        recentSearchesLabel.translatesAutoresizingMaskIntoConstraints = false
+        recentSearchesLabel.leadingAnchor.constraint(equalTo: recentSearchesView.leadingAnchor, constant: view.bounds.width * 0.05).isActive = true
+        recentSearchesLabel.centerYAnchor.constraint(equalTo: recentSearchesView.centerYAnchor).isActive = true
+        recentSearchesLabel.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.8).isActive = true
+       // recentSearchesLabel.heightAnchor.constraint(equalToConstant: view.bounds.height * 0.03).isActive = true
+        
+        recentSearchesView.transform = CGAffineTransform(scaleX: 1, y: 0)
+        searchPagingCollectionView.transform = CGAffineTransform(translationX: 0, y: -view.bounds.height * 0.05)
+        self.view.layoutIfNeeded()
+        
         view.addSubview(searchPagingCollectionView)
         view.sendSubviewToBack(searchPagingCollectionView)
         searchPagingCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        searchPagingCollectionView.topAnchor.constraint(equalTo: searchTopStackView.bottomAnchor).isActive = true
+        searchPagingCollectionView.topAnchor.constraint(equalTo: recentSearchesView.bottomAnchor).isActive = true
         searchPagingCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         searchPagingCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         searchPagingCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -510,61 +585,116 @@ final class SearchViewController: UIViewController {
         
     }
     
+    private func fetchRecentUsers() -> [UserData]{
+        let user = DataController.getOtherUsers()
+        
+        var recentUsers: [UserData] = []
+        
+        for u in user {
+            let username = u.value(forKey: "username") as! String
+            let uid = u.value(forKey: "uid") as! String
+            let bio = u.value(forKey: "bio") as! String
+            let fullName = u.value(forKey: "fullName") as! String
+
+            print(username)
+            let userToAdd = UserData(username: username, uid: uid, bio: bio, fullName: fullName)
+            
+            recentUsers.append(userToAdd)
+        }
+        
+        if(recentUsers.count > 0){
+            recentSearchesView.transform = .identity
+            searchPagingCollectionView.transform = .identity
+            self.view.layoutIfNeeded()
+        }else{
+            recentSearchesView.transform = CGAffineTransform(scaleX: 1, y: 0)
+            searchPagingCollectionView.transform = CGAffineTransform(translationX: 0, y: -view.bounds.height * 0.05)
+            self.view.layoutIfNeeded()
+        }
+        
+        return recentUsers.reversed()
+    }
+    
     private func fetchUsers(section: Int) {
         
         isFetching = true
         searchTablePlaceholderView.isHidden = true
         loadingIndicatorView.startAnimating()
         
-        let ref = Database.database().reference(withPath:"users")
         
-        ref.observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
-            
-            guard let self = self else { return }
-            
-            // Printing the child count
-            // Checking if the reference has some values
-            if snapshot.childrenCount > 0 {
-                
-                // Go through every child
-                for data in snapshot.children.allObjects as! [DataSnapshot] {
-                    
-                    if Auth.auth().currentUser!.uid != data.key, let dat = data.value as? [String: Any] {
+         let geoFirestoreRef = Firestore.firestore()
+
+               let geoFirestore = GeoFirestore(collectionRef: geoFirestoreRef.collection("userLocs"))
+               
+               let userRef = geoFirestoreRef.collection("users")
+               // Query using CLLocation
+               let center = CLLocation(latitude: MapViewController.defaultMapViewCenterLocation.latitude, longitude: MapViewController.defaultMapViewCenterLocation.longitude)
+        
+            let radius = Double(MapViewController.defaultMapViewRegionRadius/1000.0)
+
+               let circleQuery2 = geoFirestore.query(withCenter: center, radius: radius)
+               
+               _ = circleQuery2.observe(.documentEntered, with: { (key, location) in
+ 
+                   userRef.document(key!).getDocument{ (document, error) in
+                       if let document = document, document.exists {
+        
+                           let data = document.data()
                         
-                        let userName = dat["username"] as? String ?? ""
-                        let uid = data.key
-                        let bio = dat["bio"] as? String ?? ""
-                        let fullName = dat["fullName"] as? String ?? ""
+                        let userName = data?["username"] as? String ?? ""
+                        let uid = key!
+                        let bio = data?["bio"] as? String ?? ""
+                        let fullName = data?["fullName"] as? String ?? ""
                         let userToAdd = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
+                        
+                        print(uid)
                         
                         if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Users {
                             
                             searchCell.users.append(userToAdd)
-                            searchCell.filteredUsers.append(userToAdd)
-                            
-                        }
-                
-                    }
-                    
+
+                       } else {
+                           print("Document does not exist")
+                       }
+                   
+               }
                 }
-                
-                if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Users {
-                    
-                    searchCell.searchTableView.reloadData()
-                    
-                }
-                
-                self.searchSectionButtons[section].didFetchSection = true
-                
-            }
-            
-            self.loadingIndicatorView.stopAnimating()
-            self.searchTablePlaceholderView.isHidden = false
-            self.isFetching = false
-            
-        })
+               if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Users {
+                   searchCell.filteredUsers = self.fetchRecentUsers()
+                   if(searchCell.filteredUsers.count < 1){
+                       self.searchTablePlaceholderView.isHidden = false
+                   }else{
+                       self.searchTablePlaceholderView.isHidden = true
+                   }
+                   
+                   print("RELLOOAADINNGG")
+                   searchCell.searchTableView.reloadData()
+                   
+               }
+               
+               print("DIDNT RELOAD")
+               self.searchSectionButtons[section].didFetchSection = true
+               
+               
+               self.loadingIndicatorView.stopAnimating()
+               //self.searchTablePlaceholderView.isHidden = false
+               self.isFetching = false
+               })
         
     }
+    
+    @objc func loadedFollowers(_ notification: Notification) {
+          let section = notification.userInfo?["section"] as? Int ?? 0
+          self.loadingIndicatorView.stopAnimating()
+          self.searchTablePlaceholderView.isHidden = false
+          self.isFetching = false
+          self.searchSectionButtons[section].didFetchSection = true
+          
+          if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Followers {
+              searchCell.searchTableView.reloadData()
+              
+          }
+      }
     
     private func fetchFollowers(section: Int) {
         
@@ -572,179 +702,237 @@ final class SearchViewController: UIViewController {
         searchTablePlaceholderView.isHidden = true
         loadingIndicatorView.startAnimating()
         
-        let ref = Database.database().reference()
+        let followerRef = Firestore.firestore().collection("users")
         
-        ref.child("users/\(userID)/followers").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+        followerRef.document(userID).getDocument{ (document, error) in
+        if let document = document, document.exists {
+            let data = document.data()
+             let followers = data?["followers"] as? [String: Any] ?? [:]
+             let userIDs: [String] = Array(followers.keys)
             
-            guard let self = self else { return }
-            
-            // Printing the child count
-            // Checking if the reference has some values
-            if snapshot.childrenCount > 0, let uidDic = snapshot.value as? [String : AnyObject] {
-                
-                let userIDs: [String] = Array(uidDic.keys)
-                
-                if userIDs.isEmpty || (userIDs.count == 1 && userIDs[0] == self.userID) {
-                    
-                    self.loadingIndicatorView.stopAnimating()
-                    self.searchTablePlaceholderView.isHidden = false
-                    self.isFetching = false
-                    
-                    return
-                    
-                }
-                
-                let group = DispatchGroup()
-                
-                for userId in userIDs {
-                    
-                    // Go through every child
-                    if userId != self.userID {
-                        
-                        group.enter()
-                        ref.child("users/\(userId)").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
-                            
-                            guard let self = self else { return }
-                            
-                            if let data = snapshot.value as? [String: Any] {
-                                
-                                let userName = data["username"] as? String ?? ""
-                                let uid = snapshot.key
-                                let bio = data["bio"] as? String ?? ""
-                                let fullName = data["fullName"] as? String ?? ""
-                                let userToAdd = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
-                                
-                                if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Followers {
-                                    
-                                    searchCell.users.append(userToAdd)
-                                    searchCell.filteredUsers.append(userToAdd)
-                                    
-                                }
-                                
-                                
-                            }
-                            
-                            group.leave()
-                            
-                        })
-                        
-                    }
-                    
-                }
-                
-                group.notify(queue: .main) {
-                    
-                    self.loadingIndicatorView.stopAnimating()
-                    self.searchTablePlaceholderView.isHidden = false
-                    self.isFetching = false
-                    self.searchSectionButtons[section].didFetchSection = true
-                    
-                    if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Followers {
-                        
-                        searchCell.searchTableView.reloadData()
-                        
-                    }
-                    
-                }
-                
-            } else {
+            if userIDs.isEmpty || (userIDs.count == 1 && userIDs[0] == self.userID) {
                 
                 self.loadingIndicatorView.stopAnimating()
                 self.searchTablePlaceholderView.isHidden = false
                 self.isFetching = false
                 
+                return
+                
             }
-        })
+            
+            for (i, userId) in userIDs.enumerated() {
+               // print(userId)
+                if userId != self.userID {
+                    followerRef.document(userId).getDocument{ (document, error) in
+                        let data = document?.data()
+                        
+                        let userName = data?["username"] as? String ?? ""
+                        let uid = userId
+                        let bio = data?["bio"] as? String ?? ""
+                        let fullName = data?["fullName"] as? String ?? ""
+                        let userToAdd = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
+                        
+                        if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Followers {
+                            print(userId)
+                            searchCell.users.append(userToAdd)
+                            searchCell.filteredUsers.append(userToAdd)
+                            
+                        }
+                        
+                        if(i == 0){
+                            print("LAST INDEX")
+                            NotificationCenter.default.post(name: .loadedFollowers, object: nil, userInfo: ["section": section])
+                            
+                        }
+
+                    }
+
+                }
+                
+            }
+
+        } else {
+            print("Document does not exist")
+            }
+        }
     }
+    
+    @objc func loadedFollowing(_ notification: Notification) {
+        let section = notification.userInfo?["section"] as? Int ?? 0
+        self.loadingIndicatorView.stopAnimating()
+        self.searchTablePlaceholderView.isHidden = false
+        self.isFetching = false
+        self.searchSectionButtons[section].didFetchSection = true
+        
+        if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Following {
+            searchCell.searchTableView.reloadData()
+            
+        }
+    }
+    
+  
     
     private func fetchFollowing(section: Int) {
         
         isFetching = true
         searchTablePlaceholderView.isHidden = true
         loadingIndicatorView.startAnimating()
+        let group = DispatchGroup()
+
+        let followingRef = Firestore.firestore().collection("users")
         
-        let ref = Database.database().reference()
-        
-        ref.child("users/\(userID)/following").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
-            
-            guard let self = self else { return }
-            
-            // Printing the child count
-            // Checking if the reference has some values
-            if snapshot.childrenCount > 0, let uidDic = snapshot.value as? [String : AnyObject] {
+        followingRef.document(userID).getDocument{ (document, error) in
+            if let document = document, document.exists {
+                let data = document.data()
+                var following = data?["following"] as? [String: Any] ?? [:]
+                following.removeValue(forKey: self.userID)
                 
-                let userIDs: [String] = Array(uidDic.keys)
+                let userIDs: [String] = Array(following.keys)
                 
                 if userIDs.isEmpty || (userIDs.count == 1 && userIDs[0] == self.userID) {
                     
                     self.loadingIndicatorView.stopAnimating()
                     self.searchTablePlaceholderView.isHidden = false
                     self.isFetching = false
-                    
+                                        
                     return
                     
                 }
                 
-                let group = DispatchGroup()
-                
-                for userId in userIDs {
-                    
-                    // Go through every child
-                    if userId != self.userID {
-                        
-                        group.enter()
-                        ref.child("users/\(userId)").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+
+                for (i, userId) in userIDs.enumerated() {
+                       // group.enter()
+                        followingRef.document(userId).getDocument{ (document, error) in
+                            let data = document?.data()
                             
-                            guard let self = self else { return }
+                            let userName = data?["username"] as? String ?? ""
+                            let uid = userId
+                            let bio = data?["bio"] as? String ?? ""
+                            let fullName = data?["fullName"] as? String ?? ""
+                            let userToAdd = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
                             
-                            if let data = snapshot.value as? [String: Any] {
-                                
-                                let userName = data["username"] as? String ?? ""
-                                let uid = snapshot.key
-                                let bio = data["bio"] as? String ?? ""
-                                let fullName = data["fullName"] as? String ?? ""
-                                let userToAdd = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
-                                
-                                if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Following {
-                                    
-                                    searchCell.users.append(userToAdd)
-                                    searchCell.filteredUsers.append(userToAdd)
-                                    
-                                }
+                            if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Following {
+                                print(userId)
+                                searchCell.users.append(userToAdd)
+                                searchCell.filteredUsers.append(userToAdd)
                                 
                             }
+
+                            if(i == 0){
+                                NotificationCenter.default.post(name: .loadedFollowing, object: nil, userInfo: ["section": section])
+
+                            }
                             
-                            group.leave()
-                            
-                        })
-                    }
-                }
-                
-                group.notify(queue: .main) {
-                    
-                    self.loadingIndicatorView.stopAnimating()
-                    self.searchTablePlaceholderView.isHidden = false
-                    self.isFetching = false
-                    self.searchSectionButtons[section].didFetchSection = true
-                    
-                    if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Following {
-                        
-                        searchCell.searchTableView.reloadData()
-                        
                     }
                     
                 }
+
+//                group.notify(queue: .main) {
+//                    print("RELOOOADDINNGG")
+//                    self.loadingIndicatorView.stopAnimating()
+//                    self.searchTablePlaceholderView.isHidden = false
+//                    self.isFetching = false
+//                    self.searchSectionButtons[section].didFetchSection = true
+//
+//                    if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Following {
+//                        print("RELOOOADDINNGG2222")
+//
+//                        searchCell.searchTableView.reloadData()
+//
+//                    }
+//                }
                 
             } else {
-                
-                self.loadingIndicatorView.stopAnimating()
-                self.searchTablePlaceholderView.isHidden = false
-                self.isFetching = false
-                
+                print("Document does not exist")
             }
-            
-        })
+        }
         
+//        isFetching = true
+//        searchTablePlaceholderView.isHidden = true
+//        loadingIndicatorView.startAnimating()
+//
+//        let ref = Database.database().reference()
+//
+//        ref.child("users/\(userID)/following").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+//
+//            guard let self = self else { return }
+//
+//            // Printing the child count
+//            // Checking if the reference has some values
+//            if snapshot.childrenCount > 0, let uidDic = snapshot.value as? [String : AnyObject] {
+//
+//                let userIDs: [String] = Array(uidDic.keys)
+//
+//                if userIDs.isEmpty || (userIDs.count == 1 && userIDs[0] == self.userID) {
+//
+//                    self.loadingIndicatorView.stopAnimating()
+//                    self.searchTablePlaceholderView.isHidden = false
+//                    self.isFetching = false
+//
+//                    return
+//
+//                }
+//
+//                let group = DispatchGroup()
+//
+//                for userId in userIDs {
+//
+//                    // Go through every child
+//                    if userId != self.userID {
+//
+//                        group.enter()
+//                        ref.child("users/\(userId)").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+//
+//                            guard let self = self else { return }
+//
+//                            if let data = snapshot.value as? [String: Any] {
+//
+//                                let userName = data["username"] as? String ?? ""
+//                                let uid = snapshot.key
+//                                let bio = data["bio"] as? String ?? ""
+//                                let fullName = data["fullName"] as? String ?? ""
+//                                let userToAdd = UserData(username: userName, uid: uid, bio: bio, fullName: fullName)
+//
+//                                if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Following {
+//
+//                                    searchCell.users.append(userToAdd)
+//                                    searchCell.filteredUsers.append(userToAdd)
+//
+//                                }
+//
+//                            }
+//
+//                            group.leave()
+//
+//                        })
+//                    }
+//                }
+//
+//                group.notify(queue: .main) {
+//
+//                    self.loadingIndicatorView.stopAnimating()
+//                    self.searchTablePlaceholderView.isHidden = false
+//                    self.isFetching = false
+//                    self.searchSectionButtons[section].didFetchSection = true
+//
+//                    if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell, searchCell.searchType == .Following {
+//
+//                        searchCell.searchTableView.reloadData()
+//
+//                    }
+//
+//                }
+//
+//            } else {
+//
+//                self.loadingIndicatorView.stopAnimating()
+//                self.searchTablePlaceholderView.isHidden = false
+//                self.isFetching = false
+//
+//            }
+//
+//        })
+//
     }
     
 }
@@ -820,9 +1008,19 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         if let searchCell = searchPagingCollectionView.visibleCells.first as? SearchPageCell {
             
             let profileVC = ProfileViewController(with: searchCell.filteredUsers[indexPath.row])
+            if(searchTypes[0] == .Users){
+            DataController.addUser(bio: searchCell.filteredUsers[indexPath.row].bio, username: searchCell.filteredUsers[indexPath.row].username, fullName: searchCell.filteredUsers[indexPath.row].fullName, uid: searchCell.filteredUsers[indexPath.row].uid)
+            }
+            
+            //searchCell.filteredUsers = fetchRecentUsers()
+//            recentSearchesView.transform = .identity
+//            searchPagingCollectionView.transform = .identity
+//            self.view.layoutIfNeeded()
+
             
             navigationController?.pushViewController(profileVC, animated: true)
             
+            searchCell.searchTableView.reloadData()
         }
         
     }
@@ -881,19 +1079,28 @@ extension SearchViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
-        if searchText == "" {
-            
-            if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell {
+        if(searchTypes[0] == .Users){
+            if searchText == "" {
+                //            recentSearchesView.transform = .identity
+                //            searchPagingCollectionView.transform = .identity
                 
-                searchCell.filteredUsers = searchCell.users
-                searchCell.searchTableView.reloadData()
+                // self.view.layoutIfNeeded()
+                if let searchCell = self.searchPagingCollectionView.visibleCells.first as? SearchPageCell {
+                    
+                    searchCell.filteredUsers = searchCell.users
+                    searchCell.filteredUsers = self.fetchRecentUsers()
+                    searchCell.searchTableView.reloadData()
+                    
+                }
+                
+            } else {
+                
+                filterUsers(for: searchText)
+                recentSearchesView.transform = CGAffineTransform(scaleX: 1, y: 0)
+                searchPagingCollectionView.transform = CGAffineTransform(translationX: 0, y: -view.bounds.height * 0.05)
+                self.view.layoutIfNeeded()
                 
             }
-            
-        } else {
-            
-            filterUsers(for: searchText)
-            
         }
         
     }

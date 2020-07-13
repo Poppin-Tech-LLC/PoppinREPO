@@ -376,6 +376,12 @@ extension Notification.Name {
     static let eventCreated = Notification.Name("eventCreated")
     static let locationSelected = Notification.Name("locationSelected")
     static let switchCategory = Notification.Name("switchCategory")
+    static let userSignedIn = Notification.Name("userSignedIn")
+    static let clearedRecents = Notification.Name("clearedRecents")
+    static let userSignedUp = Notification.Name("userSignedUp")
+    static let loadedFollowing = Notification.Name("loadedFollowing")
+    static let loadedFollowers = Notification.Name("loadedFollowers")
+
 
 
 }

@@ -8,6 +8,11 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseFirestore
+import FirebaseFirestoreSwift
+import CoreData
+import Geofirestore
+import MapKit
 
 final class SignUpThirdPageViewController: UIViewController {
     
@@ -25,9 +30,17 @@ final class SignUpThirdPageViewController: UIViewController {
     private var email: String = ""
     private var password: String = ""
     
+    private var radius: Double = 0.0
+    
+    private var longitude: Double = 0.0
+
+    private var latitude: Double = 0.0
+    
+    let db = Firestore.firestore()
+    
     private let termsLink = "Terms"
     private let privacyPolicyLink = "Privacy"
-    
+        
     lazy private var signUpContainerView: UIView = {
         
         let contentStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 6.5)
@@ -244,7 +257,7 @@ final class SignUpThirdPageViewController: UIViewController {
         
     }()
     
-    init(fullName: String, age: Int, email: String, password: String) {
+    init(fullName: String, age: Int, email: String, password: String, radius: Double, latitude: Double, longitude: Double) {
         
         super.init(nibName: nil, bundle: nil)
         
@@ -252,6 +265,9 @@ final class SignUpThirdPageViewController: UIViewController {
         self.age = age
         self.email = email
         self.password = password
+        self.latitude = latitude
+        self.radius = radius
+        self.longitude = longitude
         
     }
     
@@ -367,9 +383,9 @@ final class SignUpThirdPageViewController: UIViewController {
         
         if validSteps == 2 {
             
-            self.navigationController?.dismiss(animated: true, completion: nil)
+            //self.navigationController?.dismiss(animated: true, completion: nil)
             
-            /*signUpButton.startLoading()
+            signUpButton.startLoading()
             view.isUserInteractionEnabled = false
             
             // Check if username is in db
@@ -412,21 +428,105 @@ final class SignUpThirdPageViewController: UIViewController {
                     }
                     
                     let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                    let alertVC = NewAlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
                     
                     self.present(alertVC, animated: true, completion: nil)
                     
                 } else {
+                    let geoFirestore = GeoFirestore(collectionRef: self.db.collection("userLocs"))
+                    self.db.collection("users").document(Auth.auth().currentUser!.uid).setData([
+                        "username": self.usernameTextField.text ?? "",
+                        "bio": "",
+                        "followers": [Auth.auth().currentUser?.uid : false],
+                        "following": [Auth.auth().currentUser?.uid : false],
+                        "fullName": self.fullName,
+                        "latitude": self.latitude,
+                        "longitude": self.longitude,
+                        "radius": self.radius
+                    ]) { err in
+                        if let err = err {
+                            print("Error adding document: \(err)")
+                        } else {
+                            print("Document added with ID: ")
+                            geoFirestore.setLocation(location: CLLocation(latitude: self.latitude, longitude: self.longitude), forDocumentWithID: Auth.auth().currentUser!.uid) { (error) in
+                            if let error = error {
+                                print("An error occured: \(error)")
+                            } else {
+                                print("Saved location successfully!")
+                                Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
+                                        // Notify the user that the mail has sent or couldn't because of an error.
+                                    if let error = error{
+                                        print("CANNOT SEND VERIFICATION EMAIL: \(error)")
+                                    }
+                                    else{
+                                        
+                                        let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
+                                            [weak self] in
+                                            
+                                            guard let self = self else { return }
+                                            DataController.eraseAll(forEntity: "User")
+                                            DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid, radius: self.radius, latitude: self.latitude, longitude: self.longitude)
+                                            
+                                            self.signedUp()
+                                            
+                                            
+                                        })
+                                        
+                                        let button2 = AlertButton(alertTitle: "Re-send email", alertButtonAction: {
+                                            Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
+                                                if let error = error{
+                                                    print("CANNOT SEND VERIFICATION EMAIL: \(error)")
+                                                }
+                                            })
+                                        })
+                                        
+                                        let alertVC = AlertViewController(alertTitle: "Verification", alertMessage: "Email verification sent!", alertButtons: [button1, button2])
+                                        
+                                        self.present(alertVC, animated: true, completion: nil)
+                                    }
+                                    })
+                               
+                               
+                            }
+                        }
+                    }
+                    }
                     
-                    self.navigationController?.dismiss(animated: true, completion: nil)
+//                    do{
+//                        try Auth.auth().signOut()
+//
+//                    }catch let error{
+//                        print("error \(error)")
+//                    }
+            
+
+                   
+                    //self.navigationController?.dismiss(animated: true, completion: nil)
                     
                 }
                 
-            }*/
+            }
             
         }
         
     }
+    
+    private func signedUp() {
+          
+          if let firstAfterRootVC = navigationController?.viewControllers[1] as? LoginViewController {
+              
+              firstAfterRootVC.resetTextFields()
+              navigationController?.popToViewController(firstAfterRootVC, animated: true)
+              //NotificationCenter.default.post(name: .userSignedUp, object: nil)
+              
+          } else {
+              
+              navigationController?.pushViewController(LoginViewController(), animated: true)
+             // NotificationCenter.default.post(name: .userSignedUp, object: nil)
+              
+          }
+          
+      }
     
     @objc private func switchToLogin(sender: BouncyButton) {
         
