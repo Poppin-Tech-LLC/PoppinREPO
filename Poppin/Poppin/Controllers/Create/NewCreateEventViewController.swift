@@ -421,7 +421,7 @@ extension NewCreateEventViewController : UICollectionViewDelegate {
             break
         }
         
-        vc.eventNameTextField.text = eventNameText
+        vc.eventNameTextView.text = eventNameText
         //              vc.startDateTextField.attributedPlaceholder = NSAttributedString(string: startDateText, attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-LightOblique", style: .title3), NSAttributedString.Key.foregroundColor : UIColor.white])
         //              vc.endDateTextField.attributedPlaceholder = NSAttributedString(string: endDateText, attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-LightOblique", style: .title3), NSAttributedString.Key.foregroundColor : UIColor.white])
         vc.startDateTextField.text = startDateText
@@ -442,7 +442,7 @@ extension NewCreateEventViewController : UICollectionViewDelegate {
             vc.mainMapView.setRegion(region, animated: true)
             vc.mainMapView.addAnnotation(annotation)
             
-            if(vc.eventNameTextField.text == "Add Title" || vc.hashtagTextView.text == "Add Hashtags" || vc.detailsButton.text == "Add details..." || vc.startDateTextField.text == "Start Date" || vc.endDateTextField.text == "End Date" || vc.locationLabel.text == "Location"){
+            if(vc.eventNameTextView.text == "Add Title" || vc.hashtagTextView.text == "Add Hashtags" || vc.detailsButton.text == "Add details..." || vc.startDateTextField.text == "Start Date" || vc.endDateTextField.text == "End Date" || vc.locationLabel.text == "Location"){
                 vc.createButton.isUserInteractionEnabled = false
                 vc.createButton.alpha = 0.6
             }else{

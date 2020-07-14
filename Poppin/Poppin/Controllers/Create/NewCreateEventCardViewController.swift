@@ -52,6 +52,12 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         cardContainerView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
         cardContainerView.backgroundColor = UIColor(cgColor: backgroundGradientColors![0])
         
+        cardContainerView.addSubview(eventNameTextView)
+        eventNameTextView.translatesAutoresizingMaskIntoConstraints = false
+        eventNameTextView.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: createEventHorizontalEdgeInset).isActive = true
+        eventNameTextView.trailingAnchor.constraint(equalTo: cardContainerView.trailingAnchor, constant: -createEventHorizontalEdgeInset).isActive = true
+        eventNameTextView.topAnchor.constraint(equalTo: cardContainerView.topAnchor, constant: createEventVerticalEdgeInset).isActive = true
+        
         cardContainerView.addSubview(createButton)
         createButton.translatesAutoresizingMaskIntoConstraints = false
         createButton.bottomAnchor.constraint(equalTo: cardContainerView.bottomAnchor, constant: -createEventHorizontalEdgeInset).isActive = true
@@ -65,6 +71,22 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         backButton.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: createEventHorizontalEdgeInset).isActive = true
         
         return cardContainerView
+        
+    }()
+    
+    lazy private(set) var eventNameTextView: UITextView = {
+        
+        var eventNameTextView = UITextView()
+        eventNameTextView.backgroundColor = .clear
+        eventNameTextView.textColor = .white
+        eventNameTextView.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        eventNameTextView.delegate = self
+        eventNameTextView.isScrollEnabled = false
+        eventNameTextView.sizeToFit()
+        eventNameTextView.textAlignment = .center
+        eventNameTextView.autocapitalizationType = .none
+        eventNameTextView.autocorrectionType = .no
+        return eventNameTextView
         
     }()
     
@@ -244,19 +266,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         return purpleLineTwo
     }()
     
-    
-    lazy var eventNameTextField: UITextView = {
-        let eventNameTextField = UITextView()
-        eventNameTextField.backgroundColor = .clear
-        eventNameTextField.textColor = .white
-        eventNameTextField.font = .dynamicFont(with: "Octarine-Bold", style: .title1)
-        eventNameTextField.delegate = self
-        eventNameTextField.textAlignment = .center
-        eventNameTextField.autocapitalizationType = .none
-        eventNameTextField.autocorrectionType = .no
-        return eventNameTextField
-    }()
-    
     lazy var purpleView: UIView = {
         let purpleView = UIView()
         purpleView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
@@ -328,20 +337,20 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         hashtagTextView.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
         //hashtagTextView.text = "Add Hashtags"
         hashtagTextView.sizeToFit()
-        //eventNameTextField.attributedPlaceholder = NSAttributedString(string: "Add Title", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Bold", style: .title1), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
+        //eventNameTextView.attributedPlaceholder = NSAttributedString(string: "Add Title", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Bold", style: .title1), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
         hashtagTextView.delegate = self
         hashtagTextView.textAlignment = .left
         hashtagTextView.layer.cornerRadius = 10
         hashtagTextView.isScrollEnabled = false
         
-        //eventNameTextField.lineBreakMode = NSLineBreakMode.byWordWrapping
-        //eventNameTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: eventNameTextField.intrinsicContentSize.height))
-        //eventNameTextField.leftViewMode = .always
-        //eventNameTextField.clearButtonMode = .whileEditing
-        //eventNameTextField.returnKeyType = .next
+        //eventNameTextView.lineBreakMode = NSLineBreakMode.byWordWrapping
+        //eventNameTextView.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: eventNameTextView.intrinsicContentSize.height))
+        //eventNameTextView.leftViewMode = .always
+        //eventNameTextView.clearButtonMode = .whileEditing
+        //eventNameTextView.returnKeyType = .next
         hashtagTextView.autocapitalizationType = .none
         hashtagTextView.autocorrectionType = .no
-        //eventNameTextField.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0)
+        //eventNameTextView.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0)
         return hashtagTextView
     }()
     
@@ -368,7 +377,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         detailsButton.text = text
         detailsButton.textColor = .white
         
-        if(eventNameTextField.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
                    createButton.isUserInteractionEnabled = false
                    createButton.alpha = 0.6
                }else{
@@ -398,7 +407,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         locationLabel.text = street
         locationLabel.textColor = .white
         
-        if(eventNameTextField.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
             createButton.isUserInteractionEnabled = false
             createButton.alpha = 0.6
         }else{
@@ -449,13 +458,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         purpleLineTwo.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.005).isActive = true
         purpleLineTwo.trailingAnchor.constraint(equalTo: purplePopsicle.leadingAnchor, constant: -cardContainerView.bounds.width * 0.01).isActive = true
         purpleLineTwo.topAnchor.constraint(equalTo: purplePopsicle.centerYAnchor).isActive = true
-        
-        cardContainerView.addSubview(eventNameTextField)
-        eventNameTextField.translatesAutoresizingMaskIntoConstraints = false
-        eventNameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        eventNameTextField.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
-        eventNameTextField.topAnchor.constraint(equalTo: cardContainerView.topAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
-        eventNameTextField.bottomAnchor.constraint(equalTo: purplePopsicle.topAnchor, constant: cardContainerView.bounds.height * 0.015).isActive = true
         
         cardContainerView.addSubview(startDateTextField)
         startDateTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -540,7 +542,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     @objc func goBack() {
         
-        let textInfo = ["location": locationLabel.text!, "eventName": eventNameTextField.text!, "eventInfo": detailsButton.text!, "eventStartDate": startDateTextField.text!, "eventEndDate": endDateTextField.text!, "hashtags": hashtagTextView.text!, "coordinates": location ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)] as [String : Any]
+        let textInfo = ["location": locationLabel.text!, "eventName": eventNameTextView.text!, "eventInfo": detailsButton.text!, "eventStartDate": startDateTextField.text!, "eventEndDate": endDateTextField.text!, "hashtags": hashtagTextView.text!, "coordinates": location ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)] as [String : Any]
         navigationController?.popViewController(animated: true)
         NotificationCenter.default.post(name: .switchCategory, object: nil, userInfo: textInfo)
         
@@ -670,7 +672,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     func textFieldDidEndEditing(_ textField: UITextField) {
         print("textFieldDidEndEditing")
         
-        if(eventNameTextField.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
                    createButton.isUserInteractionEnabled = false
                    createButton.alpha = 0.6
                }else{
@@ -686,20 +688,20 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     func textViewDidBeginEditing (_ textView: UITextView) {
         textView.textColor = .white
-        if(textView == eventNameTextField){
-            if  eventNameTextField.text == "Add Title" && eventNameTextField.isFirstResponder {
-                eventNameTextField.text = nil
-                //eventNameTextField.textColor = .white
+        if(textView == eventNameTextView){
+            if  eventNameTextView.text == "Add Title" && eventNameTextView.isFirstResponder {
+                eventNameTextView.text = nil
+                //eventNameTextView.textColor = .white
             }
-            let newPosition = eventNameTextField.endOfDocument
-            eventNameTextField.selectedTextRange = eventNameTextField.textRange(from: newPosition, to: newPosition)
+            let newPosition = eventNameTextView.endOfDocument
+            eventNameTextView.selectedTextRange = eventNameTextView.textRange(from: newPosition, to: newPosition)
         }
         
         if(textView == hashtagTextView){
             if  hashtagTextView.text == "Add Hashtags" && hashtagTextView.isFirstResponder {
                 hashtagTextView.text = "#"
                 hashtagCount = 1
-                //eventNameTextField.textColor = .white
+                //eventNameTextView.textColor = .white
             }
             let newPosition = hashtagTextView.endOfDocument
             hashtagTextView.selectedTextRange = hashtagTextView.textRange(from: newPosition, to: newPosition)
@@ -708,7 +710,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     func textViewDidEndEditing (_ textView: UITextView) {
         print("ENNDDDEEDDD")
-        if(eventNameTextField.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
                    createButton.isUserInteractionEnabled = false
                    createButton.alpha = 0.6
                }else{
@@ -716,10 +718,10 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
                    createButton.alpha = 1.0
                }
         
-        if(textView == eventNameTextField){
-            if eventNameTextField.text.isEmpty || eventNameTextField.text == "" {
-                eventNameTextField.textColor = .white
-                eventNameTextField.text = "Add Title"
+        if(textView == eventNameTextView){
+            if eventNameTextView.text.isEmpty || eventNameTextView.text == "" {
+                eventNameTextView.textColor = .white
+                eventNameTextView.text = "Add Title"
             }
             
 
@@ -736,11 +738,10 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
-        
-        if(textView == eventNameTextField){
+        if(textView == eventNameTextView){
             if text == "\n" {
-                eventNameTextField.resignFirstResponder()
-                if(eventNameTextField.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+                eventNameTextView.resignFirstResponder()
+                if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
                     createButton.isUserInteractionEnabled = false
                     createButton.alpha = 0.6
                 }else{
@@ -749,24 +750,11 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
                 }
                 return false
             }
-            
-            let newText = (eventNameTextField.text as NSString).replacingCharacters(in: range, with: text)
+
+            let newText = (eventNameTextView.text as NSString).replacingCharacters(in: range, with: text)
             let numberOfChars = newText.count
-            
-            if(numberOfChars >= 10 && numberOfChars < 20){
-                eventNameTextField.font = .dynamicFont(with: "Octarine-Bold", style: .title2)
-                
-            }
-            if(numberOfChars >= 20 && numberOfChars <= 30){
-                eventNameTextField.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
-                
-            }
-            if(numberOfChars < 10){
-                eventNameTextField.font = .dynamicFont(with: "Octarine-Bold", style: .title1)
-                
-            }
             return numberOfChars <= 30
-            
+
         }
         
         if(textView == hashtagTextView){
@@ -786,7 +774,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
             
             if text == "\n" {
                 hashtagTextView.resignFirstResponder()
-                if(eventNameTextField.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+                if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
                     createButton.isUserInteractionEnabled = false
                     createButton.alpha = 0.6
                 }else{
@@ -888,7 +876,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         ref2 = db.collection("currentPopsicles").addDocument(data: [
             "longitude": location?.longitude as Any,
             "latitude": location?.latitude as Any,
-            "eventName": eventNameTextField.text!,
+            "eventName": eventNameTextView.text!,
             "eventDetails": detailsButton.text!,
             "startDate": startDateFormatted!,
             "endDate": endDateFormatted!,
@@ -921,7 +909,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
 //
 //            // let en = newPopsicle.popsicleData.eventName
 //
-//            ref.child("currentPopsicles/\(identifier.uuidString)/eventName").setValue(eventNameTextField.text)
+//            ref.child("currentPopsicles/\(identifier.uuidString)/eventName").setValue(eventNameTextView.text)
 //
 //            ref.child("currentPopsicles/\(identifier.uuidString)/eventInfo").setValue(detailsButton.text)
 //
@@ -935,7 +923,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
 //
 //            ref.child("currentPopsicles/\(identifier.uuidString)/createdBy").setValue(uid)
             
-           // let textInfo = ["location": location!, "eventName": eventNameTextField.text!, "eventInfo": detailsButton.text!, "eventStartDate": startDateFormatted!, "eventEndDate": endDateFormatted!, "eventCategory": category!, "hashtags": hashtagTextView.text!, "createdBy": uid ] as [String : Any]
+           // let textInfo = ["location": location!, "eventName": eventNameTextView.text!, "eventInfo": detailsButton.text!, "eventStartDate": startDateFormatted!, "eventEndDate": endDateFormatted!, "eventCategory": category!, "hashtags": hashtagTextView.text!, "createdBy": uid ] as [String : Any]
             
             self.dismiss(animated: true, completion: nil)
             NotificationCenter.default.post(name: .eventCreated, object: nil)
