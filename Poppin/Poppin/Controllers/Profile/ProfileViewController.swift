@@ -27,7 +27,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     let containerInsetY: CGFloat = .getPercentageWidth(percentage: 2.7)
     let containerInsetX: CGFloat = .getPercentageWidth(percentage: 2.7)
     
-    private let switchAccountHeight: CGFloat = .getPercentageHeight(percentage: 50)
+    private var switchAccountHeight: CGFloat = .getPercentageHeight(percentage: 50)
     
     private var switchAccountIsVisible: Bool = false
     
@@ -90,6 +90,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     lazy private var switchAccountViewController: SwitchAccountViewController = {
            
            var switchAccountViewController = SwitchAccountViewController()
+           switchAccountHeight = .getPercentageHeight(percentage: 18 + 2)
            switchAccountViewController.delegate = self
            switchAccountViewController.accounts = [userData]
            return switchAccountViewController
@@ -716,7 +717,6 @@ extension ProfileViewController: SwitchAccountDelegate {
                 
                 self.switchAccountIsVisible = false
                 self.backgroundView.removeGestureRecognizer(self.switchAccountCloseTapGestureRecognizer)
-                self.backgroundView.isUserInteractionEnabled = true
                 self.profileContainerView.isUserInteractionEnabled = true
                 
             })
@@ -744,8 +744,7 @@ extension ProfileViewController: SwitchAccountDelegate {
                 self.view.addGestureRecognizer(self.switchAccountSlidePanGestureRecognizer)
                 
                 self.switchAccountIsVisible = true
-                self.view.addGestureRecognizer(self.switchAccountCloseTapGestureRecognizer)
-                self.backgroundView.isUserInteractionEnabled = false
+                self.backgroundView.addGestureRecognizer(self.switchAccountCloseTapGestureRecognizer)
                 self.profileContainerView.isUserInteractionEnabled = false
             
             })
