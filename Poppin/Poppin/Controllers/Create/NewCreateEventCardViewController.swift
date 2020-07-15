@@ -15,7 +15,7 @@ import Geofirestore
 
 class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, UITextViewDelegate, MKMapViewDelegate {
     
-    var storage: Storage?
+    var storage: Storage = Storage.storage()
     
     let uid = Auth.auth().currentUser!.uid
     
@@ -45,18 +45,57 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     lazy private var cardContainerView: UIView = {
         
+        let borderView = PopsicleBorderView(with: UIColor(cgColor: backgroundGradientColors![1]))
+        
+        borderView.translatesAutoresizingMaskIntoConstraints = false
+        borderView.heightAnchor.constraint(equalToConstant: eventNameTextView.intrinsicContentSize.height*0.9).isActive = true
+        
         let backButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.white))
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         
+        let editEventLocationButtonView = UIView()
+        editEventLocationButtonView.backgroundColor = .clear
+        
+        editEventLocationButtonView.addSubview(editEventLocationButton)
+        editEventLocationButton.translatesAutoresizingMaskIntoConstraints = false
+        editEventLocationButton.centerXAnchor.constraint(equalTo: editEventLocationButtonView.centerXAnchor).isActive = true
+        editEventLocationButton.topAnchor.constraint(equalTo: editEventLocationButtonView.topAnchor).isActive = true
+        editEventLocationButton.bottomAnchor.constraint(equalTo: editEventLocationButtonView.bottomAnchor).isActive = true
+        
+        let cardContainerStackView = UIStackView(arrangedSubviews: [eventNameTextView, borderView, eventDateTextField, eventCreatedByView, eventLocationView, editEventLocationButtonView, eventDetailsTextView, eventHashtagsView])
+        cardContainerStackView.axis = .vertical
+        cardContainerStackView.alignment = .fill
+        cardContainerStackView.distribution = .fill
+        cardContainerStackView.spacing = createEventVerticalEdgeInset
+        cardContainerStackView.setCustomSpacing(createEventVerticalEdgeInset*0.45, after: eventNameTextView)
+        cardContainerStackView.setCustomSpacing(createEventVerticalEdgeInset*0.45, after: borderView)
+        cardContainerStackView.setCustomSpacing(0, after: eventLocationView)
+        
+        let cardContainerScrollView = UIScrollView()
+        cardContainerScrollView.alwaysBounceVertical = false
+        cardContainerScrollView.showsVerticalScrollIndicator = false
+        cardContainerScrollView.keyboardDismissMode = .onDrag
+        cardContainerScrollView.contentInset = UIEdgeInsets(top: createEventVerticalEdgeInset, left: 0, bottom: (createEventVerticalEdgeInset*2) + .getPercentageWidth(percentage: 3) + createButton.titleLabel!.intrinsicContentSize.height, right: 0)
+        
+        cardContainerScrollView.addSubview(cardContainerStackView)
+        cardContainerStackView.translatesAutoresizingMaskIntoConstraints = false
+        cardContainerStackView.topAnchor.constraint(equalTo: cardContainerScrollView.topAnchor).isActive = true
+        cardContainerStackView.bottomAnchor.constraint(equalTo: cardContainerScrollView.bottomAnchor).isActive = true
+        cardContainerStackView.leadingAnchor.constraint(equalTo: cardContainerScrollView.leadingAnchor).isActive = true
+        cardContainerStackView.trailingAnchor.constraint(equalTo: cardContainerScrollView.trailingAnchor).isActive = true
+        cardContainerStackView.widthAnchor.constraint(equalTo: cardContainerScrollView.widthAnchor).isActive = true
+        
         var cardContainerView = UIView()
+        cardContainerView.clipsToBounds = true
         cardContainerView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
         cardContainerView.backgroundColor = UIColor(cgColor: backgroundGradientColors![0])
         
-        cardContainerView.addSubview(eventNameTextView)
-        eventNameTextView.translatesAutoresizingMaskIntoConstraints = false
-        eventNameTextView.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: createEventHorizontalEdgeInset).isActive = true
-        eventNameTextView.trailingAnchor.constraint(equalTo: cardContainerView.trailingAnchor, constant: -createEventHorizontalEdgeInset).isActive = true
-        eventNameTextView.topAnchor.constraint(equalTo: cardContainerView.topAnchor, constant: createEventVerticalEdgeInset).isActive = true
+        cardContainerView.addSubview(cardContainerScrollView)
+        cardContainerScrollView.translatesAutoresizingMaskIntoConstraints = false
+        cardContainerScrollView.topAnchor.constraint(equalTo: cardContainerView.topAnchor).isActive = true
+        cardContainerScrollView.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: createEventHorizontalEdgeInset).isActive = true
+        cardContainerScrollView.trailingAnchor.constraint(equalTo: cardContainerView.trailingAnchor, constant: -createEventHorizontalEdgeInset).isActive = true
+        cardContainerScrollView.bottomAnchor.constraint(equalTo: cardContainerView.bottomAnchor).isActive = true
         
         cardContainerView.addSubview(createButton)
         createButton.translatesAutoresizingMaskIntoConstraints = false
@@ -80,6 +119,8 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         eventNameTextView.backgroundColor = .clear
         eventNameTextView.textColor = .white
         eventNameTextView.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        eventNameTextView.text = "Add Title"
+        eventNameTextView.textContainerInset = .zero
         eventNameTextView.delegate = self
         eventNameTextView.isScrollEnabled = false
         eventNameTextView.sizeToFit()
@@ -87,6 +128,216 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         eventNameTextView.autocapitalizationType = .none
         eventNameTextView.autocorrectionType = .no
         return eventNameTextView
+        
+    }()
+    
+    lazy private(set) var eventDateTextField: UITextField = {
+        
+        var eventDateTextField = UITextField()
+        eventDateTextField.delegate = self
+        eventDateTextField.font = UIFont.dynamicFont(with: "Octarine-Light", style: .callout)
+        eventDateTextField.backgroundColor = .clear
+        eventDateTextField.textColor = .white
+        eventDateTextField.textAlignment = .center
+        eventDateTextField.attributedPlaceholder = NSAttributedString(string: "Add Date", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white, NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .callout)])
+        return eventDateTextField
+        
+    }()
+    
+    lazy private var eventCreatedByView: UIView = {
+        
+        let createdByLabel = UILabel()
+        createdByLabel.lineBreakMode = .byTruncatingTail
+        createdByLabel.numberOfLines = 1
+        createdByLabel.textAlignment = .left
+        createdByLabel.text = "Created by:"
+        createdByLabel.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        createdByLabel.textColor = UIColor.white
+        
+        createdByLabel.translatesAutoresizingMaskIntoConstraints = false
+        createdByLabel.heightAnchor.constraint(equalToConstant: createdByLabel.intrinsicContentSize.height).isActive = true
+        
+        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
+        usernameLabel.heightAnchor.constraint(equalToConstant: createdByLabel.intrinsicContentSize.height).isActive = true
+        
+        let labelsStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 0.9)
+        
+        let labelsStackView = UIStackView(arrangedSubviews: [createdByLabel, usernameLabel])
+        labelsStackView.axis = .vertical
+        labelsStackView.alignment = .fill
+        labelsStackView.distribution = .fill
+        labelsStackView.spacing = labelsStackViewSpacing
+        
+        let verticalInset: CGFloat = .getPercentageWidth(percentage: 4.2)
+        let horizontalInset: CGFloat = .getPercentageWidth(percentage: 5.5)
+        let innerInset: CGFloat = .getPercentageWidth(percentage: 1)
+        
+        var eventCreatedByView = UIView()
+        eventCreatedByView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
+        eventCreatedByView.clipsToBounds = true
+        eventCreatedByView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
+        
+        eventCreatedByView.addSubview(labelsStackView)
+        labelsStackView.translatesAutoresizingMaskIntoConstraints = false
+        labelsStackView.topAnchor.constraint(equalTo: eventCreatedByView.topAnchor, constant: verticalInset).isActive = true
+        labelsStackView.bottomAnchor.constraint(equalTo: eventCreatedByView.bottomAnchor, constant: -verticalInset).isActive = true
+        labelsStackView.leadingAnchor.constraint(equalTo: eventCreatedByView.leadingAnchor, constant: horizontalInset).isActive = true
+        
+        eventCreatedByView.addSubview(userImageView)
+        userImageView.translatesAutoresizingMaskIntoConstraints = false
+        userImageView.topAnchor.constraint(equalTo: eventCreatedByView.topAnchor, constant: verticalInset*0.65).isActive = true
+        userImageView.bottomAnchor.constraint(equalTo: eventCreatedByView.bottomAnchor, constant: -verticalInset*0.65).isActive = true
+        userImageView.trailingAnchor.constraint(equalTo: eventCreatedByView.trailingAnchor, constant: -horizontalInset).isActive = true
+        userImageView.leadingAnchor.constraint(equalTo: labelsStackView.trailingAnchor, constant: innerInset).isActive = true
+        
+        return eventCreatedByView
+        
+    }()
+    
+    lazy private(set) var usernameLabel: UILabel = {
+        
+        var usernameLabel = UILabel()
+        usernameLabel.lineBreakMode = .byTruncatingTail
+        usernameLabel.numberOfLines = 1
+        usernameLabel.textAlignment = .left
+        usernameLabel.text = "@username"
+        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        usernameLabel.textColor = UIColor.white
+        return usernameLabel
+        
+    }()
+    
+    lazy private(set) var userImageView: BubbleImageView = {
+        
+        let reference = storage.reference().child("images/\(uid)/profilepic.jpg")
+        
+        var userImageView = BubbleImageView(image: UIImage.defaultUserPicture256)
+        userImageView.contentMode = .scaleAspectFill
+        userImageView.sd_setImage(with: reference, placeholderImage: UIImage.defaultUserPicture256)
+        
+        userImageView.translatesAutoresizingMaskIntoConstraints = false
+        userImageView.widthAnchor.constraint(equalTo: userImageView.heightAnchor).isActive = true
+        
+        return userImageView
+        
+    }()
+    
+    lazy private var eventLocationView: UIView = {
+        
+        let verticalInset: CGFloat = .getPercentageWidth(percentage: 2.0)
+        let horizontalInset: CGFloat = .getPercentageWidth(percentage: 1.5)
+        
+        var eventLocationView = UIView()
+        eventLocationView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
+        eventLocationView.clipsToBounds = true
+        eventLocationView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
+        
+        eventLocationView.addSubview(eventLocationLabel)
+        eventLocationLabel.translatesAutoresizingMaskIntoConstraints = false
+        eventLocationLabel.topAnchor.constraint(equalTo: eventLocationView.topAnchor, constant: verticalInset).isActive = true
+        eventLocationLabel.leadingAnchor.constraint(equalTo: eventLocationView.leadingAnchor, constant: horizontalInset).isActive = true
+        eventLocationLabel.trailingAnchor.constraint(equalTo: eventLocationView.trailingAnchor, constant: -horizontalInset).isActive = true
+        
+        eventLocationView.addSubview(eventLocationMapView)
+        eventLocationMapView.translatesAutoresizingMaskIntoConstraints = false
+        eventLocationMapView.topAnchor.constraint(equalTo: eventLocationLabel.bottomAnchor, constant: verticalInset).isActive = true
+        eventLocationMapView.leadingAnchor.constraint(equalTo: eventLocationLabel.leadingAnchor).isActive = true
+        eventLocationMapView.trailingAnchor.constraint(equalTo: eventLocationLabel.trailingAnchor).isActive = true
+        eventLocationMapView.bottomAnchor.constraint(equalTo: eventLocationView.bottomAnchor, constant: -verticalInset*0.75).isActive = true
+        
+        return eventLocationView
+        
+    }()
+    
+    lazy private(set) var eventLocationLabel: UILabel = {
+        
+        var eventLocationLabel = UILabel()
+        eventLocationLabel.textAlignment = .center
+        eventLocationLabel.backgroundColor = .clear
+        eventLocationLabel.numberOfLines = 0
+        eventLocationLabel.sizeToFit()
+        eventLocationLabel.textColor = .white
+        eventLocationLabel.text = "Event Location"
+        eventLocationLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        return eventLocationLabel
+        
+    }()
+    
+    lazy private(set) var eventLocationMapView: MKMapView = {
+        
+        let eventLocationMapRegionCenter = MapViewController.defaultMapViewCenterLocation
+        let eventLocationMapRegionRadius = MapViewController.defaultMapViewRegionRadius
+        let eventLocationMapRegion = MKCoordinateRegion(center: eventLocationMapRegionCenter, latitudinalMeters: eventLocationMapRegionRadius, longitudinalMeters: eventLocationMapRegionRadius)
+        
+        var eventLocationMapView = MKMapView()
+        eventLocationMapView.isPitchEnabled = false
+        eventLocationMapView.isRotateEnabled = false
+        eventLocationMapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: eventLocationMapRegion)
+        eventLocationMapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
+        eventLocationMapView.setRegion(eventLocationMapRegion, animated: true)
+        eventLocationMapView.delegate = self
+        eventLocationMapView.showsUserLocation = false
+        eventLocationMapView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        eventLocationMapView.layer.masksToBounds = true
+        
+        eventLocationMapView.translatesAutoresizingMaskIntoConstraints = false
+        eventLocationMapView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 25)).isActive = true
+        
+        return eventLocationMapView
+        
+    }()
+    
+    lazy private(set) var editEventLocationButton: UIButton = {
+        
+        let innerInset: CGFloat = .getPercentageWidth(percentage: 1.8)
+        
+        var editEventLocationButton = UIButton()
+        editEventLocationButton.setTitle("Edit", for: .normal)
+        editEventLocationButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        editEventLocationButton.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
+        editEventLocationButton.setTitleColor(.white, for: .normal)
+        editEventLocationButton.titleLabel?.textAlignment = .center
+        editEventLocationButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset*2, bottom: innerInset, right: innerInset*2)
+        editEventLocationButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        editEventLocationButton.addTarget(self, action: #selector(editEventLocation), for: .touchUpInside)
+        editEventLocationButton.isUserInteractionEnabled = true
+        return editEventLocationButton
+        
+    }()
+    
+    lazy private(set) var eventDetailsTextView: UITextView = {
+        
+        var eventDetailsTextView = UITextView()
+        eventDetailsTextView.backgroundColor = .clear
+        eventDetailsTextView.textColor = .white
+        eventDetailsTextView.font = .dynamicFont(with: "Octarine-Light", style: .headline)
+        eventDetailsTextView.text = "Add Details"
+        eventDetailsTextView.textContainerInset = .zero
+        eventDetailsTextView.delegate = self
+        eventDetailsTextView.isScrollEnabled = false
+        eventDetailsTextView.sizeToFit()
+        eventDetailsTextView.textAlignment = .center
+        eventDetailsTextView.autocapitalizationType = .none
+        eventDetailsTextView.autocorrectionType = .no
+        return eventDetailsTextView
+        
+    }()
+    
+    lazy private(set) var eventHashtagsView : UITextView = {
+        
+        var eventHashtagsView = UITextView()
+        eventHashtagsView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
+        eventHashtagsView.textColor = .white
+        eventHashtagsView.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        eventHashtagsView.text = "Add Hashtags"
+        eventHashtagsView.sizeToFit()
+        eventHashtagsView.delegate = self
+        eventHashtagsView.textAlignment = .center
+        eventHashtagsView.layer.cornerRadius = 10
+        eventHashtagsView.isScrollEnabled = false
+        eventHashtagsView.autocapitalizationType = .none
+        eventHashtagsView.autocorrectionType = .no
+        return eventHashtagsView
         
     }()
     
@@ -128,73 +379,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         d.setValue(UIColor(cgColor: backgroundGradientColors![1]), forKeyPath: "textColor")
         
         return d
-        
-    }()
-    
-    lazy var mainMapView: MKMapView = {
-        
-        var mainMapView = MKMapView()
-        mainMapView.isPitchEnabled = false
-        mainMapView.isRotateEnabled = false
-        mainMapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mainMapViewRegion)
-        mainMapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
-        mainMapView.setRegion(mainMapViewRegion, animated: true)
-        mainMapView.delegate = self
-        mainMapView.showsUserLocation = false
-        var maskedCorners = CACornerMask()
-        mainMapView.layer.cornerRadius = 20 - cardContainerView.bounds.width * 0.015
-        maskedCorners.insert(.layerMaxXMaxYCorner)
-        maskedCorners.insert(.layerMinXMaxYCorner)
-        mainMapView.layer.maskedCorners = maskedCorners
-        return mainMapView
-        
-    }()
-    
-    lazy private var purpleMapView: UIView = {
-        let purpleMapView = UIView()
-        purpleMapView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
-        purpleMapView.layer.cornerRadius = 20
-        return purpleMapView
-    }()
-    
-    lazy var locationLabel: UILabel = {
-        let locationLabel = UILabel()
-        locationLabel.textAlignment = .center
-        locationLabel.backgroundColor = .clear
-        locationLabel.textColor = .white
-        //locationLabel.text = "Location"
-        locationLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        return locationLabel
-    }()
-    
-    lazy var editLocationButton: BouncyButton = {
-        let editLocationButton = BouncyButton(bouncyButtonImage: nil)
-        editLocationButton.setTitle("Edit", for: .normal)
-        editLocationButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        editLocationButton.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
-        editLocationButton.setTitleColor(.white, for: .normal)
-        editLocationButton.titleLabel?.textAlignment = .center
-        editLocationButton.layer.cornerRadius = 15
-        var maskedCorners = CACornerMask()
-        
-        maskedCorners.insert(.layerMaxXMaxYCorner)
-        maskedCorners.insert(.layerMinXMaxYCorner)
-        editLocationButton.layer.maskedCorners = maskedCorners
-        
-        editLocationButton.addTarget(self, action: #selector(editLocation), for: .touchUpInside)
-        editLocationButton.isUserInteractionEnabled = true
-        return editLocationButton
-    }()
-    
-    lazy private var mainUserLocation: CLLocationCoordinate2D = MapViewController.defaultMapViewCenterLocation
-    
-    lazy private var mainMapViewRegion: MKCoordinateRegion = {
-        
-        let mainMapViewRegionCenter = mainUserLocation
-        let mainMapViewRegionRadius = MapViewController.defaultMapViewRegionRadius
-        
-        var mainMapViewRegion = MKCoordinateRegion(center: mainMapViewRegionCenter, latitudinalMeters: mainMapViewRegionRadius, longitudinalMeters: mainMapViewRegionRadius)
-        return mainMapViewRegion
         
     }()
     
@@ -247,69 +431,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         return endDateTextField
     }()
     
-    lazy var purplePopsicle: UIImageView = {
-        let purplePopsicle = UIImageView()
-        purplePopsicle.image = UIImage.culturePopsicleIcon256.withTintColor(UIColor(cgColor: backgroundGradientColors![1]))
-        purplePopsicle.contentMode = .scaleAspectFit
-        return purplePopsicle
-    }()
-    
-    lazy var purpleLineOne: UIView = {
-        let purpleLineOne = UIView()
-        purpleLineOne.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
-        return purpleLineOne
-    }()
-    
-    lazy var purpleLineTwo: UIView = {
-        let purpleLineTwo = UIView()
-        purpleLineTwo.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
-        return purpleLineTwo
-    }()
-    
-    lazy var purpleView: UIView = {
-        let purpleView = UIView()
-        purpleView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
-        purpleView.layer.cornerRadius = 20
-        purpleView.isUserInteractionEnabled = true
-        return purpleView
-    }()
-    
-    lazy var userImage: UIImageView = {
-        var userImage = UIImageView()
-        userImage.contentMode = .scaleToFill
-        userImage.frame = CGRect(x: 0, y: 0, width: purpleView.bounds.height * 0.7, height:  purpleView.bounds.height * 0.7)
-        userImage.widthAnchor.constraint(equalToConstant: purpleView.bounds.height * 0.7).isActive = true
-        userImage.heightAnchor.constraint(equalToConstant: purpleView.bounds.height * 0.7).isActive = true
-        userImage.layer.masksToBounds = true
-        userImage.layer.cornerRadius = userImage.bounds.height/2
-        userImage.isUserInteractionEnabled = true
-        
-        storage = Storage.storage()
-        let uid = Auth.auth().currentUser!.uid
-        
-        
-        let reference = (self.storage?.reference().child("images/\(uid)/profilepic.jpg"))!
-        let placeholderImage = UIImage.defaultUserPicture256
-        userImage.sd_setImage(with: reference, placeholderImage: placeholderImage)
-        
-        return userImage
-    }()
-    
-    lazy var usernameLabel: UILabel = {
-        let usernameLabel = UILabel()
-        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .title3)
-        usernameLabel.textColor = UIColor.white
-        return usernameLabel
-    }()
-    
-    lazy var createdByLabel: UILabel = {
-        let createdByLabel = UILabel()
-        createdByLabel.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
-        createdByLabel.text = "Created by:"
-        createdByLabel.textColor = UIColor.white
-        return createdByLabel
-    }()
-    
     lazy var detailsButton: UILabel = {
         let detailsButton = UILabel()
         //detailsButton.text = "Add details..."
@@ -322,40 +443,13 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         detailsButton.textAlignment = .left
         detailsButton.numberOfLines = 5;
         detailsButton.sizeToFit()
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(toWriteDetails(tapGestureRecognizer:)))
-        detailsButton.isUserInteractionEnabled = true
-        detailsButton.addGestureRecognizer(tapGestureRecognizer)
-        detailsButton.backgroundColor = .clear
-        detailsButton.isUserInteractionEnabled = true
         return detailsButton
-    }()
-    
-    lazy var hashtagTextView: UITextView = {
-        let hashtagTextView = UITextView()
-        hashtagTextView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
-        hashtagTextView.textColor = .white
-        hashtagTextView.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
-        //hashtagTextView.text = "Add Hashtags"
-        hashtagTextView.sizeToFit()
-        //eventNameTextView.attributedPlaceholder = NSAttributedString(string: "Add Title", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Bold", style: .title1), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
-        hashtagTextView.delegate = self
-        hashtagTextView.textAlignment = .left
-        hashtagTextView.layer.cornerRadius = 10
-        hashtagTextView.isScrollEnabled = false
-        
-        //eventNameTextView.lineBreakMode = NSLineBreakMode.byWordWrapping
-        //eventNameTextView.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: eventNameTextView.intrinsicContentSize.height))
-        //eventNameTextView.leftViewMode = .always
-        //eventNameTextView.clearButtonMode = .whileEditing
-        //eventNameTextView.returnKeyType = .next
-        hashtagTextView.autocapitalizationType = .none
-        hashtagTextView.autocorrectionType = .no
-        //eventNameTextView.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0)
-        return hashtagTextView
     }()
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        
+        //getUsername()
         
         /* FOR TRIAL PURPOSES */
         modalTransitionStyle = .crossDissolve
@@ -364,6 +458,8 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+        
+        //getUsername()
         
         /* FOR TRIAL PURPOSES */
         modalTransitionStyle = .crossDissolve
@@ -377,7 +473,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         detailsButton.text = text
         detailsButton.textColor = .white
         
-        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+        if(eventNameTextView.text == "Add Title" || eventHashtagsView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || eventLocationLabel.text == "Location"){
                    createButton.isUserInteractionEnabled = false
                    createButton.alpha = 0.6
                }else{
@@ -394,20 +490,20 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         self.address = address
         self.location = location
         
-        let allAnnotations = mainMapView.annotations
-        mainMapView.removeAnnotations(allAnnotations)
+        let allAnnotations = eventLocationMapView.annotations
+        eventLocationMapView.removeAnnotations(allAnnotations)
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = location
         
         let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
-        mainMapView.setRegion(region, animated: true)
-        mainMapView.addAnnotation(annotation)
+        eventLocationMapView.setRegion(region, animated: true)
+        eventLocationMapView.addAnnotation(annotation)
         
-        locationLabel.text = street
-        locationLabel.textColor = .white
+        eventLocationLabel.text = street
+        eventLocationLabel.textColor = .white
         
-        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+        if(eventNameTextView.text == "Add Title" || eventHashtagsView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || eventLocationLabel.text == "Location"){
             createButton.isUserInteractionEnabled = false
             createButton.alpha = 0.6
         }else{
@@ -438,118 +534,55 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         cardContainerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: createEventHorizontalEdgeInset).isActive = true
         cardContainerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -createEventHorizontalEdgeInset).isActive = true
         
-        cardContainerView.addSubview(purplePopsicle)
-        purplePopsicle.translatesAutoresizingMaskIntoConstraints = false
-        purplePopsicle.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.05).isActive = true
-        purplePopsicle.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.05).isActive = true
-        purplePopsicle.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        purplePopsicle.topAnchor.constraint(equalTo: cardContainerView.topAnchor, constant: cardContainerView.bounds.height * 0.1).isActive = true
-        
-        cardContainerView.addSubview(purpleLineOne)
-        purpleLineOne.translatesAutoresizingMaskIntoConstraints = false
-        purpleLineOne.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.35).isActive = true
-        purpleLineOne.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.005).isActive = true
-        purpleLineOne.leadingAnchor.constraint(equalTo: purplePopsicle.trailingAnchor, constant: cardContainerView.bounds.width * 0.01).isActive = true
-        purpleLineOne.topAnchor.constraint(equalTo: purplePopsicle.centerYAnchor).isActive = true
-        
-        cardContainerView.addSubview(purpleLineTwo)
-        purpleLineTwo.translatesAutoresizingMaskIntoConstraints = false
-        purpleLineTwo.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.35).isActive = true
-        purpleLineTwo.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.005).isActive = true
-        purpleLineTwo.trailingAnchor.constraint(equalTo: purplePopsicle.leadingAnchor, constant: -cardContainerView.bounds.width * 0.01).isActive = true
-        purpleLineTwo.topAnchor.constraint(equalTo: purplePopsicle.centerYAnchor).isActive = true
-        
         cardContainerView.addSubview(startDateTextField)
         startDateTextField.translatesAutoresizingMaskIntoConstraints = false
         startDateTextField.leadingAnchor.constraint(equalTo: cardContainerView.leadingAnchor, constant: cardContainerView.bounds.width * 0.02).isActive = true
-        startDateTextField.topAnchor.constraint(equalTo: purplePopsicle.bottomAnchor, constant: cardContainerView.bounds.height * 0).isActive = true
+        //startDateTextField.topAnchor.constraint(equalTo: purplePopsicle.bottomAnchor, constant: cardContainerView.bounds.height * 0).isActive = true
         startDateTextField.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.43).isActive = true
         startDateTextField.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.height * 0.04).isActive = true
         
         cardContainerView.addSubview(endDateTextField)
         endDateTextField.translatesAutoresizingMaskIntoConstraints = false
         endDateTextField.trailingAnchor.constraint(equalTo: cardContainerView.trailingAnchor, constant: -cardContainerView.bounds.width * 0.02).isActive = true
-        endDateTextField.topAnchor.constraint(equalTo: purplePopsicle.bottomAnchor, constant: cardContainerView.bounds.height * 0).isActive = true
+        //endDateTextField.topAnchor.constraint(equalTo: purplePopsicle.bottomAnchor, constant: cardContainerView.bounds.height * 0).isActive = true
         endDateTextField.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.43).isActive = true
         endDateTextField.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.height * 0.04).isActive = true
-        
-        
-        cardContainerView.addSubview(purpleView)
-        purpleView.translatesAutoresizingMaskIntoConstraints = false
-        purpleView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        purpleView.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
-        purpleView.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.height * 0.085).isActive = true
-        purpleView.topAnchor.constraint(equalTo: startDateTextField.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
-        purpleView.frame = CGRect(x: 0, y: 0, width: cardContainerView.bounds.width * 0.8, height: cardContainerView.bounds.height * 0.085)
-        
-        purpleView.addSubview(userImage)
-        userImage.translatesAutoresizingMaskIntoConstraints = false
-        userImage.centerYAnchor.constraint(equalTo: purpleView.centerYAnchor).isActive = true
-        userImage.trailingAnchor.constraint(equalTo: purpleView.trailingAnchor, constant: -purpleView.bounds.width * 0.04).isActive = true
-        
-        purpleView.addSubview(usernameLabel)
-        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.leadingAnchor.constraint(equalTo: purpleView.leadingAnchor, constant: purpleView.bounds.width * 0.04).isActive = true
-        usernameLabel.bottomAnchor.constraint(equalTo: purpleView.bottomAnchor, constant: -purpleView.bounds.height * 0.1).isActive = true
-        
-        purpleView.addSubview(createdByLabel)
-        createdByLabel.translatesAutoresizingMaskIntoConstraints = false
-        createdByLabel.leadingAnchor.constraint(equalTo: purpleView.leadingAnchor, constant: purpleView.bounds.width * 0.04).isActive = true
-        createdByLabel.bottomAnchor.constraint(equalTo: usernameLabel.topAnchor, constant: -purpleView.bounds.height * 0.07).isActive = true
         
         cardContainerView.addSubview(detailsButton)
         detailsButton.translatesAutoresizingMaskIntoConstraints = false
         detailsButton.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
-        detailsButton.topAnchor.constraint(equalTo: purpleView.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
+        //detailsButton.topAnchor.constraint(equalTo: purpleView.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
         detailsButton.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
         
-        cardContainerView.addSubview(hashtagTextView)
-        hashtagTextView.translatesAutoresizingMaskIntoConstraints = false
-        hashtagTextView.leadingAnchor.constraint(equalTo: purpleView.leadingAnchor).isActive = true
-        hashtagTextView.topAnchor.constraint(equalTo: detailsButton.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
-        hashtagTextView.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
+    }
+    
+    private func getUsername() {
         
-        cardContainerView.addSubview(purpleMapView)
-        purpleMapView.translatesAutoresizingMaskIntoConstraints = false
-        purpleMapView.topAnchor.constraint(equalTo: hashtagTextView.bottomAnchor, constant: cardContainerView.bounds.height * 0.03).isActive = true
-        purpleMapView.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
-        purpleMapView.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.8).isActive = true
-        purpleMapView.heightAnchor.constraint(equalToConstant: cardContainerView.bounds.height * 0.2).isActive = true
+        let ref = Database.database().reference()
         
-        purpleMapView.addSubview(mainMapView)
-        mainMapView.translatesAutoresizingMaskIntoConstraints = false
-        mainMapView.topAnchor.constraint(equalTo: purpleMapView.topAnchor, constant: cardContainerView.bounds.height * 0.05).isActive = true
-        mainMapView.bottomAnchor.constraint(equalTo: purpleMapView.bottomAnchor, constant: -cardContainerView.bounds.width * 0.015).isActive = true
-        mainMapView.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
-        mainMapView.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.77).isActive = true
-        
-        purpleMapView.addSubview(locationLabel)
-        locationLabel.translatesAutoresizingMaskIntoConstraints = false
-        locationLabel.topAnchor.constraint(equalTo: purpleMapView.topAnchor).isActive = true
-        locationLabel.bottomAnchor.constraint(equalTo: mainMapView.topAnchor).isActive = true
-        locationLabel.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
-        locationLabel.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.77).isActive = true
-        
-        cardContainerView.addSubview(editLocationButton)
-        editLocationButton.translatesAutoresizingMaskIntoConstraints = false
-        editLocationButton.topAnchor.constraint(equalTo: purpleMapView.bottomAnchor).isActive = true
-        //editLocationButton.bottomAnchor.constraint(equalTo: mainMapView.topAnchor).isActive = true
-        editLocationButton.centerXAnchor.constraint(equalTo: cardContainerView.centerXAnchor).isActive = true
-        editLocationButton.widthAnchor.constraint(equalToConstant: cardContainerView.bounds.width * 0.2).isActive = true
+        ref.child("users/\(uid)/username").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
+            
+            guard let self = self else { return }
+            
+            if let username = snapshot.value as? String { self.usernameLabel.text = "@" + username }
+            
+        }) { (error) in
+            print(error.localizedDescription)
+        }
         
     }
     
     
     @objc func goBack() {
         
-        let textInfo = ["location": locationLabel.text!, "eventName": eventNameTextView.text!, "eventInfo": detailsButton.text!, "eventStartDate": startDateTextField.text!, "eventEndDate": endDateTextField.text!, "hashtags": hashtagTextView.text!, "coordinates": location ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)] as [String : Any]
+        let textInfo = ["location": eventLocationLabel.text!, "eventName": eventNameTextView.text!, "eventInfo": detailsButton.text!, "eventStartDate": startDateTextField.text!, "eventEndDate": endDateTextField.text!, "hashtags": eventHashtagsView.text!, "coordinates": location ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)] as [String : Any]
         navigationController?.popViewController(animated: true)
         NotificationCenter.default.post(name: .switchCategory, object: nil, userInfo: textInfo)
         
         
     }
     
-    @objc func toWriteDetails(tapGestureRecognizer: UITapGestureRecognizer){
+    @objc func toWriteDetails(){
         let vc = writeDetailsViewController()
         vc.modalPresentationStyle = .overCurrentContext
         vc.transitioningDelegate = self
@@ -564,19 +597,25 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         self.present(vc, animated: true, completion: nil)
     }
     
-    @objc func editLocation(){
-        let vc = EditLocationViewController()
-        if(locationLabel.text != "Location"){
+    @objc private func editEventLocation() {
+        
+        let editEventLocationVC = EditLocationViewController()
+        
+        if location != nil {
+            
             let annotation = MKPointAnnotation()
             annotation.coordinate = location!
             let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: 200, longitudinalMeters: 200)
-            vc.mainMapView.setRegion(region, animated: true)
-            vc.mainMapView.addAnnotation(annotation)
+            editEventLocationVC.mainMapView.setRegion(region, animated: true)
+            editEventLocationVC.mainMapView.addAnnotation(annotation)
+            
         }
-        vc.modalPresentationStyle = .overCurrentContext
-        vc.popsicleImage = popsicleImage
-        vc.transitioningDelegate = self
-        self.present(vc, animated: true, completion: nil)
+        
+        editEventLocationVC.modalPresentationStyle = .overCurrentContext
+        editEventLocationVC.popsicleImage = popsicleImage
+        editEventLocationVC.transitioningDelegate = self
+        self.present(editEventLocationVC, animated: true, completion: nil)
+        
     }
     
     private func getStartDateFromPicker() {
@@ -641,53 +680,48 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         
     }
     
-    
-    //MARK: Textfield Delegate
-    // When user press the return key in keyboard
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("textFieldShouldReturn")
-        //textField.resignFirstResponder()
-        return true
-    }
-    
-    // It is called before text field become active
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        textField.backgroundColor = UIColor.clear
-        return true
-    }
-    
-    // It is called when text field activated
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.textColor = .white
-        print("textFieldDidBeginEditing")
-    }
-    
-    // It is called when text field going to inactive
-    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        textField.backgroundColor = UIColor.clear
-        return true
-    }
-    
     // It is called when text field is inactive
-    func textFieldDidEndEditing(_ textField: UITextField) {
+    /*func textFieldDidEndEditing(_ textField: UITextField) {
         print("textFieldDidEndEditing")
         
-        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || eventDetailsTextView.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
                    createButton.isUserInteractionEnabled = false
                    createButton.alpha = 0.6
                }else{
                    createButton.isUserInteractionEnabled = true
                    createButton.alpha = 1.0
                }
-    }
+    }*/
     
-    // It is called each time user type a character by keyboard
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        
+        if textView == eventDetailsTextView {
+            
+            toWriteDetails()
+            
+            return false
+            
+        }
+        
         return true
+        
     }
     
     func textViewDidBeginEditing (_ textView: UITextView) {
-        textView.textColor = .white
+        
+        if textView == eventDetailsTextView {
+            
+            if eventDetailsTextView.text == "Add Details", eventDetailsTextView.isFirstResponder {
+                
+                eventDetailsTextView.textAlignment = .left
+                eventDetailsTextView.text = nil
+            }
+            
+            let newPosition = eventDetailsTextView.endOfDocument
+            eventDetailsTextView.selectedTextRange = eventDetailsTextView.textRange(from: newPosition, to: newPosition)
+            
+        }
+        
         if(textView == eventNameTextView){
             if  eventNameTextView.text == "Add Title" && eventNameTextView.isFirstResponder {
                 eventNameTextView.text = nil
@@ -697,26 +731,38 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
             eventNameTextView.selectedTextRange = eventNameTextView.textRange(from: newPosition, to: newPosition)
         }
         
-        if(textView == hashtagTextView){
-            if  hashtagTextView.text == "Add Hashtags" && hashtagTextView.isFirstResponder {
-                hashtagTextView.text = "#"
+        if(textView == eventHashtagsView){
+            if  eventHashtagsView.text == "Add Hashtags" && eventHashtagsView.isFirstResponder {
+                eventHashtagsView.text = "#"
                 hashtagCount = 1
                 //eventNameTextView.textColor = .white
             }
-            let newPosition = hashtagTextView.endOfDocument
-            hashtagTextView.selectedTextRange = hashtagTextView.textRange(from: newPosition, to: newPosition)
+            let newPosition = eventHashtagsView.endOfDocument
+            eventHashtagsView.selectedTextRange = eventHashtagsView.textRange(from: newPosition, to: newPosition)
         }
+        
     }
     
     func textViewDidEndEditing (_ textView: UITextView) {
         print("ENNDDDEEDDD")
-        if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
-                   createButton.isUserInteractionEnabled = false
-                   createButton.alpha = 0.6
-               }else{
-                   createButton.isUserInteractionEnabled = true
-                   createButton.alpha = 1.0
-               }
+        if(eventNameTextView.text == "Add Title" || eventHashtagsView.text == "Add Hashtags" || eventDetailsTextView.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || eventLocationLabel.text == "Location"){
+            createButton.isUserInteractionEnabled = false
+            createButton.alpha = 0.6
+        }else{
+            createButton.isUserInteractionEnabled = true
+            createButton.alpha = 1.0
+        }
+        
+        if(textView == eventDetailsTextView){
+            
+            if eventDetailsTextView.text.isEmpty || eventDetailsTextView.text == "" {
+                
+                eventDetailsTextView.textAlignment = .center
+                eventDetailsTextView.text = "Add Details"
+                
+            }
+            
+        }
         
         if(textView == eventNameTextView){
             if eventNameTextView.text.isEmpty || eventNameTextView.text == "" {
@@ -724,13 +770,13 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
                 eventNameTextView.text = "Add Title"
             }
             
-
+            
         }
         
-        if(textView == hashtagTextView){
-            if hashtagTextView.text.isEmpty || hashtagTextView.text == "#" {
-                hashtagTextView.textColor = .white
-                hashtagTextView.text = "Add Hashtags"
+        if(textView == eventHashtagsView){
+            if eventHashtagsView.text.isEmpty || eventHashtagsView.text == "#" {
+                eventHashtagsView.textColor = .white
+                eventHashtagsView.text = "Add Hashtags"
             }
         }
         
@@ -741,7 +787,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         if(textView == eventNameTextView){
             if text == "\n" {
                 eventNameTextView.resignFirstResponder()
-                if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+                if(eventNameTextView.text == "Add Title" || eventHashtagsView.text == "Add Hashtags" || eventDetailsTextView.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || eventLocationLabel.text == "Location"){
                     createButton.isUserInteractionEnabled = false
                     createButton.alpha = 0.6
                 }else{
@@ -757,24 +803,44 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
 
         }
         
-        if(textView == hashtagTextView){
+        if textView == eventDetailsTextView {
             
-            let newText = (hashtagTextView.text as NSString).replacingCharacters(in: range, with: text)
+            if text == "\n" {
+                eventDetailsTextView.resignFirstResponder()
+                if(eventNameTextView.text == "Add Title" || eventHashtagsView.text == "Add Hashtags" || eventDetailsTextView.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || eventLocationLabel.text == "Location"){
+                    createButton.isUserInteractionEnabled = false
+                    createButton.alpha = 0.6
+                }else{
+                    createButton.isUserInteractionEnabled = true
+                    createButton.alpha = 1.0
+                }
+                return false
+            }
+
+            let newText = (eventDetailsTextView.text as NSString).replacingCharacters(in: range, with: text)
+            let numberOfChars = newText.count
+            return numberOfChars <= 250
+            
+        }
+        
+        if(textView == eventHashtagsView){
+            
+            let newText = (eventHashtagsView.text as NSString).replacingCharacters(in: range, with: text)
             let numberOfChars = newText.count
             
             let regex = try! NSRegularExpression(pattern: "\\s")
             let numberOfWhitespaceCharacters = regex.numberOfMatches(in: newText, range: NSRange(location: 0, length: newText.utf16.count))
             
-            let substring = (hashtagTextView.text as NSString).substring(with: range)
+            let substring = (eventHashtagsView.text as NSString).substring(with: range)
             
-            if(hashtagTextView.text == ""){
+            if(eventHashtagsView.text == ""){
                 hashtagTyped = false
-                hashtagTextView.text = "#"
+                eventHashtagsView.text = "#"
             }
             
             if text == "\n" {
-                hashtagTextView.resignFirstResponder()
-                if(eventNameTextView.text == "Add Title" || hashtagTextView.text == "Add Hashtags" || detailsButton.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || locationLabel.text == "Location"){
+                eventHashtagsView.resignFirstResponder()
+                if(eventNameTextView.text == "Add Title" || eventHashtagsView.text == "Add Hashtags" || eventDetailsTextView.text == "Add details..." || startDateTextField.text == "Start Date" || endDateTextField.text == "End Date" || eventLocationLabel.text == "Location"){
                     createButton.isUserInteractionEnabled = false
                     createButton.alpha = 0.6
                 }else{
@@ -785,7 +851,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
             }
             
             if(substring == "#"){
-                hashtagTextView.text.removeLast()
+                eventHashtagsView.text.removeLast()
                 //return true
             }
             
@@ -801,7 +867,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
             if(text == " " && numberOfWhitespaceCharacters < 5){
                 hashtagTyped = false
                 hashtagCount! += 1
-                hashtagTextView.text = hashtagTextView.text + " #"
+                eventHashtagsView.text = eventHashtagsView.text + " #"
                 return false
             }
             
@@ -880,7 +946,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
             "eventDetails": detailsButton.text!,
             "startDate": startDateFormatted!,
             "endDate": endDateFormatted!,
-            "hashtags": hashtagTextView.text!,
+            "hashtags": eventHashtagsView.text!,
             "createdBy": uid ,
             "category": category!
         ]) { err in
@@ -955,29 +1021,20 @@ extension Notification.Name {
 }
 
 extension NewCreateEventCardViewController: UIViewControllerTransitioningDelegate {
+    
     func animationController(forPresented presented: UIViewController,
                              presenting: UIViewController,
                              source: UIViewController)
         -> UIViewControllerAnimatedTransitioning? {
+            
             return FlipPresentAnimationController(originFrame: cardContainerView.frame)
+            
     }
     
     func animationController(forDismissed dismissed: UIViewController)
         -> UIViewControllerAnimatedTransitioning? {
-//            guard let _ = ((dismissed as? EditLocationViewController) != nil) || ((dismissed as? writeDetailsViewController) != nil) else {
-//                return nil
-//            }
             
-            if let _ = dismissed as? writeDetailsViewController {
-                return FlipDismissAnimationController(destinationFrame: cardContainerView.frame)
-            }else if let _ = dismissed as? EditLocationViewController{
-                return FlipDismissAnimationController(destinationFrame: cardContainerView.frame)
-            }else{
-                
-                return nil
-            }
-
+            return FlipDismissAnimationController(destinationFrame: cardContainerView.frame)
             
-            //return FlipDismissAnimationController(destinationFrame: cardContainerView.frame)
     }
 }

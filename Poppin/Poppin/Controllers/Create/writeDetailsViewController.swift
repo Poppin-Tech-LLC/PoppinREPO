@@ -111,8 +111,6 @@ class writeDetailsViewController: UIViewController, UITextViewDelegate {
         
         view.backgroundColor = .clear
         
-     
-        
         view.addSubview(whiteView)
         whiteView.translatesAutoresizingMaskIntoConstraints = false
         whiteView.widthAnchor.constraint(equalToConstant: view.bounds.width * 0.9).isActive = true

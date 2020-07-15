@@ -25,7 +25,7 @@ class NewCreateEventViewController : UIViewController {
     
     var hashtagsText = "Add Hashtags"
     
-    var detailsText = "Add details..."
+    var detailsText = "Add Details"
     
     var coordinates: CLLocationCoordinate2D?
     
@@ -394,7 +394,7 @@ extension NewCreateEventViewController : UICollectionViewDelegate {
         
         // controls what happens when a card is clicked
         let vc = NewCreateEventCardViewController()
-        vc.usernameLabel.text = username
+        //vc.usernameLabel.text = username
         
         switch eventCategories[indexPath.row]   {
         case .Culture:
@@ -426,23 +426,23 @@ extension NewCreateEventViewController : UICollectionViewDelegate {
         //              vc.endDateTextField.attributedPlaceholder = NSAttributedString(string: endDateText, attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-LightOblique", style: .title3), NSAttributedString.Key.foregroundColor : UIColor.white])
         vc.startDateTextField.text = startDateText
         vc.endDateTextField.text = endDateText
-        vc.locationLabel.text = locationText
+        vc.eventLocationLabel.text = locationText
         vc.detailsButton.text = detailsText
-        vc.hashtagTextView.text = hashtagsText
+        vc.eventHashtagsView.text = hashtagsText
         
         if(locationText != "Location"){
-            let allAnnotations = vc.mainMapView.annotations
-            vc.mainMapView.removeAnnotations(allAnnotations)
+            let allAnnotations = vc.eventLocationMapView.annotations
+            vc.eventLocationMapView.removeAnnotations(allAnnotations)
             
             let annotation = MKPointAnnotation()
             annotation.coordinate = coordinates!
             
             let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
             vc.location = coordinates
-            vc.mainMapView.setRegion(region, animated: true)
-            vc.mainMapView.addAnnotation(annotation)
+            vc.eventLocationMapView.setRegion(region, animated: true)
+            vc.eventLocationMapView.addAnnotation(annotation)
             
-            if(vc.eventNameTextView.text == "Add Title" || vc.hashtagTextView.text == "Add Hashtags" || vc.detailsButton.text == "Add details..." || vc.startDateTextField.text == "Start Date" || vc.endDateTextField.text == "End Date" || vc.locationLabel.text == "Location"){
+            if(vc.eventNameTextView.text == "Add Title" || vc.eventHashtagsView.text == "Add Hashtags" || vc.detailsButton.text == "Add details..." || vc.startDateTextField.text == "Start Date" || vc.endDateTextField.text == "End Date" || vc.eventLocationLabel.text == "Location"){
                 vc.createButton.isUserInteractionEnabled = false
                 vc.createButton.alpha = 0.6
             }else{

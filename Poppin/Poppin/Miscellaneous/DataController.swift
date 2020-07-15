@@ -154,26 +154,27 @@ class DataController{
     
     static func getUser() -> NSManagedObject{
         //1
-               guard let appDelegate =
-                 UIApplication.shared.delegate as? AppDelegate else {
-                   return NSManagedObject()
-               }
-               
-               let managedContext =
-                 appDelegate.persistentContainer.viewContext
-               
-               //2
-               let fetchRequest =
-                 NSFetchRequest<NSManagedObject>(entityName: "User")
+        
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return NSManagedObject()
+        }
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        //2
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "User")
         
         do {
-          let user = try managedContext.fetch(fetchRequest)
+            let user = try managedContext.fetch(fetchRequest)
             if(user.count > 0){
                 return user[0]
             }
-           
+            
         } catch let error as NSError {
-          print("Could not fetch. \(error), \(error.userInfo)")
+            print("Could not fetch. \(error), \(error.userInfo)")
         }
         return NSManagedObject()
     }

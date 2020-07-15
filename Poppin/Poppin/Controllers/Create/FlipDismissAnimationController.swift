@@ -16,7 +16,7 @@ class FlipDismissAnimationController: NSObject, UIViewControllerAnimatedTransiti
     }
     
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        return 1.0
+        return 0.8
     }
     
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -27,7 +27,7 @@ class FlipDismissAnimationController: NSObject, UIViewControllerAnimatedTransiti
           return
       }
 
-      snapshot.layer.cornerRadius = 30
+      snapshot.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
       snapshot.layer.masksToBounds = true
 
       // 2
