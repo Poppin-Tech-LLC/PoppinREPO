@@ -1037,16 +1037,11 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
         
         if let searchCell = searchPagingCollectionView.visibleCells.first as? SearchPageCell {
             
-            let profileVC = ProfileViewController(with: searchCell.filteredUsers[indexPath.row])
+            let profileVC = ProfileViewController(with: searchCell.filteredUsers[indexPath.row], isUser: false)
             
             if(searchTypes[0] == .Users){
                 DataController.addUser(bio: searchCell.filteredUsers[indexPath.row].bio, username: searchCell.filteredUsers[indexPath.row].username, fullName: searchCell.filteredUsers[indexPath.row].fullName, uid: searchCell.filteredUsers[indexPath.row].uid)
             }
-            
-            //searchCell.filteredUsers = fetchRecentUsers()
-            //            recentSearchesView.transform = .identity
-            //            searchPagingCollectionView.transform = .identity
-            //            self.view.layoutIfNeeded()
             
             navigationController?.pushViewController(profileVC, animated: true)
             

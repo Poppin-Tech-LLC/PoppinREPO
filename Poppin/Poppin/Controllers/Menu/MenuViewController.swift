@@ -19,6 +19,7 @@ enum MenuAction: String {
     case FriendGroups = "FriendGroups"
     case YourEvents = "YourEvents"
     case YourSchedule = "YourSchedule"
+    case Profile = "Profile"
     
 }
 
@@ -28,10 +29,12 @@ final class MenuViewController: UIViewController {
     let menuInsetX: CGFloat = .getPercentageWidth(percentage: 4.5)
     let menuInnerInset: CGFloat = .getPercentageWidth(percentage: 4.5)
     
-    private var fullName: String = "Full Name"
-    private var username: String = "@username"
-    private var following: String = "0"
-    private var followers: String = "0"
+    var fullName: String = "Full Name"
+    var username: String = "@username"
+    var following: String = "0"
+    var followers: String = "0"
+    var uid: String = ""
+    var bio: String = ""
     
     weak var delegate: MenuDelegate?
     
@@ -66,10 +69,20 @@ final class MenuViewController: UIViewController {
         menuProfileButton.translatesAutoresizingMaskIntoConstraints = false
         menuProfileButton.heightAnchor.constraint(equalToConstant: menuFullNameLabel.intrinsicContentSize.height*3.5).isActive = true
         menuProfileButton.widthAnchor.constraint(equalTo: menuProfileButton.heightAnchor).isActive = true
+        menuProfileButton.addTarget(self, action: #selector(toUserProfile(sender:)), for: .touchUpInside)
         
         return menuProfileButton
         
     }()
+    
+    
+    @objc private func toUserProfile(sender: ImageBubbleButton) {
+        let user = UserData(username: self.username, uid: self.uid, bio: self.bio, fullName: self.fullName)
+        let vc = ProfileViewController(with: user, isUser: true)
+        self.navigationController?.pushViewController(vc, animated: true)
+        delegate?.closeMenu(with: .Profile)
+        
+    }
     
     lazy private var menuFullNameLabel: UILabel = {
         

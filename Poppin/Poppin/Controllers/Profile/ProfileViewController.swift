@@ -12,13 +12,24 @@ import FirebaseAuth
 import FirebaseFirestoreSwift
 import FirebaseFirestore
 
-final class ProfileViewController: UIViewController, UINavigationControllerDelegate {
+protocol SwitchAccountDelegate: class {
+    
+    func closeSwitchAccount()
+    func openSwitchAccount()
+    
+}
+
+final class ProfileViewController: UIViewController, UINavigationControllerDelegate{
     
     let profileInsetY: CGFloat = .getPercentageWidth(percentage: 4.3)
     let profileInsetX: CGFloat = .getPercentageWidth(percentage: 4.3)
     
     let containerInsetY: CGFloat = .getPercentageWidth(percentage: 2.7)
     let containerInsetX: CGFloat = .getPercentageWidth(percentage: 2.7)
+    
+    private let switchAccountHeight: CGFloat = .getPercentageHeight(percentage: 50)
+    
+    private var switchAccountIsVisible: Bool = false
     
     private var storage: Storage = Storage.storage()
     
@@ -61,20 +72,59 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
     }()
     
-    lazy private var usernameLabel: UILabel = {
+    lazy private var usernameButton: BouncyButton = {
         
-        var usernameLabel = UILabel()
-        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
-        usernameLabel.textColor = UIColor.mainDARKPURPLE
-        usernameLabel.textAlignment = .center
-        usernameLabel.text = "@" + userData.username.lowercased()
-        
-        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.heightAnchor.constraint(equalToConstant: usernameLabel.intrinsicContentSize.height).isActive = true
-        
-        return usernameLabel
+        var usernameButton = BouncyButton(bouncyButtonImage: nil)
+        usernameButton.setTitle("@" + userData.username.lowercased(), for: .normal)
+        usernameButton.titleLabel?.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        usernameButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+        usernameButton.backgroundColor = .clear
+        usernameButton.titleLabel?.textAlignment = .center
+        usernameButton.translatesAutoresizingMaskIntoConstraints = false
+        usernameButton.heightAnchor.constraint(equalToConstant: usernameButton.intrinsicContentSize.height).isActive = true
+        usernameButton.addTarget(self, action: #selector(openSwitchAccount(sender:)), for: .touchUpInside)
+        return usernameButton
         
     }()
+    
+    lazy private var switchAccountViewController: SwitchAccountViewController = {
+           
+           var switchAccountViewController = SwitchAccountViewController()
+           switchAccountViewController.delegate = self
+           switchAccountViewController.accounts = [userData]
+           return switchAccountViewController
+           
+       }()
+    
+    lazy private var switchAccountTopConstraint: NSLayoutConstraint = {
+        
+        var switchAccountTopConstraint = NSLayoutConstraint(item: switchAccountViewController.view!, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: switchAccountHeight)
+        return switchAccountTopConstraint
+        
+    }()
+    
+    lazy private var switchAccountSlidePanGestureRecognizer: UIPanGestureRecognizer = {
+        
+        var switchAccountSlidePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleSwitchAccountPan(sender:)))
+        
+        return switchAccountSlidePanGestureRecognizer
+        
+    }()
+    
+    lazy private var switchAccountCloseTapGestureRecognizer: UITapGestureRecognizer = {
+        
+        var switchAccountCloseTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeSwitchAccount(sender:)))
+        return switchAccountCloseTapGestureRecognizer
+        
+    }()
+    
+    lazy private var profileViewTopConstraint: NSLayoutConstraint = {
+        
+        var profileViewTopConstraint = NSLayoutConstraint(item: backgroundView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1.0, constant: 0.0)
+        return profileViewTopConstraint
+        
+    }()
+
     
     lazy private var bioLabel: UILabel = {
         
@@ -163,14 +213,14 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         profileContainerView.backgroundColor = .white
         profileContainerView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.3, shadowRadius: 8.0)
         
-        profileContainerView.addSubview(usernameLabel)
-        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.topAnchor.constraint(equalTo: profileContainerView.topAnchor, constant: profileInsetY).isActive = true
-        usernameLabel.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
+        profileContainerView.addSubview(usernameButton)
+        usernameButton.translatesAutoresizingMaskIntoConstraints = false
+        usernameButton.topAnchor.constraint(equalTo: profileContainerView.topAnchor, constant: profileInsetY).isActive = true
+        usernameButton.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
         
         profileContainerView.addSubview(profilePictureButton)
         profilePictureButton.translatesAutoresizingMaskIntoConstraints = false
-        profilePictureButton.topAnchor.constraint(equalTo: usernameLabel.bottomAnchor, constant: containerInsetY).isActive = true
+        profilePictureButton.topAnchor.constraint(equalTo: usernameButton.bottomAnchor, constant: containerInsetY).isActive = true
         profilePictureButton.widthAnchor.constraint(equalTo: profileContainerView.widthAnchor, multiplier: 0.23).isActive = true
         profilePictureButton.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
         
@@ -182,8 +232,8 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
         profileContainerView.addSubview(profileBackButton)
         profileBackButton.translatesAutoresizingMaskIntoConstraints = false
-        profileBackButton.centerYAnchor.constraint(equalTo: usernameLabel.centerYAnchor).isActive = true
-        profileBackButton.heightAnchor.constraint(equalTo: usernameLabel.heightAnchor, multiplier: 0.8).isActive = true
+        profileBackButton.centerYAnchor.constraint(equalTo: usernameButton.centerYAnchor).isActive = true
+        profileBackButton.heightAnchor.constraint(equalTo: usernameButton.heightAnchor, multiplier: 0.8).isActive = true
         profileBackButton.leadingAnchor.constraint(equalTo: followersLabel.leadingAnchor).isActive = true
         
         profileContainerView.addSubview(followersButton)
@@ -279,11 +329,12 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
     }()
     
-    init(with data: UserData) {
+    init(with data: UserData, isUser: Bool) {
         
         super.init(nibName: nil, bundle: nil)
         
         userData = data
+        usernameButton.isUserInteractionEnabled = isUser
         fetchFollowersFollowingPicture()
         
     }
@@ -304,6 +355,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        profileViewTopConstraint.isActive = true
         
         view.addSubview(profileContainerView)
         profileContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -311,6 +363,17 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         profileContainerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -profileInsetY).isActive = true
         profileContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: profileInsetX).isActive = true
         profileContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -profileInsetX).isActive = true
+        
+        addChild(switchAccountViewController)
+        
+        view.addSubview(switchAccountViewController.view)
+        switchAccountViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        switchAccountViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        switchAccountViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        switchAccountTopConstraint.isActive = true
+        switchAccountViewController.view.heightAnchor.constraint(equalToConstant: switchAccountHeight).isActive = true
+        
+        switchAccountViewController.didMove(toParent: self)
 
     }
     
@@ -418,8 +481,62 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
     }
     
+    @objc private func openSwitchAccount(sender: BouncyButton) {
+          
+          openSwitchAccount()
+          
+      }
+
+    
+    @objc private func closeSwitchAccount(sender: BouncyButton) {
+           
+           closeSwitchAccount()
+
+       }
+
+    
+    @objc private func handleSwitchAccountPan(sender: UIPanGestureRecognizer) {
+           
+           let translation = sender.translation(in: self.view)
+           
+           if sender.state == .ended || sender.state == .failed || sender.state == .cancelled {
+               
+               if switchAccountIsVisible, translation.y > 0 {
+                   closeSwitchAccount()
+               } else if !switchAccountIsVisible, translation.y < 0 {
+                   openSwitchAccount()
+               }
+               
+               return
+               
+           }
+           
+           if !switchAccountIsVisible, translation.y < 0.0, translation.y >= -switchAccountHeight {
+               
+               let alphaFactorContainerView = 1.2 - ((translation.y * 0.8) / switchAccountHeight)
+               
+               backgroundView.alpha = alphaFactorContainerView
+               profileContainerView.alpha = alphaFactorContainerView
+               
+               switchAccountTopConstraint.constant = translation.y - switchAccountHeight
+               
+           }
+           
+           if switchAccountIsVisible, translation.y <= switchAccountHeight, translation.y > 0.0{
+               
+               let alphaFactorContainerView = 0.2 + ((0.8 * translation.y) / switchAccountHeight)
+               
+               backgroundView.alpha = alphaFactorContainerView
+               profileContainerView.alpha = alphaFactorContainerView
+
+               
+               switchAccountTopConstraint.constant = translation.y
+               
+           }
+           
+       }
+    
     @objc private func showFollowers(){
-        
         let searchVC = SearchViewController(searchTypes: [.Followers, .Following], startIndex: 0, userID: userData.uid, username: userData.username, shouldActivateSearchBar: false, alwaysShowsCancelButton: false)
         navigationController?.pushViewController(searchVC, animated: true)
 
@@ -567,6 +684,7 @@ final class ProfileImageViewController: UIViewController {
         tapToHideLabel.translatesAutoresizingMaskIntoConstraints = false
         tapToHideLabel.topAnchor.constraint(equalTo: profileImageView.bottomAnchor, constant: .getPercentageWidth(percentage: 5)).isActive = true
         tapToHideLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        
 
     }
     
@@ -578,3 +696,61 @@ final class ProfileImageViewController: UIViewController {
 
 }
 
+extension ProfileViewController: SwitchAccountDelegate {
+
+    
+    func closeSwitchAccount() {
+        
+        if switchAccountIsVisible {
+         
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.switchAccountTopConstraint.constant = self.switchAccountHeight
+                self.backgroundView.alpha = 1.0
+                self.profileContainerView.alpha = 1.0
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+                
+                self.backgroundView.removeGestureRecognizer(self.switchAccountSlidePanGestureRecognizer)
+                
+                self.switchAccountIsVisible = false
+                self.backgroundView.removeGestureRecognizer(self.switchAccountCloseTapGestureRecognizer)
+                self.backgroundView.isUserInteractionEnabled = true
+                self.profileContainerView.isUserInteractionEnabled = true
+                
+            })
+            
+        }
+        
+    }
+    
+    
+    func openSwitchAccount() {
+     
+        if(!switchAccountIsVisible) {
+        
+            view.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.switchAccountTopConstraint.constant = 0
+                self.backgroundView.alpha = 0.2
+                self.profileContainerView.alpha = 0.2
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+            
+                self.view.addGestureRecognizer(self.switchAccountSlidePanGestureRecognizer)
+                
+                self.switchAccountIsVisible = true
+                self.view.addGestureRecognizer(self.switchAccountCloseTapGestureRecognizer)
+                self.backgroundView.isUserInteractionEnabled = false
+                self.profileContainerView.isUserInteractionEnabled = false
+            
+            })
+            
+        }
+        
+    }
+}

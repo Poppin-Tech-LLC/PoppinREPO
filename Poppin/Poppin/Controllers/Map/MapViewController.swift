@@ -254,6 +254,10 @@ final class MapViewController: UIViewController {
         
         var mapMenuViewController = MenuViewController()
         mapMenuViewController.delegate = self
+        mapMenuViewController.username = username
+        mapMenuViewController.fullName = fullName
+        mapMenuViewController.uid = uid
+        mapMenuViewController.bio = bio 
         return mapMenuViewController
         
     }()
@@ -1243,7 +1247,7 @@ extension MapViewController: MenuDelegate {
                         self.present(alertVC, animated: true, completion: nil)
                     
                     }
-                    
+                case .Profile: print(action)
                 case .Default: print(action)
                     
                 }
