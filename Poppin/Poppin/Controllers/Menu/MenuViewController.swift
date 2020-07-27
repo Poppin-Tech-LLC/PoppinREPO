@@ -29,12 +29,20 @@ final class MenuViewController: UIViewController {
     let menuInsetX: CGFloat = .getPercentageWidth(percentage: 4.5)
     let menuInnerInset: CGFloat = .getPercentageWidth(percentage: 4.5)
     
-    var fullName: String = "Full Name"
-    var username: String = "@username"
+    var fullName: String = "Full Name" {
+        
+        didSet { menuFullNameLabel.text = fullName }
+        
+    }
+    
+    var username: String = "@username" {
+        
+        didSet { menuUsernameLabel.text = username }
+        
+    }
+    
     var following: String = "0"
     var followers: String = "0"
-    var uid: String = ""
-    var bio: String = ""
     
     weak var delegate: MenuDelegate?
     
@@ -77,7 +85,7 @@ final class MenuViewController: UIViewController {
     
     
     @objc private func toUserProfile(sender: ImageBubbleButton) {
-        let user = UserData(username: self.username, uid: self.uid, bio: self.bio, fullName: self.fullName)
+        let user = UserData(username: MapViewController.username, uid: MapViewController.uid, bio: MapViewController.bio, fullName: MapViewController.fullName)
         let vc = ProfileViewController(with: user, isUser: true)
         self.navigationController?.pushViewController(vc, animated: true)
         delegate?.closeMenu(with: .Profile)

@@ -57,8 +57,6 @@ class SwitchAccountViewController: UIViewController, UITableViewDelegate, UITabl
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print(indexPath.row)
-        print(accounts.count - 1)
         if(indexPath.row < accounts.count){
             let userCell = tableView.dequeueReusableCell(withIdentifier: UserSearchCell.cellIdentifier, for: indexPath) as! UserSearchCell
             let userData: UserData = accounts[indexPath.row]
@@ -72,6 +70,12 @@ class SwitchAccountViewController: UIViewController, UITableViewDelegate, UITabl
             // Load the image using SDWebImage
             userCell.userImageView.sd_setImage(with: reference, placeholderImage: placeholderImage)
             
+            if(indexPath.row == 0){
+                userCell.contentView.backgroundColor = .mainDARKPURPLE
+                userCell.usernameLabel.textColor = .white
+                userCell.fullNameLabel.textColor = .white
+            }
+            
             userCell.usernameLabel.text = "@" + userData.username
             userCell.fullNameLabel.text = userData.fullName
             return userCell
@@ -83,7 +87,36 @@ class SwitchAccountViewController: UIViewController, UITableViewDelegate, UITabl
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat
     {
-        return .getPercentageHeight(percentage: 9)
+        return .getPercentageHeight(percentage: 10)
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if(indexPath.row == 0){
+            delegate?.closeSwitchAccount()
+        }
+        else{
+        if(indexPath.row < accounts.count){
+            DataController.addAccount(bio: MapViewController.bio, username: MapViewController.username, fullName: MapViewController.fullName, uid: MapViewController.uid)
+            let bio = accounts[indexPath.row].bio
+            let username = accounts[indexPath.row].username
+            let fullName = accounts[indexPath.row].fullName
+            let uid = accounts[indexPath.row].uid
+
+            DataController.removeWithID(uid: uid, entity: "OtherAccounts")
+            DataController.eraseAll(forEntity: "User")
+            DataController.addUser(bio: bio, username: username, fullName: fullName, uid: uid, radius: Double(MapViewController.defaultMapViewRegionRadius/1000.0), latitude: Double(MapViewController.defaultMapViewCenterLocation.latitude), longitude: Double(MapViewController.defaultMapViewCenterLocation.longitude), notificationName: .editedProfileMap)
+            
+            delegate?.closeSwitchAccount()
+            NotificationCenter.default.post(name: .editedProfile, object: nil)
+
+        }else{
+            let newUser = UserData(username: "", uid: "", bio: "", fullName: "")
+            let vc = EditProfileViewController(with: newUser, newUser: true, followerCount: "0", followingCount: "0")
+            vc.modalPresentationStyle = .overFullScreen
+            self.present(vc, animated: true, completion: nil)
+            delegate?.closeSwitchAccount()
+        }
+        }
     }
     
 
@@ -118,7 +151,7 @@ final class AddOrgCell: UITableViewCell {
     
     
     lazy private(set) var plusView: BubbleImageView = {
-        let plus = UIImage(systemSymbol: .plusCircle, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.mainDARKPURPLE)
+        let plus = UIImage(systemSymbol: .plus, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.mainDARKPURPLE, renderingMode: .alwaysOriginal)
         var plusView = BubbleImageView(image: plus)
         plusView.contentMode = .scaleAspectFill
         
@@ -156,9 +189,9 @@ final class AddOrgCell: UITableViewCell {
         
         contentView.addSubview(plusView)
         plusView.translatesAutoresizingMaskIntoConstraints = false
-        plusView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: cellYInset*0.65).isActive = true
-        plusView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellYInset*0.65).isActive = true
-        plusView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -cellXInset).isActive = true
+        plusView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: cellYInset*1.5).isActive = true
+        plusView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -cellYInset*1.5).isActive = true
+        plusView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -(cellXInset + (cellYInset * 0.85))).isActive = true
         plusView.leadingAnchor.constraint(equalTo: addOrgLabel.trailingAnchor, constant: cellInnerInset).isActive = true
         
     }

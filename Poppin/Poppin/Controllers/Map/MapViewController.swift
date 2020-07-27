@@ -54,13 +54,13 @@ final class MapViewController: UIViewController {
     
     var mapPopsicles: [PopsicleAnnotation] = []
     
-    var username: String = ""
+    public static var username: String = ""
     
-    var uid: String = ""
+    public static var uid: String = ""
     
-    var bio: String = ""
+    public static var bio: String = ""
     
-    var fullName: String = ""
+    public static var fullName: String = ""
     
     lazy private var launchScreenOverlayView: UIView = {
         
@@ -254,10 +254,8 @@ final class MapViewController: UIViewController {
         
         var mapMenuViewController = MenuViewController()
         mapMenuViewController.delegate = self
-        mapMenuViewController.username = username
-        mapMenuViewController.fullName = fullName
-        mapMenuViewController.uid = uid
-        mapMenuViewController.bio = bio 
+        mapMenuViewController.username = MapViewController.username
+        mapMenuViewController.fullName = MapViewController.fullName
         return mapMenuViewController
         
     }()
@@ -567,16 +565,32 @@ final class MapViewController: UIViewController {
         
     }
     
+    @objc func editedProfile(_ notification: Notification) {
+        let user = DataController.getUser()
+        
+        MapViewController.uid = user.value(forKey: "uid") as? String ?? ""
+        MapViewController.username = user.value(forKey: "username") as? String ?? ""
+        MapViewController.bio = user.value(forKey: "bio") as? String ?? ""
+        MapViewController.fullName = user.value(forKey: "fullName") as? String ?? ""
+        
+        mapMenuViewController.username = MapViewController.username
+        mapMenuViewController.fullName = MapViewController.fullName
+      
+    }
+    
     @objc func contextDidSave(_ notification: Notification) {
         print("SAVED USER")
 
         let user = DataController.getUser()
         
-        uid = user.value(forKey: "uid") as? String ?? ""
-        username = user.value(forKey: "username") as? String ?? ""
-        bio = user.value(forKey: "bio") as? String ?? ""
-        fullName = user.value(forKey: "fullName") as? String ?? ""
+        MapViewController.uid = user.value(forKey: "uid") as? String ?? ""
+        MapViewController.username = user.value(forKey: "username") as? String ?? ""
+        MapViewController.bio = user.value(forKey: "bio") as? String ?? ""
+        MapViewController.fullName = user.value(forKey: "fullName") as? String ?? ""
         
+        mapMenuViewController.username = MapViewController.username
+        mapMenuViewController.fullName = MapViewController.fullName
+ 
         let radius = user.value(forKey: "radius") as? Double ?? 0.0
         let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
         let latitude = user.value(forKey: "latitude") as? Double ?? 0.0
@@ -598,10 +612,10 @@ final class MapViewController: UIViewController {
         if(Auth.auth().currentUser != nil){
         let user = DataController.getUser()
             
-        uid = user.value(forKey: "uid") as? String ?? ""
-        username = user.value(forKey: "username") as? String ?? ""
-        bio = user.value(forKey: "bio") as? String ?? ""
-        fullName = user.value(forKey: "fullName") as? String ?? ""
+        MapViewController.uid = user.value(forKey: "uid") as? String ?? ""
+        MapViewController.username = user.value(forKey: "username") as? String ?? ""
+        MapViewController.bio = user.value(forKey: "bio") as? String ?? ""
+        MapViewController.fullName = user.value(forKey: "fullName") as? String ?? ""
         
         let radius = user.value(forKey: "radius") as? Double ?? 0.0
         let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
@@ -623,6 +637,8 @@ final class MapViewController: UIViewController {
         setLocation()
     
         NotificationCenter.default.addObserver(self, selector: #selector(contextDidSave(_:)), name: .userSignedIn, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(editedProfile(_:)), name: .editedProfileMap, object: nil)
         
         let mapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
         mapGestureRecognizer.numberOfTapsRequired = 1

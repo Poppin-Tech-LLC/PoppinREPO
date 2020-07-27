@@ -29,7 +29,11 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     private var switchAccountHeight: CGFloat = .getPercentageHeight(percentage: 50)
     
+    var switchAccountHeightAnchor:NSLayoutConstraint!
+    
     private var switchAccountIsVisible: Bool = false
+    
+    private var isUser: Bool = false
     
     private var storage: Storage = Storage.storage()
     
@@ -46,6 +50,9 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         didSet { followingButton.setTitle(following, for: .normal) }
         
     }
+    
+    private var deleted: Bool = false
+    private var deletedUid: String = ""
     
     private var profilePictureURL: URL? {
         
@@ -90,12 +97,45 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     lazy private var switchAccountViewController: SwitchAccountViewController = {
            
            var switchAccountViewController = SwitchAccountViewController()
-           switchAccountHeight = .getPercentageHeight(percentage: 18 + 2)
+           let accounts = DataController.getOtherAccounts()
            switchAccountViewController.delegate = self
-           switchAccountViewController.accounts = [userData]
            return switchAccountViewController
            
        }()
+    
+    private func fetchAccounts(){
+        if(deleted){
+            DataController.removeWithID(uid: deletedUid, entity: "OtherAccounts")
+            DataController.save()
+            deleted = false
+        }
+        let accounts = DataController.getOtherAccounts()
+        let user  = DataController.getUser()
+        
+        let bio = user.value(forKey: "bio") as? String ?? ""
+        let uid = user.value(forKey: "uid") as? String ?? ""
+        let username = user.value(forKey: "username") as? String ?? ""
+        let fullName = user.value(forKey: "fullName") as? String ?? ""
+        
+        let userToAdd = UserData(username: username, uid: uid, bio: bio, fullName: fullName)
+        switchAccountViewController.accounts = [userToAdd]
+
+        
+        for account in accounts {
+            let bio = account.value(forKey: "bio") as? String ?? ""
+            let uid = account.value(forKey: "uid") as? String ?? ""
+            let username = account.value(forKey: "username") as? String ?? ""
+            let fullName = account.value(forKey: "fullName") as? String ?? ""
+            print(username)
+            
+            let userToAdd = UserData(username: username, uid: uid, bio: bio, fullName: fullName)
+            switchAccountViewController.accounts.append(userToAdd)
+
+        }
+        switchAccountHeight = .getPercentageHeight(percentage: CGFloat(((switchAccountViewController.accounts.count + 1) * 10) + 2))
+
+        switchAccountViewController.accountsTable.reloadData()
+    }
     
     lazy private var switchAccountTopConstraint: NSLayoutConstraint = {
         
@@ -307,10 +347,8 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         var followButton = BouncyButton(bouncyButtonImage: nil)
         followButton.titleLabel!.textAlignment = .center
         followButton.titleLabel!.font = .dynamicFont(with: "Octarine-Bold", style: .caption1)
-        followButton.setTitle("Follow", for: .normal)
         followButton.setTitleColor(.white, for: .normal)
         followButton.backgroundColor = .mainDARKPURPLE
-        followButton.addTarget(self, action: #selector(performFollow), for: .touchUpInside)
         followButton.contentEdgeInsets = UIEdgeInsets(top: innerEdgeInset, left: innerEdgeInset*2, bottom: innerEdgeInset, right: innerEdgeInset*2)
         followButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 10.0, maxSize: 12.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
         
@@ -335,7 +373,15 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         super.init(nibName: nil, bundle: nil)
         
         userData = data
-        usernameButton.isUserInteractionEnabled = isUser
+        self.isUser = isUser
+        if(isUser){
+            followButton.setTitle("Edit Profile", for: .normal)
+            followButton.addTarget(self, action: #selector(editProfile), for: .touchUpInside)
+            fetchAccounts()
+        }else{
+            followButton.setTitle("Follow", for: .normal)
+            followButton.addTarget(self, action: #selector(performFollow), for: .touchUpInside)
+        }
         fetchFollowersFollowingPicture()
         
     }
@@ -346,9 +392,36 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
     }
     
+    @objc func deletedOrg(_ notification: Notification) {
+        let index = IndexPath(row: 1, section: 0)
+         deletedUid = userData.uid
+        deleted = true
+        switchAccountViewController.accountsTable.delegate?.tableView!(switchAccountViewController.accountsTable, didSelectRowAt: index)
+    }
+    
+    @objc func editedProfile(_ notification: Notification) {
+        usernameButton.setTitle(MapViewController.username, for: .normal)
+        fullNameLabel.text = MapViewController.fullName
+        bioLabel.text = MapViewController.bio
+        userData.bio = MapViewController.bio
+        userData.username = MapViewController.username
+        userData.fullName = MapViewController.fullName
+        userData.uid = MapViewController.uid
+        fetchFollowersFollowingPicture()
+        fetchAccounts()
+        switchAccountHeightAnchor.constant = switchAccountHeight
+        switchAccountTopConstraint.constant = switchAccountHeight
+
+    }
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(editedProfile(_:)), name: .editedProfile, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(deletedOrg(_:)), name: .deletedOrg, object: nil)
+
         
         view.addSubview(backgroundView)
         backgroundView.translatesAutoresizingMaskIntoConstraints = false
@@ -372,7 +445,8 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         switchAccountViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         switchAccountViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         switchAccountTopConstraint.isActive = true
-        switchAccountViewController.view.heightAnchor.constraint(equalToConstant: switchAccountHeight).isActive = true
+        switchAccountHeightAnchor = switchAccountViewController.view.heightAnchor.constraint(equalToConstant: switchAccountHeight)
+        switchAccountHeightAnchor.isActive = true
         
         switchAccountViewController.didMove(toParent: self)
 
@@ -381,7 +455,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     override func viewWillAppear(_ animated: Bool) {
         
         super.viewWillAppear(animated)
-        
+                
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         
     }
@@ -406,6 +480,13 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
         navigationController?.popViewController(animated: true)
         
+    }
+    
+    @objc private func editProfile() {
+        let vc = EditProfileViewController(with: userData, newUser: false, followerCount: followers, followingCount: following)
+        vc.modalPresentationStyle = .overFullScreen
+        self.present(vc, animated: true, completion: nil)
+        //navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc private func performFollow() {
@@ -552,9 +633,17 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     private func fetchFollowersFollowingPicture() {
         
-        let ref2 = storage.reference().child("images/\(userData.uid)/profilepic.jpg")
+        var uid: String
         
-        let followerRef = Firestore.firestore().collection("users").document(userData.uid)
+        if(isUser){
+            uid = MapViewController.uid
+        }else{
+            uid = userData.uid
+        }
+        
+        let ref2 = storage.reference().child("images/\(uid)/profilepic.jpg")
+        
+        let followerRef = Firestore.firestore().collection("users").document(uid)
         
         followerRef.getDocument{ (document, error) in
         if let document = document, document.exists {
@@ -564,15 +653,17 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             
             self.followers = String(followers.count - 1)
             self.following = String(following.count - 1)
-        
-            if(followers[Auth.auth().currentUser?.uid ?? ""] != nil){
-                self.followButton.setTitle("Following", for: .normal)
-                self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-                self.followButton.backgroundColor = .white
-            }else{
-                self.followButton.setTitle("Follow", for: .normal)
-                self.followButton.setTitleColor(.white, for: .normal)
-                self.followButton.backgroundColor = .mainDARKPURPLE
+            
+            if(!self.isUser){
+                if(followers[Auth.auth().currentUser?.uid ?? ""] != nil){
+                    self.followButton.setTitle("Following", for: .normal)
+                    self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+                    self.followButton.backgroundColor = .white
+                }else{
+                    self.followButton.setTitle("Follow", for: .normal)
+                    self.followButton.setTitleColor(.white, for: .normal)
+                    self.followButton.backgroundColor = .mainDARKPURPLE
+                }
             }
 
         } else {

@@ -620,6 +620,7 @@ final class SearchViewController: UIViewController {
         
         var recentUsers: [UserData] = []
         
+        print(user.count)
         for u in user {
             let username = u.value(forKey: "username") as! String
             let uid = u.value(forKey: "uid") as! String
@@ -1040,11 +1041,13 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
             let profileVC = ProfileViewController(with: searchCell.filteredUsers[indexPath.row], isUser: false)
             
             if(searchTypes[0] == .Users){
-                DataController.addUser(bio: searchCell.filteredUsers[indexPath.row].bio, username: searchCell.filteredUsers[indexPath.row].username, fullName: searchCell.filteredUsers[indexPath.row].fullName, uid: searchCell.filteredUsers[indexPath.row].uid)
+                DataController.addRecentSearch(bio: searchCell.filteredUsers[indexPath.row].bio, username: searchCell.filteredUsers[indexPath.row].username, fullName: searchCell.filteredUsers[indexPath.row].fullName, uid: searchCell.filteredUsers[indexPath.row].uid)
             }
             
             navigationController?.pushViewController(profileVC, animated: true)
-            
+            if(searchBar.text == ""){
+                searchCell.filteredUsers = fetchRecentUsers()
+            }
             searchCell.searchTableView.reloadData()
         }
         

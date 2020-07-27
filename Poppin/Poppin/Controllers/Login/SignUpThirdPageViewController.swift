@@ -464,8 +464,9 @@ final class SignUpThirdPageViewController: UIViewController {
                                             [weak self] in
                                             
                                             guard let self = self else { return }
+                                            DataController.eraseAll(forEntity: "OtherAccounts")
                                             DataController.eraseAll(forEntity: "User")
-                                            DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid, radius: self.radius, latitude: self.latitude, longitude: self.longitude)
+                                            DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid, radius: self.radius, latitude: self.latitude, longitude: self.longitude, notificationName: .userSignedIn)
                                             
                                             self.signedUp()
                                             

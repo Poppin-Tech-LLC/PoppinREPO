@@ -356,8 +356,42 @@ final class LoginViewController: UIViewController {
                     //uncomment for email verification
                     
 //                    if(authResult!.user.isEmailVerified){
+                    
                         DataController.eraseAll(forEntity: "User")
-                        DataController.addUser()
+                        DataController.addUser(notificationName: .userSignedIn)
+                        DataController.eraseAll(forEntity: "OtherAccounts")
+                    
+                    let orgRef = Firestore.firestore().collection("users")
+                    
+                    orgRef.document(Auth.auth().currentUser!.uid).getDocument{ (document, error) in
+                    if let document = document, document.exists {
+                        let data = document.data()
+                         let orgs = data?["orgs"] as? [String: Any] ?? [:]
+                         let userIDs: [String] = Array(orgs.keys)
+                        
+                        if userIDs.isEmpty {
+                            return
+                        }
+                        
+                        for userId in userIDs {
+                            
+                                orgRef.document(userId).getDocument{ (document, error) in
+                                    let data = document?.data()
+                                    
+                                    let username = data?["username"] as? String ?? ""
+                                    let uid = userId
+                                    let bio = data?["bio"] as? String ?? ""
+                                    let fullName = data?["fullName"] as? String ?? ""
+                                    
+                                    DataController.addAccount(bio: bio, username: username, fullName: fullName, uid: uid)
+                            }
+                            
+                        }
+
+                    } else {
+                        print("Document does not exist")
+                        }
+                    }
                         
                         self.navigationController?.dismiss(animated: true, completion: nil)
 //                    }else{

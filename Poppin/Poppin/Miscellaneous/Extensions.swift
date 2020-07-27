@@ -443,6 +443,10 @@ extension Notification.Name {
     static let userSignedUp = Notification.Name("userSignedUp")
     static let loadedFollowing = Notification.Name("loadedFollowing")
     static let loadedFollowers = Notification.Name("loadedFollowers")
+    static let editedProfile = Notification.Name("editedProfile")
+    static let editedProfileMap = Notification.Name("editedProfileMap")
+    static let deletedOrg = Notification.Name("deletedOrg")
+
 
 
 
