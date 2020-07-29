@@ -16,6 +16,7 @@ import Contacts
 import GeoFire
 import Geofirestore
 import CoreData
+import SwiftDate
 
 protocol MenuDelegate: class {
     
@@ -397,7 +398,7 @@ final class MapViewController: UIViewController {
             
         }
         
-        let createEventNavigationController = UINavigationController(rootViewController: NewCreateEventViewController())
+        let createEventNavigationController = UINavigationController(rootViewController: CreateEventFirstSectionViewController()/*NewCreateEventViewController(userLocation: userLocation)*/)
         createEventNavigationController.modalPresentationStyle = .overFullScreen
         createEventNavigationController.modalTransitionStyle = .coverVertical
         createEventNavigationController.setNavigationBarHidden(true, animated: false)
@@ -820,8 +821,8 @@ final class MapViewController: UIViewController {
                     
                     let data = document.data()
                     
-                    let eventStartDate = data!["startDate"] as! String
-                    let eventEndDate = data!["endDate"] as! String
+                    let eventStartDate: Date = DateInRegion(data!["startDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+                    let eventEndDate: Date = DateInRegion(data!["endDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
                     
                     let eventName = data!["eventName"] as! String
                     let eventCategory = data!["category"] as! String
@@ -1132,8 +1133,8 @@ extension MapViewController: MKMapViewDelegate {
             
             bottomSheetVC.popsicleCategory = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventCategory
             bottomSheetVC.popsicleName = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventTitle
-            bottomSheetVC.popsicleStartDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventStartDate
-            bottomSheetVC.popsicleEndDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventEndDate!
+            bottomSheetVC.popsicleStartDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventStartDate.toString(.standard)
+            bottomSheetVC.popsicleEndDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventEndDate.toString(.standard)
             bottomSheetVC.popsicleDetails = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventDetails!
             bottomSheetVC.popsicleAddy = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventLocation
 //            bottomSheetVC.popsicleHashtags = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventHashtags

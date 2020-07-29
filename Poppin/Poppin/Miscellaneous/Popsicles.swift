@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import SwiftDate
 
 enum PopsicleCategory: String {
     
@@ -35,17 +36,17 @@ enum PopsicleCategory: String {
         
     }
     
-    func getPopsicleCategoryColor() -> UIColor {
+    func getPopsicleCategoryGradientColors() -> [UIColor] {
         
         switch self {
             
-        case .Education: return .educationDARKBLUE
-        case .Food: return .foodDARKORANGE
-        case .Social: return .socialDARKRED
-        case .Sports: return .sportsDARKGREEN
-        case .Culture: return .cultureDARKPURPLE
-        case .Poppin: return .poppinDARKGOLD
-        case .Default: return .defaultGRAY
+        case .Education: return [.educationLIGHTBLUE, .educationDARKBLUE]
+        case .Food: return [.foodLIGHTORANGE, .foodDARKORANGE]
+        case .Social: return [.socialLIGHTRED, .socialDARKRED]
+        case .Sports: return [.sportsLIGHTGREEN, .sportsDARKGREEN]
+        case .Culture: return [.cultureLIGHTPURPLE, .cultureDARKPURPLE]
+        case .Poppin: return [.poppinLIGHTGOLD, .poppinDARKGOLD]
+        case .Default: return [.defaultGRAY, .defaultGRAY]
             
         }
         
@@ -88,23 +89,49 @@ enum PopsicleCategory: String {
 struct PopsicleAnnotationData {
     
     var eventTitle: String
-    var eventDetails: String? = ""
-    var eventStartDate: String
-    var eventEndDate: String? = "11:59p"
+    var eventDetails: String?
+    var eventStartDate: Date
+    var eventEndDate: Date
     var eventCategory: PopsicleCategory
-    var eventHashtags: String
+    var eventHashtags: String?
     var eventLocation: CLLocationCoordinate2D
-    var eventAttendees: [String]? = []
+    var eventAttendees: [String]
+    
+    init() {
+        
+        eventTitle = ""
+        eventDetails = ""
+        eventStartDate = Region.current.nowInThisRegion().date.dateRoundedAt(at: .toCeil5Mins)
+        eventEndDate = Region.current.nowInThisRegion().date.dateRoundedAt(at: .toCeil5Mins) + 15.minutes
+        eventCategory = .Default
+        eventHashtags = ""
+        eventLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
+        eventAttendees = []
+        
+    }
+    
+    init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: PopsicleCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]) {
+        
+        self.eventTitle = eventTitle
+        self.eventDetails = eventDetails
+        self.eventStartDate = eventStartDate
+        self.eventEndDate = eventEndDate
+        self.eventCategory = eventCategory
+        self.eventHashtags = eventHashtags
+        self.eventLocation = eventLocation
+        self.eventAttendees = eventAttendees
+        
+    }
     
 }
 
 class PopsicleAnnotation: MKPointAnnotation {
     
-    public static let defaultPopsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotationData(eventTitle: "Default Event", eventDetails: "Today", eventStartDate: PopsicleCategory.Default.rawValue, eventEndDate: "", eventCategory: PopsicleCategory.Default, eventHashtags: "", eventLocation: CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619))
+    public static let defaultPopsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotationData()
     
     lazy private(set) var popsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotation.defaultPopsicleAnnotationData
     
-    convenience init(eventTitle: String, eventDetails: String?, eventStartDate: String, eventEndDate: String?, eventCategory: PopsicleCategory, eventHashtags: String, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]?) {
+    convenience init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: PopsicleCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]) {
         
         self.init(popsicleAnnotationData: PopsicleAnnotationData(eventTitle: eventTitle, eventDetails: eventDetails, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: eventCategory, eventHashtags: eventHashtags, eventLocation: eventLocation, eventAttendees: eventAttendees))
         
@@ -114,7 +141,15 @@ class PopsicleAnnotation: MKPointAnnotation {
         
         super.init()
         
-        if let newPopsicleAnnotationData = popsicleAnnotationData { self.popsicleAnnotationData = newPopsicleAnnotationData }
+        if let popsicleAnnotationData = popsicleAnnotationData {
+            
+            self.popsicleAnnotationData = popsicleAnnotationData
+            
+        } else {
+            
+            self.popsicleAnnotationData = PopsicleAnnotation.defaultPopsicleAnnotationData
+            
+        }
         
         self.coordinate = self.popsicleAnnotationData.eventLocation
         

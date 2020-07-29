@@ -10,24 +10,11 @@ import UIKit
 import Firebase
 import CoreLocation
 import MapKit
+import SwiftDate
 
 class NewCreateEventViewController : UIViewController {
     
-    var username: String?
-    
-    var eventNameText = "Add Title"
-    
-    var startDateText = "Start Date"
-    
-    var endDateText = "End Date"
-    
-    var locationText = "Location"
-    
-    var hashtagsText = "Add Hashtags"
-    
-    var detailsText = "Add details..."
-    
-    var coordinates: CLLocationCoordinate2D?
+    private var eventData: PopsicleAnnotationData = PopsicleAnnotationData()
     
     private let createEventVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let createEventHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
@@ -76,11 +63,12 @@ class NewCreateEventViewController : UIViewController {
     lazy private var createEventCancelButton: BubbleButton = {
         
         var createEventCancelButton = BubbleButton(bouncyButtonImage: UIImage(systemSymbol: .multiply, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal))
+        createEventCancelButton.contentEdgeInsets = UIEdgeInsets(top: createEventTopLabel.intrinsicContentSize.height*0.5, left: createEventTopLabel.intrinsicContentSize.height*0.5, bottom: createEventTopLabel.intrinsicContentSize.height*0.5, right: createEventTopLabel.intrinsicContentSize.height*0.5)
         createEventCancelButton.backgroundColor = .clear
         createEventCancelButton.addTarget(self, action: #selector(dismissCreateEvent), for: .touchUpInside)
         
         createEventCancelButton.translatesAutoresizingMaskIntoConstraints = false
-        createEventCancelButton.heightAnchor.constraint(equalToConstant: createEventTopLabel.intrinsicContentSize.height).isActive = true
+        createEventCancelButton.heightAnchor.constraint(equalToConstant: createEventTopLabel.intrinsicContentSize.height*2).isActive = true
         createEventCancelButton.widthAnchor.constraint(equalTo: createEventCancelButton.heightAnchor).isActive = true
         
         return createEventCancelButton
@@ -131,25 +119,25 @@ class NewCreateEventViewController : UIViewController {
     
     let cellReuseIdentifier = "cell"
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    init(userLocation: CLLocationCoordinate2D?) {
         
-        /* FOR TRIAL PURPOSES */
-        modalPresentationStyle = .fullScreen
+        super.init(nibName: nil, bundle: nil)
+        
+        if let userLocation = userLocation { eventData.eventLocation = userLocation }
+        
     }
     
     required init?(coder: NSCoder) {
+        
         super.init(coder: coder)
-    
-        /* FOR TRIAL PURPOSES */
-        modalPresentationStyle = .fullScreen
+        
     }
     
     @objc func eventCreated(_ notification: Notification) {
         self.dismiss(animated: true, completion: nil)
        }
     
-    @objc func switchCategory(_ notification: Notification) {
+    /*@objc func switchCategory(_ notification: Notification) {
         guard let eventName = notification.userInfo?["eventName"] as? String else { return }
         guard let eventInfo = notification.userInfo?["eventInfo"] as? String else { return }
         guard let location = notification.userInfo?["location"] as? String else { return }
@@ -183,19 +171,17 @@ class NewCreateEventViewController : UIViewController {
         createEventCancelButton.isHidden = false
         createEventTopLabel.isHidden = false
         
-    }
+    }*/
 
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(self.eventCreated(_:)), name: .eventCreated, object: nil)
+        /*NotificationCenter.default.addObserver(self, selector: #selector(self.eventCreated(_:)), name: .eventCreated, object: nil)
         
-         NotificationCenter.default.addObserver(self, selector: #selector(self.switchCategory(_:)), name: .switchCategory, object: nil)
+         NotificationCenter.default.addObserver(self, selector: #selector(self.switchCategory(_:)), name: .switchCategory, object: nil)*/
         
         view.backgroundColor = .mainCREAM
-
-        getUsername()
         
         view.addSubview(createEventBackgroundView)
         createEventBackgroundView.translatesAutoresizingMaskIntoConstraints = false
@@ -213,32 +199,13 @@ class NewCreateEventViewController : UIViewController {
         
         view.addSubview(createEventCancelButton)
         createEventCancelButton.translatesAutoresizingMaskIntoConstraints = false
-        createEventCancelButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: createEventVerticalEdgeInset).isActive = true
-        createEventCancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: createEventHorizontalEdgeInset).isActive = true
+        createEventCancelButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: createEventVerticalEdgeInset - createEventTopLabel.intrinsicContentSize.height*0.25).isActive = true
+        createEventCancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: createEventHorizontalEdgeInset - createEventTopLabel.intrinsicContentSize.height*0.25).isActive = true
         
         view.addSubview(createEventTopLabel)
         createEventTopLabel.translatesAutoresizingMaskIntoConstraints = false
         createEventTopLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         createEventTopLabel.topAnchor.constraint(equalTo: createEventCancelButton.bottomAnchor, constant: createEventInnerInset).isActive = true
-        
-    }
-    
-    func getUsername(){
-        let ref = Database.database().reference()
-        
-        let uid = Auth.auth().currentUser!.uid
-        ref.child("users/\(uid)/username").observeSingleEvent(of: .value, with: { (snapshot) in
-            // Get user value
-            let value = snapshot.value as? String
-            
-            
-            self.username = "@"
-                //(value!)
-            
-            // ...
-        }) { (error) in
-            print(error.localizedDescription)
-        }
         
     }
     
@@ -392,69 +359,54 @@ extension NewCreateEventViewController : UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath){
         
-        // controls what happens when a card is clicked
-        let vc = NewCreateEventCardViewController()
-        vc.usernameLabel.text = username
+        eventData.eventCategory = eventCategories[indexPath.row]
         
-        switch eventCategories[indexPath.row]   {
-        case .Culture:
+        let refDate = Region.current.nowInThisRegion().date.dateRoundedAt(at: .toCeil5Mins)
+        
+        if eventData.eventStartDate.isBeforeDate(refDate, granularity: .minute) {
             
-            vc.backgroundGradientColors = [UIColor.cultureLIGHTPURPLE.cgColor, UIColor.cultureDARKPURPLE.cgColor ]
+            eventData.eventStartDate = refDate
             
-        case .Social:
-            
-            vc.backgroundGradientColors = [ UIColor.socialLIGHTRED.cgColor, UIColor.socialDARKRED.cgColor ]
-            
-        case .Food:
-            
-            vc.backgroundGradientColors = [ UIColor.foodLIGHTORANGE.cgColor, UIColor.foodDARKORANGE.cgColor ]
-            
-        case .Sports:
-            
-            vc.backgroundGradientColors = [ UIColor.sportsLIGHTGREEN.cgColor, UIColor.sportsDARKGREEN.cgColor ]
-            
-        case .Education:
-            
-            vc.backgroundGradientColors = [ UIColor.educationLIGHTBLUE.cgColor, UIColor.educationDARKBLUE.cgColor ]
-            
-        default:
-            break
         }
         
-        vc.eventNameTextField.text = eventNameText
-        //              vc.startDateTextField.attributedPlaceholder = NSAttributedString(string: startDateText, attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-LightOblique", style: .title3), NSAttributedString.Key.foregroundColor : UIColor.white])
-        //              vc.endDateTextField.attributedPlaceholder = NSAttributedString(string: endDateText, attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-LightOblique", style: .title3), NSAttributedString.Key.foregroundColor : UIColor.white])
-        vc.startDateTextField.text = startDateText
+        if eventData.eventEndDate.isInRange(date: eventData.eventStartDate, and: eventData.eventStartDate + 15.minutes) {
+            
+            eventData.eventEndDate = eventData.eventStartDate + 15.minutes
+            
+        }
+        
+        let vc = NewCreateEventCardViewController(eventData: eventData)
+        
+        /*vc.startDateTextField.text = startDateText
         vc.endDateTextField.text = endDateText
-        vc.locationLabel.text = locationText
+        vc.eventLocationLabel.text = locationText
         vc.detailsButton.text = detailsText
-        vc.hashtagTextView.text = hashtagsText
+        vc.eventHashtagsView.text = hashtagsText
         
         if(locationText != "Location"){
-            let allAnnotations = vc.mainMapView.annotations
-            vc.mainMapView.removeAnnotations(allAnnotations)
+            let allAnnotations = vc.eventLocationMapView.annotations
+            vc.eventLocationMapView.removeAnnotations(allAnnotations)
             
             let annotation = MKPointAnnotation()
             annotation.coordinate = coordinates!
             
             let region = MKCoordinateRegion(center: annotation.coordinate, latitudinalMeters: 500, longitudinalMeters: 500)
             vc.location = coordinates
-            vc.mainMapView.setRegion(region, animated: true)
-            vc.mainMapView.addAnnotation(annotation)
+            vc.eventLocationMapView.setRegion(region, animated: true)
+            vc.eventLocationMapView.addAnnotation(annotation)
             
-            if(vc.eventNameTextField.text == "Add Title" || vc.hashtagTextView.text == "Add Hashtags" || vc.detailsButton.text == "Add details..." || vc.startDateTextField.text == "Start Date" || vc.endDateTextField.text == "End Date" || vc.locationLabel.text == "Location"){
+            if( vc.eventHashtagsView.text == "Add Hashtags" || vc.detailsButton.text == "Add details..." || vc.startDateTextField.text == "Start Date" || vc.endDateTextField.text == "End Date" || vc.eventLocationLabel.text == "Location"){
                 vc.createButton.isUserInteractionEnabled = false
                 vc.createButton.alpha = 0.6
             }else{
                 vc.createButton.isUserInteractionEnabled = true
                 vc.createButton.alpha = 1.0
             }
-        }
+        }*/
         
         navigationController?.pushViewController(vc, animated: true)
         
     }
-    
 }
 
 extension NewCreateEventViewController : UIScrollViewDelegate {

@@ -9,6 +9,8 @@
 import UIKit
 import SFSafeSymbols // Allows for easy access of Apple Symbols
 import MapKit
+import SwiftDate
+import Contacts
 
 extension UIFont {
     
@@ -216,6 +218,29 @@ extension UIImage {
 
 extension UIView {
     
+    func anchor(top: NSLayoutYAxisAnchor? = nil, leading: NSLayoutXAxisAnchor? = nil, bottom: NSLayoutYAxisAnchor? = nil, trailing: NSLayoutXAxisAnchor? = nil, centerX: NSLayoutXAxisAnchor? = nil, centerY: NSLayoutYAxisAnchor? = nil, width: NSLayoutDimension? = nil, height: NSLayoutDimension? = nil, size: CGSize = .zero, padding: UIEdgeInsets = .zero, centerOffset: CGSize = .zero, multiples: CGSize = CGSize(width: 1.0, height: 1.0)) {
+        
+        translatesAutoresizingMaskIntoConstraints = false
+        
+        if let top = top { topAnchor.constraint(equalTo: top, constant: padding.top).isActive = true }
+        if let leading = leading { leadingAnchor.constraint(equalTo: leading, constant: padding.left).isActive = true }
+        if let bottom = bottom { bottomAnchor.constraint(equalTo: bottom, constant: -padding.bottom).isActive = true }
+        if let trailing = trailing { trailingAnchor.constraint(equalTo: trailing, constant: -padding.right).isActive = true }
+        if let centerX = centerX { centerXAnchor.constraint(equalTo: centerX, constant: centerOffset.width).isActive = true }
+        if let centerY = centerY { centerYAnchor.constraint(equalTo: centerY, constant: centerOffset.height).isActive = true }
+        if let width = width { widthAnchor.constraint(equalTo: width, multiplier: multiples.width).isActive = true }
+        if let height = height { heightAnchor.constraint(equalTo: height, multiplier: multiples.height).isActive = true }
+        if size.width != 0.0 { widthAnchor.constraint(equalToConstant: size.width).isActive = true }
+        if size.height != 0.0 { heightAnchor.constraint(equalToConstant: size.height).isActive = true }
+        
+    }
+    
+    func attatchEdgesToSuperview(padding: UIEdgeInsets = .zero) {
+        
+        anchor(top: superview?.topAnchor, leading: superview?.leadingAnchor, bottom: superview?.bottomAnchor, trailing: superview?.trailingAnchor, padding: padding)
+        
+    }
+    
     public func addShadowAndRoundCorners(cornerRadius: CGFloat? = nil, shadowColor: UIColor? = nil, shadowOffset: CGSize? = nil, shadowOpacity: Float? = nil, shadowRadius: CGFloat? = nil, topRightMask: Bool = true, topLeftMask: Bool = true, bottomRightMask: Bool = true, bottomLeftMask: Bool = true) {
             
         layer.masksToBounds = false
@@ -323,13 +348,25 @@ extension UITextField {
     
     public func setBottomBorder(color: UIColor, height: CGFloat) {
         
-      self.borderStyle = .none
-      self.layer.backgroundColor = UIColor.white.cgColor
-      self.layer.masksToBounds = false
+        self.borderStyle = .none
+        
+        if self.layer.backgroundColor == nil || self.layer.backgroundColor == UIColor.clear.cgColor {
+            
+            self.layer.backgroundColor = UIColor.white.cgColor
+            
+        }
+        
+        self.layer.masksToBounds = false
         self.layer.shadowColor = color.cgColor
-      self.layer.shadowOffset = CGSize(width: 0.0, height: height)
-      self.layer.shadowOpacity = 1.0
-      self.layer.shadowRadius = 0.0
+        self.layer.shadowOffset = CGSize(width: 0.0, height: height)
+        self.layer.shadowOpacity = 1.0
+        self.layer.shadowRadius = 0.0
+        
+    }
+    
+    public func isEmpty() -> Bool {
+        
+        return text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
         
     }
     
@@ -340,13 +377,24 @@ extension UITextView {
     public func setBottomBorder() { self.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0) }
     
     public func setBottomBorder(color: UIColor, height: CGFloat) {
-
-      self.layer.backgroundColor = UIColor.white.cgColor
-      self.layer.masksToBounds = false
-      self.layer.shadowColor = color.cgColor
-      self.layer.shadowOffset = CGSize(width: 0.0, height: height)
-      self.layer.shadowOpacity = 1.0
-      self.layer.shadowRadius = 0.0
+        
+        if self.layer.backgroundColor == nil || self.layer.backgroundColor == UIColor.clear.cgColor {
+            
+            self.layer.backgroundColor = UIColor.white.cgColor
+            
+        }
+        
+        self.layer.masksToBounds = false
+        self.layer.shadowColor = color.cgColor
+        self.layer.shadowOffset = CGSize(width: 0.0, height: height)
+        self.layer.shadowOpacity = 1.0
+        self.layer.shadowRadius = 0.0
+        
+    }
+    
+    public func isEmpty() -> Bool {
+        
+        return text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
         
     }
     
@@ -450,4 +498,147 @@ extension Notification.Name {
 
 
 
+}
+
+extension Date {
+    
+    static func getFormattedDateInterval(start: Date, end: Date) -> String? {
+        
+        if end.isBeforeDate(start, granularity: .minute) { return nil }
+        
+        if start.year == Region.current.nowInThisRegion().year {
+            
+            if (start.isToday && end.isToday) || (start.isTomorrow && end.isTomorrow) {
+                
+                let startDateFormatter = DateFormatter()
+                startDateFormatter.locale = .current
+                startDateFormatter.timeZone = .current
+                startDateFormatter.doesRelativeDateFormatting = true
+                startDateFormatter.dateStyle = .medium
+                startDateFormatter.timeStyle = .short
+                
+                let endDateFormatter = DateFormatter()
+                endDateFormatter.locale = .current
+                endDateFormatter.timeZone = .current
+                endDateFormatter.dateStyle = .none
+                endDateFormatter.timeStyle = .short
+                
+                let startFormattedString = startDateFormatter.string(from: start)
+                let endFormattedString = endDateFormatter.string(from: end)
+                
+                return startFormattedString + " - " + endFormattedString
+                
+            } else if start.day == end.day {
+                
+                let startDateFormatter = DateFormatter()
+                startDateFormatter.locale = .current
+                startDateFormatter.timeZone = .current
+                startDateFormatter.dateFormat = "MMM d, h:mm a"
+                
+                let endDateFormatter = DateFormatter()
+                endDateFormatter.locale = .current
+                endDateFormatter.timeZone = .current
+                endDateFormatter.dateStyle = .none
+                endDateFormatter.timeStyle = .short
+                
+                let startFormattedString = startDateFormatter.string(from: start)
+                let endFormattedString = endDateFormatter.string(from: end)
+                
+                return startFormattedString + " - " + endFormattedString
+                
+            } else {
+                
+                let startDateFormatter = DateFormatter()
+                startDateFormatter.locale = .current
+                startDateFormatter.timeZone = .current
+                startDateFormatter.dateFormat = "MMM d, h:mm a"
+                
+                let endDateFormatter = DateFormatter()
+                endDateFormatter.locale = .current
+                endDateFormatter.timeZone = .current
+                endDateFormatter.dateFormat = "MMM d, h:mm a"
+                
+                let startFormattedString = startDateFormatter.string(from: start)
+                let endFormattedString = endDateFormatter.string(from: end)
+                
+                return startFormattedString + " - " + endFormattedString
+                
+            }
+            
+        } else {
+            
+            if start.day == end.day {
+                
+                let startDateFormatter = DateFormatter()
+                startDateFormatter.locale = .current
+                startDateFormatter.timeZone = .current
+                startDateFormatter.dateFormat = "MMM d, yyyy, h:mm a"
+                
+                let endDateFormatter = DateFormatter()
+                endDateFormatter.locale = .current
+                endDateFormatter.timeZone = .current
+                endDateFormatter.dateStyle = .none
+                endDateFormatter.timeStyle = .short
+                
+                let startFormattedString = startDateFormatter.string(from: start)
+                let endFormattedString = endDateFormatter.string(from: end)
+                
+                return startFormattedString + " - " + endFormattedString
+                
+            } else {
+                
+                let startDateFormatter = DateFormatter()
+                startDateFormatter.locale = .current
+                startDateFormatter.timeZone = .current
+                startDateFormatter.dateFormat = "MMM d, yyyy, h:mm a"
+                
+                let endDateFormatter = DateFormatter()
+                endDateFormatter.locale = .current
+                endDateFormatter.timeZone = .current
+                endDateFormatter.dateFormat = "MMM d, yyyy, h:mm a"
+                
+                let startFormattedString = startDateFormatter.string(from: start)
+                let endFormattedString = endDateFormatter.string(from: end)
+                
+                return startFormattedString + " - " + endFormattedString
+                
+            }
+            
+        }
+        
+    }
+    
+}
+
+extension CLLocationCoordinate2D {
+    
+    func lookUpLocationAddress(completionHandler: @escaping (String?) -> Void) {
+        
+        let location = CLLocation(latitude: self.latitude, longitude: self.longitude)
+        
+        let geocoder = CLGeocoder()
+        
+        geocoder.reverseGeocodeLocation(location, completionHandler: { (placemarks, error) in
+            
+            if error == nil, let address = placemarks?[0].postalAddress?.mutableCopy() as? CNMutablePostalAddress {
+                
+                completionHandler(CNPostalAddressFormatter.string(from: address, style: .mailingAddress))
+                
+            } else {
+                
+                // An error occurred during geocoding.
+                completionHandler(nil)
+                
+            }
+            
+        })
+        
+    }
+    
+    func isInRegion(region: CLCircularRegion) -> Bool {
+        
+        return region.contains(self)
+        
+    }
+    
 }

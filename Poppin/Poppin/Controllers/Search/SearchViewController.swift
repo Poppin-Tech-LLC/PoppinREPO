@@ -808,7 +808,7 @@ final class SearchViewController: UIViewController {
         isFetching = true
         searchTablePlaceholderView.isHidden = true
         loadingIndicatorView.startAnimating()
-        let group = DispatchGroup()
+        //let group = DispatchGroup()
 
         let followingRef = Firestore.firestore().collection("users")
         
