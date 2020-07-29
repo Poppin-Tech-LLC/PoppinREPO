@@ -12,6 +12,7 @@ import MapKit
 import GeoFire
 import FirebaseFirestore
 import Geofirestore
+import SwiftDate
 
 class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, UITextViewDelegate, MKMapViewDelegate {
     
@@ -35,22 +36,36 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     var category: String?
     
-    var backgroundGradientColors: [CGColor]?
-    
     let db = Firestore.firestore()
     
     private let createEventVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let createEventHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let createEventInnerInset: CGFloat = .getPercentageWidth(percentage: 7)
     
+    lazy private var eventData: PopsicleAnnotationData = PopsicleAnnotationData()
+    
+    lazy private var backgroundGradientColors: [CGColor] = {
+        
+        var backgroundGradientColors: [CGColor] = []
+        
+        for color in eventData.eventCategory.getPopsicleCategoryGradientColors() {
+            
+            backgroundGradientColors.append(color.cgColor)
+            
+        }
+        
+        return backgroundGradientColors
+        
+    }()
+    
     lazy private var cardContainerView: UIView = {
         
-        let borderView = PopsicleBorderView(with: UIColor(cgColor: backgroundGradientColors![1]))
+        let borderView = PopsicleBorderView(with: UIColor(cgColor: backgroundGradientColors[1]))
         
         borderView.translatesAutoresizingMaskIntoConstraints = false
-        borderView.heightAnchor.constraint(equalToConstant: eventNameTextView.intrinsicContentSize.height*0.9).isActive = true
+        borderView.heightAnchor.constraint(equalToConstant: eventNameTextView.intrinsicContentSize.height*0.85).isActive = true
         
-        let backButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.white))
+        let backButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.white))
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         
         let editEventLocationButtonView = UIView()
@@ -62,7 +77,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         editEventLocationButton.topAnchor.constraint(equalTo: editEventLocationButtonView.topAnchor).isActive = true
         editEventLocationButton.bottomAnchor.constraint(equalTo: editEventLocationButtonView.bottomAnchor).isActive = true
         
-        let cardContainerStackView = UIStackView(arrangedSubviews: [eventNameTextView, borderView, eventDateTextField, eventCreatedByView, eventLocationView, editEventLocationButtonView, eventDetailsTextView, eventHashtagsView])
+        let cardContainerStackView = UIStackView(arrangedSubviews: [eventNameTextView, borderView, eventDateTextField, eventLocationView, editEventLocationButtonView, eventDetailsTextView, eventHashtagsView])
         cardContainerStackView.axis = .vertical
         cardContainerStackView.alignment = .fill
         cardContainerStackView.distribution = .fill
@@ -72,7 +87,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         cardContainerStackView.setCustomSpacing(0, after: eventLocationView)
         
         let cardContainerScrollView = UIScrollView()
-        cardContainerScrollView.alwaysBounceVertical = false
+        cardContainerScrollView.alwaysBounceVertical = true
         cardContainerScrollView.showsVerticalScrollIndicator = false
         cardContainerScrollView.keyboardDismissMode = .onDrag
         cardContainerScrollView.contentInset = UIEdgeInsets(top: createEventVerticalEdgeInset, left: 0, bottom: (createEventVerticalEdgeInset*2) + .getPercentageWidth(percentage: 3) + createButton.titleLabel!.intrinsicContentSize.height, right: 0)
@@ -88,7 +103,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         var cardContainerView = UIView()
         cardContainerView.clipsToBounds = true
         cardContainerView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
-        cardContainerView.backgroundColor = UIColor(cgColor: backgroundGradientColors![0])
+        cardContainerView.backgroundColor = UIColor(cgColor: backgroundGradientColors[0])
         
         cardContainerView.addSubview(cardContainerScrollView)
         cardContainerScrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -119,8 +134,19 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         eventNameTextView.backgroundColor = .clear
         eventNameTextView.textColor = .white
         eventNameTextView.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
-        eventNameTextView.text = "Add Title"
-        eventNameTextView.textContainerInset = .zero
+        
+        if eventData.eventTitle == "" {
+            
+            eventNameTextView.text = "Event Title"
+            
+        } else {
+            
+            eventNameTextView.text = eventData.eventTitle
+            
+        }
+        
+        eventNameTextView.textContainerInset.bottom = 0.0
+        eventNameTextView.textContainerInset.top = 4.0
         eventNameTextView.delegate = self
         eventNameTextView.isScrollEnabled = false
         eventNameTextView.sizeToFit()
@@ -139,86 +165,8 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         eventDateTextField.backgroundColor = .clear
         eventDateTextField.textColor = .white
         eventDateTextField.textAlignment = .center
-        eventDateTextField.attributedPlaceholder = NSAttributedString(string: "Add Date", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white, NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .callout)])
+        eventDateTextField.attributedPlaceholder = NSAttributedString(string: Date.getFormattedDateInterval(start: eventData.eventStartDate, end: eventData.eventEndDate) ?? "Event Date", attributes: [NSAttributedString.Key.foregroundColor : UIColor.white, NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .callout)])
         return eventDateTextField
-        
-    }()
-    
-    lazy private var eventCreatedByView: UIView = {
-        
-        let createdByLabel = UILabel()
-        createdByLabel.lineBreakMode = .byTruncatingTail
-        createdByLabel.numberOfLines = 1
-        createdByLabel.textAlignment = .left
-        createdByLabel.text = "Created by:"
-        createdByLabel.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        createdByLabel.textColor = UIColor.white
-        
-        createdByLabel.translatesAutoresizingMaskIntoConstraints = false
-        createdByLabel.heightAnchor.constraint(equalToConstant: createdByLabel.intrinsicContentSize.height).isActive = true
-        
-        usernameLabel.translatesAutoresizingMaskIntoConstraints = false
-        usernameLabel.heightAnchor.constraint(equalToConstant: createdByLabel.intrinsicContentSize.height).isActive = true
-        
-        let labelsStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 0.9)
-        
-        let labelsStackView = UIStackView(arrangedSubviews: [createdByLabel, usernameLabel])
-        labelsStackView.axis = .vertical
-        labelsStackView.alignment = .fill
-        labelsStackView.distribution = .fill
-        labelsStackView.spacing = labelsStackViewSpacing
-        
-        let verticalInset: CGFloat = .getPercentageWidth(percentage: 4.2)
-        let horizontalInset: CGFloat = .getPercentageWidth(percentage: 5.5)
-        let innerInset: CGFloat = .getPercentageWidth(percentage: 1)
-        
-        var eventCreatedByView = UIView()
-        eventCreatedByView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
-        eventCreatedByView.clipsToBounds = true
-        eventCreatedByView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
-        
-        eventCreatedByView.addSubview(labelsStackView)
-        labelsStackView.translatesAutoresizingMaskIntoConstraints = false
-        labelsStackView.topAnchor.constraint(equalTo: eventCreatedByView.topAnchor, constant: verticalInset).isActive = true
-        labelsStackView.bottomAnchor.constraint(equalTo: eventCreatedByView.bottomAnchor, constant: -verticalInset).isActive = true
-        labelsStackView.leadingAnchor.constraint(equalTo: eventCreatedByView.leadingAnchor, constant: horizontalInset).isActive = true
-        
-        eventCreatedByView.addSubview(userImageView)
-        userImageView.translatesAutoresizingMaskIntoConstraints = false
-        userImageView.topAnchor.constraint(equalTo: eventCreatedByView.topAnchor, constant: verticalInset*0.65).isActive = true
-        userImageView.bottomAnchor.constraint(equalTo: eventCreatedByView.bottomAnchor, constant: -verticalInset*0.65).isActive = true
-        userImageView.trailingAnchor.constraint(equalTo: eventCreatedByView.trailingAnchor, constant: -horizontalInset).isActive = true
-        userImageView.leadingAnchor.constraint(equalTo: labelsStackView.trailingAnchor, constant: innerInset).isActive = true
-        
-        return eventCreatedByView
-        
-    }()
-    
-    lazy private(set) var usernameLabel: UILabel = {
-        
-        var usernameLabel = UILabel()
-        usernameLabel.lineBreakMode = .byTruncatingTail
-        usernameLabel.numberOfLines = 1
-        usernameLabel.textAlignment = .left
-        usernameLabel.text = "@username"
-        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
-        usernameLabel.textColor = UIColor.white
-        return usernameLabel
-        
-    }()
-    
-    lazy private(set) var userImageView: BubbleImageView = {
-        
-        let reference = storage.reference().child("images/\(uid)/profilepic.jpg")
-        
-        var userImageView = BubbleImageView(image: UIImage.defaultUserPicture256)
-        userImageView.contentMode = .scaleAspectFill
-        userImageView.sd_setImage(with: reference, placeholderImage: UIImage.defaultUserPicture256)
-        
-        userImageView.translatesAutoresizingMaskIntoConstraints = false
-        userImageView.widthAnchor.constraint(equalTo: userImageView.heightAnchor).isActive = true
-        
-        return userImageView
         
     }()
     
@@ -228,7 +176,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         let horizontalInset: CGFloat = .getPercentageWidth(percentage: 1.5)
         
         var eventLocationView = UIView()
-        eventLocationView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
+        eventLocationView.backgroundColor = UIColor(cgColor: backgroundGradientColors[1])
         eventLocationView.clipsToBounds = true
         eventLocationView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
         
@@ -254,8 +202,8 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         var eventLocationLabel = UILabel()
         eventLocationLabel.textAlignment = .center
         eventLocationLabel.backgroundColor = .clear
-        eventLocationLabel.numberOfLines = 0
-        eventLocationLabel.sizeToFit()
+        eventLocationLabel.numberOfLines = 1
+        //eventLocationLabel.sizeToFit()
         eventLocationLabel.textColor = .white
         eventLocationLabel.text = "Event Location"
         eventLocationLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
@@ -265,9 +213,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     
     lazy private(set) var eventLocationMapView: MKMapView = {
         
-        let eventLocationMapRegionCenter = MapViewController.defaultMapViewCenterLocation
-        let eventLocationMapRegionRadius = MapViewController.defaultMapViewRegionRadius
-        let eventLocationMapRegion = MKCoordinateRegion(center: eventLocationMapRegionCenter, latitudinalMeters: eventLocationMapRegionRadius, longitudinalMeters: eventLocationMapRegionRadius)
+        let eventLocationMapRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: eventData.eventLocation.latitude + 0.00015, longitude: eventData.eventLocation.longitude), latitudinalMeters: 100.0, longitudinalMeters: 100.0)
         
         var eventLocationMapView = MKMapView()
         eventLocationMapView.isPitchEnabled = false
@@ -283,6 +229,8 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         eventLocationMapView.translatesAutoresizingMaskIntoConstraints = false
         eventLocationMapView.heightAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 25)).isActive = true
         
+        eventLocationMapView.addAnnotation(PopsicleAnnotation(popsicleAnnotationData: eventData))
+        
         return eventLocationMapView
         
     }()
@@ -294,7 +242,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         var editEventLocationButton = UIButton()
         editEventLocationButton.setTitle("Edit", for: .normal)
         editEventLocationButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        editEventLocationButton.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
+        editEventLocationButton.backgroundColor = UIColor(cgColor: backgroundGradientColors[1])
         editEventLocationButton.setTitleColor(.white, for: .normal)
         editEventLocationButton.titleLabel?.textAlignment = .center
         editEventLocationButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset*2, bottom: innerInset, right: innerInset*2)
@@ -326,7 +274,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     lazy private(set) var eventHashtagsView : UITextView = {
         
         var eventHashtagsView = UITextView()
-        eventHashtagsView.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
+        eventHashtagsView.backgroundColor = UIColor(cgColor: backgroundGradientColors[1])
         eventHashtagsView.textColor = .white
         eventHashtagsView.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         eventHashtagsView.text = "Add Hashtags"
@@ -349,7 +297,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         createButton.backgroundColor = .white
         createButton.setTitle("Create", for: .normal)
         createButton.titleLabel?.textAlignment = .center
-        createButton.setTitleColor(UIColor(cgColor: backgroundGradientColors![1]), for: .normal)
+        createButton.setTitleColor(UIColor(cgColor: backgroundGradientColors[1]), for: .normal)
         createButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         createButton.contentEdgeInsets = UIEdgeInsets(top: innerEdgeInset, left: innerEdgeInset*2, bottom: innerEdgeInset, right: innerEdgeInset*2)
         createButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 10.0, maxSize: 12.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
@@ -363,8 +311,8 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         var d = UIDatePicker()
         
         d.minimumDate = Date()
-        print(backgroundGradientColors!.count)
-        d.setValue(UIColor(cgColor: backgroundGradientColors![1]), forKeyPath: "textColor")
+        print(backgroundGradientColors.count)
+        d.setValue(UIColor(cgColor: backgroundGradientColors[1]), forKeyPath: "textColor")
         
         return d
         
@@ -375,8 +323,8 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         var d = UIDatePicker()
         
         d.minimumDate = Date()
-        print(backgroundGradientColors!.count)
-        d.setValue(UIColor(cgColor: backgroundGradientColors![1]), forKeyPath: "textColor")
+        print(backgroundGradientColors.count)
+        d.setValue(UIColor(cgColor: backgroundGradientColors[1]), forKeyPath: "textColor")
         
         return d
         
@@ -446,27 +394,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         return detailsButton
     }()
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        
-        //getUsername()
-        
-        /* FOR TRIAL PURPOSES */
-        modalTransitionStyle = .crossDissolve
-        modalPresentationStyle = .overFullScreen
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        
-        //getUsername()
-        
-        /* FOR TRIAL PURPOSES */
-        modalTransitionStyle = .crossDissolve
-        modalPresentationStyle = .overFullScreen
-    }
-    
-    
     @objc func detailsWritten(_ notification: Notification) {
         guard let text = notification.userInfo?["text"] as? String else { return }
         print ("text: \(text)")
@@ -512,6 +439,34 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         }
     }
     
+    init(eventData: PopsicleAnnotationData) {
+        
+        super.init(nibName: nil, bundle: nil)
+        
+        self.eventData = eventData
+        configureController()
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        
+        super.init(coder: coder)
+        configureController()
+        
+    }
+    
+    private func configureController() {
+        
+        eventData.eventLocation.lookUpLocationAddress { [weak self] (address) in
+            
+            guard let self = self else { return }
+            
+            if address != nil { self.eventLocationLabel.text = address }
+            
+        }
+        
+    }
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -524,7 +479,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.locationSelected(_:)), name: .locationSelected, object: nil)
         
-        view.backgroundColor = UIColor(cgColor: backgroundGradientColors![1])
+        view.backgroundColor = UIColor(cgColor: backgroundGradientColors[1])
         transitioningDelegate = self
         
         view.addSubview(cardContainerView)
@@ -556,23 +511,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         
     }
     
-    private func getUsername() {
-        
-        let ref = Database.database().reference()
-        
-        ref.child("users/\(uid)/username").observeSingleEvent(of: .value, with: { [weak self] (snapshot) in
-            
-            guard let self = self else { return }
-            
-            if let username = snapshot.value as? String { self.usernameLabel.text = "@" + username }
-            
-        }) { (error) in
-            print(error.localizedDescription)
-        }
-        
-    }
-    
-    
     @objc func goBack() {
         
         let textInfo = ["location": eventLocationLabel.text!, "eventName": eventNameTextView.text!, "eventInfo": detailsButton.text!, "eventStartDate": startDateTextField.text!, "eventEndDate": endDateTextField.text!, "hashtags": eventHashtagsView.text!, "coordinates": location ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)] as [String : Any]
@@ -582,19 +520,20 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         
     }
     
-    @objc func toWriteDetails(){
-        let vc = writeDetailsViewController()
-        vc.modalPresentationStyle = .overCurrentContext
-        vc.transitioningDelegate = self
-        vc.purpleTab.backgroundColor = UIColor(cgColor: backgroundGradientColors![0])
-        vc.whiteView.backgroundColor = UIColor(cgColor: backgroundGradientColors![0])
+    @objc private func toWriteDetails() {
+        
+        let vc = EventDetailsInputViewController(with: UIColor(cgColor: backgroundGradientColors[0]), text: nil)
+        vc.modalPresentationStyle = .overFullScreen
+        vc.modalTransitionStyle = .coverVertical
 
-        if(detailsButton.text == "Add details..."){
-            vc.detailsTextField.text = ""
+        /*if(detailsButton.text == "Add details..."){
+            vc.eventDetailsTextView.text = ""
         }else{
-            vc.detailsTextField.text = detailsButton.text
-        }
+            vc.eventDetailsTextView.text = detailsButton.text
+        }*/
+        
         self.present(vc, animated: true, completion: nil)
+        
     }
     
     @objc private func editEventLocation() {
@@ -630,7 +569,7 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         
         startDateFormatted = formatter.string(from: startDatePicker.date)
         
-        endDatePicker.minimumDate = startDatePicker.date + 60
+        //endDatePicker.minimumDate = startDatePicker.date + 60
         
         
         
@@ -714,21 +653,22 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
             if eventDetailsTextView.text == "Add Details", eventDetailsTextView.isFirstResponder {
                 
                 eventDetailsTextView.textAlignment = .left
-                eventDetailsTextView.text = nil
+                eventDetailsTextView.text = ""
             }
             
-            let newPosition = eventDetailsTextView.endOfDocument
-            eventDetailsTextView.selectedTextRange = eventDetailsTextView.textRange(from: newPosition, to: newPosition)
+            /*let newPosition = eventDetailsTextView.endOfDocument
+            eventDetailsTextView.selectedTextRange = eventDetailsTextView.textRange(from: newPosition, to: newPosition)*/
             
         }
         
         if(textView == eventNameTextView){
+            
             if  eventNameTextView.text == "Add Title" && eventNameTextView.isFirstResponder {
-                eventNameTextView.text = nil
+                eventNameTextView.text = ""
                 //eventNameTextView.textColor = .white
             }
-            let newPosition = eventNameTextView.endOfDocument
-            eventNameTextView.selectedTextRange = eventNameTextView.textRange(from: newPosition, to: newPosition)
+            /*let newPosition = eventNameTextView.endOfDocument
+            eventNameTextView.selectedTextRange = eventNameTextView.textRange(from: newPosition, to: newPosition)*/
         }
         
         if(textView == eventHashtagsView){
@@ -766,7 +706,6 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
         
         if(textView == eventNameTextView){
             if eventNameTextView.text.isEmpty || eventNameTextView.text == "" {
-                eventNameTextView.textColor = .white
                 eventNameTextView.text = "Add Title"
             }
             
@@ -881,50 +820,58 @@ class NewCreateEventCardViewController : UIViewController, UITextFieldDelegate, 
     }
     
     func setPopsicleImage(){
-        if(backgroundGradientColors![0] == UIColor.cultureLIGHTPURPLE.cgColor){
+        if(backgroundGradientColors[0] == UIColor.cultureLIGHTPURPLE.cgColor){
             popsicleImage = .culturePopsicleIcon128
             category = "culture"
         }
         
-        if(backgroundGradientColors![0] == UIColor.educationLIGHTBLUE.cgColor){
+        if(backgroundGradientColors[0] == UIColor.educationLIGHTBLUE.cgColor){
             popsicleImage = .educationPopsicleIcon128
             category = "education"
         }
         
-        if(backgroundGradientColors![0] == UIColor.socialLIGHTRED.cgColor){
+        if(backgroundGradientColors[0] == UIColor.socialLIGHTRED.cgColor){
             popsicleImage = .socialPopsicleIcon128
             category = "social"
         }
         
-        if(backgroundGradientColors![0] == UIColor.foodLIGHTORANGE.cgColor){
+        if(backgroundGradientColors[0] == UIColor.foodLIGHTORANGE.cgColor){
             popsicleImage = .foodPopsicleIcon128
             category = "food"
         }
         
-        if(backgroundGradientColors![0] == UIColor.sportsLIGHTGREEN.cgColor){
+        if(backgroundGradientColors[0] == UIColor.sportsLIGHTGREEN.cgColor){
             popsicleImage = .sportsPopsicleIcon128
             category = "sports"
         }
+        
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        let identifier = "MyPin"
         
-        if annotation is MKUserLocation {
-            return nil
-        }
+        print("HEREEE 2")
         
-        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
-        
-        if annotationView == nil {
-            annotationView = MKAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-            annotationView?.canShowCallout = true
-            annotationView?.image = popsicleImage
+        if let popsicleAnnotation = annotation as? PopsicleAnnotation {
+            
+            if let popsicleAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: PopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier) as? PopsicleAnnotationView {
+                
+                popsicleAnnotationView.setPopsicleAnnotation(popsicleAnnotation: popsicleAnnotation)
+                return popsicleAnnotationView
+                
+            } else {
+                
+                let popsicleAnnotationView = PopsicleAnnotationView(annotation: popsicleAnnotation, reuseIdentifier: PopsicleAnnotationView.defaultPopsicleAnnotationViewReuseIdentifier)
+                popsicleAnnotationView.setPopsicleAnnotation(popsicleAnnotation: popsicleAnnotation)
+                return popsicleAnnotationView
+                
+            }
+            
         } else {
-            annotationView?.annotation = annotation
+            
+            return nil
+            
         }
         
-        return annotationView
     }
     
     @objc func createEvent() {

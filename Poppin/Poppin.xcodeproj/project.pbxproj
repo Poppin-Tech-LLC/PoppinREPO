@@ -34,11 +34,15 @@
 		6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC024A2677C006AE467 /* SearchBar.swift */; };
 		6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC224A2680A006AE467 /* UserSearchCell.swift */; };
 		6417BCC524A2695D006AE467 /* LocationSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC424A2695D006AE467 /* LocationSearchCell.swift */; };
+		645BE46324CF0681001A3232 /* CreateEventFirstSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46224CF0681001A3232 /* CreateEventFirstSectionViewController.swift */; };
+		645BE46524CF2CE5001A3232 /* EventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46424CF2CE5001A3232 /* EventController.swift */; };
+		645BE46724CF2D07001A3232 /* EventModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46624CF2D07001A3232 /* EventModel.swift */; };
 		645DE3CF24A6367A0007E159 /* Octarine-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3CE24A6367A0007E159 /* Octarine-Light.otf */; };
 		645DE3D124A636F60007E159 /* Octarine-BoldOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3D024A636F60007E159 /* Octarine-BoldOblique.otf */; };
 		645DE3D324A637390007E159 /* Octarine-LightOblique.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3D224A637390007E159 /* Octarine-LightOblique.otf */; };
 		645DE3D524A637750007E159 /* Octarine-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3D424A637740007E159 /* Octarine-Bold.otf */; };
 		64689DAF24BDB1D700FDA83F /* PopsicleBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64689DAE24BDB1D700FDA83F /* PopsicleBorderView.swift */; };
+		647DC4F124CE09A400082C5E /* CreateEventFirstSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647DC4F024CE09A400082C5E /* CreateEventFirstSectionView.swift */; };
 		64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941EC924A39F6E00824E9B /* MapViewController.swift */; };
 		64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECC24A3A71300824E9B /* SearchViewController.swift */; };
 		64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECF24A3AB9600824E9B /* ProfileViewController.swift */; };
@@ -127,11 +131,15 @@
 		6417BCC024A2677C006AE467 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		6417BCC224A2680A006AE467 /* UserSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSearchCell.swift; sourceTree = "<group>"; };
 		6417BCC424A2695D006AE467 /* LocationSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchCell.swift; sourceTree = "<group>"; };
+		645BE46224CF0681001A3232 /* CreateEventFirstSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateEventFirstSectionViewController.swift; sourceTree = "<group>"; };
+		645BE46424CF2CE5001A3232 /* EventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventController.swift; sourceTree = "<group>"; };
+		645BE46624CF2D07001A3232 /* EventModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventModel.swift; sourceTree = "<group>"; };
 		645DE3CE24A6367A0007E159 /* Octarine-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Light.otf"; sourceTree = "<group>"; };
 		645DE3D024A636F60007E159 /* Octarine-BoldOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-BoldOblique.otf"; sourceTree = "<group>"; };
 		645DE3D224A637390007E159 /* Octarine-LightOblique.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-LightOblique.otf"; sourceTree = "<group>"; };
 		645DE3D424A637740007E159 /* Octarine-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Bold.otf"; sourceTree = "<group>"; };
 		64689DAE24BDB1D700FDA83F /* PopsicleBorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopsicleBorderView.swift; sourceTree = "<group>"; };
+		647DC4F024CE09A400082C5E /* CreateEventFirstSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateEventFirstSectionView.swift; sourceTree = "<group>"; };
 		64941EC924A39F6E00824E9B /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		64941ECC24A3A71300824E9B /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64941ECF24A3AB9600824E9B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -418,6 +426,10 @@
 				F5FC3F2724B243B200FA1AB0 /* writeDetailsViewController.swift */,
 				F5FC3F3024B2447F00FA1AB0 /* FlipDismissAnimationController.swift */,
 				F5FC3F3124B2447F00FA1AB0 /* FlipPresentAnimationController.swift */,
+				647DC4F024CE09A400082C5E /* CreateEventFirstSectionView.swift */,
+				645BE46224CF0681001A3232 /* CreateEventFirstSectionViewController.swift */,
+				645BE46424CF2CE5001A3232 /* EventController.swift */,
+				645BE46624CF2D07001A3232 /* EventModel.swift */,
 			);
 			path = Create;
 			sourceTree = "<group>";
@@ -738,6 +750,7 @@
 				6417BCA624A25684006AE467 /* Extensions.swift in Sources */,
 				F6498EBF24B24892002F8A1B /* HashtagView.swift in Sources */,
 				6417BCAC24A25CE3006AE467 /* ActivityButton.swift in Sources */,
+				645BE46324CF0681001A3232 /* CreateEventFirstSectionViewController.swift in Sources */,
 				64B7248424AF5C5600BB48C5 /* PagingCollectionView.swift in Sources */,
 				6417BCC524A2695D006AE467 /* LocationSearchCell.swift in Sources */,
 				F6498EBC24B24892002F8A1B /* HashtagCollectionViewCell.swift in Sources */,
@@ -757,6 +770,7 @@
 				6417BCB624A261CA006AE467 /* FiltersView.swift in Sources */,
 				6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */,
 				F6498EC024B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift in Sources */,
+				647DC4F124CE09A400082C5E /* CreateEventFirstSectionView.swift in Sources */,
 				6403142924A1F136006A55EB /* AppDelegate.swift in Sources */,
 				6409061C24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift in Sources */,
 				F5FC3F2E24B243B200FA1AB0 /* EditLocationViewController.swift in Sources */,
@@ -766,6 +780,7 @@
 				6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */,
 				64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */,
 				6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */,
+				645BE46724CF2D07001A3232 /* EventModel.swift in Sources */,
 				64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */,
 				F5FC3F2F24B243B200FA1AB0 /* NewCreateEventCardViewController.swift in Sources */,
 				6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */,
@@ -782,6 +797,7 @@
 				F5FC3F3A24B5E26400FA1AB0 /* DataController.swift in Sources */,
 				F5FC3F2B24B243B200FA1AB0 /* NewCreateEventViewController.swift in Sources */,
 				6417BCA324A255CD006AE467 /* AlertViewController.swift in Sources */,
+				645BE46524CF2CE5001A3232 /* EventController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

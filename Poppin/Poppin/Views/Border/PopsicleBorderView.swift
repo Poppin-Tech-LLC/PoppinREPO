@@ -14,7 +14,7 @@ final class PopsicleBorderView: UIView {
     
     lazy private var popsicleIconImageView: UIImageView = {
         
-        var popsicleIconImageView = UIImageView(image:  UIImage.filledPopsicleIcon128.withTintColor(borderColor, renderingMode: .alwaysOriginal))
+        var popsicleIconImageView = UIImageView(image:  UIImage.filledPopsicleIcon64.withTintColor(borderColor, renderingMode: .alwaysOriginal))
         popsicleIconImageView.contentMode = .scaleAspectFit
         return popsicleIconImageView
         
@@ -70,16 +70,16 @@ final class PopsicleBorderView: UIView {
         addSubview(popsicleBorderLeftView)
         popsicleBorderLeftView.translatesAutoresizingMaskIntoConstraints = false
         popsicleBorderLeftView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        popsicleBorderLeftView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.45).isActive = true
+        popsicleBorderLeftView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.44).isActive = true
         popsicleBorderLeftView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        popsicleBorderLeftView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.15).isActive = true
+        popsicleBorderLeftView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.13).isActive = true
         
         addSubview(popsicleBorderRightView)
         popsicleBorderRightView.translatesAutoresizingMaskIntoConstraints = false
         popsicleBorderRightView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        popsicleBorderRightView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.45).isActive = true
+        popsicleBorderRightView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.44).isActive = true
         popsicleBorderRightView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        popsicleBorderRightView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.15).isActive = true
+        popsicleBorderRightView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.13).isActive = true
         
     }
     

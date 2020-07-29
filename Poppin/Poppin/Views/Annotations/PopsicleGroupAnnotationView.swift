@@ -131,6 +131,7 @@ final class PopsicleGroupAnnotationView: MKAnnotationView {
     
     private func configureView() {
         
+        translatesAutoresizingMaskIntoConstraints = false
         frame = CGRect(x: 0.0, y: 0.0, width: popsicleWidth + ((popsicleGroupCountLabel.intrinsicContentSize.width + innerInsetX)/2), height: popsicleHeight)
         centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
         

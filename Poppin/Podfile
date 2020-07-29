@@ -11,7 +11,7 @@ target 'Poppin' do
 
   # Pods for Poppin
   pod 'Firebase/Auth'
-  pod 'Firebase/Database’, :binary => false
+  pod 'Firebase/Database', :binary => false
   pod 'Firebase/Storage'
   pod 'FirebaseUI/Storage', '~> 8.0'
   pod 'Kronos'
@@ -20,6 +20,7 @@ target 'Poppin' do
   pod 'Firebase/Firestore'
   pod 'FirebaseFirestoreSwift'
   pod 'Geofirestore', :git => 'https://github.com/imperiumlabs/GeoFirestore-iOS.git'
+  pod 'SwiftDate', '~> 5.0'
 
   target 'PoppinTests' do
     inherit! :search_paths
