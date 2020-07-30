@@ -19,7 +19,24 @@ protocol SwitchAccountDelegate: class {
     
 }
 
-final class ProfileViewController: UIViewController, UINavigationControllerDelegate{
+final class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate {
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 3
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 10
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "myEventsCell", for: indexPath) as! MyEventsCell
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return .getPercentageHeight(percentage: 7)
+    }
     
     let profileInsetY: CGFloat = .getPercentageWidth(percentage: 4.3)
     let profileInsetX: CGFloat = .getPercentageWidth(percentage: 4.3)
@@ -242,6 +259,19 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
     }()
     
+    lazy private var myEventsFeed: UITableView = {
+        
+        var t = UITableView()
+        t.backgroundColor = .white
+        t.isSpringLoaded = true
+        t.allowsSelection = false
+        
+        t.showsHorizontalScrollIndicator = false
+        t.showsVerticalScrollIndicator = false
+        return t
+        
+    }()
+    
     lazy private var profileContainerView: UIView = {
         
         let profileContainerStackView = UIStackView(arrangedSubviews: [fullNameLabel, bioLabel])
@@ -303,6 +333,17 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         followButton.translatesAutoresizingMaskIntoConstraints = false
         followButton.topAnchor.constraint(equalTo: profileContainerStackView.bottomAnchor, constant: containerInsetY).isActive = true
         followButton.centerXAnchor.constraint(equalTo: profileContainerView.centerXAnchor).isActive = true
+        
+        profileContainerView.addSubview(myEventsFeed)
+        myEventsFeed.translatesAutoresizingMaskIntoConstraints = false
+        myEventsFeed.topAnchor.constraint(equalTo: followButton.bottomAnchor, constant: containerInsetY).isActive = true
+        myEventsFeed.bottomAnchor.constraint(equalTo: profileContainerView.bottomAnchor, constant: -containerInsetY).isActive = true
+        myEventsFeed.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor).isActive = true
+        myEventsFeed.trailingAnchor.constraint(equalTo: profileContainerView.trailingAnchor).isActive = true
+        
+        myEventsFeed.dataSource = self
+        myEventsFeed.delegate = self
+        myEventsFeed.register(MyEventsCell.self, forCellReuseIdentifier: "myEventsCell")
         
         return profileContainerView
         
@@ -843,4 +884,80 @@ extension ProfileViewController: SwitchAccountDelegate {
         }
         
     }
+}
+
+class MyEventsCell : UITableViewCell {
+    
+    lazy var eventPic : ImageBubbleButton = {
+        
+        var i = ImageBubbleButton(bouncyButtonImage: .defaultUserPicture256)
+        i.backgroundColor = UIColor.white.withAlphaComponent(0.25)
+        i.translatesAutoresizingMaskIntoConstraints = false
+        return i
+        
+    }()
+    
+    lazy var eventDetails : UILabel = {
+        
+        let l = UILabel()
+        l.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
+        l.adjustsFontSizeToFitWidth = true
+        l.textColor = .mainDARKPURPLE
+        l.numberOfLines = 3
+        l.textAlignment = .left
+        
+        l.translatesAutoresizingMaskIntoConstraints = false
+        
+        return l
+        
+    }()
+    
+    lazy var eventDate : UILabel = {
+        
+        let l = UILabel()
+        l.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
+        l.adjustsFontSizeToFitWidth = true
+        l.textColor = .gray
+        l.numberOfLines = 1
+        l.textAlignment = .right
+        
+        l.translatesAutoresizingMaskIntoConstraints = false
+        
+        return l
+        
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        self.contentView.backgroundColor = .white
+        
+        self.contentView.addSubview(eventPic)
+        self.contentView.addSubview(eventDetails)
+        self.contentView.addSubview(eventDate)
+        
+        eventDetails.text = "This is a test event and these details need to be modified."
+        eventDate.text = "3d"
+        
+        eventPic.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
+        eventPic.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: .getPercentageWidth(percentage: 5)).isActive = true
+        eventPic.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 9)).isActive = true
+        eventPic.heightAnchor.constraint(equalTo: eventPic.widthAnchor).isActive = true
+        
+        eventDetails.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
+        eventDetails.leadingAnchor.constraint(equalTo: self.eventPic.leadingAnchor, constant: .getPercentageWidth(percentage: 15)).isActive = true
+        eventDetails.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 55)).isActive = true
+        eventDetails.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 6)).isActive = true
+        
+        eventDate.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
+        eventDate.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -.getPercentageWidth(percentage: 5)).isActive = true
+        eventDate.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 9)).isActive = true
+        eventDate.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 6)).isActive = true
+        
+     }
+
+    required init?(coder aDecoder: NSCoder) {
+       super.init(coder: aDecoder)
+    }
+    
 }
