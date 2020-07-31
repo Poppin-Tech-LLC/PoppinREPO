@@ -21,12 +21,40 @@ protocol SwitchAccountDelegate: class {
 
 final class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
+    
     func numberOfSections(in tableView: UITableView) -> Int {
         return 3
     }
     
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 18))
+        let label = UILabel(frame: CGRect(x: 10, y: 5, width: tableView.frame.size.width, height: 18))
+        
+        label.font = UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline)
+        let sectionName: String
+        switch section {
+            case 0:
+                sectionName = "Today"
+            case 1:
+                sectionName = "This week"
+            case 2:
+                sectionName = "Past"
+            // ...
+            default:
+                sectionName = ""
+        }
+        label.text = sectionName
+        label.textColor = .mainDARKPURPLE
+        
+        view.addSubview(label)
+        view.backgroundColor = .white
+
+        return view
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return 3
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -35,8 +63,10 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return .getPercentageHeight(percentage: 7)
+        return .getPercentageHeight(percentage: 6)
     }
+    
+    
     
     let profileInsetY: CGFloat = .getPercentageWidth(percentage: 4.3)
     let profileInsetX: CGFloat = .getPercentageWidth(percentage: 4.3)
@@ -337,7 +367,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         profileContainerView.addSubview(myEventsFeed)
         myEventsFeed.translatesAutoresizingMaskIntoConstraints = false
         myEventsFeed.topAnchor.constraint(equalTo: followButton.bottomAnchor, constant: containerInsetY).isActive = true
-        myEventsFeed.bottomAnchor.constraint(equalTo: profileContainerView.bottomAnchor, constant: -containerInsetY).isActive = true
+        myEventsFeed.bottomAnchor.constraint(equalTo: profileContainerView.bottomAnchor, constant: -(2*containerInsetY)).isActive = true
         myEventsFeed.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor).isActive = true
         myEventsFeed.trailingAnchor.constraint(equalTo: profileContainerView.trailingAnchor).isActive = true
         
@@ -886,28 +916,64 @@ extension ProfileViewController: SwitchAccountDelegate {
     }
 }
 
+
+
 class MyEventsCell : UITableViewCell {
     
     lazy var eventPic : ImageBubbleButton = {
         
-        var i = ImageBubbleButton(bouncyButtonImage: .defaultUserPicture256)
-        i.backgroundColor = UIColor.white.withAlphaComponent(0.25)
+        var i = ImageBubbleButton(bouncyButtonImage: .defaultPopsicleIcon128)
+        i.backgroundColor = UIColor.mainDARKPURPLE.withAlphaComponent(0.25)
+        i.contentEdgeInsets = UIEdgeInsets(top: .getPercentageWidth(percentage: 1), left: .getPercentageWidth(percentage: 1), bottom: .getPercentageWidth(percentage: 1), right: .getPercentageWidth(percentage: 1))
+        
         i.translatesAutoresizingMaskIntoConstraints = false
+        i.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 9)).isActive = true
+        i.heightAnchor.constraint(equalTo: i.widthAnchor).isActive = true
+        
         return i
         
     }()
     
-    lazy var eventDetails : UILabel = {
+    lazy var eventName : UILabel = {
         
         let l = UILabel()
-        l.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
+        l.font = .dynamicFont(with: "Octarine-Light", style: .body)
         l.adjustsFontSizeToFitWidth = true
         l.textColor = .mainDARKPURPLE
-        l.numberOfLines = 3
+        l.numberOfLines = 2
         l.textAlignment = .left
         
         l.translatesAutoresizingMaskIntoConstraints = false
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 37)).isActive = true
         
+        return l
+        
+    }()
+    
+    lazy var PGIcon : UIImageView = {
+        
+        let g = UIImageView(image: UIImage(systemSymbol: .person3Fill).withTintColor(.mainDARKPURPLE).withRenderingMode(.alwaysOriginal))
+        g.contentMode = .scaleAspectFit
+        
+        g.translatesAutoresizingMaskIntoConstraints = false
+        g.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 6)).isActive = true
+        
+        return g
+        
+    }()
+    
+    lazy var eventPG : UILabel = {
+        
+        let l = UILabel()
+        l.font = .dynamicFont(with: "Octarine-Light", style: .caption2)
+        l.adjustsFontSizeToFitWidth = true
+        l.textColor = .mainDARKPURPLE
+        l.numberOfLines = 1
+        l.textAlignment = .center
+               
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 8)).isActive = true
+               
         return l
         
     }()
@@ -915,15 +981,40 @@ class MyEventsCell : UITableViewCell {
     lazy var eventDate : UILabel = {
         
         let l = UILabel()
-        l.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
+        l.font = .dynamicFont(with: "Octarine-Light", style: .body)
         l.adjustsFontSizeToFitWidth = true
         l.textColor = .gray
         l.numberOfLines = 1
         l.textAlignment = .right
         
         l.translatesAutoresizingMaskIntoConstraints = false
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 10)).isActive = true
         
         return l
+        
+    }()
+    
+    lazy var eventStackView : UIStackView = {
+        
+        let s = UIStackView()
+        s.axis = .horizontal
+        s.alignment = .center
+        s.distribution = .equalCentering
+        
+        s.addArrangedSubview(eventPic)
+        s.addArrangedSubview(eventName)
+        s.addArrangedSubview(PGIcon)
+        s.addArrangedSubview(eventPG)
+        s.addArrangedSubview(eventDate)
+        
+        s.setCustomSpacing(.getPercentageWidth(percentage: 2), after: eventPic)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 5), after: eventName)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 1), after: PGIcon)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: eventPG)
+        
+        s.translatesAutoresizingMaskIntoConstraints = false
+        
+        return s
         
     }()
     
@@ -932,27 +1023,16 @@ class MyEventsCell : UITableViewCell {
         
         self.contentView.backgroundColor = .white
         
-        self.contentView.addSubview(eventPic)
-        self.contentView.addSubview(eventDetails)
-        self.contentView.addSubview(eventDate)
+        self.contentView.addSubview(eventStackView)
         
-        eventDetails.text = "This is a test event and these details need to be modified."
-        eventDate.text = "3d"
+        eventName.text = "Edu and Sofie's birthday"
+        eventPG.text = "256"
+        eventDate.text = "7:00 pm"
         
-        eventPic.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
-        eventPic.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: .getPercentageWidth(percentage: 5)).isActive = true
-        eventPic.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 9)).isActive = true
-        eventPic.heightAnchor.constraint(equalTo: eventPic.widthAnchor).isActive = true
-        
-        eventDetails.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
-        eventDetails.leadingAnchor.constraint(equalTo: self.eventPic.leadingAnchor, constant: .getPercentageWidth(percentage: 15)).isActive = true
-        eventDetails.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 55)).isActive = true
-        eventDetails.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 6)).isActive = true
-        
-        eventDate.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
-        eventDate.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -.getPercentageWidth(percentage: 5)).isActive = true
-        eventDate.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 9)).isActive = true
-        eventDate.heightAnchor.constraint(equalToConstant: .getPercentageHeight(percentage: 6)).isActive = true
+        eventStackView.centerYAnchor.constraint(equalTo: self.contentView.centerYAnchor).isActive = true
+        eventStackView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: .getPercentageWidth(percentage: 5)).isActive = true
+        eventStackView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -.getPercentageWidth(percentage: 5)).isActive = true
+        eventStackView.heightAnchor.constraint(equalTo: self.contentView.heightAnchor).isActive = true
         
      }
 
