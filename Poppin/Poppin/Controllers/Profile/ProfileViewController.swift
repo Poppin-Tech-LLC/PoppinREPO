@@ -31,13 +31,13 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         let view = UIView(frame: CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: 18))
         let label = UILabel(frame: CGRect(x: 10, y: 5, width: tableView.frame.size.width, height: 18))
         
-        label.font = UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline)
+        label.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
         let sectionName: String
         switch section {
             case 0:
                 sectionName = "Today"
             case 1:
-                sectionName = "This week"
+                sectionName = "Upcoming week"
             case 2:
                 sectionName = "Past"
             // ...
@@ -54,7 +54,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        return 4
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -63,7 +63,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return .getPercentageHeight(percentage: 6)
+        return .getPercentageHeight(percentage: 7)
     }
     
     
@@ -295,9 +295,11 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         t.backgroundColor = .white
         t.isSpringLoaded = true
         t.allowsSelection = false
-        
         t.showsHorizontalScrollIndicator = false
         t.showsVerticalScrollIndicator = false
+        //t.separatorStyle = .none
+        t.separatorColor = .mainDARKPURPLE
+        
         return t
         
     }()
@@ -367,9 +369,9 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         profileContainerView.addSubview(myEventsFeed)
         myEventsFeed.translatesAutoresizingMaskIntoConstraints = false
         myEventsFeed.topAnchor.constraint(equalTo: followButton.bottomAnchor, constant: containerInsetY).isActive = true
-        myEventsFeed.bottomAnchor.constraint(equalTo: profileContainerView.bottomAnchor, constant: -(2*containerInsetY)).isActive = true
-        myEventsFeed.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor).isActive = true
-        myEventsFeed.trailingAnchor.constraint(equalTo: profileContainerView.trailingAnchor).isActive = true
+        myEventsFeed.bottomAnchor.constraint(equalTo: profileContainerView.bottomAnchor, constant: -containerInsetY).isActive = true
+        myEventsFeed.leadingAnchor.constraint(equalTo: profileContainerView.leadingAnchor, constant: containerInsetX/2).isActive = true
+        myEventsFeed.trailingAnchor.constraint(equalTo: profileContainerView.trailingAnchor, constant: -containerInsetX/2).isActive = true
         
         myEventsFeed.dataSource = self
         myEventsFeed.delegate = self
@@ -937,16 +939,28 @@ class MyEventsCell : UITableViewCell {
     lazy var eventName : UILabel = {
         
         let l = UILabel()
-        l.font = .dynamicFont(with: "Octarine-Light", style: .body)
+        l.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
         l.adjustsFontSizeToFitWidth = true
         l.textColor = .mainDARKPURPLE
-        l.numberOfLines = 2
+        l.numberOfLines = 1
         l.textAlignment = .left
         
         l.translatesAutoresizingMaskIntoConstraints = false
-        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 37)).isActive = true
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 50)).isActive = true
         
         return l
+        
+    }()
+    
+    lazy var privacyIcon : UIImageView = {
+        
+        let g = UIImageView(image: UIImage(systemSymbol: .lockFill).withTintColor(.mainDARKPURPLE).withRenderingMode(.alwaysOriginal))
+        g.contentMode = .scaleAspectFit
+        
+        g.translatesAutoresizingMaskIntoConstraints = false
+        g.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 4)).isActive = true
+        
+        return g
         
     }()
     
@@ -978,19 +992,62 @@ class MyEventsCell : UITableViewCell {
         
     }()
     
+    lazy var eventShare : BouncyButton = {
+        var g = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .arrowUpRightSquareFill).withTintColor(.mainDARKPURPLE))
+        return g
+    }()
+    
     lazy var eventDate : UILabel = {
         
         let l = UILabel()
-        l.font = .dynamicFont(with: "Octarine-Light", style: .body)
+        l.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
         l.adjustsFontSizeToFitWidth = true
         l.textColor = .gray
         l.numberOfLines = 1
-        l.textAlignment = .right
+        l.textAlignment = .center
         
         l.translatesAutoresizingMaskIntoConstraints = false
         l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 10)).isActive = true
         
         return l
+        
+    }()
+    
+    lazy var eventActionStackView : UIStackView = {
+        
+        let s = UIStackView()
+        s.axis = .horizontal
+        s.alignment = .center
+        s.distribution = .fill
+        
+        s.addArrangedSubview(privacyIcon)
+        s.addArrangedSubview(PGIcon)
+        s.addArrangedSubview(eventPG)
+        s.addArrangedSubview(eventShare)
+
+        s.setCustomSpacing(.getPercentageWidth(percentage: 10), after: privacyIcon)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 0.5), after: PGIcon)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 10), after: eventPG)
+        
+        s.translatesAutoresizingMaskIntoConstraints = false
+        
+        return s
+        
+    }()
+    
+    lazy var eventInfoStackView : UIStackView = {
+        
+        let s = UIStackView()
+        s.axis = .vertical
+        s.alignment = .leading
+        s.distribution = .equalCentering
+        
+        s.addArrangedSubview(eventName)
+        s.addArrangedSubview(eventActionStackView)
+        
+        s.translatesAutoresizingMaskIntoConstraints = false
+        
+        return s
         
     }()
     
@@ -1002,15 +1059,11 @@ class MyEventsCell : UITableViewCell {
         s.distribution = .equalCentering
         
         s.addArrangedSubview(eventPic)
-        s.addArrangedSubview(eventName)
-        s.addArrangedSubview(PGIcon)
-        s.addArrangedSubview(eventPG)
+        s.addArrangedSubview(eventInfoStackView)
         s.addArrangedSubview(eventDate)
         
-        s.setCustomSpacing(.getPercentageWidth(percentage: 2), after: eventPic)
-        s.setCustomSpacing(.getPercentageWidth(percentage: 5), after: eventName)
-        s.setCustomSpacing(.getPercentageWidth(percentage: 1), after: PGIcon)
-        s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: eventPG)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: eventPic)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 5), after: eventInfoStackView)
         
         s.translatesAutoresizingMaskIntoConstraints = false
         
@@ -1025,7 +1078,7 @@ class MyEventsCell : UITableViewCell {
         
         self.contentView.addSubview(eventStackView)
         
-        eventName.text = "Edu and Sofie's birthday"
+        eventName.text = "Edu & Sofie's bday bash"
         eventPG.text = "256"
         eventDate.text = "7:00 pm"
         

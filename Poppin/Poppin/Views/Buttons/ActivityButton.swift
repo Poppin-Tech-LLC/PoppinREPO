@@ -107,10 +107,7 @@ final class ActivityButton: BubbleButton {
     private func configureButton() {
         
         addTarget(self, action: #selector(resetCounter), for: .touchUpInside)
-        backgroundColor = .poppinLIGHTGOLD
-//        titleLabel!.textAlignment = .center
-//        titleLabel!.textColor = .white
-//        titleLabel!.font = UIFont(name: "Octarine-Bold", size: .getWidthFitSize(minSize: 12, maxSize: 14))
+        backgroundColor = .white
         contentEdgeInsets = UIEdgeInsets(top: edgeInset, left: edgeInset, bottom: edgeInset, right: edgeInset)
         
     }
