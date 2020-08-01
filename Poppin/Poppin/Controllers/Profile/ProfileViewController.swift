@@ -21,6 +21,9 @@ protocol SwitchAccountDelegate: class {
 
 final class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
+    var myTodayEvents : [PopsicleAnnotation] = []
+    var myUpcomingEvents : [PopsicleAnnotation] = []
+    var myPastEvents : [PopsicleAnnotation] = []
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 3
@@ -54,11 +57,30 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 4
+        switch section {
+            case 0:
+                return myTodayEvents.count
+            case 1:
+                return myUpcomingEvents.count
+            case 2:
+                return myPastEvents.count
+            // ...
+            default:
+                return 0
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "myEventsCell", for: indexPath) as! MyEventsCell
+        
+        if(indexPath.row < myTodayEvents.count) {
+            //cell.eventName = myTodayEvents[indexPath.row].eventTitle
+        } else if(indexPath.row < myTodayEvents.count + myUpcomingEvents.count) {
+            
+        } else {
+            
+        }
+        
         return cell
     }
     
