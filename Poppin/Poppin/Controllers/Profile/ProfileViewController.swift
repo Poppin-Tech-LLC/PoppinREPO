@@ -11,6 +11,7 @@ import FirebaseUI
 import FirebaseAuth
 import FirebaseFirestoreSwift
 import FirebaseFirestore
+import CoreLocation
 
 protocol SwitchAccountDelegate: class {
     
@@ -21,9 +22,75 @@ protocol SwitchAccountDelegate: class {
 
 final class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
-    var myTodayEvents : [PopsicleAnnotation] = []
-    var myUpcomingEvents : [PopsicleAnnotation] = []
-    var myPastEvents : [PopsicleAnnotation] = []
+    var myEvents : [[PopsicleAnnotation]] = [[], [], []]
+        
+    func populateEvents() {
+        
+        let ref = Firestore.firestore().collection("users")
+        let eref = Firestore.firestore().collection("currentPopsicles")
+
+        ref.document(Auth.auth().currentUser!.uid).getDocument{ (document, error) in
+        if let document = document, document.exists {
+
+            let data = document.data()
+            let myEvents = data?["myEvents"] as? [String] ?? []
+             
+            for event in myEvents {
+                eref.document(event).getDocument{(document, error) in
+                    if let document = document, document.exists {
+                        
+                        let data = document.data()
+                        
+                        let dateFormatter = DateFormatter()
+                        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+                        
+                        let eventStartDate: Date = dateFormatter.date(from: data!["startDate"] as! String)!
+                        let eventEndDate: Date = dateFormatter.date(from: data!["endDate"] as! String)!
+                        let eventName = data!["eventName"] as! String
+                        let eventCategory = data!["category"] as! String
+                        let hashtags = data!["hashtags"] as! String
+                        let eventInfo = data!["eventDetails"] as! String
+                        let latitude = data!["latitude"] as! CLLocationDegrees
+                        let longitude = data!["longitude"] as! CLLocationDegrees
+                        
+                        let popsicleCategory: PopsicleCategory
+                        
+                        if (eventCategory == "education") {
+                            popsicleCategory = PopsicleCategory.Education
+                        } else if (eventCategory == "food") {
+                            popsicleCategory = PopsicleCategory.Food
+                        } else if (eventCategory == "social") {
+                            popsicleCategory = PopsicleCategory.Social
+                        } else if (eventCategory == "sports") {
+                            popsicleCategory = PopsicleCategory.Sports
+                        } else {
+                            popsicleCategory = PopsicleCategory.Culture
+                        }
+                        
+                        let p = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
+                        
+                        if(Calendar.current.isDateInToday(eventStartDate)) {
+                            self.myEvents[0].append(p)
+                        } else if(eventStartDate < Date()) {
+                            self.myEvents[2].append(p)
+                        } else {
+                            self.myEvents[1].append(p)
+                        }
+                        
+                        print("t: \(self.myEvents[0].count) u: \(self.myEvents[1].count) p: \(self.myEvents[2].count)")
+                        
+                        self.myEventsFeed.reloadData()
+                    }
+                }
+                
+            }//for
+
+            } else {
+                print("Document does not exist")
+            }
+        }
+        
+    }
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 3
@@ -52,18 +119,18 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
         view.addSubview(label)
         view.backgroundColor = .white
-
+    
         return view
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
             case 0:
-                return myTodayEvents.count
+                return myEvents[0].count
             case 1:
-                return myUpcomingEvents.count
+                return myEvents[1].count
             case 2:
-                return myPastEvents.count
+                return myEvents[2].count
             // ...
             default:
                 return 0
@@ -73,12 +140,106 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "myEventsCell", for: indexPath) as! MyEventsCell
         
+        let myTodayEvents = myEvents[0]
+        let myUpcomingEvents = myEvents[1]
+        let myPastEvents = myEvents[2]
+        
+        let rPG = Int.random(in: 1 ... 10000000)
+        if(rPG < 10000) {
+            cell.eventPG.text = "\(rPG)"
+        } else if(rPG < 1000000) {
+            cell.eventPG.text = "\(round(10.0*(Double(rPG)/1000.0))/10.0)K"
+        } else {
+            cell.eventPG.text = "\(round(10.0*(Double(rPG)/1000000.0))/10.0)M"
+        }
+        
+        let pi = Bool.random()
+        cell.privacyIcon.image =
+            pi ?
+            UIImage(systemSymbol: .lockFill).withTintColor(.mainDARKPURPLE).withRenderingMode(.alwaysOriginal) :
+            UIImage(systemSymbol: .globe).withTintColor(.mainDARKPURPLE).withRenderingMode(.alwaysOriginal)
+        
         if(indexPath.row < myTodayEvents.count) {
-            //cell.eventName = myTodayEvents[indexPath.row].eventTitle
+            
+            let todayEvent = myTodayEvents[indexPath.row].popsicleAnnotationData
+            
+            cell.eventName.text = todayEvent.eventTitle
+            
+            switch(todayEvent.eventCategory) {
+            case PopsicleCategory.Education :
+                cell.eventPic.changeBouncyButtonImage(image: .educationPopsicleIcon256)
+            case PopsicleCategory.Food :
+                cell.eventPic.changeBouncyButtonImage(image: .foodPopsicleIcon256)
+            case PopsicleCategory.Social :
+                cell.eventPic.changeBouncyButtonImage(image: .socialPopsicleIcon256)
+            case PopsicleCategory.Sports :
+                cell.eventPic.changeBouncyButtonImage(image: .sportsPopsicleIcon256)
+            case PopsicleCategory.Culture :
+                cell.eventPic.changeBouncyButtonImage(image: .culturePopsicleIcon256)
+            case PopsicleCategory.Poppin :
+                cell.eventPic.changeBouncyButtonImage(image: .poppinEventPopsicleIcon256)
+            default:
+                cell.eventPic.changeBouncyButtonImage(image: .defaultPopsicleIcon256)
+            }
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .none
+            dateFormatter.timeStyle = .short
+            cell.eventDate.text = "\(dateFormatter.string(from: todayEvent.eventStartDate))"
+            
         } else if(indexPath.row < myTodayEvents.count + myUpcomingEvents.count) {
+            
+            let upcomingEvent = myUpcomingEvents[indexPath.row - myTodayEvents.count].popsicleAnnotationData
+            
+            cell.eventName.text = upcomingEvent.eventTitle
+            switch(upcomingEvent.eventCategory) {
+            case PopsicleCategory.Education :
+                cell.eventPic.changeBouncyButtonImage(image: .educationPopsicleIcon256)
+            case PopsicleCategory.Food :
+                cell.eventPic.changeBouncyButtonImage(image: .foodPopsicleIcon256)
+            case PopsicleCategory.Social :
+                cell.eventPic.changeBouncyButtonImage(image: .socialPopsicleIcon256)
+            case PopsicleCategory.Sports :
+                cell.eventPic.changeBouncyButtonImage(image: .sportsPopsicleIcon256)
+            case PopsicleCategory.Culture :
+                cell.eventPic.changeBouncyButtonImage(image: .culturePopsicleIcon256)
+            case PopsicleCategory.Poppin :
+                cell.eventPic.changeBouncyButtonImage(image: .poppinEventPopsicleIcon256)
+            default:
+                cell.eventPic.changeBouncyButtonImage(image: .defaultPopsicleIcon256)
+            }
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .short
+            dateFormatter.timeStyle = .none
+            cell.eventDate.text = "\(dateFormatter.string(from: upcomingEvent.eventStartDate))"
             
         } else {
             
+            let pastEvent = myPastEvents[indexPath.row - (myTodayEvents.count + myUpcomingEvents.count)].popsicleAnnotationData
+            
+            cell.eventName.text = pastEvent.eventTitle
+            switch(pastEvent.eventCategory) {
+            case PopsicleCategory.Education :
+                cell.eventPic.changeBouncyButtonImage(image: .educationPopsicleIcon256)
+            case PopsicleCategory.Food :
+                cell.eventPic.changeBouncyButtonImage(image: .foodPopsicleIcon256)
+            case PopsicleCategory.Social :
+                cell.eventPic.changeBouncyButtonImage(image: .socialPopsicleIcon256)
+            case PopsicleCategory.Sports :
+                cell.eventPic.changeBouncyButtonImage(image: .sportsPopsicleIcon256)
+            case PopsicleCategory.Culture :
+                cell.eventPic.changeBouncyButtonImage(image: .culturePopsicleIcon256)
+            case PopsicleCategory.Poppin :
+                cell.eventPic.changeBouncyButtonImage(image: .poppinEventPopsicleIcon256)
+            default:
+                cell.eventPic.changeBouncyButtonImage(image: .defaultPopsicleIcon256)
+            }
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .short
+            dateFormatter.timeStyle = .none
+            cell.eventDate.text = "\(dateFormatter.string(from: pastEvent.eventStartDate))"
         }
         
         return cell
@@ -312,15 +473,15 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     }()
     
     lazy private var myEventsFeed: UITableView = {
-        
+     
         var t = UITableView()
         t.backgroundColor = .white
         t.isSpringLoaded = true
         t.allowsSelection = false
         t.showsHorizontalScrollIndicator = false
         t.showsVerticalScrollIndicator = false
-        //t.separatorStyle = .none
-        t.separatorColor = .mainDARKPURPLE
+        t.separatorStyle = .none
+        //t.separatorColor = .mainDARKPURPLE
         
         return t
         
@@ -478,7 +639,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             followButton.addTarget(self, action: #selector(performFollow), for: .touchUpInside)
         }
         fetchFollowersFollowingPicture()
-        
+
     }
     
     required init?(coder: NSCoder) {
@@ -516,7 +677,6 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         NotificationCenter.default.addObserver(self, selector: #selector(editedProfile(_:)), name: .editedProfile, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(deletedOrg(_:)), name: .deletedOrg, object: nil)
-
         
         view.addSubview(backgroundView)
         backgroundView.translatesAutoresizingMaskIntoConstraints = false
@@ -545,6 +705,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
         switchAccountViewController.didMove(toParent: self)
 
+        populateEvents()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -552,7 +713,6 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         super.viewWillAppear(animated)
                 
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -992,7 +1152,7 @@ class MyEventsCell : UITableViewCell {
         g.contentMode = .scaleAspectFit
         
         g.translatesAutoresizingMaskIntoConstraints = false
-        g.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 6)).isActive = true
+        g.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 7)).isActive = true
         
         return g
         
@@ -1001,14 +1161,14 @@ class MyEventsCell : UITableViewCell {
     lazy var eventPG : UILabel = {
         
         let l = UILabel()
-        l.font = .dynamicFont(with: "Octarine-Light", style: .caption2)
+        l.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
         l.adjustsFontSizeToFitWidth = true
         l.textColor = .mainDARKPURPLE
         l.numberOfLines = 1
-        l.textAlignment = .center
+        l.textAlignment = .left
                
         l.translatesAutoresizingMaskIntoConstraints = false
-        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 8)).isActive = true
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 12)).isActive = true
                
         return l
         
@@ -1029,7 +1189,7 @@ class MyEventsCell : UITableViewCell {
         l.textAlignment = .center
         
         l.translatesAutoresizingMaskIntoConstraints = false
-        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 10)).isActive = true
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 13)).isActive = true
         
         return l
         
@@ -1048,8 +1208,8 @@ class MyEventsCell : UITableViewCell {
         s.addArrangedSubview(eventShare)
 
         s.setCustomSpacing(.getPercentageWidth(percentage: 10), after: privacyIcon)
-        s.setCustomSpacing(.getPercentageWidth(percentage: 0.5), after: PGIcon)
-        s.setCustomSpacing(.getPercentageWidth(percentage: 10), after: eventPG)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 1.25), after: PGIcon)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 7), after: eventPG)
         
         s.translatesAutoresizingMaskIntoConstraints = false
         
@@ -1085,7 +1245,7 @@ class MyEventsCell : UITableViewCell {
         s.addArrangedSubview(eventDate)
         
         s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: eventPic)
-        s.setCustomSpacing(.getPercentageWidth(percentage: 5), after: eventInfoStackView)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 2), after: eventInfoStackView)
         
         s.translatesAutoresizingMaskIntoConstraints = false
         

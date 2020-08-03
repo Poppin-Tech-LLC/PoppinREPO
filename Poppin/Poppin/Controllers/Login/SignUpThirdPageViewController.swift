@@ -442,7 +442,8 @@ final class SignUpThirdPageViewController: UIViewController {
                         "fullName": self.fullName,
                         "latitude": self.latitude,
                         "longitude": self.longitude,
-                        "radius": self.radius
+                        "radius": self.radius,
+                        "myEvents": []
                     ]) { err in
                         if let err = err {
                             print("Error adding document: \(err)")
