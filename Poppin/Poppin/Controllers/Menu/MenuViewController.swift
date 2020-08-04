@@ -17,8 +17,8 @@ enum MenuAction: String {
     case Settings = "Settings"
     case Subscription = "Subscription"
     case FriendGroups = "FriendGroups"
-    case YourEvents = "YourEvents"
-    case YourSchedule = "YourSchedule"
+    case MyEvents = "YourEvents"
+    case MyWeek = "YourSchedule"
     case Profile = "Profile"
     
 }
@@ -90,6 +90,12 @@ final class MenuViewController: UIViewController {
         self.navigationController?.pushViewController(vc, animated: true)
         delegate?.closeMenu(with: .Profile)
         
+    }
+    
+    @objc private func toRSVPList(sender: ImageBubbleButton) {
+        let vc = RSVPViewController()
+        self.navigationController?.pushViewController(vc, animated: true)
+        delegate?.closeMenu(with: .MyWeek)
     }
     
     lazy private var menuFullNameLabel: UILabel = {
@@ -173,7 +179,7 @@ final class MenuViewController: UIViewController {
         
         let menuButtonsStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 8.3)
         
-        let menuButtonsStackView = UIStackView(arrangedSubviews: [menu24hScheduleButtonView, menuYourEventsButtonView, menuFriendGroupsButtonView, menuYourSubscriptionButtonView, menuSettingsPrivacyButtonView, menuHelpButtonView, menuLogoutButtonView])
+        let menuButtonsStackView = UIStackView(arrangedSubviews: [menuMyWeekButtonView, menuMyEventsButtonView, menuFriendGroupsButtonView, menuYourSubscriptionButtonView, menuSettingsPrivacyButtonView, menuHelpButtonView, menuLogoutButtonView])
         menuButtonsStackView.axis = .vertical
         menuButtonsStackView.alignment = .leading
         menuButtonsStackView.distribution = .fill
@@ -206,17 +212,19 @@ final class MenuViewController: UIViewController {
         
     }()
     
-    lazy private var menu24hScheduleButtonView: MenuButtonView = {
+    lazy private var menuMyWeekButtonView: MenuButtonView = {
         
-        var menu24hScheduleButtonView = MenuButtonView(menuButtonImage: UIImage(systemSymbol: .clockFill), menuButtonText: "24h Schedule")
-        return menu24hScheduleButtonView
+        var menuMyWeekButtonView = MenuButtonView(menuButtonImage: UIImage(systemSymbol: .clockFill), menuButtonText: "My Week")
+        menuMyWeekButtonView.addTarget(target: self, action: #selector(toRSVPList(sender:)), for: .touchUpInside)
+        return menuMyWeekButtonView
         
     }()
     
-    lazy private var menuYourEventsButtonView: MenuButtonView = {
+    lazy private var menuMyEventsButtonView: MenuButtonView = {
         
-        var menuYourEventsButtonView = MenuButtonView(menuButtonImage: UIImage(systemSymbol: .trayFullFill), menuButtonText: "Your Events")
-        return menuYourEventsButtonView
+        var menuMyEventsButtonView = MenuButtonView(menuButtonImage: UIImage(systemSymbol: .trayFullFill), menuButtonText: "My Events")
+        menuMyEventsButtonView.addTarget(target: self, action: #selector(toUserProfile(sender:)), for: .touchUpInside)
+        return menuMyEventsButtonView
         
     }()
     

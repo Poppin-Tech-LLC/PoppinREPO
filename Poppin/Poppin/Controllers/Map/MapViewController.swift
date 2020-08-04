@@ -1237,8 +1237,8 @@ extension MapViewController: MenuDelegate {
                 
                 switch action {
                     
-                case .YourSchedule: print(action)
-                case .YourEvents: print(action)
+                case .MyWeek: print(action)
+                case .MyEvents: print(action)
                 case .Subscription: print(action)
                 case .FriendGroups: print(action)
                 case .Settings: print(action)

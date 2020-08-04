@@ -138,6 +138,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "myEventsCell", for: indexPath) as! MyEventsCell
         
         let myTodayEvents = myEvents[0]
@@ -475,7 +476,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     lazy private var myEventsFeed: UITableView = {
      
         var t = UITableView()
-        t.backgroundColor = .white
+        t.backgroundColor = .clear
         t.isSpringLoaded = true
         t.allowsSelection = false
         t.showsHorizontalScrollIndicator = false
@@ -1256,7 +1257,12 @@ class MyEventsCell : UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        backgroundColor = .clear
+
         self.contentView.backgroundColor = .white
+        self.contentView.layer.masksToBounds = false
+        self.contentView.layer.cornerRadius = 10.0
+        self.contentView.layer.cornerCurve = .continuous
         
         self.contentView.addSubview(eventStackView)
         
@@ -1273,6 +1279,12 @@ class MyEventsCell : UITableViewCell {
 
     required init?(coder aDecoder: NSCoder) {
        super.init(coder: aDecoder)
+    }
+    
+    override func layoutSubviews() {
+       super.layoutSubviews()
+       
+        self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: .getPercentageHeight(percentage: 0.5), left: 0, bottom: .getPercentageHeight(percentage: 0.5), right: 0))
     }
     
 }
