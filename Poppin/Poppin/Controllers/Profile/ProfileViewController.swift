@@ -47,13 +47,13 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                         let eventStartDate: Date = dateFormatter.date(from: data!["startDate"] as! String)!
                         let eventEndDate: Date = dateFormatter.date(from: data!["endDate"] as! String)!
                         let eventName = data!["eventName"] as! String
-                        let eventCategory = data!["category"] as! String
+                        //let eventCategory = data!["category"] as! String
                         let hashtags = data!["hashtags"] as! String
                         let eventInfo = data!["eventDetails"] as! String
                         let latitude = data!["latitude"] as! CLLocationDegrees
                         let longitude = data!["longitude"] as! CLLocationDegrees
                         
-                        let popsicleCategory: PopsicleCategory
+                        /*let popsicleCategory: PopsicleCategory
                         
                         if (eventCategory == "education") {
                             popsicleCategory = PopsicleCategory.Education
@@ -65,9 +65,9 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                             popsicleCategory = PopsicleCategory.Sports
                         } else {
                             popsicleCategory = PopsicleCategory.Culture
-                        }
+                        }*/
                         
-                        let p = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
+                        let p = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: EventCategory.Culture, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
                         
                         if(Calendar.current.isDateInToday(eventStartDate)) {
                             self.myEvents[0].append(p)
@@ -166,7 +166,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             
             cell.eventName.text = todayEvent.eventTitle
             
-            switch(todayEvent.eventCategory) {
+            /*switch(todayEvent.eventCategory) {
             case PopsicleCategory.Education :
                 cell.eventPic.changeBouncyButtonImage(image: .educationPopsicleIcon256)
             case PopsicleCategory.Food :
@@ -181,7 +181,9 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                 cell.eventPic.changeBouncyButtonImage(image: .poppinEventPopsicleIcon256)
             default:
                 cell.eventPic.changeBouncyButtonImage(image: .defaultPopsicleIcon256)
-            }
+            }*/
+            
+            cell.eventPic.changeBouncyButtonImage(image: .culturePopsicleIcon256)
             
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = .none
@@ -193,7 +195,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             let upcomingEvent = myUpcomingEvents[indexPath.row - myTodayEvents.count].popsicleAnnotationData
             
             cell.eventName.text = upcomingEvent.eventTitle
-            switch(upcomingEvent.eventCategory) {
+            /*switch(upcomingEvent.eventCategory) {
             case PopsicleCategory.Education :
                 cell.eventPic.changeBouncyButtonImage(image: .educationPopsicleIcon256)
             case PopsicleCategory.Food :
@@ -208,7 +210,9 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                 cell.eventPic.changeBouncyButtonImage(image: .poppinEventPopsicleIcon256)
             default:
                 cell.eventPic.changeBouncyButtonImage(image: .defaultPopsicleIcon256)
-            }
+            }*/
+            
+            cell.eventPic.changeBouncyButtonImage(image: .culturePopsicleIcon256)
             
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = .short
@@ -220,7 +224,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             let pastEvent = myPastEvents[indexPath.row - (myTodayEvents.count + myUpcomingEvents.count)].popsicleAnnotationData
             
             cell.eventName.text = pastEvent.eventTitle
-            switch(pastEvent.eventCategory) {
+            /*switch(pastEvent.eventCategory) {
             case PopsicleCategory.Education :
                 cell.eventPic.changeBouncyButtonImage(image: .educationPopsicleIcon256)
             case PopsicleCategory.Food :
@@ -235,7 +239,9 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                 cell.eventPic.changeBouncyButtonImage(image: .poppinEventPopsicleIcon256)
             default:
                 cell.eventPic.changeBouncyButtonImage(image: .defaultPopsicleIcon256)
-            }
+            }*/
+            
+            cell.eventPic.changeBouncyButtonImage(image: .culturePopsicleIcon256)
             
             let dateFormatter = DateFormatter()
             dateFormatter.dateStyle = .short
