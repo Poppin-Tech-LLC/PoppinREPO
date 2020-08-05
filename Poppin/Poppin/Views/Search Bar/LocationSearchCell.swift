@@ -9,59 +9,156 @@
 import UIKit
 
 final class LocationSearchCell: UITableViewCell {
-
-    @IBOutlet weak var containerView: UIView! {
-        didSet {
-            
-            // *** STYLES THE OUTSIDE OF THE CELL ***
-            
-            containerView.backgroundColor = UIColor.clear
-            
-            containerView.layer.shadowOpacity = 0.3
-            
-            containerView.layer.shadowRadius = 2
-            
-            containerView.layer.shadowColor = UIColor.black.cgColor
-            
-            containerView.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
-            
-        }
-    }
     
-    @IBOutlet weak var clippingView: UIView! {
-        didSet {
-            
-            // *** STYLES THE INSIDE OF THE CELL ***
-            
-            clippingView.layer.cornerRadius = 10
-            
-            clippingView.backgroundColor = UIColor.white
-            
-            clippingView.layer.masksToBounds = true
-            
-        }
-    }
+    static let cellIdentifier: String = "LocationSearchCell"
     
-    @IBOutlet weak var titleLabel: UILabel!
+    private let cellYInset: CGFloat = .getPercentageWidth(percentage: 4.2)
+    private let cellXInset: CGFloat = .getPercentageWidth(percentage: 5.5)
+    private let cellInnerInset: CGFloat = .getPercentageWidth(percentage: 1)
     
-    @IBOutlet weak var subtitleLabel: UILabel!
-    
-    /*
-     This function simply adds a "tapping" animation once a cell has been pressed since
-     the default one sucks :)
-     */
-    
-    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+    var title: String? {
         
-        if (highlighted) {
+        didSet {
             
-            clippingView.backgroundColor = UIColor.lightGray
+            locationTitleLabel.text = title
             
-        } else {
-            
-            clippingView.backgroundColor = UIColor.white
+            if title == nil || title == "" {
+                
+                locationTitleLabel.isHidden = true
+                
+            } else {
+                
+                locationTitleLabel.isHidden = false
+                
+            }
             
         }
+        
+    }
+    
+    var subtitle: String? {
+        
+        didSet {
+            
+            locationAddressLabel.text = subtitle
+            
+            if subtitle == nil || subtitle == "" {
+                
+                locationAddressLabel.isHidden = true
+                
+            } else {
+                
+                locationAddressLabel.isHidden = false
+                
+            }
+            
+        }
+        
+    }
+    
+    lazy private var cellTextStackView: UIStackView = {
+        
+        let cellTextStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 0.7)
+        
+        var cellTextStackView = UIStackView(arrangedSubviews: [locationTitleLabel, locationAddressLabel])
+        cellTextStackView.axis = .vertical
+        cellTextStackView.alignment = .fill
+        cellTextStackView.distribution = .fill
+        cellTextStackView.spacing = cellTextStackViewSpacing
+        return cellTextStackView
+        
+    }()
+    
+    lazy private var locationTitleLabel: UILabel = {
+        
+        var locationTitleLabel = UILabel()
+        locationTitleLabel.lineBreakMode = .byTruncatingTail
+        locationTitleLabel.numberOfLines = 1
+        locationTitleLabel.textAlignment = .left
+        locationTitleLabel.text = title
+        locationTitleLabel.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        locationTitleLabel.textColor = UIColor.mainDARKPURPLE
+        locationTitleLabel.anchor(size: CGSize(width: 0.0, height: locationTitleLabel.intrinsicContentSize.height))
+        return locationTitleLabel
+        
+    }()
+    
+    lazy private var locationAddressLabel: UILabel = {
+        
+        var locationAddressLabel = UILabel()
+        locationAddressLabel.lineBreakMode = .byTruncatingTail
+        locationAddressLabel.numberOfLines = 1
+        locationAddressLabel.textAlignment = .left
+        locationAddressLabel.text = "Address"
+        locationAddressLabel.font = .dynamicFont(with: "Octarine-Light", style: .footnote)
+        locationAddressLabel.textColor = UIColor.mainDARKPURPLE
+        locationAddressLabel.anchor(size: CGSize(width: 0.0, height: locationTitleLabel.intrinsicContentSize.height))
+        return locationAddressLabel
+        
+    }()
+    
+    lazy private var locationLoadingView: UIView = {
+        
+        var locationLoadingView = UIView()
+        locationLoadingView.backgroundColor = .white
+        
+        locationLoadingView.addSubview(loadingIndicatorView)
+        loadingIndicatorView.anchor(centerX: locationLoadingView.centerXAnchor, centerY: locationLoadingView.centerYAnchor)
+        
+        return locationLoadingView
+        
+    }()
+    
+    lazy private var loadingIndicatorView: UIActivityIndicatorView = {
+        
+        var loadingIndicatorView = UIActivityIndicatorView(style: .medium)
+        loadingIndicatorView.color = .mainDARKPURPLE
+        return loadingIndicatorView
+        
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        configureCell()
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        
+        super.init(coder: aDecoder)
+        
+        configureCell()
+        
+    }
+    
+    private func configureCell() {
+        
+        contentView.backgroundColor = .white
+        
+        contentView.addSubview(cellTextStackView)
+        cellTextStackView.anchor(top: contentView.topAnchor, leading: contentView.leadingAnchor, bottom: contentView.bottomAnchor, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: cellYInset, left: cellXInset, bottom: cellYInset, right: cellXInset))
+        
+        contentView.addSubview(locationLoadingView)
+        locationLoadingView.anchor(centerX: contentView.centerXAnchor, centerY: contentView.centerYAnchor)
+        
+    }
+    
+    func startLoading() {
+        
+        loadingIndicatorView.startAnimating()
+        
+        contentView.addSubview(locationLoadingView)
+        locationLoadingView.anchor(top: contentView.topAnchor, leading: contentView.leadingAnchor, bottom: contentView.bottomAnchor, trailing: contentView.trailingAnchor, padding: UIEdgeInsets(top: cellYInset, left: cellXInset, bottom: cellYInset, right: cellXInset))
+        
+    }
+    
+    func stopLoading() {
+    
+        loadingIndicatorView.stopAnimating()
+        
+        contentView.removeFromSuperview()
         
     }
     

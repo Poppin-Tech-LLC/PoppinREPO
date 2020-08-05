@@ -11,6 +11,7 @@ import UIKit
 final class PopsicleBorderView: UIView {
     
     private var borderColor: UIColor = .black
+    private(set) var lineHeight: CGFloat = .getPercentageWidth(percentage: 0.5)
     
     lazy private var popsicleIconImageView: UIImageView = {
         
@@ -38,11 +39,12 @@ final class PopsicleBorderView: UIView {
         
     }()
     
-    init(with color: UIColor?) {
+    init(with color: UIColor?, lineHeight: CGFloat?) {
         
         super.init(frame: .zero)
         
         if let color = color { self.borderColor = color }
+        if let lineHeight = lineHeight { self.lineHeight = lineHeight }
         
         configureView()
         
@@ -61,25 +63,13 @@ final class PopsicleBorderView: UIView {
         backgroundColor = .clear
         
         addSubview(popsicleIconImageView)
-        popsicleIconImageView.translatesAutoresizingMaskIntoConstraints = false
-        popsicleIconImageView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        popsicleIconImageView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        popsicleIconImageView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.06).isActive = true
-        popsicleIconImageView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        popsicleIconImageView.anchor(top: topAnchor, bottom: bottomAnchor, centerX: centerXAnchor, width: widthAnchor, size: CGSize(width: 0.0, height: lineHeight * 8.5), multiples: CGSize(width: 0.06, height: 1.0))
         
         addSubview(popsicleBorderLeftView)
-        popsicleBorderLeftView.translatesAutoresizingMaskIntoConstraints = false
-        popsicleBorderLeftView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        popsicleBorderLeftView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.44).isActive = true
-        popsicleBorderLeftView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        popsicleBorderLeftView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.13).isActive = true
+        popsicleBorderLeftView.anchor(leading: leadingAnchor, centerY: centerYAnchor, width: widthAnchor, size: CGSize(width: 0.0, height: lineHeight), multiples: CGSize(width: 0.44, height: 1.0))
         
         addSubview(popsicleBorderRightView)
-        popsicleBorderRightView.translatesAutoresizingMaskIntoConstraints = false
-        popsicleBorderRightView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
-        popsicleBorderRightView.widthAnchor.constraint(equalTo: widthAnchor, multiplier: 0.44).isActive = true
-        popsicleBorderRightView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
-        popsicleBorderRightView.heightAnchor.constraint(equalTo: popsicleIconImageView.heightAnchor, multiplier: 0.13).isActive = true
+        popsicleBorderRightView.anchor(trailing: trailingAnchor, centerY: centerYAnchor, width: widthAnchor, size: CGSize(width: 0.0, height: lineHeight), multiples: CGSize(width: 0.44, height: 1.0))
         
     }
     

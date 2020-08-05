@@ -9,7 +9,13 @@
 import UIKit
 import SwiftUI
 
-struct Preview: UIViewControllerRepresentable {
+protocol CreateEventDelegate: NSObject {
+    
+    func saveProgress(eventController: EventController)
+    
+}
+
+struct PreviewCreateEventFirstSectionViewController: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
         
@@ -18,21 +24,21 @@ struct Preview: UIViewControllerRepresentable {
     }
     
     
-    func updateUIViewController(_ uiViewController: CreateEventFirstSectionViewController, context: Context) {}
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
     
     typealias UIViewControllerType = CreateEventFirstSectionViewController
     
 }
 
-struct TestPreview: PreviewProvider {
+struct TestPreviewCreateEventFirstSectionViewController: PreviewProvider {
     
     static var previews: Previews {
         
-        return Preview()
+        return Previews()
         
     }
     
-    typealias Previews = Preview
+    typealias Previews = PreviewCreateEventFirstSectionViewController
     
 }
 
@@ -57,12 +63,31 @@ final class CreateEventFirstSectionViewController: UIViewController {
         view.categoryPickerCollectionView.dataSource = self
         view.closeButton.addTarget(self, action: #selector(dismissCreateEventPage), for: .touchUpInside)
         view.visibilitySwitch.addTarget(self, action: #selector(visibilityChanged(sender:)), for: .valueChanged)
+        view.nextButton.addTarget(self, action: #selector(segueToNextPage), for: .touchUpInside)
         
     }
     
     @objc private func dismissCreateEventPage() {
         
-        navigationController?.dismiss(animated: true, completion: nil)
+        let eventPlaceholder = eventController.rawValue()
+        
+        if eventPlaceholder.title != nil || eventPlaceholder.startDate != nil || eventPlaceholder.endDate != nil || eventPlaceholder.location != nil || eventPlaceholder.details != nil || eventPlaceholder.onlineURL != nil {
+            
+            let button1 = AlertButton(alertTitle: "Exit", alertButtonAction: { [weak self] in
+                
+                guard let self = self else { return }
+                
+                self.navigationController?.dismiss(animated: true, completion: nil)
+            
+            })
+            
+            let button2 = AlertButton(alertTitle: "Stay", alertButtonAction: nil)
+            
+            let alertVC = AlertViewController(alertTitle: "Are you sure you wisth to exit?", alertMessage: "Any progress will be lost.", alertButtons: [button1, button2])
+            
+            self.present(alertVC, animated: true, completion: nil)
+            
+        }
         
     }
     
@@ -91,51 +116,13 @@ final class CreateEventFirstSectionViewController: UIViewController {
         
     }
     
-}
-
-extension CreateEventFirstSectionViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate {
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        return CGSize(width: collectionView.frame.size.width, height: collectionView.frame.size.height)
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
-        return EventCategory.allCases.count
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        if let categoryCell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryViewCell.defaultReuseIdentifier, for: indexPath) as? CategoryViewCell {
-            
-            categoryCell.popsicleIconImageView.image = EventCategory.allCases[indexPath.row].getPopsicleIcon256()
-            categoryCell.categoryLabel.text = EventCategory.allCases[indexPath.row].rawValue
-            categoryCell.descriptionLabel.text = EventCategory.allCases[indexPath.row].getDescription()
-            
-            guard let view = view as? CreateEventFirstSectionView else { return categoryCell }
-            
-            categoryCell.containerStackView.anchor(centerX: categoryCell.contentView.centerXAnchor, size: CGSize(width: view.titleLabel.intrinsicContentSize.width, height: 0.0))
-            
-            return categoryCell
-            
-        } else {
-            
-            return UICollectionViewCell()
-            
-        }
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    @objc private func segueToNextPage() {
         
         guard let view = view as? CreateEventFirstSectionView else { return }
         
         do {
             
-            try eventController.setCategory(category: EventCategory.allCases[indexPath.row])
+            try eventController.setCategory(category: EventCategory.allCases[currentPage])
             
             //print("Event Category: ", try eventController.getCategory())
             
@@ -144,6 +131,10 @@ extension CreateEventFirstSectionViewController: UICollectionViewDelegate, UICol
             //print("Event isPublic: ", eventController.isPublic())
             
             // Segue To Next Section
+            
+            let nextVC = CreateEventSecondSectionViewController(eventController: eventController)
+            nextVC.delegate = self
+            navigationController?.pushViewController(nextVC, animated: true)
             
         } catch let error as EventError {
             
@@ -181,6 +172,44 @@ extension CreateEventFirstSectionViewController: UICollectionViewDelegate, UICol
         
     }
     
+}
+
+extension CreateEventFirstSectionViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIScrollViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        return CGSize(width: collectionView.frame.size.width, height: collectionView.frame.size.height)
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        return EventCategory.allCases.count
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        if let categoryCell = collectionView.dequeueReusableCell(withReuseIdentifier: CategoryViewCell.defaultReuseIdentifier, for: indexPath) as? CategoryViewCell {
+            
+            categoryCell.popsicleIconImageView.image = EventCategory.allCases[indexPath.row].getPopsicleIcon256()
+            categoryCell.categoryLabel.text = EventCategory.allCases[indexPath.row].rawValue
+            categoryCell.descriptionLabel.text = EventCategory.allCases[indexPath.row].getDescription()
+            
+            guard let view = view as? CreateEventFirstSectionView else { return categoryCell }
+            
+            categoryCell.containerStackView.anchor(centerX: categoryCell.contentView.centerXAnchor, size: CGSize(width: view.titleLabel.intrinsicContentSize.width*2, height: 0.0))
+            
+            return categoryCell
+            
+        } else {
+            
+            return UICollectionViewCell()
+            
+        }
+        
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         guard let view = view as? CreateEventFirstSectionView else { return }
@@ -200,6 +229,12 @@ extension CreateEventFirstSectionViewController: UICollectionViewDelegate, UICol
                 duration: 0.2,
                 options: .transitionCrossDissolve,
                 animations: { view.backgroundImageView.image = EventCategory.allCases[self.currentPage].getGradientBackground() },
+                completion: nil)
+                
+                UIView.transition(with: view.nextButton,
+                duration: 0.2,
+                options: .transitionCrossDissolve,
+                animations: { view.nextButton.setTitleColor(EventCategory.allCases[self.currentPage].getGradientColors()[1], for: .normal) },
                 completion: nil)
                 
                 UIView.transition(with: view.pageMarkerStackView.arrangedSubviews[currentPage],
@@ -222,6 +257,12 @@ extension CreateEventFirstSectionViewController: UICollectionViewDelegate, UICol
                 duration: 0.2,
                 options: .transitionCrossDissolve,
                 animations: { view.backgroundImageView.image = EventCategory.allCases[self.currentPage].getGradientBackground() },
+                completion: nil)
+                
+                UIView.transition(with: view.nextButton,
+                duration: 0.2,
+                options: .transitionCrossDissolve,
+                animations: { view.nextButton.setTitleColor(EventCategory.allCases[self.currentPage].getGradientColors()[1], for: .normal) },
                 completion: nil)
                 
                 UIView.transition(with: view.pageMarkerStackView.arrangedSubviews[currentPage],
@@ -286,6 +327,16 @@ extension CreateEventFirstSectionViewController: UICollectionViewDelegate, UICol
         let maxAlpha : CGFloat = 1.0
         
         return ((maxAlpha - minAlpha) * (x - minScale)) / (maxScale - minScale) + minAlpha
+    }
+    
+}
+
+extension CreateEventFirstSectionViewController: CreateEventDelegate {
+    
+    func saveProgress(eventController: EventController) {
+        
+        self.eventController.merge(with: eventController)
+        
     }
     
 }

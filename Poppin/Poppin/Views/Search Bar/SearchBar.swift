@@ -48,11 +48,7 @@ final class SearchBar: UISearchBar {
         setImage(UIImage(systemSymbol: .magnifyingglass, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .heavy)).withTintColor(UIColor.white, renderingMode: .alwaysOriginal), for: .search, state: .normal)
         setImage(UIImage(systemSymbol: .xmarkCircleFill, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .bold)).withTintColor(UIColor.white, renderingMode: .alwaysOriginal), for: .clear, state: .normal)
         
-        searchTextField.translatesAutoresizingMaskIntoConstraints = false
-        searchTextField.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        searchTextField.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        searchTextField.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
-        searchTextField.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        searchTextField.attatchEdgesToSuperview()
         
         searchTextField.leftView?.heightAnchor.constraint(equalToConstant: searchTextField.font!.pointSize * .getWidthFitSize(minSize: 1.0, maxSize: 1.15)).isActive = true
         searchTextField.leftView?.widthAnchor.constraint(equalTo: searchTextField.leftView!.heightAnchor).isActive = true
@@ -63,7 +59,7 @@ final class SearchBar: UISearchBar {
         
         super.layoutSubviews()
         
-        searchTextField.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
+        searchTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         searchTextField.textColor = searchBarTintColor
         searchTextField.layer.cornerRadius = .getWidthFitSize(minSize: 12.0, maxSize: 16.0)
         searchTextField.layer.cornerCurve = .continuous

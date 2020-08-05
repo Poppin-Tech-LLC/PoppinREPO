@@ -218,7 +218,7 @@ extension UIImage {
 
 extension UIView {
     
-    func anchor(top: NSLayoutYAxisAnchor? = nil, leading: NSLayoutXAxisAnchor? = nil, bottom: NSLayoutYAxisAnchor? = nil, trailing: NSLayoutXAxisAnchor? = nil, centerX: NSLayoutXAxisAnchor? = nil, centerY: NSLayoutYAxisAnchor? = nil, width: NSLayoutDimension? = nil, height: NSLayoutDimension? = nil, size: CGSize = .zero, padding: UIEdgeInsets = .zero, centerOffset: CGSize = .zero, multiples: CGSize = CGSize(width: 1.0, height: 1.0)) {
+    func anchor(top: NSLayoutYAxisAnchor? = nil, leading: NSLayoutXAxisAnchor? = nil, bottom: NSLayoutYAxisAnchor? = nil, trailing: NSLayoutXAxisAnchor? = nil, centerX: NSLayoutXAxisAnchor? = nil, centerY: NSLayoutYAxisAnchor? = nil, width: NSLayoutDimension? = nil, height: NSLayoutDimension? = nil, size: CGSize = .zero, padding: UIEdgeInsets = .zero, centerOffset: CGSize = .zero, multiples: CGSize = CGSize(width: 1.0, height: 1.0), constants: CGSize = CGSize(width: 0.0, height: 0.0)) {
         
         translatesAutoresizingMaskIntoConstraints = false
         
@@ -228,8 +228,8 @@ extension UIView {
         if let trailing = trailing { trailingAnchor.constraint(equalTo: trailing, constant: -padding.right).isActive = true }
         if let centerX = centerX { centerXAnchor.constraint(equalTo: centerX, constant: centerOffset.width).isActive = true }
         if let centerY = centerY { centerYAnchor.constraint(equalTo: centerY, constant: centerOffset.height).isActive = true }
-        if let width = width { widthAnchor.constraint(equalTo: width, multiplier: multiples.width).isActive = true }
-        if let height = height { heightAnchor.constraint(equalTo: height, multiplier: multiples.height).isActive = true }
+        if let width = width { widthAnchor.constraint(equalTo: width, multiplier: multiples.width, constant: constants.width).isActive = true }
+        if let height = height { heightAnchor.constraint(equalTo: height, multiplier: multiples.height, constant: constants.height).isActive = true }
         if size.width != 0.0 { widthAnchor.constraint(equalToConstant: size.width).isActive = true }
         if size.height != 0.0 { heightAnchor.constraint(equalToConstant: size.height).isActive = true }
         
@@ -374,9 +374,9 @@ extension UITextField {
 
 extension UITextView {
     
-    public func setBottomBorder() { self.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0) }
+    func setBottomBorder() { self.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0) }
     
-    public func setBottomBorder(color: UIColor, height: CGFloat) {
+    func setBottomBorder(color: UIColor, height: CGFloat) {
         
         if self.layer.backgroundColor == nil || self.layer.backgroundColor == UIColor.clear.cgColor {
             
@@ -392,7 +392,7 @@ extension UITextView {
         
     }
     
-    public func isEmpty() -> Bool {
+    func isEmpty() -> Bool {
         
         return text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true
         
@@ -494,13 +494,49 @@ extension Notification.Name {
     static let editedProfile = Notification.Name("editedProfile")
     static let editedProfileMap = Notification.Name("editedProfileMap")
     static let deletedOrg = Notification.Name("deletedOrg")
-
-
-
-
+    
+    
+    
+    
 }
 
 extension Date {
+    
+    func getFormattedDate() -> String {
+        
+        if year == Region.current.nowInThisRegion().year {
+            
+            if isToday || isTomorrow {
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = .current
+                dateFormatter.timeZone = .current
+                dateFormatter.doesRelativeDateFormatting = true
+                dateFormatter.dateStyle = .medium
+                dateFormatter.timeStyle = .short
+                return dateFormatter.string(from: self)
+                
+            } else {
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.locale = .current
+                dateFormatter.timeZone = .current
+                dateFormatter.dateFormat = "MMM d, h:mm a"
+                return dateFormatter.string(from: self)
+                
+            }
+            
+        } else {
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.locale = .current
+            dateFormatter.timeZone = .current
+            dateFormatter.dateFormat = "MMM d, yyyy, h:mm a"
+            return dateFormatter.string(from: self)
+            
+        }
+        
+    }
     
     static func getFormattedDateInterval(start: Date, end: Date) -> String? {
         

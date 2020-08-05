@@ -9,10 +9,37 @@
 import UIKit
 import SwiftUI
 
+struct PreviewCreateEventFirstSectionView: UIViewRepresentable {
+    
+    func makeUIView(context: Context) -> UIViewType {
+        
+        return UIViewType()
+        
+    }
+    
+    
+    func updateUIView(_ uiView: UIViewType, context: Context) {}
+    
+    typealias UIViewType = CreateEventFirstSectionView
+    
+}
+
+struct TestPreviewCreateEventFirstSectionView: PreviewProvider {
+    
+    static var previews: Previews {
+        
+        return Previews()
+        
+    }
+    
+    typealias Previews = PreviewCreateEventFirstSectionView
+    
+}
+
 final class CreateEventFirstSectionView: UIView {
     
     private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
-    private let yInset: CGFloat = .getPercentageWidth(percentage: 5)
+    private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
     
     lazy private(set) var backgroundImageView: UIImageView = {
         
@@ -24,11 +51,11 @@ final class CreateEventFirstSectionView: UIView {
     
     lazy private(set) var closeButton: BubbleButton = {
         
-        var closeButton = BubbleButton(bouncyButtonImage: UIImage(systemSymbol: .multiply, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal))
-        closeButton.contentEdgeInsets = UIEdgeInsets(top: titleLabel.intrinsicContentSize.height*0.5, left: titleLabel.intrinsicContentSize.height*0.5, bottom: titleLabel.intrinsicContentSize.height*0.5, right: titleLabel.intrinsicContentSize.height*0.5)
-        closeButton.backgroundColor = .clear
-        closeButton.anchor(width: closeButton.heightAnchor, size: CGSize(width: 0.0, height: titleLabel.intrinsicContentSize.height*2))
+        let innerInset = yInset*0.5
         
+        var closeButton = BubbleButton(bouncyButtonImage: UIImage(systemSymbol: .xmark, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .title3).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal))
+        closeButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset, bottom: innerInset, right: innerInset)
+        closeButton.backgroundColor = .clear
         return closeButton
         
     }()
@@ -37,7 +64,7 @@ final class CreateEventFirstSectionView: UIView {
         
         var titleLabel = UILabel()
         titleLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
-        titleLabel.text = "What's your event about?"
+        titleLabel.text = "Create Event"
         titleLabel.numberOfLines = 1
         titleLabel.textAlignment = .center
         titleLabel.textColor = .white
@@ -169,6 +196,22 @@ final class CreateEventFirstSectionView: UIView {
         
     }()
     
+    lazy private(set) var nextButton: BouncyButton = {
+        
+        let innerInset: CGFloat = yInset*0.4
+        
+        var nextButton = BouncyButton(bouncyButtonImage: nil)
+        nextButton.backgroundColor = .white
+        nextButton.setTitle("Next", for: .normal)
+        nextButton.titleLabel?.textAlignment = .center
+        nextButton.setTitleColor(EventCategory.Culture.getGradientColors()[1], for: .normal)
+        nextButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
+        nextButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset*2, bottom: innerInset, right: innerInset*2)
+        nextButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 14.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
+        return nextButton
+        
+    }()
+    
     override init(frame: CGRect) {
         
         super.init(frame: frame)
@@ -191,22 +234,25 @@ final class CreateEventFirstSectionView: UIView {
         backgroundImageView.attatchEdgesToSuperview()
         
         addSubview(closeButton)
-        closeButton.anchor(top: safeAreaLayoutGuide.topAnchor, leading: leadingAnchor, padding: UIEdgeInsets(top: yInset - titleLabel.intrinsicContentSize.height*0.25, left: xInset - titleLabel.intrinsicContentSize.height*0.25, bottom: 0.0, right: 0.0))
+        closeButton.anchor(top: safeAreaLayoutGuide.topAnchor, leading: leadingAnchor, padding: UIEdgeInsets(top: yInset, left: xInset, bottom: 0.0, right: 0.0))
         
         addSubview(titleLabel)
-        titleLabel.anchor(top: closeButton.bottomAnchor, centerX: centerXAnchor, padding: UIEdgeInsets(top: yInset, left: 0.0, bottom: 0.0, right: 0.0))
+        titleLabel.anchor(centerX: centerXAnchor, centerY: closeButton.centerYAnchor)
         
         addSubview(categoryPickerCollectionView)
         categoryPickerCollectionView.anchor(top: titleLabel.bottomAnchor, leading: leadingAnchor, trailing: trailingAnchor, padding: UIEdgeInsets(top: yInset, left: 0.0, bottom: 0.0, right: 0.0))
         
-        addSubview(visibilityStackView)
-        visibilityStackView.anchor(top: categoryPickerCollectionView.bottomAnchor, centerX: centerXAnchor, padding: UIEdgeInsets(top: yInset, left: 0.0, bottom: 0.0, right: 0.0))
-        
-        addSubview(visibilityCountLabel)
-        visibilityCountLabel.anchor(top: visibilityStackView.bottomAnchor, centerX: centerXAnchor, padding: UIEdgeInsets(top: yInset, left: 0.0, bottom: 0.0, right: 0.0))
-        
         addSubview(pageMarkerStackView)
-        pageMarkerStackView.anchor(top: visibilityCountLabel.bottomAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, centerX: centerXAnchor, padding: UIEdgeInsets(top: yInset + (titleLabel.intrinsicContentSize.height*0.5), left: 0.0, bottom: yInset + (titleLabel.intrinsicContentSize.height*0.5), right: 0.0))
+        pageMarkerStackView.anchor(top: categoryPickerCollectionView.bottomAnchor, centerX: centerXAnchor, padding: UIEdgeInsets(top: yInset + (titleLabel.intrinsicContentSize.height*0.5), left: 0.0, bottom: 0.0, right: 0.0))
+        
+        addSubview(visibilityStackView)
+        visibilityStackView.anchor(top: pageMarkerStackView.bottomAnchor, centerX: centerXAnchor, padding: UIEdgeInsets(top: yInset + (titleLabel.intrinsicContentSize.height*0.5), left: 0.0, bottom: 0.0, right: 0.0))
+        
+        /*addSubview(visibilityCountLabel)
+        visibilityCountLabel.anchor(top: visibilityStackView.bottomAnchor, centerX: centerXAnchor, padding: UIEdgeInsets(top: xInset*0.8, left: 0.0, bottom: 0.0, right: 0.0))*/
+        
+        addSubview(nextButton)
+        nextButton.anchor(top: visibilityStackView.bottomAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, centerX: centerXAnchor, padding: UIEdgeInsets(top: yInset + (titleLabel.intrinsicContentSize.height*0.5), left: 0.0, bottom: yInset + (titleLabel.intrinsicContentSize.height*0.5), right: 0.0))
         
     }
     
@@ -240,7 +286,7 @@ final class CategoryViewCell : UICollectionViewCell {
     
     static let defaultReuseIdentifier: String = "categoryCell"
     
-    private let cellVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
+    private let cellVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 2)
     private let cellHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     
     lazy private(set) var containerStackView: UIStackView = {
@@ -250,14 +296,14 @@ final class CategoryViewCell : UICollectionViewCell {
         containerStackView.alignment = .center
         containerStackView.distribution = .fill
         containerStackView.spacing = cellVerticalEdgeInset
+        containerStackView.setCustomSpacing(cellVerticalEdgeInset*1.5, after: popsicleIconImageView)
         return containerStackView
         
     }()
     
     lazy private var borderView: PopsicleBorderView = {
         
-        var borderView = PopsicleBorderView(with: .white)
-        borderView.anchor(size: CGSize(width: 0.0, height: categoryLabel.intrinsicContentSize.height))
+        var borderView = PopsicleBorderView(with: .white, lineHeight: nil)
         return borderView
         
     }()
@@ -298,7 +344,7 @@ final class CategoryViewCell : UICollectionViewCell {
     lazy private(set) var descriptionLabel: UILabel = {
         
         var descriptionLabel = UILabel()
-        descriptionLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        descriptionLabel.font = .dynamicFont(with: "Octarine-Light", style: .callout)
         descriptionLabel.textColor = .white
         descriptionLabel.text = "Category Description"
         descriptionLabel.lineBreakMode = NSLineBreakMode.byWordWrapping
@@ -329,10 +375,7 @@ final class CategoryViewCell : UICollectionViewCell {
         contentView.backgroundColor = .clear
         
         contentView.addSubview(containerStackView)
-        //containerStackView.anchor(leading: contentView.leadingAnchor, trailing: contentView.trailingAnchor)
-        
         popsicleIconImageView.anchor(bottom: contentView.centerYAnchor, width: contentView.widthAnchor, height: popsicleIconImageView.widthAnchor, multiples: CGSize(width: 0.33, height: 1.0))
-        
         borderView.anchor(width: contentView.widthAnchor, multiples: CGSize(width: 0.33, height: 1.0))
     
     }

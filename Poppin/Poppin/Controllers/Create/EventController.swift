@@ -36,25 +36,7 @@ final class EventController: NSObject {
         
         super.init()
         
-        var errorLog: String = "Event error log: \n"
-        
-        do { if let id = eventModel.id { try setId(id: id) } } catch let error as EventError { errorLog.append("id: " + error.rawValue + "\n") } catch { errorLog.append("id: " + error.localizedDescription + "\n") }
-        do { if let title = eventModel.title { try setTitle(title: title) } } catch let error as EventError { errorLog.append("title: " + error.rawValue + "\n") } catch { errorLog.append("title: " + error.localizedDescription + "\n") }
-        do { if let details = eventModel.details { try setDetails(details: details) } } catch let error as EventError { errorLog.append("details: " + error.rawValue + "\n") } catch { errorLog.append("details: " + error.localizedDescription + "\n") }
-        do { if let onlineURL = eventModel.onlineURL { try setOnlineURL(onlineURL: onlineURL.absoluteString) } } catch let error as EventError { errorLog.append("onlineURL: " + error.rawValue + "\n") } catch { errorLog.append("onlineURL: " + error.localizedDescription + "\n") }
-        do { if let startDate = eventModel.startDate { try setStartDate(startDate: startDate) } } catch let error as EventError { errorLog.append("startDate: " + error.rawValue + "\n") } catch { errorLog.append("startDate: " + error.localizedDescription + "\n") }
-        do { if let endDate = eventModel.endDate { try setEndDate(endDate: endDate) } } catch let error as EventError { errorLog.append("endDate: " + error.rawValue + "\n") } catch { errorLog.append("endDate: " + error.localizedDescription + "\n") }
-        do { if let location = eventModel.location { try setLocation(location: location) } } catch let error as EventError { errorLog.append("location: " + error.rawValue + "\n") } catch { errorLog.append("location: " + error.localizedDescription + "\n") }
-        do { if let authorId = eventModel.authorId { try setAuthorId(authorId: authorId) } } catch let error as EventError { errorLog.append("authorId: " + error.rawValue + "\n") } catch { errorLog.append("authorId: " + error.localizedDescription + "\n") }
-        do { if let category = eventModel.category { try setCategory(category: category) } } catch let error as EventError { errorLog.append("category: " + error.rawValue + "\n") } catch { errorLog.append("category: " + error.localizedDescription + "\n") }
-        do { try setAttendeesIds(attendeesIds: eventModel.attendeesIds) } catch let error as EventError { errorLog.append("attendeesIds: " + error.rawValue + "\n") } catch { errorLog.append("attendeesIds: " + error.localizedDescription + "\n") }
-        do { try setPublic(isPublic: eventModel.isPublic) } catch let error as EventError { errorLog.append("isPublic: " + error.rawValue + "\n") } catch { errorLog.append("isPublic: " + error.localizedDescription + "\n") }
-        do { try setPoppin(isPoppin: eventModel.isPoppin) } catch let error as EventError { errorLog.append("isPoppin: " + error.rawValue + "\n") } catch { errorLog.append("isPoppin: " + error.localizedDescription + "\n") }
-        do { try setEditable(isEditable: eventModel.isEditable) } catch let error as EventError { errorLog.append("isEditable: " + error.rawValue + "\n") } catch { errorLog.append("isEditable: " + error.localizedDescription + "\n") }
-        
-        if errorLog == "Event error log: \n" { errorLog.append("No errors.") }
-        
-        print(errorLog)
+        merge(with: eventModel)
         
     }
     
@@ -62,25 +44,7 @@ final class EventController: NSObject {
         
         super.init()
         
-        var errorLog: String = "Event error log: \n"
-        
-        do { try setId(id: try eventController.getId()) } catch let error as EventError { errorLog.append("id: " + error.rawValue + "\n") } catch { errorLog.append("id: " + error.localizedDescription + "\n") }
-        do { try setTitle(title: try eventController.getTitle()) } catch let error as EventError { errorLog.append("title: " + error.rawValue + "\n") } catch { errorLog.append("title: " + error.localizedDescription + "\n") }
-        do { try setDetails(details: try eventController.getDetails()) } catch let error as EventError { errorLog.append("details: " + error.rawValue + "\n") } catch { errorLog.append("details: " + error.localizedDescription + "\n") }
-        do { try setOnlineURL(onlineURL: try eventController.getOnlineURL().absoluteString) } catch let error as EventError { errorLog.append("onlineURL: " + error.rawValue + "\n") } catch { errorLog.append("onlineURL: " + error.localizedDescription + "\n") }
-        do { try setStartDate(startDate: try eventController.getStartDate()) } catch let error as EventError { errorLog.append("startDate: " + error.rawValue + "\n") } catch { errorLog.append("startDate: " + error.localizedDescription + "\n") }
-        do { try setEndDate(endDate: try eventController.getEndDate()) } catch let error as EventError { errorLog.append("endDate: " + error.rawValue + "\n") } catch { errorLog.append("endDate: " + error.localizedDescription + "\n") }
-        do { try setLocation(location: try eventController.getLocation()) } catch let error as EventError { errorLog.append("location: " + error.rawValue + "\n") } catch { errorLog.append("location: " + error.localizedDescription + "\n") }
-        do { try setAuthorId(authorId: try eventController.getAuthorId()) } catch let error as EventError { errorLog.append("authorId: " + error.rawValue + "\n") } catch { errorLog.append("authorId: " + error.localizedDescription + "\n") }
-        do { try setCategory(category: try eventController.getCategory()) } catch let error as EventError { errorLog.append("category: " + error.rawValue + "\n") } catch { errorLog.append("category: " + error.localizedDescription + "\n") }
-        do { try setAttendeesIds(attendeesIds: eventController.getAttendeesIds()) } catch let error as EventError { errorLog.append("attendeesIds: " + error.rawValue + "\n") } catch { errorLog.append("attendeesIds: " + error.localizedDescription + "\n") }
-        do { try setPublic(isPublic: eventController.isPublic()) } catch let error as EventError { errorLog.append("isPublic: " + error.rawValue + "\n") } catch { errorLog.append("isPublic: " + error.localizedDescription + "\n") }
-        do { try setPoppin(isPoppin: eventController.isPoppin()) } catch let error as EventError { errorLog.append("isPoppin: " + error.rawValue + "\n") } catch { errorLog.append("isPoppin: " + error.localizedDescription + "\n") }
-        do { try setEditable(isEditable: eventController.isEditable()) } catch let error as EventError { errorLog.append("isEditable: " + error.rawValue + "\n") } catch { errorLog.append("isEditable: " + error.localizedDescription + "\n") }
-        
-        if errorLog == "Event error log: \n" { errorLog.append("No errors.") }
-        
-        print(errorLog)
+        merge(with: eventController)
         
     }
     
@@ -128,6 +92,54 @@ final class EventController: NSObject {
         
     }
     
+    func merge(with eventController: EventController) {
+        
+        var errorLog: String = "Event error log: \n"
+        
+        do { try setId(id: try eventController.getId()) } catch let error as EventError { errorLog.append("id: " + error.rawValue + "\n") } catch { errorLog.append("id: " + error.localizedDescription + "\n") }
+        do { try setTitle(title: try eventController.getTitle()) } catch let error as EventError { errorLog.append("title: " + error.rawValue + "\n") } catch { errorLog.append("title: " + error.localizedDescription + "\n") }
+        do { try setDetails(details: try eventController.getDetails()) } catch let error as EventError { errorLog.append("details: " + error.rawValue + "\n") } catch { errorLog.append("details: " + error.localizedDescription + "\n") }
+        do { try setonlineURL(onlineURL: try eventController.getonlineURL().absoluteString) } catch let error as EventError { errorLog.append("onlineURL: " + error.rawValue + "\n") } catch { errorLog.append("onlineURL: " + error.localizedDescription + "\n") }
+        do { try setStartDate(startDate: try eventController.getStartDate()) } catch let error as EventError { errorLog.append("startDate: " + error.rawValue + "\n") } catch { errorLog.append("startDate: " + error.localizedDescription + "\n") }
+        do { try setEndDate(endDate: try eventController.getEndDate()) } catch let error as EventError { errorLog.append("endDate: " + error.rawValue + "\n") } catch { errorLog.append("endDate: " + error.localizedDescription + "\n") }
+        do { try setLocation(location: try eventController.getLocation()) } catch let error as EventError { errorLog.append("location: " + error.rawValue + "\n") } catch { errorLog.append("location: " + error.localizedDescription + "\n") }
+        do { try setAuthorId(authorId: try eventController.getAuthorId()) } catch let error as EventError { errorLog.append("authorId: " + error.rawValue + "\n") } catch { errorLog.append("authorId: " + error.localizedDescription + "\n") }
+        do { try setCategory(category: try eventController.getCategory()) } catch let error as EventError { errorLog.append("category: " + error.rawValue + "\n") } catch { errorLog.append("category: " + error.localizedDescription + "\n") }
+        do { try setAttendeesIds(attendeesIds: eventController.getAttendeesIds()) } catch let error as EventError { errorLog.append("attendeesIds: " + error.rawValue + "\n") } catch { errorLog.append("attendeesIds: " + error.localizedDescription + "\n") }
+        do { try setPublic(isPublic: eventController.isPublic()) } catch let error as EventError { errorLog.append("isPublic: " + error.rawValue + "\n") } catch { errorLog.append("isPublic: " + error.localizedDescription + "\n") }
+        do { try setPoppin(isPoppin: eventController.isPoppin()) } catch let error as EventError { errorLog.append("isPoppin: " + error.rawValue + "\n") } catch { errorLog.append("isPoppin: " + error.localizedDescription + "\n") }
+        do { try setEditable(isEditable: eventController.isEditable()) } catch let error as EventError { errorLog.append("isEditable: " + error.rawValue + "\n") } catch { errorLog.append("isEditable: " + error.localizedDescription + "\n") }
+        
+        if errorLog == "Event error log: \n" { errorLog.append("No errors.") }
+        
+        print(errorLog)
+        
+    }
+    
+    func merge(with eventModel: EventModel) {
+        
+        var errorLog: String = "Event error log: \n"
+        
+        do { if let id = eventModel.id { try setId(id: id) } } catch let error as EventError { errorLog.append("id: " + error.rawValue + "\n") } catch { errorLog.append("id: " + error.localizedDescription + "\n") }
+        do { if let title = eventModel.title { try setTitle(title: title) } } catch let error as EventError { errorLog.append("title: " + error.rawValue + "\n") } catch { errorLog.append("title: " + error.localizedDescription + "\n") }
+        do { if let details = eventModel.details { try setDetails(details: details) } } catch let error as EventError { errorLog.append("details: " + error.rawValue + "\n") } catch { errorLog.append("details: " + error.localizedDescription + "\n") }
+        do { if let onlineURL = eventModel.onlineURL { try setonlineURL(onlineURL: onlineURL.absoluteString) } } catch let error as EventError { errorLog.append("onlineURL: " + error.rawValue + "\n") } catch { errorLog.append("onlineURL: " + error.localizedDescription + "\n") }
+        do { if let startDate = eventModel.startDate { try setStartDate(startDate: startDate) } } catch let error as EventError { errorLog.append("startDate: " + error.rawValue + "\n") } catch { errorLog.append("startDate: " + error.localizedDescription + "\n") }
+        do { if let endDate = eventModel.endDate { try setEndDate(endDate: endDate) } } catch let error as EventError { errorLog.append("endDate: " + error.rawValue + "\n") } catch { errorLog.append("endDate: " + error.localizedDescription + "\n") }
+        do { if let location = eventModel.location { try setLocation(location: location) } } catch let error as EventError { errorLog.append("location: " + error.rawValue + "\n") } catch { errorLog.append("location: " + error.localizedDescription + "\n") }
+        do { if let authorId = eventModel.authorId { try setAuthorId(authorId: authorId) } } catch let error as EventError { errorLog.append("authorId: " + error.rawValue + "\n") } catch { errorLog.append("authorId: " + error.localizedDescription + "\n") }
+        do { if let category = eventModel.category { try setCategory(category: category) } } catch let error as EventError { errorLog.append("category: " + error.rawValue + "\n") } catch { errorLog.append("category: " + error.localizedDescription + "\n") }
+        do { try setAttendeesIds(attendeesIds: eventModel.attendeesIds) } catch let error as EventError { errorLog.append("attendeesIds: " + error.rawValue + "\n") } catch { errorLog.append("attendeesIds: " + error.localizedDescription + "\n") }
+        do { try setPublic(isPublic: eventModel.isPublic) } catch let error as EventError { errorLog.append("isPublic: " + error.rawValue + "\n") } catch { errorLog.append("isPublic: " + error.localizedDescription + "\n") }
+        do { try setPoppin(isPoppin: eventModel.isPoppin) } catch let error as EventError { errorLog.append("isPoppin: " + error.rawValue + "\n") } catch { errorLog.append("isPoppin: " + error.localizedDescription + "\n") }
+        do { try setEditable(isEditable: eventModel.isEditable) } catch let error as EventError { errorLog.append("isEditable: " + error.rawValue + "\n") } catch { errorLog.append("isEditable: " + error.localizedDescription + "\n") }
+        
+        if errorLog == "Event error log: \n" { errorLog.append("No errors.") }
+        
+        print(errorLog)
+        
+    }
+    
     func setId(id: String) throws {
         
         if !event.isEditable { throw EventError.nonEditable }
@@ -144,7 +156,7 @@ final class EventController: NSObject {
         
         if !event.isEditable { throw EventError.nonEditable }
         
-        if title.isEmpty || title.count > 30 || title.trimmingCharacters(in: .whitespacesAndNewlines) == "" { throw EventError.invalidParameter }
+        if title.isEmpty || title.count > 50 || title.trimmingCharacters(in: .whitespacesAndNewlines) == "" { throw EventError.invalidParameter }
         
         event.title = title
         
@@ -154,13 +166,13 @@ final class EventController: NSObject {
         
         if !event.isEditable { throw EventError.nonEditable }
         
-        if details.isEmpty || details.count > 250 || details.trimmingCharacters(in: .whitespacesAndNewlines) == "" { throw EventError.invalidParameter }
+        if details.isEmpty || details.count > 500 || details.trimmingCharacters(in: .whitespacesAndNewlines) == "" { throw EventError.invalidParameter }
         
         event.details = details
         
     }
     
-    func setOnlineURL(onlineURL: String) throws {
+    func setonlineURL(onlineURL: String) throws {
         
         if !event.isEditable { throw EventError.nonEditable }
         
@@ -184,9 +196,9 @@ final class EventController: NSObject {
         
         if now.isAfterDate(startDate, granularity: .minute) { throw EventError.invalidParameter }
         
-        if let minutes = (startDate - now).minute, minutes < 15 { throw EventError.invalidParameter }
+        if (now + 15.minutes) > startDate { throw EventError.invalidParameter }
         
-        if let days = (startDate - now).day, days > 7 { throw EventError.invalidParameter }
+        if (now + 7.days) < startDate { throw EventError.invalidParameter }
         
         event.startDate = startDate
         
@@ -200,9 +212,9 @@ final class EventController: NSObject {
         
         if startDate.isAfterDate(endDate, granularity: .minute) { throw EventError.invalidParameter }
         
-        if let minutes = (endDate - startDate).minute, minutes < 30 { throw EventError.invalidParameter }
+        if (startDate + 30.minutes) > endDate { throw EventError.invalidParameter }
         
-        if let hours = (endDate - startDate).hour, hours > 8 { throw EventError.invalidParameter }
+        if (startDate + 8.hours) < endDate { throw EventError.invalidParameter }
         
         event.endDate = endDate
         
@@ -308,7 +320,7 @@ final class EventController: NSObject {
         
     }
     
-    func getOnlineURL() throws -> URL {
+    func getonlineURL() throws -> URL {
         
         guard let onlineURL = event.onlineURL else { throw EventError.attributeHasNotBeenSet }
         
@@ -377,6 +389,24 @@ final class EventController: NSObject {
     func isEditable() -> Bool {
         
         return event.isEditable
+        
+    }
+    
+    func rawValue() -> EventModel {
+        
+        return event
+        
+    }
+    
+    func removeOnlineURL() {
+        
+        event.onlineURL = nil
+        
+    }
+    
+    func removeDetails() {
+        
+        event.details = nil
         
     }
     

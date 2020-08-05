@@ -831,30 +831,30 @@ final class MapViewController: UIViewController {
                     let latitude = data!["latitude"] as! CLLocationDegrees
                     let longitude = data!["longitude"] as! CLLocationDegrees
                     
-                    let popsicleCategory: PopsicleCategory
+                    let popsicleCategory: EventCategory
                     
                     if (eventCategory == "education") {
                         
-                        popsicleCategory = PopsicleCategory.Education
+                        popsicleCategory = .Education
                         
                         
                         
                     } else if (eventCategory == "food") {
                         
-                        popsicleCategory = PopsicleCategory.Food
+                        popsicleCategory = .Food
                         
                         
                     } else if (eventCategory == "social") {
                         
-                        popsicleCategory = PopsicleCategory.Social
+                        popsicleCategory = .Social
                         
                         
                     } else if (eventCategory == "sports") {
                         
-                        popsicleCategory = PopsicleCategory.Sports
+                        popsicleCategory = .Sports
                     } else {
                         
-                        popsicleCategory = PopsicleCategory.Culture
+                        popsicleCategory = .Culture
                     }
                     
                     let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
@@ -1131,7 +1131,7 @@ extension MapViewController: MKMapViewDelegate {
             
             let bottomSheetVC = PopsiclePopupViewController()
             
-            bottomSheetVC.popsicleCategory = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventCategory
+            //bottomSheetVC.pops = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventCategory
             bottomSheetVC.popsicleName = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventTitle
             bottomSheetVC.popsicleStartDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventStartDate.toString(.standard)
             bottomSheetVC.popsicleEndDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventEndDate.toString(.standard)

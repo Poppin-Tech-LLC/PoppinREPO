@@ -34,6 +34,14 @@
 		6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC024A2677C006AE467 /* SearchBar.swift */; };
 		6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC224A2680A006AE467 /* UserSearchCell.swift */; };
 		6417BCC524A2695D006AE467 /* LocationSearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6417BCC424A2695D006AE467 /* LocationSearchCell.swift */; };
+		641E91DD24D830B9008D3B83 /* TitleInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E91DC24D830B9008D3B83 /* TitleInputView.swift */; };
+		641E91DF24D838EB008D3B83 /* TitleInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E91DE24D838EB008D3B83 /* TitleInputViewController.swift */; };
+		641E91E124D84933008D3B83 /* DetailsInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E91E024D84933008D3B83 /* DetailsInputView.swift */; };
+		641E91E324D84AE7008D3B83 /* DetailsInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E91E224D84AE7008D3B83 /* DetailsInputViewController.swift */; };
+		641E91E524D9ADF8008D3B83 /* OnlineLinkInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E91E424D9ADF8008D3B83 /* OnlineLinkInputView.swift */; };
+		641E91E724D9B211008D3B83 /* OnlineLinkInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E91E624D9B211008D3B83 /* OnlineLinkInputViewController.swift */; };
+		642C315B24D4739F009618B4 /* DateInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642C315A24D4739F009618B4 /* DateInputView.swift */; };
+		642C315D24D473B3009618B4 /* DateInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642C315C24D473B3009618B4 /* DateInputViewController.swift */; };
 		645BE46324CF0681001A3232 /* CreateEventFirstSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46224CF0681001A3232 /* CreateEventFirstSectionViewController.swift */; };
 		645BE46524CF2CE5001A3232 /* EventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46424CF2CE5001A3232 /* EventController.swift */; };
 		645BE46724CF2D07001A3232 /* EventModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46624CF2D07001A3232 /* EventModel.swift */; };
@@ -43,6 +51,10 @@
 		645DE3D524A637750007E159 /* Octarine-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 645DE3D424A637740007E159 /* Octarine-Bold.otf */; };
 		64689DAF24BDB1D700FDA83F /* PopsicleBorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64689DAE24BDB1D700FDA83F /* PopsicleBorderView.swift */; };
 		647DC4F124CE09A400082C5E /* CreateEventFirstSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647DC4F024CE09A400082C5E /* CreateEventFirstSectionView.swift */; };
+		64841A0F24D238610071A0E9 /* CreateEventSecondSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64841A0E24D238610071A0E9 /* CreateEventSecondSectionViewController.swift */; };
+		64841A1124D238840071A0E9 /* CreateEventSecondSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64841A1024D238840071A0E9 /* CreateEventSecondSectionView.swift */; };
+		648FE0DB24D5774100339CC1 /* LocationInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648FE0DA24D5774100339CC1 /* LocationInputViewController.swift */; };
+		648FE0DD24D5775100339CC1 /* LocationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648FE0DC24D5775100339CC1 /* LocationInputView.swift */; };
 		64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941EC924A39F6E00824E9B /* MapViewController.swift */; };
 		64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECC24A3A71300824E9B /* SearchViewController.swift */; };
 		64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECF24A3AB9600824E9B /* ProfileViewController.swift */; };
@@ -51,15 +63,9 @@
 		64B88BDB24BF140A0044C3EA /* Pods_Poppin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CAC1587310AEB0F4D61D28A /* Pods_Poppin.framework */; };
 		64BF883A24AB2DB10008659D /* BubbleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BF883924AB2DB10008659D /* BubbleImageView.swift */; };
 		64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CF0C8624A48A580077C1D7 /* MenuViewController.swift */; };
+		64D29E5E24DA3B6D00D67CE5 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */; };
 		9077592978492C726F78F0C1 /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB06A8A7A9E2033778A1FD0 /* Pods_PoppinTests.framework */; };
 		D171471443DEECA9ADF08CE3 /* Pods_PoppinUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */; };
-		F5FC3F2B24B243B200FA1AB0 /* NewCreateEventViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F2624B243B200FA1AB0 /* NewCreateEventViewController.swift */; };
-		F5FC3F2C24B243B200FA1AB0 /* writeDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F2724B243B200FA1AB0 /* writeDetailsViewController.swift */; };
-		F5FC3F2E24B243B200FA1AB0 /* EditLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F2924B243B200FA1AB0 /* EditLocationViewController.swift */; };
-		F5FC3F2F24B243B200FA1AB0 /* NewCreateEventCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F2A24B243B200FA1AB0 /* NewCreateEventCardViewController.swift */; };
-		F5FC3F3224B2447F00FA1AB0 /* FlipDismissAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3024B2447F00FA1AB0 /* FlipDismissAnimationController.swift */; };
-		F5FC3F3324B2447F00FA1AB0 /* FlipPresentAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3124B2447F00FA1AB0 /* FlipPresentAnimationController.swift */; };
-		F5FC3F3524B248C100FA1AB0 /* AnimationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3424B248C100FA1AB0 /* AnimationHelper.swift */; };
 		F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3624B48B4000FA1AB0 /* dataModel.xcdatamodeld */; };
 		F5FC3F3A24B5E26400FA1AB0 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3924B5E26400FA1AB0 /* DataController.swift */; };
 		F5FC3F3C24B737DD00FA1AB0 /* UniversitiesJSON.json in Resources */ = {isa = PBXBuildFile; fileRef = F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */; };
@@ -133,6 +139,14 @@
 		6417BCC024A2677C006AE467 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		6417BCC224A2680A006AE467 /* UserSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSearchCell.swift; sourceTree = "<group>"; };
 		6417BCC424A2695D006AE467 /* LocationSearchCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSearchCell.swift; sourceTree = "<group>"; };
+		641E91DC24D830B9008D3B83 /* TitleInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleInputView.swift; sourceTree = "<group>"; };
+		641E91DE24D838EB008D3B83 /* TitleInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleInputViewController.swift; sourceTree = "<group>"; };
+		641E91E024D84933008D3B83 /* DetailsInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsInputView.swift; sourceTree = "<group>"; };
+		641E91E224D84AE7008D3B83 /* DetailsInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsInputViewController.swift; sourceTree = "<group>"; };
+		641E91E424D9ADF8008D3B83 /* OnlineLinkInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineLinkInputView.swift; sourceTree = "<group>"; };
+		641E91E624D9B211008D3B83 /* OnlineLinkInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineLinkInputViewController.swift; sourceTree = "<group>"; };
+		642C315A24D4739F009618B4 /* DateInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInputView.swift; sourceTree = "<group>"; };
+		642C315C24D473B3009618B4 /* DateInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInputViewController.swift; sourceTree = "<group>"; };
 		645BE46224CF0681001A3232 /* CreateEventFirstSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateEventFirstSectionViewController.swift; sourceTree = "<group>"; };
 		645BE46424CF2CE5001A3232 /* EventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventController.swift; sourceTree = "<group>"; };
 		645BE46624CF2D07001A3232 /* EventModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventModel.swift; sourceTree = "<group>"; };
@@ -142,6 +156,10 @@
 		645DE3D424A637740007E159 /* Octarine-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octarine-Bold.otf"; sourceTree = "<group>"; };
 		64689DAE24BDB1D700FDA83F /* PopsicleBorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopsicleBorderView.swift; sourceTree = "<group>"; };
 		647DC4F024CE09A400082C5E /* CreateEventFirstSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateEventFirstSectionView.swift; sourceTree = "<group>"; };
+		64841A0E24D238610071A0E9 /* CreateEventSecondSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateEventSecondSectionViewController.swift; sourceTree = "<group>"; };
+		64841A1024D238840071A0E9 /* CreateEventSecondSectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateEventSecondSectionView.swift; sourceTree = "<group>"; };
+		648FE0DA24D5774100339CC1 /* LocationInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputViewController.swift; sourceTree = "<group>"; };
+		648FE0DC24D5775100339CC1 /* LocationInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationInputView.swift; sourceTree = "<group>"; };
 		64941EC924A39F6E00824E9B /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		64941ECC24A3A71300824E9B /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64941ECF24A3AB9600824E9B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -149,17 +167,11 @@
 		64B7248624AF623800BB48C5 /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
 		64BF883924AB2DB10008659D /* BubbleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleImageView.swift; sourceTree = "<group>"; };
 		64CF0C8624A48A580077C1D7 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
+		64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		A014052323697933541F2FB7 /* Pods-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B180A4462E77FBC337504A30 /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
 		C74E98F7B823425DE252811D /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
-		F5FC3F2624B243B200FA1AB0 /* NewCreateEventViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewCreateEventViewController.swift; sourceTree = "<group>"; };
-		F5FC3F2724B243B200FA1AB0 /* writeDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = writeDetailsViewController.swift; sourceTree = "<group>"; };
-		F5FC3F2924B243B200FA1AB0 /* EditLocationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditLocationViewController.swift; sourceTree = "<group>"; };
-		F5FC3F2A24B243B200FA1AB0 /* NewCreateEventCardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewCreateEventCardViewController.swift; sourceTree = "<group>"; };
-		F5FC3F3024B2447F00FA1AB0 /* FlipDismissAnimationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlipDismissAnimationController.swift; sourceTree = "<group>"; };
-		F5FC3F3124B2447F00FA1AB0 /* FlipPresentAnimationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlipPresentAnimationController.swift; sourceTree = "<group>"; };
-		F5FC3F3424B248C100FA1AB0 /* AnimationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationHelper.swift; sourceTree = "<group>"; };
 		F5FC3F3724B48B4000FA1AB0 /* dataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = dataModel.xcdatamodel; sourceTree = "<group>"; };
 		F5FC3F3924B5E26400FA1AB0 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UniversitiesJSON.json; sourceTree = "<group>"; };
@@ -275,6 +287,7 @@
 				6409061D24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift */,
 				6409061F24A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift */,
 				F5FC3F3D24B74CD700FA1AB0 /* SignUpSelectUniversityViewController.swift */,
+				64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -425,17 +438,22 @@
 		64941ED424A3B0E100824E9B /* Create */ = {
 			isa = PBXGroup;
 			children = (
-				F5FC3F3424B248C100FA1AB0 /* AnimationHelper.swift */,
-				F5FC3F2924B243B200FA1AB0 /* EditLocationViewController.swift */,
-				F5FC3F2A24B243B200FA1AB0 /* NewCreateEventCardViewController.swift */,
-				F5FC3F2624B243B200FA1AB0 /* NewCreateEventViewController.swift */,
-				F5FC3F2724B243B200FA1AB0 /* writeDetailsViewController.swift */,
-				F5FC3F3024B2447F00FA1AB0 /* FlipDismissAnimationController.swift */,
-				F5FC3F3124B2447F00FA1AB0 /* FlipPresentAnimationController.swift */,
 				647DC4F024CE09A400082C5E /* CreateEventFirstSectionView.swift */,
 				645BE46224CF0681001A3232 /* CreateEventFirstSectionViewController.swift */,
 				645BE46424CF2CE5001A3232 /* EventController.swift */,
 				645BE46624CF2D07001A3232 /* EventModel.swift */,
+				64841A0E24D238610071A0E9 /* CreateEventSecondSectionViewController.swift */,
+				64841A1024D238840071A0E9 /* CreateEventSecondSectionView.swift */,
+				642C315A24D4739F009618B4 /* DateInputView.swift */,
+				642C315C24D473B3009618B4 /* DateInputViewController.swift */,
+				648FE0DA24D5774100339CC1 /* LocationInputViewController.swift */,
+				648FE0DC24D5775100339CC1 /* LocationInputView.swift */,
+				641E91DC24D830B9008D3B83 /* TitleInputView.swift */,
+				641E91DE24D838EB008D3B83 /* TitleInputViewController.swift */,
+				641E91E024D84933008D3B83 /* DetailsInputView.swift */,
+				641E91E224D84AE7008D3B83 /* DetailsInputViewController.swift */,
+				641E91E424D9ADF8008D3B83 /* OnlineLinkInputView.swift */,
+				641E91E624D9B211008D3B83 /* OnlineLinkInputViewController.swift */,
 			);
 			path = Create;
 			sourceTree = "<group>";
@@ -763,14 +781,17 @@
 				6417BCBC24A2650A006AE467 /* Popsicles.swift in Sources */,
 				6417BCAF24A25FFE006AE467 /* UserLocationAnnotationView.swift in Sources */,
 				F6498EBB24B24892002F8A1B /* Hashtag.swift in Sources */,
+				64841A1124D238840071A0E9 /* CreateEventSecondSectionView.swift in Sources */,
 				F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */,
 				6417BCB824A26339006AE467 /* DarkOverlayView.swift in Sources */,
 				6409061A24A37B1500AD4FF6 /* ForgotPasswordViewController.swift in Sources */,
+				641E91E124D84933008D3B83 /* DetailsInputView.swift in Sources */,
+				64841A0F24D238610071A0E9 /* CreateEventSecondSectionViewController.swift in Sources */,
 				F6498EBE24B24892002F8A1B /* HashtagConfiguration.swift in Sources */,
 				6409061E24A37C8B00AD4FF6 /* SignUpSecondPageViewController.swift in Sources */,
 				64BF883A24AB2DB10008659D /* BubbleImageView.swift in Sources */,
 				64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */,
-				F5FC3F2C24B243B200FA1AB0 /* writeDetailsViewController.swift in Sources */,
+				64D29E5E24DA3B6D00D67CE5 /* UserModel.swift in Sources */,
 				F6498EBD24B24892002F8A1B /* HashtagViewDelegate.swift in Sources */,
 				F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */,
 				6417BCB624A261CA006AE467 /* FiltersView.swift in Sources */,
@@ -779,33 +800,36 @@
 				647DC4F124CE09A400082C5E /* CreateEventFirstSectionView.swift in Sources */,
 				6403142924A1F136006A55EB /* AppDelegate.swift in Sources */,
 				6409061C24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift in Sources */,
-				F5FC3F2E24B243B200FA1AB0 /* EditLocationViewController.swift in Sources */,
 				6409061624A37A2F00AD4FF6 /* StartViewController.swift in Sources */,
+				641E91E324D84AE7008D3B83 /* DetailsInputViewController.swift in Sources */,
 				64689DAF24BDB1D700FDA83F /* PopsicleBorderView.swift in Sources */,
 				6417BCB124A2606E006AE467 /* PopsicleAnnotationView.swift in Sources */,
+				642C315D24D473B3009618B4 /* DateInputViewController.swift in Sources */,
+				641E91DD24D830B9008D3B83 /* TitleInputView.swift in Sources */,
 				6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */,
 				64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */,
 				F5FC3F4424BDD73B00FA1AB0 /* SwitchAccountViewController.swift in Sources */,
+				642C315B24D4739F009618B4 /* DateInputView.swift in Sources */,
 				6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */,
 				645BE46724CF2D07001A3232 /* EventModel.swift in Sources */,
 				64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */,
-				F5FC3F2F24B243B200FA1AB0 /* NewCreateEventCardViewController.swift in Sources */,
 				6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */,
 				F6498EC324B248F4002F8A1B /* PopsiclePopupViewController.swift in Sources */,
 				64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */,
-				F5FC3F3324B2447F00FA1AB0 /* FlipPresentAnimationController.swift in Sources */,
 				F6498EC624B24919002F8A1B /* ActivityViewController.swift in Sources */,
 				6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */,
 				64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */,
 				F5FC3F4624BFB35600FA1AB0 /* EditProfileViewController.swift in Sources */,
-				F5FC3F3224B2447F00FA1AB0 /* FlipDismissAnimationController.swift in Sources */,
 				F5FC3F3E24B74CD700FA1AB0 /* SignUpSelectUniversityViewController.swift in Sources */,
-				F5FC3F3524B248C100FA1AB0 /* AnimationHelper.swift in Sources */,
+				641E91DF24D838EB008D3B83 /* TitleInputViewController.swift in Sources */,
 				6417BCB324A260AF006AE467 /* PopsicleGroupAnnotationView.swift in Sources */,
+				641E91E724D9B211008D3B83 /* OnlineLinkInputViewController.swift in Sources */,
+				648FE0DD24D5775100339CC1 /* LocationInputView.swift in Sources */,
+				648FE0DB24D5774100339CC1 /* LocationInputViewController.swift in Sources */,
 				F5FC3F3A24B5E26400FA1AB0 /* DataController.swift in Sources */,
-				F5FC3F2B24B243B200FA1AB0 /* NewCreateEventViewController.swift in Sources */,
 				6417BCA324A255CD006AE467 /* AlertViewController.swift in Sources */,
 				645BE46524CF2CE5001A3232 /* EventController.swift in Sources */,
+				641E91E524D9ADF8008D3B83 /* OnlineLinkInputView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

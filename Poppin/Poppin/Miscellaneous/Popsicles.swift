@@ -92,7 +92,7 @@ struct PopsicleAnnotationData {
     var eventDetails: String?
     var eventStartDate: Date
     var eventEndDate: Date
-    var eventCategory: PopsicleCategory
+    var eventCategory: EventCategory
     var eventHashtags: String?
     var eventLocation: CLLocationCoordinate2D
     var eventAttendees: [String]
@@ -103,14 +103,14 @@ struct PopsicleAnnotationData {
         eventDetails = ""
         eventStartDate = Region.current.nowInThisRegion().date.dateRoundedAt(at: .toCeil5Mins)
         eventEndDate = Region.current.nowInThisRegion().date.dateRoundedAt(at: .toCeil5Mins) + 15.minutes
-        eventCategory = .Default
+        eventCategory = .Culture
         eventHashtags = ""
         eventLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
         eventAttendees = []
         
     }
     
-    init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: PopsicleCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]) {
+    init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: EventCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]) {
         
         self.eventTitle = eventTitle
         self.eventDetails = eventDetails
@@ -125,13 +125,60 @@ struct PopsicleAnnotationData {
     
 }
 
+class EventAnnotation: MKPointAnnotation {
+    
+    var id: String?
+    var category: EventCategory = .Culture
+    
+    init(id: String?, location: CLLocationCoordinate2D?, category: EventCategory?) {
+        
+        super.init()
+        
+        self.id = id
+        
+        if let location = location {
+            
+            self.coordinate = location
+            
+        } else {
+            
+            self.coordinate = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619)
+            
+        }
+        
+        if let category = category { self.category = category }
+        
+    }
+    
+    static func == (lhs: EventAnnotation, rhs: EventAnnotation) -> Bool {
+        
+        guard let lhsId = lhs.id else { return false }
+        guard let rhsId = rhs.id else { return false }
+        
+        return lhsId == rhsId
+        
+    }
+    
+    override func isEqual(_ object: Any?) -> Bool {
+        
+        guard let other = object as? EventAnnotation else { return false }
+    
+        guard let selfId = self.id else { return false }
+        guard let otherId = other.id else { return false }
+        
+        return selfId == otherId
+        
+    }
+    
+}
+
 class PopsicleAnnotation: MKPointAnnotation {
     
     public static let defaultPopsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotationData()
     
     lazy private(set) var popsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotation.defaultPopsicleAnnotationData
     
-    convenience init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: PopsicleCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]) {
+    convenience init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: EventCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]) {
         
         self.init(popsicleAnnotationData: PopsicleAnnotationData(eventTitle: eventTitle, eventDetails: eventDetails, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: eventCategory, eventHashtags: eventHashtags, eventLocation: eventLocation, eventAttendees: eventAttendees))
         
@@ -164,8 +211,6 @@ class PopsicleAnnotation: MKPointAnnotation {
         case .Social: return .socialPopsicleIcon256
         case .Sports: return .sportsPopsicleIcon256
         case .Culture: return .culturePopsicleIcon256
-        case .Poppin: return .poppinEventPopsicleIcon256
-        case .Default: return .defaultPopsicleIcon256
             
         }
         
@@ -180,8 +225,6 @@ class PopsicleAnnotation: MKPointAnnotation {
         case .Social: return .socialDARKRED
         case .Sports: return .sportsDARKGREEN
         case .Culture: return .cultureDARKPURPLE
-        case .Poppin: return .poppinDARKGOLD
-        case .Default: return .defaultGRAY
             
         }
         
@@ -196,8 +239,6 @@ class PopsicleAnnotation: MKPointAnnotation {
         case .Social: return .socialPopsicleIconShadow256
         case .Sports: return .sportsPopsicleIconShadow256
         case .Culture: return .culturePopsicleIconShadow256
-        case .Poppin: return .poppinPopsicleIconShadow256
-        case .Default: return .defaultPopsicleIconShadow256
             
         }
         
