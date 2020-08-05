@@ -169,7 +169,6 @@ class ActivityCell : UITableViewCell {
         l.textColor = .white
         
         l.numberOfLines = 3
-//        l.sizeToFit()
         l.textAlignment = .left
         
         l.translatesAutoresizingMaskIntoConstraints = false
