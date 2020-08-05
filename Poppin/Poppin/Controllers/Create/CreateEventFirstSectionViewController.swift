@@ -87,6 +87,10 @@ final class CreateEventFirstSectionViewController: UIViewController {
             
             self.present(alertVC, animated: true, completion: nil)
             
+        } else {
+            
+            self.navigationController?.dismiss(animated: true, completion: nil)
+            
         }
         
     }
