@@ -17,7 +17,7 @@ enum EventError: String, Error {
     case attributeHasBeenSet = "Attribute has already been set and cannot be set again."
     case invalidParameter = "Parameter passed is invalid."
     case onlineClockNotAvailable = "Online clock is not available."
-    case unableToRemoveAttendee = "Unable to remove attendee with the id passed."
+    case unableToRemoveParameter = "Unable to remove value with the id passed."
     case attributeHasNotBeenSet = "Attribute not been set yet (nil)."
     
 }
@@ -99,7 +99,7 @@ final class EventController: NSObject {
         do { try setId(id: try eventController.getId()) } catch let error as EventError { errorLog.append("id: " + error.rawValue + "\n") } catch { errorLog.append("id: " + error.localizedDescription + "\n") }
         do { try setTitle(title: try eventController.getTitle()) } catch let error as EventError { errorLog.append("title: " + error.rawValue + "\n") } catch { errorLog.append("title: " + error.localizedDescription + "\n") }
         do { try setDetails(details: try eventController.getDetails()) } catch let error as EventError { errorLog.append("details: " + error.rawValue + "\n") } catch { errorLog.append("details: " + error.localizedDescription + "\n") }
-        do { try setonlineURL(onlineURL: try eventController.getonlineURL().absoluteString) } catch let error as EventError { errorLog.append("onlineURL: " + error.rawValue + "\n") } catch { errorLog.append("onlineURL: " + error.localizedDescription + "\n") }
+        do { try setOnlineURL(onlineURL: try eventController.getOnlineURL().absoluteString) } catch let error as EventError { errorLog.append("onlineURL: " + error.rawValue + "\n") } catch { errorLog.append("onlineURL: " + error.localizedDescription + "\n") }
         do { try setStartDate(startDate: try eventController.getStartDate()) } catch let error as EventError { errorLog.append("startDate: " + error.rawValue + "\n") } catch { errorLog.append("startDate: " + error.localizedDescription + "\n") }
         do { try setEndDate(endDate: try eventController.getEndDate()) } catch let error as EventError { errorLog.append("endDate: " + error.rawValue + "\n") } catch { errorLog.append("endDate: " + error.localizedDescription + "\n") }
         do { try setLocation(location: try eventController.getLocation()) } catch let error as EventError { errorLog.append("location: " + error.rawValue + "\n") } catch { errorLog.append("location: " + error.localizedDescription + "\n") }
@@ -123,7 +123,7 @@ final class EventController: NSObject {
         do { if let id = eventModel.id { try setId(id: id) } } catch let error as EventError { errorLog.append("id: " + error.rawValue + "\n") } catch { errorLog.append("id: " + error.localizedDescription + "\n") }
         do { if let title = eventModel.title { try setTitle(title: title) } } catch let error as EventError { errorLog.append("title: " + error.rawValue + "\n") } catch { errorLog.append("title: " + error.localizedDescription + "\n") }
         do { if let details = eventModel.details { try setDetails(details: details) } } catch let error as EventError { errorLog.append("details: " + error.rawValue + "\n") } catch { errorLog.append("details: " + error.localizedDescription + "\n") }
-        do { if let onlineURL = eventModel.onlineURL { try setonlineURL(onlineURL: onlineURL.absoluteString) } } catch let error as EventError { errorLog.append("onlineURL: " + error.rawValue + "\n") } catch { errorLog.append("onlineURL: " + error.localizedDescription + "\n") }
+        do { if let onlineURL = eventModel.onlineURL { try setOnlineURL(onlineURL: onlineURL.absoluteString) } } catch let error as EventError { errorLog.append("onlineURL: " + error.rawValue + "\n") } catch { errorLog.append("onlineURL: " + error.localizedDescription + "\n") }
         do { if let startDate = eventModel.startDate { try setStartDate(startDate: startDate) } } catch let error as EventError { errorLog.append("startDate: " + error.rawValue + "\n") } catch { errorLog.append("startDate: " + error.localizedDescription + "\n") }
         do { if let endDate = eventModel.endDate { try setEndDate(endDate: endDate) } } catch let error as EventError { errorLog.append("endDate: " + error.rawValue + "\n") } catch { errorLog.append("endDate: " + error.localizedDescription + "\n") }
         do { if let location = eventModel.location { try setLocation(location: location) } } catch let error as EventError { errorLog.append("location: " + error.rawValue + "\n") } catch { errorLog.append("location: " + error.localizedDescription + "\n") }
@@ -172,7 +172,7 @@ final class EventController: NSObject {
         
     }
     
-    func setonlineURL(onlineURL: String) throws {
+    func setOnlineURL(onlineURL: String) throws {
         
         if !event.isEditable { throw EventError.nonEditable }
         
@@ -260,9 +260,9 @@ final class EventController: NSObject {
         
         if attendeeId.isEmpty { throw EventError.invalidParameter }
         
-        if event.attendeesIds.isEmpty { throw EventError.unableToRemoveAttendee }
+        if event.attendeesIds.isEmpty { throw EventError.unableToRemoveParameter }
         
-        if event.attendeesIds.remove(object: attendeeId) { throw EventError.unableToRemoveAttendee }
+        if !event.attendeesIds.remove(object: attendeeId) { throw EventError.unableToRemoveParameter }
         
     }
     
@@ -320,7 +320,7 @@ final class EventController: NSObject {
         
     }
     
-    func getonlineURL() throws -> URL {
+    func getOnlineURL() throws -> URL {
         
         guard let onlineURL = event.onlineURL else { throw EventError.attributeHasNotBeenSet }
         

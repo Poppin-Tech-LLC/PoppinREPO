@@ -12,34 +12,34 @@ import CoreLocation
 struct UserModel {
     
     var id: String?
-    var title: String?
-    var details: String?
-    var onlineURL: URL?
-    var startDate: Date?
-    var endDate: Date?
-    var location: CLLocationCoordinate2D?
-    var authorId: String?
-    var category: EventCategory?
-    var attendeesIds: [String]
+    var username: String?
+    var fullName: String?
+    var email: String?
+    var dateOfBirth: Date?
+    var university: UniversityController?
+    var bio: String?
+    var picture: UIImage?
+    var followingIds: [String: Bool]
+    var followersIds: [String: Bool]
+    var eventsIds: [String]
+    var activitiesIds: [String]
     var isPublic: Bool
-    var isPoppin: Bool
-    var isEditable: Bool
     
-    init(id: String? = nil, title: String? = nil, details: String? = nil, onlineURL: URL? = nil, startDate: Date? = nil, endDate: Date? = nil, location: CLLocationCoordinate2D? = nil, authorId: String? = nil, category: EventCategory? = nil, attendeesIds: [String] = [], isPublic: Bool = false, isPoppin: Bool = false, isEditable: Bool = true) {
+    init(id: String? = nil, username: String? = nil, fullName: String? = nil, email: String? = nil, dateOfBirth: Date? = nil, university: UniversityController? = nil, bio: String? = nil, picture: UIImage? = nil, followingIds: [String: Bool] = [:], followersIds: [String: Bool] = [:], eventsIds: [String] = [], activitiesIds: [String] = [], isPublic: Bool = false) {
         
         self.id = id
-        self.title = title
-        self.details = details
-        self.onlineURL = onlineURL
-        self.startDate = startDate
-        self.endDate = endDate
-        self.location = location
-        self.authorId = authorId
-        self.category = category
-        self.attendeesIds = attendeesIds
+        self.username = username
+        self.fullName = fullName
+        self.email = email
+        self.dateOfBirth = dateOfBirth
+        self.university = university
+        self.bio = bio
+        self.picture = picture
+        self.followingIds = followingIds
+        self.followersIds = followersIds
+        self.eventsIds = eventsIds
+        self.activitiesIds = activitiesIds
         self.isPublic = isPublic
-        self.isPoppin = isPoppin
-        self.isEditable = isEditable
         
     }
     
