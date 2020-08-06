@@ -20,6 +20,13 @@ protocol SwitchAccountDelegate: class {
     
 }
 
+protocol ProfileActionsDelegate: class {
+    
+    func closeProfileActions()
+    func openProfileActions()
+    
+}
+
 final class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     var myEvents : [[PopsicleAnnotation]] = [[], [], []]
@@ -257,12 +264,8 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     }
     
     
-    }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return .getPercentageHeight(percentage: 7)
-    }
-    
+
     
     
     let profileInsetY: CGFloat = .getPercentageWidth(percentage: 4.3)
@@ -1231,6 +1234,11 @@ extension ProfileViewController: SwitchAccountDelegate {
                 self.profileContainerView.isUserInteractionEnabled = false
             
 
+            })
+            
+        }
+    }
+}
 
 class MyEventsCell : UITableViewCell {
     
@@ -1415,15 +1423,9 @@ class MyEventsCell : UITableViewCell {
        
         self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: .getPercentageHeight(percentage: 0.5), left: 0, bottom: .getPercentageHeight(percentage: 0.5), right: 0))
     }
+                }
     
-    
-    override func layoutSubviews() {
-       super.layoutSubviews()
-       
-        self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: .getPercentageHeight(percentage: 0.5), left: 0, bottom: .getPercentageHeight(percentage: 0.5), right: 0))
-    }
-    
-}
+
 
 extension ProfileViewController: ProfileActionsDelegate {
 
@@ -1480,4 +1482,6 @@ extension ProfileViewController: ProfileActionsDelegate {
         }
         
     }
+    
 }
+

@@ -354,13 +354,13 @@ final class SignUpSelectUniversityViewController: UIViewController, UIPickerView
         return true
     }
     
-    func textField(_ textField: UITextField, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        return false
-    }
+//    func textField(_ textField: UITextField, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+//        return false
+//    }
     
-    func texView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        return true
-    }
+//    func texView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+//        return true
+//    }
     
     
     @objc private func dismissKeyboard() { view.endEditing(true) }
