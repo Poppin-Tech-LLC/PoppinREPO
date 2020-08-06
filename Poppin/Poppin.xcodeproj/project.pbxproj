@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		09A25FBEFEF4C804DCC7BD93 /* Pods_Poppin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6FBFA9CF4FD54C692B54622 /* Pods_Poppin.framework */; };
+		536E2BB38B7D287BE10C73E2 /* Pods_PoppinUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 631C13AE3FBB4C606E3A34D1 /* Pods_PoppinUITests.framework */; };
 		6403142924A1F136006A55EB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403142824A1F136006A55EB /* AppDelegate.swift */; };
 		6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6403142A24A1F136006A55EB /* SceneDelegate.swift */; };
 		6403143224A1F138006A55EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6403143124A1F138006A55EB /* Assets.xcassets */; };
@@ -60,15 +62,13 @@
 		64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECF24A3AB9600824E9B /* ProfileViewController.swift */; };
 		64B7248424AF5C5600BB48C5 /* PagingCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B7248324AF5C5600BB48C5 /* PagingCollectionView.swift */; };
 		64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B7248624AF623800BB48C5 /* SelfSizedTableView.swift */; };
-		64B88BDB24BF140A0044C3EA /* Pods_Poppin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CAC1587310AEB0F4D61D28A /* Pods_Poppin.framework */; };
 		64BF883A24AB2DB10008659D /* BubbleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BF883924AB2DB10008659D /* BubbleImageView.swift */; };
 		64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CF0C8624A48A580077C1D7 /* MenuViewController.swift */; };
 		64D29E5E24DA3B6D00D67CE5 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */; };
 		64E8260724DAD04B0097CB6C /* UniversityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260624DAD04B0097CB6C /* UniversityModel.swift */; };
 		64E8260924DAD1140097CB6C /* UniversityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260824DAD1140097CB6C /* UniversityController.swift */; };
 		64E8260B24DADE860097CB6C /* UserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260A24DADE860097CB6C /* UserController.swift */; };
-		9077592978492C726F78F0C1 /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB06A8A7A9E2033778A1FD0 /* Pods_PoppinTests.framework */; };
-		D171471443DEECA9ADF08CE3 /* Pods_PoppinUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */; };
+		8B5C912DB50972AEF402CE84 /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AB2D14B854602B4B73EE724 /* Pods_PoppinTests.framework */; };
 		F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3624B48B4000FA1AB0 /* dataModel.xcdatamodeld */; };
 		F5FC3F3A24B5E26400FA1AB0 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3924B5E26400FA1AB0 /* DataController.swift */; };
 		F5FC3F3C24B737DD00FA1AB0 /* UniversitiesJSON.json in Resources */ = {isa = PBXBuildFile; fileRef = F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */; };
@@ -105,10 +105,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		260562AE3ACFBC0CE45BAF05 /* Pods-Poppin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.debug.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.debug.xcconfig"; sourceTree = "<group>"; };
-		2708E70AF0BF25A54011A00D /* Pods-PoppinTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.debug.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.debug.xcconfig"; sourceTree = "<group>"; };
-		394334D1F801A9E4E91189A8 /* Pods-Poppin.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.release.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.release.xcconfig"; sourceTree = "<group>"; };
-		3CAC1587310AEB0F4D61D28A /* Pods_Poppin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Poppin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		13FDA9737FD5FE622DC0F63E /* Pods-Poppin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.debug.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.debug.xcconfig"; sourceTree = "<group>"; };
+		3F5383C6D96E68B313204675 /* Pods-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		4904C487701BF540AEE6EDE8 /* Pods-PoppinTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.debug.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.debug.xcconfig"; sourceTree = "<group>"; };
+		4A3429C562811A4120FD9662 /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
+		5AB2D14B854602B4B73EE724 /* Pods_PoppinTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		631C13AE3FBB4C606E3A34D1 /* Pods_PoppinUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6403142524A1F136006A55EB /* Poppin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Poppin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6403142824A1F136006A55EB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6403142A24A1F136006A55EB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -175,10 +177,11 @@
 		64E8260624DAD04B0097CB6C /* UniversityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityModel.swift; sourceTree = "<group>"; };
 		64E8260824DAD1140097CB6C /* UniversityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityController.swift; sourceTree = "<group>"; };
 		64E8260A24DADE860097CB6C /* UserController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserController.swift; sourceTree = "<group>"; };
-		A014052323697933541F2FB7 /* Pods-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B180A4462E77FBC337504A30 /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
-		C74E98F7B823425DE252811D /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C6FBFA9CF4FD54C692B54622 /* Pods_Poppin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Poppin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFB47319F0DF40311FB97B62 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
+		D0C5AC22010E577814D99A02 /* Pods-Poppin.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.release.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.release.xcconfig"; sourceTree = "<group>"; };
+		D1A6D5F906CF95988B44C235 /* Pods-Poppin-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-Poppin-PoppinUITests/Pods-Poppin-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
+		EAFEED3C8E4D2378CB02A31C /* Pods-Poppin-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-Poppin-PoppinUITests/Pods-Poppin-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		F5FC3F3724B48B4000FA1AB0 /* dataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = dataModel.xcdatamodel; sourceTree = "<group>"; };
 		F5FC3F3924B5E26400FA1AB0 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UniversitiesJSON.json; sourceTree = "<group>"; };
@@ -195,7 +198,6 @@
 		F6498EB924B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemovableHashtagCollectionViewCell.swift; sourceTree = "<group>"; };
 		F6498EC224B248F4002F8A1B /* PopsiclePopupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopsiclePopupViewController.swift; sourceTree = "<group>"; };
 		F6498EC524B24919002F8A1B /* ActivityViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityViewController.swift; sourceTree = "<group>"; };
-		FEB06A8A7A9E2033778A1FD0 /* Pods_PoppinTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,7 +205,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64B88BDB24BF140A0044C3EA /* Pods_Poppin.framework in Frameworks */,
+				09A25FBEFEF4C804DCC7BD93 /* Pods_Poppin.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,7 +213,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9077592978492C726F78F0C1 /* Pods_PoppinTests.framework in Frameworks */,
+				8B5C912DB50972AEF402CE84 /* Pods_PoppinTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,13 +221,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D171471443DEECA9ADF08CE3 /* Pods_PoppinUITests.framework in Frameworks */,
+				536E2BB38B7D287BE10C73E2 /* Pods_PoppinUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		621004994ABA116F7CB3EAE6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C6FBFA9CF4FD54C692B54622 /* Pods_Poppin.framework */,
+				5AB2D14B854602B4B73EE724 /* Pods_PoppinTests.framework */,
+				631C13AE3FBB4C606E3A34D1 /* Pods_PoppinUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		6403141C24A1F136006A55EB = {
 			isa = PBXGroup;
 			children = (
@@ -234,7 +246,7 @@
 				6403144924A1F138006A55EB /* PoppinUITests */,
 				6403142624A1F136006A55EB /* Products */,
 				9DBBE40F5CDFC4B83B6BE2EC /* Pods */,
-				7ED620E71A44F2591A88E453 /* Frameworks */,
+				621004994ABA116F7CB3EAE6 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -502,25 +514,17 @@
 			path = Menu;
 			sourceTree = "<group>";
 		};
-		7ED620E71A44F2591A88E453 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				3CAC1587310AEB0F4D61D28A /* Pods_Poppin.framework */,
-				FEB06A8A7A9E2033778A1FD0 /* Pods_PoppinTests.framework */,
-				A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		9DBBE40F5CDFC4B83B6BE2EC /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				260562AE3ACFBC0CE45BAF05 /* Pods-Poppin.debug.xcconfig */,
-				394334D1F801A9E4E91189A8 /* Pods-Poppin.release.xcconfig */,
-				2708E70AF0BF25A54011A00D /* Pods-PoppinTests.debug.xcconfig */,
-				B180A4462E77FBC337504A30 /* Pods-PoppinTests.release.xcconfig */,
-				A014052323697933541F2FB7 /* Pods-PoppinUITests.debug.xcconfig */,
-				C74E98F7B823425DE252811D /* Pods-PoppinUITests.release.xcconfig */,
+				13FDA9737FD5FE622DC0F63E /* Pods-Poppin.debug.xcconfig */,
+				D0C5AC22010E577814D99A02 /* Pods-Poppin.release.xcconfig */,
+				EAFEED3C8E4D2378CB02A31C /* Pods-Poppin-PoppinUITests.debug.xcconfig */,
+				D1A6D5F906CF95988B44C235 /* Pods-Poppin-PoppinUITests.release.xcconfig */,
+				4904C487701BF540AEE6EDE8 /* Pods-PoppinTests.debug.xcconfig */,
+				4A3429C562811A4120FD9662 /* Pods-PoppinTests.release.xcconfig */,
+				3F5383C6D96E68B313204675 /* Pods-PoppinUITests.debug.xcconfig */,
+				CFB47319F0DF40311FB97B62 /* Pods-PoppinUITests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -570,11 +574,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6403144F24A1F138006A55EB /* Build configuration list for PBXNativeTarget "Poppin" */;
 			buildPhases = (
-				75CFA0FC7F1D4C394593EBA0 /* [CP] Check Pods Manifest.lock */,
+				7D4B25F5E130A76B2406DF85 /* [CP] Check Pods Manifest.lock */,
 				6403142124A1F136006A55EB /* Sources */,
 				6403142224A1F136006A55EB /* Frameworks */,
 				6403142324A1F136006A55EB /* Resources */,
-				5440F44468AE9C3FCD63B2CE /* [CP] Embed Pods Frameworks */,
+				BD79A244DE337CD05B07746F /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -589,7 +593,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6403145224A1F138006A55EB /* Build configuration list for PBXNativeTarget "PoppinTests" */;
 			buildPhases = (
-				FF9B5B3D992A7394E89EF509 /* [CP] Check Pods Manifest.lock */,
+				DEB49EF3BCFAFED3413E939A /* [CP] Check Pods Manifest.lock */,
 				6403143724A1F138006A55EB /* Sources */,
 				6403143824A1F138006A55EB /* Frameworks */,
 				6403143924A1F138006A55EB /* Resources */,
@@ -608,7 +612,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6403145524A1F138006A55EB /* Build configuration list for PBXNativeTarget "PoppinUITests" */;
 			buildPhases = (
-				936BD5F3D90651CC08C3C284 /* [CP] Check Pods Manifest.lock */,
+				C3CB6BFB94D048CEFCAEB3AD /* [CP] Check Pods Manifest.lock */,
 				6403144224A1F138006A55EB /* Sources */,
 				6403144324A1F138006A55EB /* Frameworks */,
 				6403144424A1F138006A55EB /* Resources */,
@@ -700,24 +704,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		5440F44468AE9C3FCD63B2CE /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Poppin/Pods-Poppin-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Poppin/Pods-Poppin-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Poppin/Pods-Poppin-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		75CFA0FC7F1D4C394593EBA0 /* [CP] Check Pods Manifest.lock */ = {
+		7D4B25F5E130A76B2406DF85 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -739,7 +726,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		936BD5F3D90651CC08C3C284 /* [CP] Check Pods Manifest.lock */ = {
+		BD79A244DE337CD05B07746F /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Poppin/Pods-Poppin-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Poppin/Pods-Poppin-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Poppin/Pods-Poppin-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C3CB6BFB94D048CEFCAEB3AD /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -761,7 +765,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		FF9B5B3D992A7394E89EF509 /* [CP] Check Pods Manifest.lock */ = {
+		DEB49EF3BCFAFED3413E939A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1016,7 +1020,7 @@
 		};
 		6403145024A1F138006A55EB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 260562AE3ACFBC0CE45BAF05 /* Pods-Poppin.debug.xcconfig */;
+			baseConfigurationReference = 13FDA9737FD5FE622DC0F63E /* Pods-Poppin.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -1035,7 +1039,7 @@
 		};
 		6403145124A1F138006A55EB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 394334D1F801A9E4E91189A8 /* Pods-Poppin.release.xcconfig */;
+			baseConfigurationReference = D0C5AC22010E577814D99A02 /* Pods-Poppin.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -1054,7 +1058,7 @@
 		};
 		6403145324A1F138006A55EB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2708E70AF0BF25A54011A00D /* Pods-PoppinTests.debug.xcconfig */;
+			baseConfigurationReference = 4904C487701BF540AEE6EDE8 /* Pods-PoppinTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1076,7 +1080,7 @@
 		};
 		6403145424A1F138006A55EB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B180A4462E77FBC337504A30 /* Pods-PoppinTests.release.xcconfig */;
+			baseConfigurationReference = 4A3429C562811A4120FD9662 /* Pods-PoppinTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1098,7 +1102,7 @@
 		};
 		6403145624A1F138006A55EB /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A014052323697933541F2FB7 /* Pods-PoppinUITests.debug.xcconfig */;
+			baseConfigurationReference = 3F5383C6D96E68B313204675 /* Pods-PoppinUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -1118,7 +1122,7 @@
 		};
 		6403145724A1F138006A55EB /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C74E98F7B823425DE252811D /* Pods-PoppinUITests.release.xcconfig */;
+			baseConfigurationReference = CFB47319F0DF40311FB97B62 /* Pods-PoppinUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;

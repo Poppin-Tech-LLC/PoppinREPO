@@ -586,7 +586,7 @@ extension CreateEventSecondSectionViewController: OnlineLinkInputDelegate {
             
             eventPlaceholder.onlineURL = onlineLink
             
-            do { try eventController.setonlineURL(onlineURL: onlineLink.absoluteString) } catch let error as EventError { print("onlineURL: " + error.rawValue + "\n") } catch { print("onlineURL: " + error.localizedDescription + "\n") }
+            do { try eventController.setOnlineURL(onlineURL: onlineLink.absoluteString) } catch let error as EventError { print("onlineURL: " + error.rawValue + "\n") } catch { print("onlineURL: " + error.localizedDescription + "\n") }
             
             guard let view = view as? CreateEventSecondSectionView else { return }
             
