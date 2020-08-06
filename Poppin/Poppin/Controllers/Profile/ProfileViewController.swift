@@ -257,6 +257,13 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     }
     
     
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return .getPercentageHeight(percentage: 7)
+    }
+    
+    
     
     let profileInsetY: CGFloat = .getPercentageWidth(percentage: 4.3)
     let profileInsetX: CGFloat = .getPercentageWidth(percentage: 4.3)
@@ -265,10 +272,14 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     let containerInsetX: CGFloat = .getPercentageWidth(percentage: 2.7)
     
     private var switchAccountHeight: CGFloat = .getPercentageHeight(percentage: 50)
+    private var profileActionsHeight: CGFloat = .getPercentageHeight(percentage: 18)
+
     
     var switchAccountHeightAnchor:NSLayoutConstraint!
     
     private var switchAccountIsVisible: Bool = false
+        
+    private var profileActionsIsVisible: Bool = false
     
     private var isUser: Bool = false
     
@@ -326,7 +337,6 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         usernameButton.titleLabel?.textAlignment = .center
         usernameButton.translatesAutoresizingMaskIntoConstraints = false
         usernameButton.heightAnchor.constraint(equalToConstant: usernameButton.intrinsicContentSize.height).isActive = true
-        usernameButton.addTarget(self, action: #selector(openSwitchAccount(sender:)), for: .touchUpInside)
         return usernameButton
         
     }()
@@ -373,6 +383,47 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
 
         switchAccountViewController.accountsTable.reloadData()
     }
+    
+    lazy private var actionsButton: ImageBubbleButton = {
+       let actionsButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .gear, withConfiguration: UIImage.SymbolConfiguration(pointSize: 0.0, weight: .medium)).withTintColor(UIColor.mainDARKPURPLE))
+        actionsButton.addTarget(self, action: #selector(openProfileActions(sender:)), for: .touchUpInside)
+        
+        actionsButton.translatesAutoresizingMaskIntoConstraints = false
+        actionsButton.widthAnchor.constraint(equalTo: actionsButton.heightAnchor).isActive = true
+        
+        return actionsButton
+    }()
+    
+    lazy private var profileActionsViewController: ProfileActionsViewController = {
+            
+        var profileActionsViewController = ProfileActionsViewController(with: userData.uid)
+            //let accounts = DataController.getOtherAccounts()
+            profileActionsViewController.delegate = self
+            return profileActionsViewController
+            
+        }()
+    
+    lazy private var profileActionsTopConstraint: NSLayoutConstraint = {
+        
+        var profileActionsTopConstraint = NSLayoutConstraint(item: profileActionsViewController.view!, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: profileActionsHeight)
+        return profileActionsTopConstraint
+        
+    }()
+    
+    lazy private var profileActionsSlidePanGestureRecognizer: UIPanGestureRecognizer = {
+        
+        var profileActionsSlidePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleProfileActionsPan(sender:)))
+        
+        return profileActionsSlidePanGestureRecognizer
+        
+    }()
+    
+    lazy private var profileActionsCloseTapGestureRecognizer: UITapGestureRecognizer = {
+        
+        var profileActionsCloseTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeProfileActions(sender:)))
+        return profileActionsCloseTapGestureRecognizer
+        
+    }()
     
     lazy private var switchAccountTopConstraint: NSLayoutConstraint = {
         
@@ -540,6 +591,13 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         followingLabel.leadingAnchor.constraint(equalTo: profilePictureButton.trailingAnchor, constant: containerInsetX).isActive = true
         followingLabel.topAnchor.constraint(equalTo: profilePictureButton.centerYAnchor).isActive = true
         
+        profileContainerView.addSubview(actionsButton)
+        actionsButton.translatesAutoresizingMaskIntoConstraints = false
+        actionsButton.centerYAnchor.constraint(equalTo: usernameButton.centerYAnchor).isActive = true
+        actionsButton.heightAnchor.constraint(equalTo: usernameButton.heightAnchor, multiplier: 0.8).isActive = true
+        actionsButton.trailingAnchor.constraint(equalTo: followingLabel.trailingAnchor).isActive = true
+        
+        
         profileContainerView.addSubview(followingButton)
         followingButton.translatesAutoresizingMaskIntoConstraints = false
         followingButton.centerXAnchor.constraint(equalTo: followingLabel.centerXAnchor).isActive = true
@@ -641,9 +699,13 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             followButton.setTitle("Edit Profile", for: .normal)
             followButton.addTarget(self, action: #selector(editProfile), for: .touchUpInside)
             fetchAccounts()
+            actionsButton.isHidden = true
+            usernameButton.addTarget(self, action: #selector(openSwitchAccount(sender:)), for: .touchUpInside)
         }else{
             followButton.setTitle("Follow", for: .normal)
+            followButton.removeTarget(self, action: #selector(editProfile), for: .touchUpInside)
             followButton.addTarget(self, action: #selector(performFollow), for: .touchUpInside)
+            actionsButton.isHidden = false
         }
         fetchFollowersFollowingPicture()
 
@@ -711,6 +773,18 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         switchAccountHeightAnchor.isActive = true
         
         switchAccountViewController.didMove(toParent: self)
+        
+        addChild(profileActionsViewController)
+               
+        view.addSubview(profileActionsViewController.view)
+        profileActionsViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        profileActionsViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        profileActionsViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        profileActionsTopConstraint.isActive = true
+        profileActionsViewController.view.heightAnchor.constraint(equalToConstant: profileActionsHeight).isActive = true
+        //sprofileAHeightAnchor.isActive = true
+        
+        profileActionsViewController.didMove(toParent: self)
 
         populateEvents()
     }
@@ -824,6 +898,62 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         }
         
     }
+    
+    
+    @objc private func openProfileActions(sender: BouncyButton) {
+          
+          openProfileActions()
+          
+      }
+
+    
+    @objc private func closeProfileActions(sender: BouncyButton) {
+           
+           closeProfileActions()
+
+       }
+
+    
+    @objc private func handleProfileActionsPan(sender: UIPanGestureRecognizer) {
+           
+           let translation = sender.translation(in: self.view)
+           
+           if sender.state == .ended || sender.state == .failed || sender.state == .cancelled {
+               
+               if profileActionsIsVisible, translation.y > 0 {
+                   closeProfileActions()
+               } else if !profileActionsIsVisible, translation.y < 0 {
+                   openProfileActions()
+               }
+               
+               return
+               
+           }
+           
+           if !profileActionsIsVisible, translation.y < 0.0, translation.y >= -profileActionsHeight {
+               
+               let alphaFactorContainerView = 1.2 - ((translation.y * 0.8) / profileActionsHeight)
+               
+              // backgroundView.alpha = alphaFactorContainerView
+               profileContainerView.alpha = alphaFactorContainerView
+               
+               profileActionsTopConstraint.constant = translation.y - profileActionsHeight
+               
+           }
+           
+           if profileActionsIsVisible, translation.y <= profileActionsHeight, translation.y > 0.0{
+               
+               let alphaFactorContainerView = 0.2 + ((0.8 * translation.y) / profileActionsHeight)
+               
+               //backgroundView.alpha = alphaFactorContainerView
+               profileContainerView.alpha = alphaFactorContainerView
+
+               
+               profileActionsTopConstraint.constant = translation.y
+               
+           }
+           
+       }
     
     @objc private func openSwitchAccount(sender: BouncyButton) {
           
@@ -1100,13 +1230,6 @@ extension ProfileViewController: SwitchAccountDelegate {
                 self.backgroundView.addGestureRecognizer(self.switchAccountCloseTapGestureRecognizer)
                 self.profileContainerView.isUserInteractionEnabled = false
             
-            })
-            
-        }
-        
-    }
-}
-
 
 
 class MyEventsCell : UITableViewCell {
@@ -1293,4 +1416,68 @@ class MyEventsCell : UITableViewCell {
         self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: .getPercentageHeight(percentage: 0.5), left: 0, bottom: .getPercentageHeight(percentage: 0.5), right: 0))
     }
     
+    
+    override func layoutSubviews() {
+       super.layoutSubviews()
+       
+        self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: .getPercentageHeight(percentage: 0.5), left: 0, bottom: .getPercentageHeight(percentage: 0.5), right: 0))
+    }
+    
+}
+
+extension ProfileViewController: ProfileActionsDelegate {
+
+    
+    func closeProfileActions() {
+        
+        if profileActionsIsVisible {
+         
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.profileActionsTopConstraint.constant = self.profileActionsHeight
+                //self.backgroundView.alpha = 1.0
+                self.profileContainerView.alpha = 1.0
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+                
+                self.backgroundView.removeGestureRecognizer(self.profileActionsSlidePanGestureRecognizer)
+                
+                self.profileActionsIsVisible = false
+                self.backgroundView.removeGestureRecognizer(self.profileActionsCloseTapGestureRecognizer)
+                self.profileContainerView.isUserInteractionEnabled = true
+                
+            })
+            
+        }
+        
+    }
+    
+    
+    func openProfileActions() {
+     
+        if(!profileActionsIsVisible) {
+        
+            view.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.profileActionsTopConstraint.constant = 0
+              //  self.backgroundView.alpha = 0.2
+                self.profileContainerView.alpha = 0.2
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+            
+                self.view.addGestureRecognizer(self.profileActionsSlidePanGestureRecognizer)
+                
+                self.profileActionsIsVisible = true
+                self.backgroundView.addGestureRecognizer(self.profileActionsCloseTapGestureRecognizer)
+                self.profileContainerView.isUserInteractionEnabled = false
+            
+            })
+            
+        }
+        
+    }
 }

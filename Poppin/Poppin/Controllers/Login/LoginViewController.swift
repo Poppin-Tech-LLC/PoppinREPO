@@ -360,6 +360,8 @@ final class LoginViewController: UIViewController {
                         DataController.eraseAll(forEntity: "User")
                         DataController.addUser(notificationName: .userSignedIn)
                         DataController.eraseAll(forEntity: "OtherAccounts")
+                        DataController.eraseAll(forEntity: "RecentSearches")
+
                     
                     let orgRef = Firestore.firestore().collection("users")
                     

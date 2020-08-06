@@ -245,9 +245,17 @@ final class MenuViewController: UIViewController {
     lazy private var menuSettingsPrivacyButtonView: MenuButtonView = {
         
         var menuSettingsPrivacyButtonView = MenuButtonView(menuButtonImage: UIImage(systemSymbol: .gear), menuButtonText: "Settings")
+        menuSettingsPrivacyButtonView.addTarget(target: self, action: #selector(toSettings(sender:)), for: .touchUpInside)
         return menuSettingsPrivacyButtonView
         
     }()
+    
+    @objc private func toSettings(sender: MenuButtonView) {
+        let vc = SettingsViewController()
+        self.navigationController?.pushViewController(vc, animated: true)
+        delegate?.closeMenu(with: .Settings)
+        
+    }
     
     lazy private var menuHelpButtonView: MenuButtonView = {
         
