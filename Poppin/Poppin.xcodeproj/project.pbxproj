@@ -63,6 +63,10 @@
 		F5FC3F4624BFB35600FA1AB0 /* EditProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F4524BFB35600FA1AB0 /* EditProfileViewController.swift */; };
 		F5FC3F4924CEF9DE00FA1AB0 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F4824CEF9DE00FA1AB0 /* SettingsViewController.swift */; };
 		F5FC3F4B24D30DE300FA1AB0 /* SettingsSecondPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F4A24D30DE300FA1AB0 /* SettingsSecondPageViewController.swift */; };
+		F5FC3F4D24D81E6900FA1AB0 /* ChangePasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F4C24D81E6800FA1AB0 /* ChangePasswordViewController.swift */; };
+		F5FC3F4F24D83AC400FA1AB0 /* DeactivateAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F4E24D83AC200FA1AB0 /* DeactivateAccountViewController.swift */; };
+		F5FC3F5124D976B400FA1AB0 /* ProfileActionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F5024D976B300FA1AB0 /* ProfileActionsViewController.swift */; };
+		F5FC3F5324D9A31100FA1AB0 /* ReportUserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F5224D9A31000FA1AB0 /* ReportUserViewController.swift */; };
 		F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */; };
 		F6498EBB24B24892002F8A1B /* Hashtag.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB424B24892002F8A1B /* Hashtag.swift */; };
 		F6498EBC24B24892002F8A1B /* HashtagCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */; };
@@ -160,6 +164,10 @@
 		F5FC3F4524BFB35600FA1AB0 /* EditProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewController.swift; sourceTree = "<group>"; };
 		F5FC3F4824CEF9DE00FA1AB0 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		F5FC3F4A24D30DE300FA1AB0 /* SettingsSecondPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSecondPageViewController.swift; sourceTree = "<group>"; };
+		F5FC3F4C24D81E6800FA1AB0 /* ChangePasswordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangePasswordViewController.swift; sourceTree = "<group>"; };
+		F5FC3F4E24D83AC200FA1AB0 /* DeactivateAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeactivateAccountViewController.swift; sourceTree = "<group>"; };
+		F5FC3F5024D976B300FA1AB0 /* ProfileActionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileActionsViewController.swift; sourceTree = "<group>"; };
+		F5FC3F5224D9A31000FA1AB0 /* ReportUserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportUserViewController.swift; sourceTree = "<group>"; };
 		F6498EB324B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlignedCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
 		F6498EB424B24892002F8A1B /* Hashtag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Hashtag.swift; sourceTree = "<group>"; };
 		F6498EB524B24892002F8A1B /* HashtagCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HashtagCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -404,6 +412,8 @@
 				64941ECF24A3AB9600824E9B /* ProfileViewController.swift */,
 				F5FC3F4324BDD73B00FA1AB0 /* SwitchAccountViewController.swift */,
 				F5FC3F4524BFB35600FA1AB0 /* EditProfileViewController.swift */,
+				F5FC3F5024D976B300FA1AB0 /* ProfileActionsViewController.swift */,
+				F5FC3F5224D9A31000FA1AB0 /* ReportUserViewController.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -482,6 +492,8 @@
 			children = (
 				F5FC3F4824CEF9DE00FA1AB0 /* SettingsViewController.swift */,
 				F5FC3F4A24D30DE300FA1AB0 /* SettingsSecondPageViewController.swift */,
+				F5FC3F4C24D81E6800FA1AB0 /* ChangePasswordViewController.swift */,
+				F5FC3F4E24D83AC200FA1AB0 /* DeactivateAccountViewController.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -769,6 +781,7 @@
 				6403142924A1F136006A55EB /* AppDelegate.swift in Sources */,
 				6409061C24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift in Sources */,
 				F5FC3F2E24B243B200FA1AB0 /* EditLocationViewController.swift in Sources */,
+				F5FC3F5124D976B400FA1AB0 /* ProfileActionsViewController.swift in Sources */,
 				6409061624A37A2F00AD4FF6 /* StartViewController.swift in Sources */,
 				6417BCB124A2606E006AE467 /* PopsicleAnnotationView.swift in Sources */,
 				6417BCC324A2680A006AE467 /* UserSearchCell.swift in Sources */,
@@ -780,14 +793,17 @@
 				F5FC3F2F24B243B200FA1AB0 /* NewCreateEventCardViewController.swift in Sources */,
 				6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */,
 				F6498EC324B248F4002F8A1B /* PopsiclePopupViewController.swift in Sources */,
+				F5FC3F5324D9A31100FA1AB0 /* ReportUserViewController.swift in Sources */,
 				64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */,
 				F5FC3F3324B2447F00FA1AB0 /* FlipPresentAnimationController.swift in Sources */,
 				F6498EC624B24919002F8A1B /* ActivityViewController.swift in Sources */,
+				F5FC3F4F24D83AC400FA1AB0 /* DeactivateAccountViewController.swift in Sources */,
 				6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */,
 				64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */,
 				F5FC3F4624BFB35600FA1AB0 /* EditProfileViewController.swift in Sources */,
 				F5FC3F3224B2447F00FA1AB0 /* FlipDismissAnimationController.swift in Sources */,
 				F5FC3F3E24B74CD700FA1AB0 /* SignUpSelectUniversityViewController.swift in Sources */,
+				F5FC3F4D24D81E6900FA1AB0 /* ChangePasswordViewController.swift in Sources */,
 				F5FC3F3524B248C100FA1AB0 /* AnimationHelper.swift in Sources */,
 				6417BCB324A260AF006AE467 /* PopsicleGroupAnnotationView.swift in Sources */,
 				F5FC3F4B24D30DE300FA1AB0 /* SettingsSecondPageViewController.swift in Sources */,

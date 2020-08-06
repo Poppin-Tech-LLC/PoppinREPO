@@ -23,6 +23,10 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
         
         private var storage: Storage = Storage.storage()
     
+    var followersArray: [String] = []
+      var followingArray: [String] = []
+      
+    
     private var newUser: Bool = false
         
         private var userData: UserData = UserData(username: "@username", uid: "", bio: "Bio", fullName: "Full Name")
@@ -399,7 +403,9 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
                                         ref.document(self.userData.uid).delete()
                                         ref.document(uid!).updateData(["orgs.\(self.userData.uid)" : FieldValue.delete()
                                         ])
-
+                    
+                    self.deleteFollowers(uid: self.userData.uid)
+                    self.deleteFollowing(uid: self.userData.uid)
                     NotificationCenter.default.post(name: .deletedOrg, object: nil)
                     self.dismiss(animated: true, completion: nil)
                 })
@@ -425,6 +431,63 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
 
         
     }
+    
+    private func deleteFollowers(uid: String){
+          let ref = Firestore.firestore().collection("users")
+          
+          for follower in followersArray {
+              ref.document(follower).updateData(["following.\(uid)" : FieldValue.delete(),
+              ]) { err in
+                  if let err = err {
+                      print("Error updating document: \(err)")
+                  } else {
+                      print("DELETED \(follower) ")
+                      print("Document successfully updated")
+                  }
+              }
+          }
+          
+      }
+      
+      private func deleteFollowing(uid: String){
+          let ref = Firestore.firestore().collection("users")
+          
+          for following in followingArray {
+              print("ABOUT TO DELETE \(following)")
+              ref.document(following).updateData(["followers.\(uid)" : FieldValue.delete(),
+              ]) { err in
+                  if let err = err {
+                      print("Error updating document: \(err)")
+                  } else {
+                      print("DELETED \(following) ")
+                      print("Document successfully updated")
+                  }
+              }
+          }
+          
+      }
+      
+      private func getFollowers(){
+          let ref = Firestore.firestore().collection("users")
+          ref.document(userData.uid).getDocument{ (document, error) in
+              if let document = document, document.exists {
+                  let data = document.data()
+                  let followers = data?["followers"] as? [String: Any] ?? [:]
+                  self.followersArray = Array(followers.keys)
+              }
+          }
+      }
+      
+      private func getFollowing(){
+          let ref = Firestore.firestore().collection("users")
+          ref.document(userData.uid).getDocument{ (document, error) in
+              if let document = document, document.exists {
+                  let data = document.data()
+                  let following = data?["following"] as? [String: Any] ?? [:]
+                  self.followingArray = Array(following.keys)
+              }
+          }
+      }
 
         @objc func saveChanges() {
             if(!newUser){

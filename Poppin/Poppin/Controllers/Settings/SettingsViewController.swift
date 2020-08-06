@@ -23,7 +23,7 @@ struct TestPreview: PreviewProvider {
   typealias Previews = Preview
 }
 
-class SettingsViewController: UIViewController {
+class SettingsViewController: UIViewController, UIGestureRecognizerDelegate {
     let settingsInsetY: CGFloat = .getPercentageWidth(percentage: 5)
     let settingsInsetX: CGFloat = .getPercentageWidth(percentage: 5)
     let settingsInnerInset: CGFloat = .getPercentageWidth(percentage: 4)
@@ -72,29 +72,51 @@ class SettingsViewController: UIViewController {
        }()
     
     @objc func toAccountSettings(sender: UIButton){
-        let vc = SettingsSecondPageViewController(testString: "ACCOUNT")
+        let vc = SettingsSecondPageViewController(with: 1)
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     lazy private var privacySettings: SettingsButtonView = {
            
            var privacySettings = SettingsButtonView(settingsButtonImage: UIImage(systemSymbol: .lockFill), settingsButtonText: "Privacy")
+           privacySettings.addTarget(target: self, action: #selector(toPrivacySettings(sender:)), for: .touchUpInside)
+
            return privacySettings
            
        }()
     
+    @objc func toPrivacySettings(sender: UIButton){
+        let vc = SettingsSecondPageViewController(with: 2)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     lazy private var notificationsSettings: SettingsButtonView = {
         
         var notificationsSettings = SettingsButtonView(settingsButtonImage: UIImage(systemSymbol: .bellFill), settingsButtonText: "Notifications")
+        notificationsSettings.addTarget(target: self, action: #selector(toNotificationsSettings(sender:)), for: .touchUpInside)
+
         return notificationsSettings
         
     }()
     
+    @objc func toNotificationsSettings(sender: UIButton){
+        let vc = SettingsSecondPageViewController(with: 3)
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     lazy private var aboutSettings: SettingsButtonView = {
         
         var aboutSettings = SettingsButtonView(settingsButtonImage: UIImage(systemSymbol: .infoCircleFill), settingsButtonText: "About")
+        aboutSettings.addTarget(target: self, action: #selector(toAboutSettings(sender:)), for: .touchUpInside)
+
         return aboutSettings
         
     }()
+    
+    @objc func toAboutSettings(sender: UIButton){
+        let vc = SettingsSecondPageViewController(with: 4)
+        navigationController?.pushViewController(vc, animated: true)
+    }
     
     lazy private var settingsLabel: UILabel = {
        let settingsLabel = UILabel()
@@ -116,7 +138,7 @@ class SettingsViewController: UIViewController {
     }()
     
     lazy private var backButton: ImageBubbleButton = {
-        let backButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .arrowLeft).withTintColor(.white))
+        let backButton = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .chevronLeft).withTintColor(.white))
         backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         return backButton
     }()
@@ -166,6 +188,28 @@ class SettingsViewController: UIViewController {
         settingsScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -settingsInsetX).isActive = true
 
         
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        
+        super.viewWillAppear(animated)
+                
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        
+        super.viewWillDisappear(animated)
+        
+        navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        
+    }
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
         
     }
     

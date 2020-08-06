@@ -18,7 +18,7 @@ struct College {
     
 }
 
-final class SignUpSelectUniversityViewController: UIViewController, UIPickerViewDelegate, UITextFieldDelegate, UIPickerViewDataSource {
+final class SignUpSelectUniversityViewController: UIViewController, UIPickerViewDelegate, UITextFieldDelegate, UIPickerViewDataSource, UITextViewDelegate {
     
     let loginInsetY: CGFloat = .getPercentageWidth(percentage: 5)
     let loginInsetX: CGFloat = .getPercentageWidth(percentage: 5)
@@ -147,7 +147,7 @@ final class SignUpSelectUniversityViewController: UIViewController, UIPickerView
         var selectUniversityTextField = UITextField()
         selectUniversityTextField.backgroundColor = .clear
         selectUniversityTextField.textColor = .mainDARKPURPLE
-        selectUniversityTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        selectUniversityTextField.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
         selectUniversityTextField.attributedPlaceholder = NSAttributedString(string: "Select University", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
         selectUniversityTextField.delegate = self
         selectUniversityTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: selectUniversityTextField.intrinsicContentSize.height))
@@ -177,6 +177,16 @@ final class SignUpSelectUniversityViewController: UIViewController, UIPickerView
         
         return selectUniversityTextField
         
+    }()
+    
+    lazy private var reportDetailsTextView: UITextView = {
+        let reportDetailsTextView = UITextView()
+        reportDetailsTextView.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        reportDetailsTextView.backgroundColor = .clear
+        reportDetailsTextView.textAlignment = .left
+        reportDetailsTextView.textColor = .mainDARKPURPLE
+        reportDetailsTextView.delegate = self
+        return reportDetailsTextView
     }()
     
     
@@ -344,8 +354,12 @@ final class SignUpSelectUniversityViewController: UIViewController, UIPickerView
         return true
     }
     
-    func textField(_ textView: UITextField, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+    func textField(_ textField: UITextField, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         return false
+    }
+    
+    func texView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        return true
     }
     
     
