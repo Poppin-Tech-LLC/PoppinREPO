@@ -6,25 +6,59 @@
 //  Copyright © 2020 Poppin Tech LLC. All rights reserved.
 //
 
-import UIKit
-import CoreLocation
+import Foundation
 
-struct UniversityModel {
+enum UniversityError: String, Error {
     
-    var id: String?
-    var name: String?
-    var domain: String?
-    var radius: CGFloat?
-    var location: CLLocationCoordinate2D?
+    case invalidParameter = "Parameter passed is invalid."
     
-    init(id: String? = nil, name: String? = nil, domain: String? = nil, radius: CGFloat? = nil, location: CLLocationCoordinate2D? = nil) {
+}
+
+struct UniversityModel: Identifiable {
+    
+    let id: ID
+    private(set) var domain: String
+    private(set) var radius: Double
+    private(set) var latitude: Double
+    private(set) var longitude: Double
+    
+    init(name: ID, domain: String, radius: Double, latitude: Double, longitude: Double) throws {
         
-        self.id = id
-        self.name = name
-        self.domain = domain
-        self.radius = radius
-        self.location = location
+        if name.rawValue.isEmpty { throw UniversityError.invalidParameter } else { self.id = name } // Name (id) Validation
+        
+        if domain.isEmpty || domain.trimmingCharacters(in: .whitespacesAndNewlines) == "" { throw UniversityError.invalidParameter } else { self.domain = domain } // Domain Validation
+        
+        if radius <= 0.0 { throw UniversityError.invalidParameter } else { self.radius = radius } // Radius Validation
+        
+        self.latitude = latitude // Latitude Validation
+        
+        self.longitude = longitude // Longitude Validation
+        
+    }
+    
+    mutating func update(domain: String) throws {
+        
+        if domain.isEmpty || domain.trimmingCharacters(in: .whitespacesAndNewlines) == "" { throw UniversityError.invalidParameter } else { self.domain = domain } // Domain Validation
+        
+    }
+    
+    mutating func update(radius: Double) throws {
+        
+        if radius <= 0.0 { throw UniversityError.invalidParameter } else { self.radius = radius } // Radius Validation
+        
+    }
+    
+    mutating func update(latitude: Double) {
+        
+        self.latitude = latitude // Latitude Validation
+        
+    }
+    
+    mutating func update(longitude: Double) {
+        
+        self.longitude = longitude // Longitude Validation
         
     }
     
 }
+

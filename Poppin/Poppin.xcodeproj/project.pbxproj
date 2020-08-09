@@ -58,6 +58,9 @@
 		64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941EC924A39F6E00824E9B /* MapViewController.swift */; };
 		64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECC24A3A71300824E9B /* SearchViewController.swift */; };
 		64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECF24A3AB9600824E9B /* ProfileViewController.swift */; };
+		64A93D6924E02673003AFD51 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6824E02673003AFD51 /* Identity.swift */; };
+		64A93D6B24E02709003AFD51 /* CoreDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6A24E02709003AFD51 /* CoreDataController.swift */; };
+		64A93D6D24E02767003AFD51 /* OrgModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6C24E02767003AFD51 /* OrgModel.swift */; };
 		64B7248424AF5C5600BB48C5 /* PagingCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B7248324AF5C5600BB48C5 /* PagingCollectionView.swift */; };
 		64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B7248624AF623800BB48C5 /* SelfSizedTableView.swift */; };
 		64B88BDB24BF140A0044C3EA /* Pods_Poppin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CAC1587310AEB0F4D61D28A /* Pods_Poppin.framework */; };
@@ -65,8 +68,6 @@
 		64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CF0C8624A48A580077C1D7 /* MenuViewController.swift */; };
 		64D29E5E24DA3B6D00D67CE5 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */; };
 		64E8260724DAD04B0097CB6C /* UniversityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260624DAD04B0097CB6C /* UniversityModel.swift */; };
-		64E8260924DAD1140097CB6C /* UniversityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260824DAD1140097CB6C /* UniversityController.swift */; };
-		64E8260B24DADE860097CB6C /* UserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260A24DADE860097CB6C /* UserController.swift */; };
 		9077592978492C726F78F0C1 /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB06A8A7A9E2033778A1FD0 /* Pods_PoppinTests.framework */; };
 		D171471443DEECA9ADF08CE3 /* Pods_PoppinUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */; };
 		F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3624B48B4000FA1AB0 /* dataModel.xcdatamodeld */; };
@@ -167,14 +168,15 @@
 		64941EC924A39F6E00824E9B /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		64941ECC24A3A71300824E9B /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64941ECF24A3AB9600824E9B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		64A93D6824E02673003AFD51 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
+		64A93D6A24E02709003AFD51 /* CoreDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataController.swift; sourceTree = "<group>"; };
+		64A93D6C24E02767003AFD51 /* OrgModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrgModel.swift; sourceTree = "<group>"; };
 		64B7248324AF5C5600BB48C5 /* PagingCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingCollectionView.swift; sourceTree = "<group>"; };
 		64B7248624AF623800BB48C5 /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
 		64BF883924AB2DB10008659D /* BubbleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleImageView.swift; sourceTree = "<group>"; };
 		64CF0C8624A48A580077C1D7 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		64E8260624DAD04B0097CB6C /* UniversityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityModel.swift; sourceTree = "<group>"; };
-		64E8260824DAD1140097CB6C /* UniversityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityController.swift; sourceTree = "<group>"; };
-		64E8260A24DADE860097CB6C /* UserController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserController.swift; sourceTree = "<group>"; };
 		A014052323697933541F2FB7 /* Pods-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B180A4462E77FBC337504A30 /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -297,8 +299,8 @@
 				F5FC3F3D24B74CD700FA1AB0 /* SignUpSelectUniversityViewController.swift */,
 				64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */,
 				64E8260624DAD04B0097CB6C /* UniversityModel.swift */,
-				64E8260824DAD1140097CB6C /* UniversityController.swift */,
-				64E8260A24DADE860097CB6C /* UserController.swift */,
+				64A93D6824E02673003AFD51 /* Identity.swift */,
+				64A93D6C24E02767003AFD51 /* OrgModel.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -356,6 +358,7 @@
 				6417BCA524A25684006AE467 /* Extensions.swift */,
 				6417BCBB24A2650A006AE467 /* Popsicles.swift */,
 				F5FC3F3924B5E26400FA1AB0 /* DataController.swift */,
+				64A93D6A24E02709003AFD51 /* CoreDataController.swift */,
 			);
 			path = Miscellaneous;
 			sourceTree = "<group>";
@@ -801,7 +804,6 @@
 				6417BCBC24A2650A006AE467 /* Popsicles.swift in Sources */,
 				6417BCAF24A25FFE006AE467 /* UserLocationAnnotationView.swift in Sources */,
 				F6498EBB24B24892002F8A1B /* Hashtag.swift in Sources */,
-				64E8260924DAD1140097CB6C /* UniversityController.swift in Sources */,
 				64841A1124D238840071A0E9 /* CreateEventSecondSectionView.swift in Sources */,
 				F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */,
 				6417BCB824A26339006AE467 /* DarkOverlayView.swift in Sources */,
@@ -817,11 +819,13 @@
 				F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */,
 				6417BCB624A261CA006AE467 /* FiltersView.swift in Sources */,
 				6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */,
+				64A93D6B24E02709003AFD51 /* CoreDataController.swift in Sources */,
 				F6498EC024B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift in Sources */,
 				647DC4F124CE09A400082C5E /* CreateEventFirstSectionView.swift in Sources */,
 				6403142924A1F136006A55EB /* AppDelegate.swift in Sources */,
 				6409061C24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift in Sources */,
 				6409061624A37A2F00AD4FF6 /* StartViewController.swift in Sources */,
+				64A93D6924E02673003AFD51 /* Identity.swift in Sources */,
 				641E91E324D84AE7008D3B83 /* DetailsInputViewController.swift in Sources */,
 				F60DDAD224D8CB330097FFA2 /* rsvpViewController.swift in Sources */,
 				64689DAF24BDB1D700FDA83F /* PopsicleBorderView.swift in Sources */,
@@ -835,12 +839,12 @@
 				6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */,
 				645BE46724CF2D07001A3232 /* EventModel.swift in Sources */,
 				64E8260724DAD04B0097CB6C /* UniversityModel.swift in Sources */,
+				64A93D6D24E02767003AFD51 /* OrgModel.swift in Sources */,
 				64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */,
 				6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */,
 				F6498EC324B248F4002F8A1B /* PopsiclePopupViewController.swift in Sources */,
 				64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */,
 				F6498EC624B24919002F8A1B /* ActivityViewController.swift in Sources */,
-				64E8260B24DADE860097CB6C /* UserController.swift in Sources */,
 				6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */,
 				64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */,
 				F5FC3F4624BFB35600FA1AB0 /* EditProfileViewController.swift in Sources */,
