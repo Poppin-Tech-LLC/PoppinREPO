@@ -274,7 +274,7 @@ final class MapViewController: UIViewController {
         
         mapAVButton.addTarget(self, action: #selector(openAV(sender:)), for: .touchUpInside)
         
-        mapAVButton.increaseCounter(by: self.mapAVController.activities.count)
+        //mapAVButton.increaseCounter(by: self.mapAVController.activities.count)
         
         mapAVButton.translatesAutoresizingMaskIntoConstraints = false
         mapAVButton.heightAnchor.constraint(equalTo: mapAVButton.widthAnchor).isActive = true
@@ -675,7 +675,7 @@ final class MapViewController: UIViewController {
         
         mapAVController.didMove(toParent: self)
         
-        mapAVButton.increaseCounter(by: self.mapAVController.activities.count)
+        //mapAVButton.increaseCounter(by: self.mapAVController.activities.count)
         
         view.addSubview(noInternetView)
         noInternetView.translatesAutoresizingMaskIntoConstraints = false

@@ -47,6 +47,24 @@ struct TestPreviewActivityViewController: PreviewProvider {
 final class ActivityViewController: UIViewController {
     
     weak var delegate: ActivityDelegate?
+    
+    init() {
+        
+        super.init(nibName: nil, bundle: nil)
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        
+        super.init(coder: coder)
+        
+    }
+    
+    override func loadView() {
+        
+        self.view = ActivityView()
+        
+    }
 
     override func viewDidLoad() {
         
@@ -54,7 +72,7 @@ final class ActivityViewController: UIViewController {
         
         guard let view = view as? ActivityView else { return }
         
-        view.delegate = self
+        view.delegate = self.delegate
         
     }
     

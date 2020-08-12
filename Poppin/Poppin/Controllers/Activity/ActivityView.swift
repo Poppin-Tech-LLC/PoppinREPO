@@ -8,13 +8,16 @@
 
 import UIKit
 import SwiftUI
+import FirebaseUI
+import FirebaseAuth
+import FirebaseFirestoreSwift
+import FirebaseFirestore
 
 struct PreviewActivityView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UIViewType {
         
         return UIViewType()
-        
     }
     
     
@@ -32,16 +35,18 @@ struct TestPreviewActivityView: PreviewProvider {
         
     }
     
-    typealias Previews = PreviewDateInputView
+    typealias Previews = PreviewActivityView
     
 }
 
-final class ActivityView: UIView {
+final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
     
     weak var delegate: ActivityDelegate?
+    
+    private var activities : [ActivityModel] = []
     
     lazy private var cardView: UIView = {
        
@@ -53,11 +58,13 @@ final class ActivityView: UIView {
         avBorderView.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, bottom: cardView.bottomAnchor)
         
         cardView.addSubview(activityLabel)
-        activityLabel.anchor(top: cardView.topAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: yInset*2, left: 0, bottom: 0, right: 0))
+        activityLabel.anchor(top: cardView.topAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: yInset*3.5, left: 0, bottom: 0, right: 0))
         
         cardView.addSubview(popsicleBorderImageView)
+        popsicleBorderImageView.anchor(top: cardView.topAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: yInset*5.5, left: 0, bottom: 0, right: 0))
         
         cardView.addSubview(avFeed)
+        avFeed.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, bottom: cardView.bottomAnchor, trailing: cardView.trailingAnchor, padding: UIEdgeInsets(top: yInset*8, left: xInset*0.2, bottom: yInset*2, right: 0))
         
         return cardView
         
@@ -79,6 +86,9 @@ final class ActivityView: UIView {
         
         var popsicleBorderImageView = UIImageView(image: UIImage.popsicleBorder1024.withTintColor(.white))
         popsicleBorderImageView.contentMode = .scaleAspectFit
+        
+        popsicleBorderImageView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 80)).isActive = true
+        
         return popsicleBorderImageView
         
     }()
@@ -109,4 +119,170 @@ final class ActivityView: UIView {
         
     }()
     
+    init() {
+        
+        super.init(frame: .zero)
+        
+        configureView()
+        populateActivities()
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        
+        super.init(coder: coder)
+        
+        configureView()
+        populateActivities()
+        
+    }
+    
+    private func configureView() {
+        
+        addSubview(cardView)
+        cardView.anchor(top: topAnchor, leading: leadingAnchor, bottom: bottomAnchor, trailing: trailingAnchor)
+        
+        avFeed.dataSource = self
+        avFeed.delegate = self
+        avFeed.register(ActivityCell.self, forCellReuseIdentifier: "avCell")
+        
+    }
+    
+    private func populateActivities() {
+        
+        let ref = Firestore.firestore().collection("users").document(Auth.auth().currentUser!.uid).collection("activities")
+        
+        ref.getDocuments(completion: { (querySnapshot, err) in
+                if let err = err {
+                    print("Error getting documents: \(err)")
+                } else {
+                    for document in querySnapshot!.documents {
+                        self.activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String))
+                        self.avFeed.reloadData()
+                    }
+                }
+        })
+        
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return activities.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "avCell", for: indexPath) as! ActivityCell
+        let ac = activities[indexPath.row]
+        
+        let username = ac.inducedById!
+        let attributedString = NSMutableAttributedString(string: username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
+        
+        attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
+        
+        cell.activityDetails.attributedText = attributedString
+        cell.activityDate.text = "2w"
+
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return .getPercentageHeight(percentage: 7)
+    }
+    
 }
+
+
+
+class ActivityCell : UITableViewCell {
+    
+    private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
+    private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
+    
+    lazy var activityPic : ImageBubbleButton = {
+        
+        var i = ImageBubbleButton(bouncyButtonImage: .culturePopsicleIcon128)
+        i.backgroundColor = UIColor.white.withAlphaComponent(0.25)
+        i.contentEdgeInsets = UIEdgeInsets(top: .getPercentageWidth(percentage: 1), left: .getPercentageWidth(percentage: 1), bottom: .getPercentageWidth(percentage: 1), right: .getPercentageWidth(percentage: 1))
+        
+        i.translatesAutoresizingMaskIntoConstraints = false
+        i.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 9)).isActive = true
+        i.heightAnchor.constraint(equalTo: i.widthAnchor).isActive = true
+        
+        return i
+        
+    }()
+    
+    lazy var activityDetails : UILabel = {
+        
+        let l = UILabel()
+        l.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
+        l.adjustsFontSizeToFitWidth = false
+        l.textColor = .white
+        l.numberOfLines = 2
+        l.textAlignment = .left
+        
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 48)).isActive = true
+        
+        return l
+        
+    }()
+    
+    lazy var activityDate : UILabel = {
+        
+        let l = UILabel()
+        l.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        l.adjustsFontSizeToFitWidth = false
+        l.textColor = .gray
+        l.numberOfLines = 1
+        l.textAlignment = .center
+        
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 13)).isActive = true
+        
+        return l
+        
+    }()
+    
+    lazy var eventStackView : UIStackView = {
+        
+        let s = UIStackView()
+        s.axis = .horizontal
+        s.alignment = .center
+        s.distribution = .equalCentering
+        
+        s.addArrangedSubview(activityPic)
+        s.addArrangedSubview(activityDetails)
+        s.addArrangedSubview(activityDate)
+        
+        s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: activityPic)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 2), after: activityDetails)
+        
+        return s
+        
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        backgroundColor = .mainDARKPURPLE
+        
+        self.contentView.addSubview(eventStackView)
+        eventStackView.anchor(top: self.contentView.topAnchor, leading: self.contentView.leadingAnchor, bottom: self.contentView.bottomAnchor, trailing: self.contentView.trailingAnchor, padding: UIEdgeInsets(top: 0, left: xInset, bottom: 0, right: xInset))
+        
+     }
+
+    required init?(coder aDecoder: NSCoder) {
+       super.init(coder: aDecoder)
+    }
+    
+    override func layoutSubviews() {
+       super.layoutSubviews()
+       
+        self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: .getPercentageHeight(percentage: 0.5), left: 0, bottom: .getPercentageHeight(percentage: 0.5), right: 0))
+    }
+    
+}
+    
+
+
+

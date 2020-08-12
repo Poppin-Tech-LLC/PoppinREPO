@@ -90,9 +90,9 @@ final class ActivityButton: BubbleButton {
         
         configureButton()
         
-        self.addSubview(activityCounter)
-        activityCounter.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: .getPercentageWidth(percentage: 1.15)).isActive = true
-        activityCounter.topAnchor.constraint(equalTo: self.topAnchor, constant: -(.getPercentageHeight(percentage: 0.25))).isActive = true
+//        self.addSubview(activityCounter)
+//        activityCounter.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: .getPercentageWidth(percentage: 1.15)).isActive = true
+//        activityCounter.topAnchor.constraint(equalTo: self.topAnchor, constant: -(.getPercentageHeight(percentage: 0.25))).isActive = true
      
     }
     

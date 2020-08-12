@@ -896,7 +896,17 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             }
 
             
-            
+            // create activity for following someone
+            Firestore.firestore().collection("users").document(userData.uid).collection("activities").addDocument(data: [
+                "inducedBy" : "\(userId)",
+                "details" : " started following you."])
+            { err in
+                if let err = err {
+                    print("Error adding document: \(err)")
+                } else {
+                    print("Document added.")
+                }
+            }
             
         }
         
