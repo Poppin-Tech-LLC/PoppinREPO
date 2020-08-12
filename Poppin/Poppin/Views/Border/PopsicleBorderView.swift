@@ -10,12 +10,22 @@ import UIKit
 
 final class PopsicleBorderView: UIView {
     
-    private var borderColor: UIColor = .black
+    var borderColor: UIColor = .black {
+        
+        didSet {
+            
+            popsicleIconImageView.image = UIImage.filledPopsicleIcon64.withTintColor(borderColor, renderingMode: .alwaysOriginal)
+            popsicleBorderRightView.backgroundColor = UIColor(cgColor: borderColor.cgColor)
+            popsicleBorderLeftView.backgroundColor = UIColor(cgColor: borderColor.cgColor)
+            
+        }
+        
+    }
     private(set) var lineHeight: CGFloat = .getPercentageWidth(percentage: 0.5)
     
     lazy private var popsicleIconImageView: UIImageView = {
         
-        var popsicleIconImageView = UIImageView(image:  UIImage.filledPopsicleIcon64.withTintColor(borderColor, renderingMode: .alwaysOriginal))
+        var popsicleIconImageView = UIImageView(image: UIImage.filledPopsicleIcon64.withTintColor(borderColor, renderingMode: .alwaysOriginal))
         popsicleIconImageView.contentMode = .scaleAspectFit
         return popsicleIconImageView
         

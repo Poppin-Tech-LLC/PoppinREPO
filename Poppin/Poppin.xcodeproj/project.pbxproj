@@ -60,6 +60,8 @@
 		64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941EC924A39F6E00824E9B /* MapViewController.swift */; };
 		64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECC24A3A71300824E9B /* SearchViewController.swift */; };
 		64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECF24A3AB9600824E9B /* ProfileViewController.swift */; };
+		64A4DD0D24E1654200365092 /* EventInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A4DD0C24E1654200365092 /* EventInfoView.swift */; };
+		64A4DD0F24E1931500365092 /* EventInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A4DD0E24E1931500365092 /* EventInfoViewController.swift */; };
 		64A93D6924E02673003AFD51 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6824E02673003AFD51 /* Identity.swift */; };
 		64A93D6B24E02709003AFD51 /* CoreDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6A24E02709003AFD51 /* CoreDataController.swift */; };
 		64A93D6D24E02767003AFD51 /* OrgModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6C24E02767003AFD51 /* OrgModel.swift */; };
@@ -69,10 +71,7 @@
 		64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CF0C8624A48A580077C1D7 /* MenuViewController.swift */; };
 		64D29E5E24DA3B6D00D67CE5 /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */; };
 		64E8260724DAD04B0097CB6C /* UniversityModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260624DAD04B0097CB6C /* UniversityModel.swift */; };
-		64E8260924DAD1140097CB6C /* UniversityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260824DAD1140097CB6C /* UniversityController.swift */; };
 		8B5C912DB50972AEF402CE84 /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AB2D14B854602B4B73EE724 /* Pods_PoppinTests.framework */; };
-		9077592978492C726F78F0C1 /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB06A8A7A9E2033778A1FD0 /* Pods_PoppinTests.framework */; };
-		D171471443DEECA9ADF08CE3 /* Pods_PoppinUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */; };
 		F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3624B48B4000FA1AB0 /* dataModel.xcdatamodeld */; };
 		F5FC3F3A24B5E26400FA1AB0 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3924B5E26400FA1AB0 /* DataController.swift */; };
 		F5FC3F3C24B737DD00FA1AB0 /* UniversitiesJSON.json in Resources */ = {isa = PBXBuildFile; fileRef = F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */; };
@@ -179,6 +178,8 @@
 		64941EC924A39F6E00824E9B /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		64941ECC24A3A71300824E9B /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64941ECF24A3AB9600824E9B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		64A4DD0C24E1654200365092 /* EventInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInfoView.swift; sourceTree = "<group>"; };
+		64A4DD0E24E1931500365092 /* EventInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventInfoViewController.swift; sourceTree = "<group>"; };
 		64A93D6824E02673003AFD51 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
 		64A93D6A24E02709003AFD51 /* CoreDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataController.swift; sourceTree = "<group>"; };
 		64A93D6C24E02767003AFD51 /* OrgModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrgModel.swift; sourceTree = "<group>"; };
@@ -188,16 +189,11 @@
 		64CF0C8624A48A580077C1D7 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		64E8260624DAD04B0097CB6C /* UniversityModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityModel.swift; sourceTree = "<group>"; };
-		64E8260824DAD1140097CB6C /* UniversityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversityController.swift; sourceTree = "<group>"; };
 		C6FBFA9CF4FD54C692B54622 /* Pods_Poppin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Poppin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CFB47319F0DF40311FB97B62 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		D0C5AC22010E577814D99A02 /* Pods-Poppin.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.release.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.release.xcconfig"; sourceTree = "<group>"; };
 		D1A6D5F906CF95988B44C235 /* Pods-Poppin-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-Poppin-PoppinUITests/Pods-Poppin-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		EAFEED3C8E4D2378CB02A31C /* Pods-Poppin-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-Poppin-PoppinUITests/Pods-Poppin-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		A014052323697933541F2FB7 /* Pods-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B180A4462E77FBC337504A30 /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
-		C74E98F7B823425DE252811D /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		F5FC3F3724B48B4000FA1AB0 /* dataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = dataModel.xcdatamodel; sourceTree = "<group>"; };
 		F5FC3F3924B5E26400FA1AB0 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UniversitiesJSON.json; sourceTree = "<group>"; };
@@ -592,6 +588,8 @@
 			isa = PBXGroup;
 			children = (
 				F6498EC224B248F4002F8A1B /* PopsiclePopupViewController.swift */,
+				64A4DD0C24E1654200365092 /* EventInfoView.swift */,
+				64A4DD0E24E1931500365092 /* EventInfoViewController.swift */,
 			);
 			path = "Popsicle Info";
 			sourceTree = "<group>";
@@ -854,6 +852,7 @@
 				64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */,
 				64D29E5E24DA3B6D00D67CE5 /* UserModel.swift in Sources */,
 				F6498EBD24B24892002F8A1B /* HashtagViewDelegate.swift in Sources */,
+				64A4DD0D24E1654200365092 /* EventInfoView.swift in Sources */,
 				F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */,
 				6417BCB624A261CA006AE467 /* FiltersView.swift in Sources */,
 				6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */,
@@ -886,6 +885,7 @@
 				F5FC3F5324D9A31100FA1AB0 /* ReportUserViewController.swift in Sources */,
 				64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */,
 				F6498EC624B24919002F8A1B /* ActivityViewController.swift in Sources */,
+				64A4DD0F24E1931500365092 /* EventInfoViewController.swift in Sources */,
 				F5FC3F4F24D83AC400FA1AB0 /* DeactivateAccountViewController.swift in Sources */,
 				6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */,
 				64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */,
@@ -1068,13 +1068,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 97484A292T;
+				DEVELOPMENT_TEAM = 4VQFP5DX32;
 				INFOPLIST_FILE = Poppin/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = Poppin1.Poppin;
+				PRODUCT_BUNDLE_IDENTIFIER = Poppin2.Poppin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1087,13 +1087,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 97484A292T;
+				DEVELOPMENT_TEAM = 4VQFP5DX32;
 				INFOPLIST_FILE = Poppin/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = Poppin1.Poppin;
+				PRODUCT_BUNDLE_IDENTIFIER = Poppin2.Poppin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;

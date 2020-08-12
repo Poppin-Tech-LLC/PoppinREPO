@@ -46,6 +46,8 @@ final class MapViewController: UIViewController {
     private var shouldPresentLoginVC: Bool = false
     private var menuIsVisible: Bool = false
     private var avIsVisible: Bool = false
+    private var eventInfoIsVisible: Bool = false
+    private var firstTimeLoading: Bool = true
     
     let monitor = NWPathMonitor()
     
@@ -132,6 +134,13 @@ final class MapViewController: UIViewController {
     lazy private var mapContainerLeadingConstraint: NSLayoutConstraint = {
         
         var mapContainerLeadingConstraint = NSLayoutConstraint(item: mapContainerView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1.0, constant: 0.0)
+        return mapContainerLeadingConstraint
+        
+    }()
+    
+    lazy private var mapContainerTrailingConstraint: NSLayoutConstraint = {
+        
+        var mapContainerTrailingConstraint = NSLayoutConstraint(item: mapContainerView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0.0)
         return mapContainerLeadingConstraint
         
     }()
@@ -239,6 +248,28 @@ final class MapViewController: UIViewController {
         
     }()
     
+    lazy private var eventInfoViewController: EventInfoViewController = {
+        
+        var eventInfoViewController = EventInfoViewController(eventModel: EventModel(), isModallyPresented: true)
+        return eventInfoViewController
+        
+    }()
+    
+    lazy private var eventInfoBottomConstraint: NSLayoutConstraint = {
+        
+        var eventInfoBottomConstraint = NSLayoutConstraint(item: eventInfoViewController.view!, attribute: NSLayoutConstraint.Attribute.bottom, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.bottom, multiplier: 1.0, constant: 0.0)
+        return eventInfoBottomConstraint
+        
+    }()
+    
+    lazy private var eventInfoSlidePanGestureRecognizer: UIPanGestureRecognizer = {
+        
+        var eventInfoSlidePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleEventInfoPan(sender:)))
+        
+        return eventInfoSlidePanGestureRecognizer
+        
+    }()
+    
     lazy private var mapMenuButton: ImageBubbleButton = {
         
         var mapMenuButton = ImageBubbleButton(bouncyButtonImage: userPicture)
@@ -291,10 +322,10 @@ final class MapViewController: UIViewController {
            
     }()
        
-    lazy private var avLeadingConstraint: NSLayoutConstraint = {
+    lazy private var avTrailingConstraint: NSLayoutConstraint = {
            
-        var avLeadingConstraint = NSLayoutConstraint(item: mapAVController.view!, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0)
-        return avLeadingConstraint
+        var avTrailingConstraint = NSLayoutConstraint(item: mapAVController.view!, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: avWidth)
+        return avTrailingConstraint
            
     }()
     
@@ -474,8 +505,8 @@ final class MapViewController: UIViewController {
             mapAVButton.alpha = alphaFactorAVButton
             mapContainerView.alpha = alphaFactorContainerView
             
-            avLeadingConstraint.constant = translation.x
-            mapContainerLeadingConstraint.constant = translation.x
+            avTrailingConstraint.constant = translation.x + avWidth
+            mapContainerTrailingConstraint.constant = translation.x
             
         }
         
@@ -487,8 +518,99 @@ final class MapViewController: UIViewController {
             mapAVButton.alpha = alphaFactorAVButton
             mapContainerView.alpha = alphaFactorContainerView
             
-            avLeadingConstraint.constant = translation.x - avWidth
-            mapContainerLeadingConstraint.constant = translation.x - avWidth
+            avTrailingConstraint.constant = translation.x
+            mapContainerTrailingConstraint.constant = translation.x - avWidth
+            
+        }
+        
+    }
+    
+    @objc private func handleEventInfoPan(sender: UIPanGestureRecognizer) {
+        
+        let translation = sender.translation(in: self.view)
+        
+        if sender.state == .ended || sender.state == .failed || sender.state == .cancelled {
+            
+            if eventInfoIsVisible, translation.y > 0.0 {
+                
+                closeEventInfo()
+                
+            } else if !eventInfoIsVisible, translation.y < 0.0 {
+                
+                openEventInfo()
+                
+            }
+            
+            return
+            
+        }
+        
+        let eventInfoHeight = view.frame.height - view.safeAreaInsets.top
+        
+        if eventInfoIsVisible, translation.y > 0.0, translation.y <= eventInfoHeight {
+            
+            eventInfoBottomConstraint.constant = translation.y
+            
+        }
+        
+        if !eventInfoIsVisible, translation.y >= -eventInfoHeight, translation.y < 0.0 {
+            
+            eventInfoBottomConstraint.constant = translation.y + eventInfoHeight
+            
+        }
+        
+    }
+    
+    @objc private func openEventInfo() {
+        
+        if !eventInfoIsVisible {
+            
+            guard let infoView = eventInfoViewController.view as? EventInfoView else { return }
+            
+            infoView.topFadeEdgeView.isHidden = true
+            infoView.bottomFadeEdgeView.isHidden = true
+        
+            view.layoutIfNeeded()
+            
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.eventInfoBottomConstraint.constant = 0.0
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+            
+                self.view.addGestureRecognizer(self.eventInfoSlidePanGestureRecognizer)
+                self.eventInfoIsVisible = true
+                infoView.topFadeEdgeView.isHidden = false
+                infoView.bottomFadeEdgeView.isHidden = false
+            
+            })
+            
+        }
+        
+    }
+    
+    @objc private func closeEventInfo() {
+        
+        if eventInfoIsVisible {
+            
+            guard let infoView = eventInfoViewController.view as? EventInfoView else { return }
+         
+            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                
+                self.eventInfoBottomConstraint.constant = self.view.frame.height - self.view.safeAreaInsets.top
+                self.view.layoutIfNeeded()
+                
+            }, completion: { finished in
+                
+                self.view.removeGestureRecognizer(self.eventInfoSlidePanGestureRecognizer)
+                self.eventInfoIsVisible = false
+
+                infoView.cardScrollView.setContentOffset(CGPoint(
+                x: -infoView.cardScrollView.adjustedContentInset.left,
+                y: -infoView.cardScrollView.adjustedContentInset.top), animated: false)
+                
+            })
             
         }
         
@@ -651,6 +773,7 @@ final class MapViewController: UIViewController {
         mapContainerView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         mapContainerView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
         mapContainerLeadingConstraint.isActive = true
+        mapContainerTrailingConstraint.isActive = true
         mapContainerView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         
         addChild(mapMenuViewController)
@@ -670,12 +793,21 @@ final class MapViewController: UIViewController {
         mapAVController.view.translatesAutoresizingMaskIntoConstraints = false
         mapAVController.view.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         mapAVController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        avLeadingConstraint.isActive = true
+        avTrailingConstraint.isActive = true
         mapAVController.view.widthAnchor.constraint(equalToConstant: avWidth).isActive = true
         
         mapAVController.didMove(toParent: self)
         
         mapAVButton.increaseCounter(by: self.mapAVController.activities.count)
+        
+        addChild(eventInfoViewController)
+        
+        view.addSubview(eventInfoViewController.view)
+        eventInfoViewController.view.translatesAutoresizingMaskIntoConstraints = false
+        eventInfoViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        eventInfoViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        
+        eventInfoViewController.didMove(toParent: self)
         
         view.addSubview(noInternetView)
         noInternetView.translatesAutoresizingMaskIntoConstraints = false
@@ -767,6 +899,21 @@ final class MapViewController: UIViewController {
             monitor.start(queue: queue)
             
             getPopsicles()
+        
+        mapView.addAnnotation(PopsicleAnnotation(eventTitle: "ISO Global Cafe", eventDetails: "jasda sdjhas djha sdh asjhd as djha sjhajh jhas dja sjh asjd ajs djha sj asjhd ad as djhas djha sjhd ajd as djhas djh asdjh asd ajd as djhas djh asj asd jas dja sdjh asjhd as djhas djha sdjh asdj asjd a djas dja sdj asd jhas djasdja sjh ashd asj djha sda sjhasd ajsd jhas djha sd ad ajs djha sdj asjd jhas djh asjd jS DJHa s asdh as djhas djha sdasd asjd jas djha sdj asjd asj das dj asdj asd ajS DJHa sdj asd ashdasdaisdbkabSDKBASJKDB as aSDJ  asdbna SDNB asbnd abnS DNBa sdnb ASDNB asbnd anbS Dnbasnb asnbd anS DNa sdn aSDNB anbs dnba SDNB asbnd anbS DNBa sdbn aSBND anbs dnba SDNBa sdnb aSND nbas dnbaSDNB anbs dna SND anbs dnba SDNB a ", eventStartDate: Date() + 15.minutes, eventEndDate: Date() + 45.minutes, eventCategory: .Food, eventHashtags: nil, eventLocation: CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619), eventAttendees: []))
+        
+    }
+    
+    override func viewDidLayoutSubviews() {
+        
+        super.viewDidLayoutSubviews()
+        
+        if !firstTimeLoading { return }
+        
+        eventInfoBottomConstraint.constant = view.frame.height - view.safeAreaInsets.top
+        eventInfoBottomConstraint.isActive = true
+        eventInfoViewController.view.heightAnchor.constraint(equalToConstant: eventInfoBottomConstraint.constant).isActive = true
+        firstTimeLoading = false
         
     }
     
@@ -1125,27 +1272,15 @@ extension MapViewController: MKMapViewDelegate {
         
         mapView.isZoomEnabled = true
         
-        if let selectedPopsicle = view.annotation, selectedPopsicle is PopsicleAnnotation {
+        if let selectedPopsicle = view.annotation as? PopsicleAnnotation {
             
             print("Popsicle selected.")
             
-            let bottomSheetVC = PopsiclePopupViewController()
+            let eventModel = EventModel(id: selectedPopsicle.popsicleAnnotationData.eventTitle, title: selectedPopsicle.popsicleAnnotationData.eventTitle, details: selectedPopsicle.popsicleAnnotationData.eventDetails, onlineURL: nil, startDate: selectedPopsicle.popsicleAnnotationData.eventStartDate, endDate: selectedPopsicle.popsicleAnnotationData.eventEndDate, location: selectedPopsicle.popsicleAnnotationData.eventLocation, authorId: "", category: selectedPopsicle.popsicleAnnotationData.eventCategory, attendeesIds: selectedPopsicle.popsicleAnnotationData.eventAttendees, isPublic: false, isPoppin: false, isEditable: true)
             
-            //bottomSheetVC.pops = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventCategory
-            bottomSheetVC.popsicleName = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventTitle
-            bottomSheetVC.popsicleStartDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventStartDate.toString(.standard)
-            bottomSheetVC.popsicleEndDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventEndDate.toString(.standard)
-            bottomSheetVC.popsicleDetails = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventDetails!
-            bottomSheetVC.popsicleAddy = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventLocation
-//            bottomSheetVC.popsicleHashtags = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventHashtags
+            eventInfoViewController.setEvent(eventModel: eventModel)
             
-            self.addChild(bottomSheetVC)
-            self.view.addSubview(bottomSheetVC.view)
-            bottomSheetVC.didMove(toParent: self)
-            
-            let height = self.view.frame.height
-            let width  = self.view.frame.width
-            bottomSheetVC.view.frame = CGRect(x: 0, y: self.view.frame.maxY, width: width, height: height)
+            openEventInfo()
             
         } else if let selectedPopsicle = view.annotation, selectedPopsicle is MKUserLocation {
             
@@ -1313,8 +1448,8 @@ extension MapViewController: ActivityDelegate {
          
             UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
                 
-                self.avLeadingConstraint.constant = 0
-                self.mapContainerLeadingConstraint.constant = 0
+                self.avTrailingConstraint.constant = self.avWidth
+                self.mapContainerTrailingConstraint.constant = 0
                 self.mapContainerView.alpha = 1.0
                 self.mapAVButton.alpha = 1.0
                 self.view.layoutIfNeeded()
@@ -1342,8 +1477,8 @@ extension MapViewController: ActivityDelegate {
             
             UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
                 
-                self.avLeadingConstraint.constant = -(self.avWidth)
-                self.mapContainerLeadingConstraint.constant = -(self.avWidth)
+                self.avTrailingConstraint.constant = 0
+                self.mapContainerTrailingConstraint.constant = -(self.avWidth)
                 self.mapContainerView.alpha = 0.2
                 self.mapAVButton.alpha = 0.0
                 self.view.layoutIfNeeded()

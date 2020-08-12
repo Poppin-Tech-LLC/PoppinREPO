@@ -153,7 +153,6 @@ final class CreateEventSecondSectionViewController: UIViewController {
         view.onlineURLTextView.delegate = self
         view.locationMapView.delegate = self
         view.backButton.addTarget(self, action: #selector(segueBack), for: .touchUpInside)
-        view.doneButton.addTarget(self, action: #selector(endEditing), for: .touchUpInside)
         view.editLocationButton.addTarget(self, action: #selector(segueToLocationInput), for: .touchUpInside)
         view.createButton.addTarget(self, action: #selector(create(sender:)), for: .touchUpInside)
         
@@ -180,6 +179,7 @@ final class CreateEventSecondSectionViewController: UIViewController {
         
         super.viewWillDisappear(animated)
         
+        delegate?.saveProgress(eventController: eventController)
         navigationController?.interactivePopGestureRecognizer?.delegate = nil
         
     }
@@ -222,24 +222,7 @@ final class CreateEventSecondSectionViewController: UIViewController {
     
     @objc private func segueBack() {
         
-        delegate?.saveProgress(eventController: eventController)
         navigationController?.popViewController(animated: true)
-        
-    }
-    
-    @objc private func endEditing() {
-        
-        guard let view = view as? CreateEventSecondSectionView else { return }
-        
-        if view.titleTextView.isFirstResponder {
-            
-            view.titleTextView.resignFirstResponder()
-            
-        } else if view.detailsTextView.isFirstResponder {
-            
-            view.detailsTextView.resignFirstResponder()
-            
-        }
         
     }
     

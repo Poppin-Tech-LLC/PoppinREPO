@@ -1,8 +1,8 @@
 //
-//  CreateEventSecondSectionView.swift
+//  EventInfoView.swift
 //  Poppin
 //
-//  Created by Manuel Alejandro Martin Callejo on 7/30/20.
+//  Created by Manuel Alejandro Martin Callejo on 8/10/20.
 //  Copyright © 2020 Poppin Tech LLC. All rights reserved.
 //
 
@@ -10,22 +10,22 @@ import UIKit
 import SwiftUI
 import MapKit
 
-struct PreviewCreateEventSecondSectionView: UIViewRepresentable {
+struct PreviewEventInfoView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UIViewType {
         
-        return UIViewType(eventModel: EventModel())
+        return UIViewType(eventModel: EventModel(), isModallyPresented: true)
         
     }
     
     
     func updateUIView(_ uiView: UIViewType, context: Context) {}
     
-    typealias UIViewType = CreateEventSecondSectionView
+    typealias UIViewType = EventInfoView
     
 }
 
-struct TestPreviewCreateEventSecondSectionView: PreviewProvider {
+struct TestPreviewEventInfoView: PreviewProvider {
     
     static var previews: Previews {
         
@@ -33,21 +33,19 @@ struct TestPreviewCreateEventSecondSectionView: PreviewProvider {
         
     }
     
-    typealias Previews = PreviewCreateEventSecondSectionView
+    typealias Previews = PreviewEventInfoView
     
 }
 
-final class CreateEventSecondSectionView: UIView {
+final class EventInfoView: UIView {
     
     let xInset: CGFloat = .getPercentageWidth(percentage: 5)
     let yInset: CGFloat = .getPercentageWidth(percentage: 4)
     
     private var eventModel = EventModel()
+    private var isModallyPresented: Bool = true
     
     lazy private var cardView: UIView = {
-        
-        let topFadeEdgeView = FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: true)
-        let bottomFadeEdgeView = FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: false)
         
         var cardView = UIView()
         cardView.clipsToBounds = true
@@ -67,14 +65,42 @@ final class CreateEventSecondSectionView: UIView {
         topTagView.anchor(top: cardView.topAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: yInset, left: 0.0, bottom: 0.0, right: 0.0))
         topFadeEdgeView.anchor(height: topTagView.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
         
-        cardView.addSubview(backButton)
-        backButton.anchor(leading: cardView.leadingAnchor, centerY: topTagView.centerYAnchor, padding: UIEdgeInsets(top: 0.0, left: xInset-(yInset*0.5), bottom: 0.0, right: 0.0))
+        if !isModallyPresented {
+            
+            cardView.addSubview(backButton)
+            backButton.anchor(leading: cardView.leadingAnchor, centerY: topTagView.centerYAnchor, padding: UIEdgeInsets(top: 0.0, left: xInset-(yInset*0.5), bottom: 0.0, right: 0.0))
+            
+        }
         
-        cardView.addSubview(createButton)
-        createButton.anchor(bottom: cardView.bottomAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: 0.0, left: 0.0, bottom: yInset, right: 0.0))
-        bottomFadeEdgeView.anchor(height: createButton.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
+        if MapViewController.uid == eventModel.authorId {
+            
+            cardView.addSubview(editButton)
+            editButton.anchor(bottom: cardView.bottomAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: 0.0, left: 0.0, bottom: yInset, right: 0.0))
+            bottomFadeEdgeView.anchor(height: editButton.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
+            
+        } else {
+            
+            cardView.addSubview(rsvpButton)
+            rsvpButton.anchor(bottom: cardView.bottomAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: 0.0, left: 0.0, bottom: yInset, right: 0.0))
+            bottomFadeEdgeView.anchor(height: rsvpButton.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
+            
+        }
         
         return cardView
+        
+    }()
+    
+    lazy private(set) var topFadeEdgeView: FadeEdgeView = {
+        
+        var topFadeEdgeView = FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: true)
+        return topFadeEdgeView
+        
+    }()
+    
+    lazy private(set) var bottomFadeEdgeView: FadeEdgeView = {
+        
+        var bottomFadeEdgeView = FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: false)
+        return bottomFadeEdgeView
         
     }()
     
@@ -220,7 +246,16 @@ final class CreateEventSecondSectionView: UIView {
         var cardScrollView = UIScrollView()
         cardScrollView.alwaysBounceVertical = false
         cardScrollView.showsVerticalScrollIndicator = false
-        cardScrollView.contentInset = UIEdgeInsets(top: visibilityLabel.intrinsicContentSize.height + (yInset*3.0), left: 0.0, bottom: createButton.intrinsicContentSize.height + (yInset*2), right: 0.0)
+        
+        if MapViewController.uid == eventModel.authorId {
+            
+            cardScrollView.contentInset = UIEdgeInsets(top: visibilityLabel.intrinsicContentSize.height + (yInset*3.0), left: 0.0, bottom: editButton.intrinsicContentSize.height + (yInset*2), right: 0.0)
+            
+        } else {
+            
+            cardScrollView.contentInset = UIEdgeInsets(top: visibilityLabel.intrinsicContentSize.height + (yInset*3.0), left: 0.0, bottom: rsvpButton.intrinsicContentSize.height + (yInset*2), right: 0.0)
+            
+        }
         
         cardScrollView.addSubview(containerView)
         containerView.anchor(top: cardScrollView.topAnchor, leading: cardScrollView.leadingAnchor, bottom: cardScrollView.bottomAnchor, trailing: cardScrollView.trailingAnchor, width: cardScrollView.widthAnchor)
@@ -231,20 +266,14 @@ final class CreateEventSecondSectionView: UIView {
     
     lazy private var containerStackView: UIStackView = {
         
-        let editLocationButtonContainerView = UIView()
-        editLocationButtonContainerView.backgroundColor = .clear
-        editLocationButtonContainerView.addSubview(editLocationButton)
-        editLocationButton.anchor(top: editLocationButtonContainerView.topAnchor, bottom: editLocationButtonContainerView.bottomAnchor, centerX: editLocationButtonContainerView.centerXAnchor)
-        
-        var containerStackView = UIStackView(arrangedSubviews: [titleTextView, popsicleBorderView, dateTextView, locationContainerView, editLocationButtonContainerView, detailsTextView, onlineURLTextView, onlineEventHelpTextView])
+        var containerStackView: UIStackView
+        containerStackView = UIStackView(arrangedSubviews: [titleTextView, popsicleBorderView, dateTextView, locationContainerView, detailsTextView, onlineURLTextView])
         containerStackView.axis = .vertical
         containerStackView.alignment = .fill
         containerStackView.distribution = .fill
         containerStackView.spacing = yInset*0.5
-        containerStackView.setCustomSpacing(0.0, after: locationContainerView)
         containerStackView.setCustomSpacing(0.0, after: titleTextView)
         containerStackView.setCustomSpacing(0.0, after: popsicleBorderView)
-        containerStackView.setCustomSpacing(yInset*0.6, after: onlineURLTextView)
         return containerStackView
         
     }()
@@ -267,15 +296,7 @@ final class CreateEventSecondSectionView: UIView {
             
         } else {
             
-            titleTextView.text = "Add Title"
-            
-            let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
-
-            let fullString = NSMutableAttributedString(string: titleTextView.text + " ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline), .foregroundColor: UIColor.white])
-            fullString.append(NSAttributedString(attachment: imageAttachment))
-            
-            titleTextView.attributedText = fullString
+            titleTextView.text = "Title Unavailable"
             
         }
         
@@ -285,7 +306,6 @@ final class CreateEventSecondSectionView: UIView {
         titleTextView.textAlignment = .center
         titleTextView.autocapitalizationType = .none
         titleTextView.autocorrectionType = .no
-        
         return titleTextView
         
     }()
@@ -307,15 +327,7 @@ final class CreateEventSecondSectionView: UIView {
             
         } else {
             
-            dateTextView.text = "Add Date"
-            
-            let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Light", style: .callout).pointSize, weight: .regular)).withTintColor(.white, renderingMode: .alwaysOriginal)
-
-            let fullString = NSMutableAttributedString(string: dateTextView.text + " ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Light", style: .callout), .foregroundColor: UIColor.white])
-            fullString.append(NSAttributedString(attachment: imageAttachment))
-            
-            dateTextView.attributedText = fullString
+            dateTextView.text = "Date Unavailable"
             
         }
         
@@ -354,7 +366,7 @@ final class CreateEventSecondSectionView: UIView {
         locationLabel.backgroundColor = .clear
         locationLabel.numberOfLines = 1
         locationLabel.textColor = .white
-        locationLabel.text = "Location"
+        locationLabel.text = "Address Unavailable"
         
         if let location = eventModel.location {
             
@@ -392,32 +404,6 @@ final class CreateEventSecondSectionView: UIView {
         
     }()
     
-    lazy private(set) var editLocationButton: UIButton = {
-        
-        let innerInset: CGFloat = yInset*0.33
-        
-        var editLocationButton = UIButton(type: .system)
-        
-        if let location = eventModel.location {
-            
-            editLocationButton.setTitle("Edit", for: .normal)
-            
-        } else {
-            
-            editLocationButton.setTitle("Add", for: .normal)
-            
-        }
-        
-        editLocationButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        editLocationButton.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
-        editLocationButton.setTitleColor(.white, for: .normal)
-        editLocationButton.titleLabel?.textAlignment = .center
-        editLocationButton.contentEdgeInsets = UIEdgeInsets(top: innerInset*0.5, left: innerInset*2.5, bottom: innerInset, right: innerInset*2.5)
-        editLocationButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
-        return editLocationButton
-        
-    }()
-    
     lazy private(set) var detailsTextView: UITextView = {
         
         let yInnerInset = yInset*0.5
@@ -434,18 +420,10 @@ final class CreateEventSecondSectionView: UIView {
             
         } else {
             
-            detailsTextView.text = "Add Details"
-            
-            let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Light", style: .headline).pointSize, weight: .regular)).withTintColor(.white, renderingMode: .alwaysOriginal)
-
-            let fullString = NSMutableAttributedString(string: detailsTextView.text + " ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Light", style: .headline), .foregroundColor: UIColor.white])
-            fullString.append(NSAttributedString(attachment: imageAttachment))
-            
-            detailsTextView.attributedText = fullString
+            detailsTextView.isHidden = true
             
         }
-        
+    
         detailsTextView.textContainerInset = UIEdgeInsets(top: yInnerInset, left: xInnerInset, bottom: yInnerInset, right: xInnerInset)
         detailsTextView.isScrollEnabled = false
         detailsTextView.textAlignment = .center
@@ -468,7 +446,7 @@ final class CreateEventSecondSectionView: UIView {
             
         } else {
             
-            onlineURLTextView.text = "Add Online Event Link *"
+            onlineURLTextView.isHidden = true
             
         }
         
@@ -481,48 +459,35 @@ final class CreateEventSecondSectionView: UIView {
         
     }()
     
-    lazy private var onlineEventHelpTextView : UITextView = {
-        
-        var onlineEventHelpTextView = UITextView()
-        onlineEventHelpTextView.backgroundColor = .clear
-        onlineEventHelpTextView.textColor = .white
-        onlineEventHelpTextView.font = .dynamicFont(with: "Octarine-Light", style: .footnote)
-        onlineEventHelpTextView.text = "* Your event can take place online by adding a link. The physical location you enter will only be informative and help people find your event."
-        onlineEventHelpTextView.isScrollEnabled = false
-        onlineEventHelpTextView.isUserInteractionEnabled = false
-        onlineEventHelpTextView.autocapitalizationType = .none
-        onlineEventHelpTextView.autocorrectionType = .no
-        onlineEventHelpTextView.textContainerInset = UIEdgeInsets(top: 0.0, left: xInset*0.1, bottom: 0.0, right: xInset*0.1)
-        return onlineEventHelpTextView
-        
-    }()
-    
-    lazy private(set) var createButton: LoadingButton = {
+    lazy private(set) var rsvpButton: LoadingButton = {
         
         let innerInset: CGFloat = yInset*0.4
         
-        var createButton = LoadingButton(loadingIndicatorColor: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1])
-        createButton.backgroundColor = .white
-        createButton.setTitle("Create", for: .normal)
-        createButton.titleLabel?.textAlignment = .center
-        createButton.setTitleColor((eventModel.category ?? EventCategory.Culture).getGradientColors()[1], for: .normal)
-        createButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        createButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset*2, bottom: innerInset, right: innerInset*2)
-        createButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 14.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
+        var rsvpButton = LoadingButton(loadingIndicatorColor: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1])
+        rsvpButton.backgroundColor = .white
+        rsvpButton.setTitle("RSVP", for: .normal)
+        rsvpButton.titleLabel?.textAlignment = .center
+        rsvpButton.setTitleColor((eventModel.category ?? EventCategory.Culture).getGradientColors()[1], for: .normal)
+        rsvpButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        rsvpButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset*2, bottom: innerInset, right: innerInset*2)
+        rsvpButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 14.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
+        return rsvpButton
         
-        if eventModel.title != nil && eventModel.startDate != nil && eventModel.endDate != nil && eventModel.location != nil {
-            
-            createButton.isUserInteractionEnabled = true
-            createButton.alpha = 1.0
-            
-        } else {
-            
-            createButton.isUserInteractionEnabled = false
-            createButton.alpha = 0.6
-            
-        }
+    }()
+    
+    lazy private(set) var editButton: LoadingButton = {
         
-        return createButton
+        let innerInset: CGFloat = yInset*0.4
+        
+        var editButton = LoadingButton(loadingIndicatorColor: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1])
+        editButton.backgroundColor = .white
+        editButton.setTitle("Edit", for: .normal)
+        editButton.titleLabel?.textAlignment = .center
+        editButton.setTitleColor((eventModel.category ?? EventCategory.Culture).getGradientColors()[1], for: .normal)
+        editButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        editButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset*2, bottom: innerInset, right: innerInset*2)
+        editButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 14.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
+        return editButton
         
     }()
     
@@ -537,11 +502,12 @@ final class CreateEventSecondSectionView: UIView {
         
     }()
     
-    init(eventModel: EventModel) {
+    init(eventModel: EventModel, isModallyPresented: Bool) {
         
         super.init(frame: .zero)
         
         self.eventModel = eventModel
+        self.isModallyPresented = isModallyPresented
         
         configureView()
         
@@ -559,91 +525,159 @@ final class CreateEventSecondSectionView: UIView {
      
         backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
         
-        addSubview(cardView)
-        cardView.anchor(top: safeAreaLayoutGuide.topAnchor, leading: leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: trailingAnchor, padding: UIEdgeInsets(top: yInset, left: xInset, bottom: yInset, right: xInset))
+        if isModallyPresented {
+            
+            addSubview(cardView)
+            cardView.anchor(top: topAnchor, leading: leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: trailingAnchor, padding: UIEdgeInsets(top: xInset, left: xInset, bottom: yInset, right: xInset))
+            
+        } else {
+            
+            addSubview(cardView)
+            cardView.anchor(top: safeAreaLayoutGuide.topAnchor, leading: leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: trailingAnchor, padding: UIEdgeInsets(top: yInset, left: xInset, bottom: yInset, right: xInset))
+            
+        }
         
         locationMapView.anchor(height: heightAnchor, multiples: CGSize(width: 1.0, height: 0.15))
         
     }
     
-}
-
-final class FadeEdgeView: UIView {
-    
-    var color: UIColor = .white {
+    func resetView(with model: EventModel) {
         
-        didSet {
+        eventModel = model
+        
+        backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        
+        cardView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+        
+        topFadeEdgeView.color = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+        
+        bottomFadeEdgeView.color = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+        
+        if MapViewController.uid == eventModel.authorId {
             
-            if top {
-                
-                gradientLayer.colors = [
-                    color.withAlphaComponent(1),
-                    color.withAlphaComponent(0),
-                ].map{$0.cgColor}
-                
-            } else {
-                
-                gradientLayer.colors = [
-                    color.withAlphaComponent(0),
-                    color.withAlphaComponent(1),
-                ].map{$0.cgColor}
-                
-            }
+            rsvpButton.removeFromSuperview()
             
-        }
-        
-    }
-    
-    private var top: Bool = true
-    
-    init(color: UIColor, top: Bool) {
-        
-        super.init(frame: .zero)
-        
-        self.color = color
-        self.top = top
-        
-    }
-    
-    required init?(coder: NSCoder) {
-        
-        super.init(coder: coder)
-        
-    }
-    
-    private lazy var gradientLayer: CAGradientLayer = {
-        
-        let l = CAGradientLayer()
-        
-        if top {
-            
-            l.startPoint = CGPoint(x: 0.5, y: 0.6)
-            l.endPoint = CGPoint(x: 0.5, y: 1)
-            l.colors = [
-                color.withAlphaComponent(1),
-                color.withAlphaComponent(0),
-            ].map{$0.cgColor}
+            cardView.addSubview(editButton)
+            editButton.anchor(bottom: cardView.bottomAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: 0.0, left: 0.0, bottom: yInset, right: 0.0))
+            bottomFadeEdgeView.anchor(height: editButton.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
             
         } else {
             
-            l.startPoint = CGPoint(x: 0.5, y: 0.0)
-            l.endPoint = CGPoint(x: 0.5, y: 0.4)
-            l.colors = [
-                color.withAlphaComponent(0),
-                color.withAlphaComponent(1),
-            ].map{$0.cgColor}
+            editButton.removeFromSuperview()
+            
+            cardView.addSubview(rsvpButton)
+            rsvpButton.anchor(bottom: cardView.bottomAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: 0.0, left: 0.0, bottom: yInset, right: 0.0))
+            bottomFadeEdgeView.anchor(height: rsvpButton.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
             
         }
         
-        layer.addSublayer(l)
-        return l
+        topTagView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
         
-    }()
-    
-    override func layoutSubviews() {
+        if eventModel.isPublic {
+            
+            visibilityIconImageView.image = UIImage(systemSymbol: .globe).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
+            visibilityLabel.text = "Public"
+            
+        } else {
+            
+            visibilityIconImageView.image = UIImage(systemSymbol: .lockFill).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
+            visibilityLabel.text = "Private"
+            
+        }
         
-        super.layoutSubviews()
-        gradientLayer.frame = bounds
+        if eventModel.onlineURL == nil {
+            
+            formatIconImageView.image = UIImage(systemSymbol: .person3Fill).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
+            formatLabel.text = "Live"
+            
+        } else {
+            
+            formatIconImageView.image = UIImage(systemSymbol: .personCropRectangle).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
+            formatLabel.text = "Online"
+            
+        }
+        
+        if MapViewController.uid == eventModel.authorId {
+            
+            cardScrollView.contentInset = UIEdgeInsets(top: visibilityLabel.intrinsicContentSize.height + (yInset*3.0), left: 0.0, bottom: editButton.intrinsicContentSize.height + (yInset*2), right: 0.0)
+            
+        } else {
+            
+            cardScrollView.contentInset = UIEdgeInsets(top: visibilityLabel.intrinsicContentSize.height + (yInset*3.0), left: 0.0, bottom: rsvpButton.intrinsicContentSize.height + (yInset*2), right: 0.0)
+            
+        }
+        
+        popsicleBorderView.borderColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        
+        if let title = eventModel.title {
+            
+            titleTextView.text = title
+            
+        } else {
+            
+            titleTextView.text = "Title Unavailable"
+            
+        }
+        
+        if let startDate = eventModel.startDate, let endDate = eventModel.endDate, let formattedDate = Date.getFormattedDateInterval(start: startDate, end: endDate) {
+            
+            dateTextView.text = formattedDate
+            
+        } else {
+            
+            dateTextView.text = "Date Unavailable"
+            
+        }
+        
+        locationContainerView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        
+        if let location = eventModel.location {
+            
+            location.lookUpLocationAddress { [weak self] (address) in
+                
+                guard let self = self else { return }
+                
+                if let address = address {
+                    
+                    self.locationLabel.text = address
+                    
+                } else {
+                    
+                    self.locationLabel.text = "Address Unavailable"
+                    
+                }
+                
+            }
+            
+        } else {
+            
+            locationLabel.text = "Address Unavailable"
+            
+        }
+        
+        if let details = eventModel.details {
+            
+            detailsTextView.text = details
+            detailsTextView.isHidden = false
+            
+        } else {
+            
+            detailsTextView.text = ""
+            detailsTextView.isHidden = true
+            
+        }
+        
+        if let onlineURL = eventModel.onlineURL {
+            
+            onlineURLTextView.text = "Online Event Link: \n" + onlineURL.absoluteString
+            onlineURLTextView.isHidden = false
+            
+        } else {
+            
+            onlineURLTextView.text = ""
+            onlineURLTextView.isHidden = true
+            
+        }
         
     }
     
