@@ -11,15 +11,15 @@ import CoreLocation
 
 struct ActivityModel {
     
-    var id: String?
-    var inducedById: String?
+    var inducedBy: String?
     var details: String?
+    var dateInduced: String?
     
-    init(id: String? = nil, inducedBy: String? = nil, details: String? = nil) {
+    init(inducedBy: String? = nil, details: String? = nil, dateInduced: String? = nil) {
         
-        self.id = id
-        self.inducedById = inducedBy
+        self.inducedBy = inducedBy
         self.details = details
+        self.dateInduced = dateInduced
         
     }
     

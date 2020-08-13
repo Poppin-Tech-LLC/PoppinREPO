@@ -895,18 +895,30 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                 }
             }
 
-            
             // create activity for following someone
-            Firestore.firestore().collection("users").document(userData.uid).collection("activities").addDocument(data: [
-                "inducedBy" : "\(userId)",
-                "details" : " started following you."])
-            { err in
-                if let err = err {
-                    print("Error adding document: \(err)")
+            Firestore.firestore().collection("users").document(userId).getDocument { (document, error) in
+                
+                if let document = document, document.exists {
+
+                    let username = (document.data()!["username"] as? String)!
+                    
+                    Firestore.firestore().collection("users").document(self.userData.uid).collection("activities").addDocument(data: [
+                        "inducedBy" : username,
+                        "details" : " started following you.",
+                        "dateInduced" : Date().toString()])
+                    { err in
+                        if let err = err {
+                            print("Error adding document: \(err)")
+                        } else {
+                            print("Document added.")
+                        }
+                    }
+                    
                 } else {
-                    print("Document added.")
+                        print("Document does not exist")
                 }
             }
+            
             
         }
         

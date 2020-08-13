@@ -157,7 +157,7 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
                     print("Error getting documents: \(err)")
                 } else {
                     for document in querySnapshot!.documents {
-                        self.activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String))
+                        self.activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
                         self.avFeed.reloadData()
                     }
                 }
@@ -173,19 +173,78 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "avCell", for: indexPath) as! ActivityCell
         let ac = activities[indexPath.row]
         
-        let username = ac.inducedById!
+        let username = ac.inducedBy!
         let attributedString = NSMutableAttributedString(string: username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
         
         attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
         
         cell.activityDetails.attributedText = attributedString
-        cell.activityDate.text = "2w"
+        cell.activityDate.text = agoTime(date: ac.dateInduced!)
 
         return cell
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return .getPercentageHeight(percentage: 7)
+    }
+    
+    func agoTime(date: String) -> String {
+    
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy'-'MM'-'dd' 'HH':'mm'"
+        let fromDate = dateFormatter.date(from: date)
+        //let fromDate = Date()
+        let toDate = Date()
+    
+        // Year
+        if let interval = Calendar.current.dateComponents([.year], from: fromDate!, to: toDate).year, interval > 0  {
+    
+            if(interval >= 1) {
+                return "\(interval)" + "y"
+            }
+        }
+    
+        // Month
+        if let interval = Calendar.current.dateComponents([.month], from: fromDate!, to: toDate).month, interval > 0  {
+
+            if(interval >= 1) {
+                return "\(interval)" + "mo"
+            }
+        }
+    
+        // Day
+        if let interval = Calendar.current.dateComponents([.day], from: fromDate!, to: toDate).day, interval > 0  {
+    
+            if(interval >= 1) {
+                return "\(interval)" + "d"
+            }
+        }
+    
+        // Hours
+        if let interval = Calendar.current.dateComponents([.hour], from: fromDate!, to: toDate).hour, interval > 0 {
+    
+            if(interval >= 1) {
+                return "\(interval)" + "h"
+            }
+        }
+    
+        // Minute
+        if let interval = Calendar.current.dateComponents([.minute], from: fromDate!, to: toDate).minute, interval > 0 {
+    
+            if(interval >= 1) {
+                return "\(interval)" + "m"
+            }
+        }
+    
+        // Seconds
+        if let interval = Calendar.current.dateComponents([.second], from: fromDate!, to: toDate).minute, interval > 0 {
+    
+            if(interval >= 1) {
+                return "\(interval)" + "s"
+            }
+        }
+    
+        return ""
     }
     
 }
