@@ -905,7 +905,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                     Firestore.firestore().collection("users").document(self.userData.uid).collection("activities").addDocument(data: [
                         "inducedBy" : username,
                         "details" : " started following you.",
-                        "dateInduced" : Date().toString()])
+                        "dateInduced" : Date().toString(.custom("yyyy'-'MM'-'dd' 'HH':'mm'"))])
                     { err in
                         if let err = err {
                             print("Error adding document: \(err)")

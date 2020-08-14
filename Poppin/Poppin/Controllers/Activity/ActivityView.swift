@@ -174,12 +174,15 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
         let ac = activities[indexPath.row]
         
         let username = ac.inducedBy!
-        let attributedString = NSMutableAttributedString(string: username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
+        let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
         
         attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
         
         cell.activityDetails.attributedText = attributedString
         cell.activityDate.text = agoTime(date: ac.dateInduced!)
+        
+        cell.activityPic.setImage(.defaultUserPicture128, for: .normal)
+        cell.activityPic.contentEdgeInsets = UIEdgeInsets()
 
         return cell
     }
@@ -190,12 +193,9 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     func agoTime(date: String) -> String {
     
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy'-'MM'-'dd' 'HH':'mm'"
-        let fromDate = dateFormatter.date(from: date)
-        //let fromDate = Date()
+        let fromDate = Date(date)
         let toDate = Date()
-    
+        
         // Year
         if let interval = Calendar.current.dateComponents([.year], from: fromDate!, to: toDate).year, interval > 0  {
     
@@ -244,7 +244,7 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
             }
         }
     
-        return ""
+        return "n/a"
     }
     
 }
@@ -280,7 +280,7 @@ class ActivityCell : UITableViewCell {
         l.textAlignment = .left
         
         l.translatesAutoresizingMaskIntoConstraints = false
-        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 48)).isActive = true
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 50)).isActive = true
         
         return l
         
@@ -313,8 +313,8 @@ class ActivityCell : UITableViewCell {
         s.addArrangedSubview(activityDetails)
         s.addArrangedSubview(activityDate)
         
-        s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: activityPic)
-        s.setCustomSpacing(.getPercentageWidth(percentage: 2), after: activityDetails)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 1.5), after: activityPic)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: activityDetails)
         
         return s
         
