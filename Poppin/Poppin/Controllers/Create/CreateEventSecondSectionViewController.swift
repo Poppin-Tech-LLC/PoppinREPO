@@ -10,6 +10,9 @@ import UIKit
 import SwiftUI
 import MapKit
 import CoreLocation
+import Firebase
+import GeoFire
+import Geofirestore
 
 struct PreviewCreateEventSecondSectionViewController: UIViewControllerRepresentable {
     
@@ -255,33 +258,64 @@ final class CreateEventSecondSectionViewController: UIViewController {
     
     @objc private func create(sender: LoadingButton) {
         
-        /*let geoFirestore = GeoFirestore(collectionRef: db.collection("geolocs"))
+        sender.startLoading()
+        
+        let db = Firestore.firestore()
+        
+        let geoFirestore = GeoFirestore(collectionRef: db.collection("geolocs"))
         
         var ref2: DocumentReference? = nil
+        
+        let eventData = eventController.rawValue()
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = .current
+        dateFormatter.timeZone = .current
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        
         ref2 = db.collection("currentPopsicles").addDocument(data: [
-            "longitude": location?.longitude as Any,
-            "latitude": location?.latitude as Any,
-            "eventName": eventNameTextView.text!,
-            "eventDetails": detailsButton.text!,
-            "startDate": startDateFormatted!,
-            "endDate": endDateFormatted!,
-            "hashtags": eventHashtagsView.text!,
-            "createdBy": uid ,
-            "category": category!
+            "longitude": eventData.location!.longitude as Any,
+            "latitude": eventData.location!.latitude as Any,
+            "eventName": eventData.title as Any,
+            "eventDetails": eventData.details as Any,
+            "startDate": dateFormatter.string(from: eventData.startDate!),
+            "endDate": dateFormatter.string(from: eventData.endDate!),
+            "hashtags": "",
+            "createdBy": MapViewController.uid,
+            "category": eventData.category?.rawValue as Any
         ]) { err in
+            
             if let err = err {
+                
+                sender.stopLoading()
                 print("Error adding document: \(err)")
+                
             } else {
+                
                 print("Document added with ID: \(ref2!.documentID)")
-                geoFirestore.setLocation(location: CLLocation(latitude: self.location!.latitude, longitude: self.location!.longitude), forDocumentWithID: ref2!.documentID) { (error) in
+                geoFirestore.setLocation(location: CLLocation(latitude: eventData.location!.latitude, longitude: eventData.location!.longitude), forDocumentWithID: ref2!.documentID) { [weak self] (error) in
+                    
+                    guard let self = self else { return }
+                    
                     if let error = error {
+                        
+                        sender.stopLoading()
                         print("An error occured: \(error)")
+                        
                     } else {
+                        
+                        sender.stopLoading()
                         print("Saved location successfully!")
+                        
+                        self.navigationController?.dismiss(animated: true, completion: nil)
+                        
                     }
+                    
                 }
+                
             }
-        }*/
+            
+        }
         
     }
     

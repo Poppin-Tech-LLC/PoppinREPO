@@ -60,6 +60,9 @@
 		64941ECA24A39F6E00824E9B /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941EC924A39F6E00824E9B /* MapViewController.swift */; };
 		64941ECD24A3A71300824E9B /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECC24A3A71300824E9B /* SearchViewController.swift */; };
 		64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64941ECF24A3AB9600824E9B /* ProfileViewController.swift */; };
+		64A93D6924E02673003AFD51 /* Identity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6824E02673003AFD51 /* Identity.swift */; };
+		64A93D6B24E02709003AFD51 /* CoreDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6A24E02709003AFD51 /* CoreDataController.swift */; };
+		64A93D6D24E02767003AFD51 /* OrgModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A93D6C24E02767003AFD51 /* OrgModel.swift */; };
 		64B7248424AF5C5600BB48C5 /* PagingCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B7248324AF5C5600BB48C5 /* PagingCollectionView.swift */; };
 		64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B7248624AF623800BB48C5 /* SelfSizedTableView.swift */; };
 		64BF883A24AB2DB10008659D /* BubbleImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BF883924AB2DB10008659D /* BubbleImageView.swift */; };
@@ -69,6 +72,9 @@
 		64E8260924DAD1140097CB6C /* UniversityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260824DAD1140097CB6C /* UniversityController.swift */; };
 		64E8260B24DADE860097CB6C /* UserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64E8260A24DADE860097CB6C /* UserController.swift */; };
 		DE8998F2BE13A8C399262D1A /* Pods_Poppin.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 966A1265C6DDF3C1E017B0FC /* Pods_Poppin.framework */; };
+		8B5C912DB50972AEF402CE84 /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AB2D14B854602B4B73EE724 /* Pods_PoppinTests.framework */; };
+		9077592978492C726F78F0C1 /* Pods_PoppinTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEB06A8A7A9E2033778A1FD0 /* Pods_PoppinTests.framework */; };
+		D171471443DEECA9ADF08CE3 /* Pods_PoppinUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */; };
 		F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3624B48B4000FA1AB0 /* dataModel.xcdatamodeld */; };
 		F5FC3F3A24B5E26400FA1AB0 /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5FC3F3924B5E26400FA1AB0 /* DataController.swift */; };
 		F5FC3F3C24B737DD00FA1AB0 /* UniversitiesJSON.json in Resources */ = {isa = PBXBuildFile; fileRef = F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */; };
@@ -174,6 +180,9 @@
 		64941EC924A39F6E00824E9B /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		64941ECC24A3A71300824E9B /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64941ECF24A3AB9600824E9B /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		64A93D6824E02673003AFD51 /* Identity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identity.swift; sourceTree = "<group>"; };
+		64A93D6A24E02709003AFD51 /* CoreDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataController.swift; sourceTree = "<group>"; };
+		64A93D6C24E02767003AFD51 /* OrgModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrgModel.swift; sourceTree = "<group>"; };
 		64B7248324AF5C5600BB48C5 /* PagingCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagingCollectionView.swift; sourceTree = "<group>"; };
 		64B7248624AF623800BB48C5 /* SelfSizedTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizedTableView.swift; sourceTree = "<group>"; };
 		64BF883924AB2DB10008659D /* BubbleImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BubbleImageView.swift; sourceTree = "<group>"; };
@@ -188,6 +197,15 @@
 		B233908D8F3863481917313B /* Pods_PoppinUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF2A1F0DA0FBF1664786F818 /* Pods_PoppinTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFEA234565DEDCD3C4C2AD79 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C6FBFA9CF4FD54C692B54622 /* Pods_Poppin.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Poppin.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CFB47319F0DF40311FB97B62 /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
+		D0C5AC22010E577814D99A02 /* Pods-Poppin.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin.release.xcconfig"; path = "Target Support Files/Pods-Poppin/Pods-Poppin.release.xcconfig"; sourceTree = "<group>"; };
+		D1A6D5F906CF95988B44C235 /* Pods-Poppin-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-Poppin-PoppinUITests/Pods-Poppin-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
+		EAFEED3C8E4D2378CB02A31C /* Pods-Poppin-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Poppin-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-Poppin-PoppinUITests/Pods-Poppin-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		A014052323697933541F2FB7 /* Pods-PoppinUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.debug.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		A9D54E98C6BEA3F00C1AAC1B /* Pods_PoppinUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PoppinUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B180A4462E77FBC337504A30 /* Pods-PoppinTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinTests.release.xcconfig"; path = "Target Support Files/Pods-PoppinTests/Pods-PoppinTests.release.xcconfig"; sourceTree = "<group>"; };
+		C74E98F7B823425DE252811D /* Pods-PoppinUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PoppinUITests.release.xcconfig"; path = "Target Support Files/Pods-PoppinUITests/Pods-PoppinUITests.release.xcconfig"; sourceTree = "<group>"; };
 		F5FC3F3724B48B4000FA1AB0 /* dataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = dataModel.xcdatamodel; sourceTree = "<group>"; };
 		F5FC3F3924B5E26400FA1AB0 /* DataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
 		F5FC3F3B24B737DD00FA1AB0 /* UniversitiesJSON.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = UniversitiesJSON.json; sourceTree = "<group>"; };
@@ -323,8 +341,8 @@
 				F5FC3F3D24B74CD700FA1AB0 /* SignUpSelectUniversityViewController.swift */,
 				64D29E5D24DA3B6D00D67CE5 /* UserModel.swift */,
 				64E8260624DAD04B0097CB6C /* UniversityModel.swift */,
-				64E8260824DAD1140097CB6C /* UniversityController.swift */,
-				64E8260A24DADE860097CB6C /* UserController.swift */,
+				64A93D6824E02673003AFD51 /* Identity.swift */,
+				64A93D6C24E02767003AFD51 /* OrgModel.swift */,
 			);
 			path = Login;
 			sourceTree = "<group>";
@@ -383,6 +401,7 @@
 				6417BCA524A25684006AE467 /* Extensions.swift */,
 				6417BCBB24A2650A006AE467 /* Popsicles.swift */,
 				F5FC3F3924B5E26400FA1AB0 /* DataController.swift */,
+				64A93D6A24E02709003AFD51 /* CoreDataController.swift */,
 			);
 			path = Miscellaneous;
 			sourceTree = "<group>";
@@ -662,7 +681,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1130;
-				LastUpgradeCheck = 1130;
+				LastUpgradeCheck = 1150;
 				ORGANIZATIONNAME = "Poppin Tech LLC";
 				TargetAttributes = {
 					6403142424A1F136006A55EB = {
@@ -833,7 +852,6 @@
 				6417BCBC24A2650A006AE467 /* Popsicles.swift in Sources */,
 				6417BCAF24A25FFE006AE467 /* UserLocationAnnotationView.swift in Sources */,
 				F6498EBB24B24892002F8A1B /* Hashtag.swift in Sources */,
-				64E8260924DAD1140097CB6C /* UniversityController.swift in Sources */,
 				64841A1124D238840071A0E9 /* CreateEventSecondSectionView.swift in Sources */,
 				F5FC3F3824B48B4000FA1AB0 /* dataModel.xcdatamodeld in Sources */,
 				6417BCB824A26339006AE467 /* DarkOverlayView.swift in Sources */,
@@ -850,12 +868,14 @@
 				F6498EBA24B24892002F8A1B /* AlignedCollectionViewFlowLayout.swift in Sources */,
 				6417BCB624A261CA006AE467 /* FiltersView.swift in Sources */,
 				6417BCC124A2677C006AE467 /* SearchBar.swift in Sources */,
+				64A93D6B24E02709003AFD51 /* CoreDataController.swift in Sources */,
 				F6498EC024B24892002F8A1B /* RemovableHashtagCollectionViewCell.swift in Sources */,
 				647DC4F124CE09A400082C5E /* CreateEventFirstSectionView.swift in Sources */,
 				6403142924A1F136006A55EB /* AppDelegate.swift in Sources */,
 				6409061C24A37BD600AD4FF6 /* SignUpFirstPageViewController.swift in Sources */,
 				F5FC3F5124D976B400FA1AB0 /* ProfileActionsViewController.swift in Sources */,
 				6409061624A37A2F00AD4FF6 /* StartViewController.swift in Sources */,
+				64A93D6924E02673003AFD51 /* Identity.swift in Sources */,
 				641E91E324D84AE7008D3B83 /* DetailsInputViewController.swift in Sources */,
 				F60DDAD224D8CB330097FFA2 /* rsvpViewController.swift in Sources */,
 				64689DAF24BDB1D700FDA83F /* PopsicleBorderView.swift in Sources */,
@@ -869,6 +889,7 @@
 				6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */,
 				645BE46724CF2D07001A3232 /* EventModel.swift in Sources */,
 				64E8260724DAD04B0097CB6C /* UniversityModel.swift in Sources */,
+				64A93D6D24E02767003AFD51 /* OrgModel.swift in Sources */,
 				64B7248724AF623800BB48C5 /* SelfSizedTableView.swift in Sources */,
 				F5FC3F4924CEF9DE00FA1AB0 /* SettingsViewController.swift in Sources */,
 				6403142B24A1F136006A55EB /* SceneDelegate.swift in Sources */,
@@ -876,7 +897,6 @@
 				F5FC3F5324D9A31100FA1AB0 /* ReportUserViewController.swift in Sources */,
 				64CF0C8724A48A580077C1D7 /* MenuViewController.swift in Sources */,
 				F6498EC624B24919002F8A1B /* ActivityViewController.swift in Sources */,
-				64E8260B24DADE860097CB6C /* UserController.swift in Sources */,
 				F5FC3F4F24D83AC400FA1AB0 /* DeactivateAccountViewController.swift in Sources */,
 				6409062024A37D7F00AD4FF6 /* SignUpThirdPageViewController.swift in Sources */,
 				64941ED024A3AB9600824E9B /* ProfileViewController.swift in Sources */,
