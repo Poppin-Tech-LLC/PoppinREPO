@@ -85,7 +85,7 @@ final class StartViewController: UIViewController {
     // Transition to the Sign Up Page.
     @objc private func showSignUp() {
         
-        navigationController?.pushViewController(SignUpFirstPageViewController(), animated: true)
+        navigationController?.pushViewController(SignUpFirstSectionViewController(), animated: true)
         
     }
     

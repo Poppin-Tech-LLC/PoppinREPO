@@ -54,13 +54,13 @@ final class LoginViewController: UIViewController {
     // Pushes a new sign up page or pops to a previous one if found.
     @objc private func transitionToSignUp() {
         
-        if let firstAfterRootVC = navigationController?.viewControllers[1] as? SignUpFirstPageViewController {
+        if let firstAfterRootVC = navigationController?.viewControllers[1] as? SignUpFirstSectionViewController {
             
             navigationController?.popToViewController(firstAfterRootVC, animated: true)
             
         } else {
             
-            navigationController?.pushViewController(SignUpFirstPageViewController(), animated: true)
+            navigationController?.pushViewController(SignUpFirstSectionViewController(), animated: true)
             
         }
         

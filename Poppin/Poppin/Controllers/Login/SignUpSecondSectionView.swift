@@ -1,5 +1,5 @@
 //
-//  SignUpSecondPageView.swift
+//  SignUpSecondSectionView.swift
 //  Poppin
 //
 //  Created by Manuel Alejandro Martin Callejo on 8/21/20.
@@ -9,7 +9,7 @@
 import UIKit
 import SwiftUI
 
-/// Full Name, and Date of Birth Input Page UI.
+/// Full Name, and Date of Birth Input Section UI.
 final class SignUpSecondSectionView: UIView {
     
     // Hides keyboard or picker on tap.

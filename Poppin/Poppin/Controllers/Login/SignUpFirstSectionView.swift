@@ -1,5 +1,5 @@
 //
-//  SignUpFirstPageView.swift
+//  SignUpFirstSectionView.swift
 //  Poppin
 //
 //  Created by Manuel Alejandro Martin Callejo on 8/20/20.
@@ -9,7 +9,7 @@
 import UIKit
 import SwiftUI
 
-/// University Selection Page UI.
+/// University Selection Section UI.
 final class SignUpFirstSectionView: UIView {
     
     // Hides picker on tap.

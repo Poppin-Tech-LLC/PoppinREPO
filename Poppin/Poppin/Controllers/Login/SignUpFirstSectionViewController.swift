@@ -1,5 +1,5 @@
 //
-//  SignUpFirstPageViewController.swift
+//  SignUpFirstSectionViewController.swift
 //  Poppin
 //
 //  Created by Manuel Alejandro Martin Callejo on 6/16/20.
@@ -8,8 +8,8 @@
 
 import UIKit
 
-/// First Page of Sign Up (University Selection) UI Controller.
-final class SignUpFirstPageViewController: UIViewController {
+/// First Section of Sign Up (University Selection) UI Controller.
+final class SignUpFirstSectionViewController: UIViewController {
     
     // Firebase Auth wrapper.
     lazy private var authController = AuthController()
@@ -46,7 +46,7 @@ final class SignUpFirstPageViewController: UIViewController {
                     self.universities = universities
                     
                     // Safe casting root view to custom view.
-                    guard let view = self.view as? SignUpFirstPageView else { return }
+                    guard let view = self.view as? SignUpFirstSectionView else { return }
                     
                     view.universityPickerView.reloadComponent(0)
                     
@@ -70,7 +70,7 @@ final class SignUpFirstPageViewController: UIViewController {
     /// Overrides superclass method to initialize the root view with a custom UI.
     override func loadView() {
         
-        self.view = SignUpFirstPageView()
+        self.view = SignUpFirstSectionView()
         
     }
     
@@ -80,7 +80,7 @@ final class SignUpFirstPageViewController: UIViewController {
         super.viewDidLoad()
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpFirstPageView else { return }
+        guard let view = view as? SignUpFirstSectionView else { return }
         
         // 2. Setting targets and delegation.
         view.universityPickerView.delegate = self
@@ -96,7 +96,7 @@ final class SignUpFirstPageViewController: UIViewController {
         super.viewWillAppear(animated)
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpFirstPageView else { return }
+        guard let view = view as? SignUpFirstSectionView else { return }
         
         // 2. Resets previously entered credentials if any.
         view.inputFieldsDidChange()
@@ -109,7 +109,7 @@ final class SignUpFirstPageViewController: UIViewController {
         super.viewDidAppear(animated)
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpFirstPageView else { return }
+        guard let view = view as? SignUpFirstSectionView else { return }
         
         // 2. Show the university picker.
         view.universityTextField.becomeFirstResponder()
@@ -120,14 +120,14 @@ final class SignUpFirstPageViewController: UIViewController {
     @objc private func transitionToNextPage() {
         
         // 1. Safe cast root view to custom view.
-        guard let view = view as? SignUpFirstPageView else { return }
+        guard let view = view as? SignUpFirstSectionView else { return }
         
         // 2. Empty input safe check. If fails, show error.
         if !universities.isEmpty, view.universityPickerView.selectedRow(inComponent: 0) != 0 {
             
             // 3. Transition to next page passing the selected university.
             let university = universities[view.universityPickerView.selectedRow(inComponent: 0)-1]
-            navigationController?.pushViewController(SignUpSecondPageViewController(university: university), animated: true)
+            navigationController?.pushViewController(SignUpSecondSectionViewController(university: university), animated: true)
             
         } else {
             
@@ -156,7 +156,7 @@ final class SignUpFirstPageViewController: UIViewController {
     
 }
 
-extension SignUpFirstPageViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+extension SignUpFirstSectionViewController: UIPickerViewDelegate, UIPickerViewDataSource {
 
     /// Delegate function that returns the number of components for the specified picker. Defaults to 1 component (list of universities).
     func numberOfComponents(in pickerView: UIPickerView) -> Int { return 1 }
@@ -181,7 +181,7 @@ extension SignUpFirstPageViewController: UIPickerViewDelegate, UIPickerViewDataS
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         
         // Safe casting root view to custom view.
-        guard let view = view as? SignUpFirstPageView else { return }
+        guard let view = view as? SignUpFirstSectionView else { return }
         
         if row == 0 {
             
