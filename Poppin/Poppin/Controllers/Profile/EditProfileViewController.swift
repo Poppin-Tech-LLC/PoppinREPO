@@ -393,42 +393,46 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
         let ref = Firestore.firestore().collection("users")
         ref.document(userData.uid).getDocument{ (document, error) in
             let uid = Auth.auth().currentUser?.uid
-        if let document = document, document.exists {
-            let data = document.data()
-             let admins = data?["admins"] as? [String: Any] ?? [:]
-             let userIDs: [String] = Array(admins.keys)
-             
-            if(userIDs.count < 2){
-                let button1 = AlertButton(alertTitle: "yes", alertButtonAction: {
-                                        ref.document(self.userData.uid).delete()
-                                        ref.document(uid!).updateData(["orgs.\(self.userData.uid)" : FieldValue.delete()
-                                        ])
-                    
-                    self.deleteFollowers(uid: self.userData.uid)
-                    self.deleteFollowing(uid: self.userData.uid)
-                    NotificationCenter.default.post(name: .deletedOrg, object: nil)
-                    self.dismiss(animated: true, completion: nil)
-                })
-                let button2 = AlertButton(alertTitle: "no", alertButtonAction: nil)
-                let alertVC = AlertViewController(alertTitle: "Are you sure?", alertMessage: "This will delete the org @\(self.userData.username), all data will be lost", alertButtons: [button1, button2])
+            if let document = document, document.exists {
+                let data = document.data()
+                let admins = data?["admins"] as? [String: Any] ?? [:]
+                let userIDs: [String] = Array(admins.keys)
                 
-                self.present(alertVC, animated: true, completion: nil)
-            }else{
-                let button1 = AlertButton(alertTitle: "yes", alertButtonAction: {ref.document(self.userData.uid).updateData(["admins.\(uid!)" : FieldValue.delete()
-                ])
-                    ref.document(uid!).updateData(["orgs.\(self.userData.uid)" : FieldValue.delete()
+                if(userIDs.count < 2){
+                    let alertVC = AlertViewController(alertTitle: "Are you sure?", alertMessage: "This will delete the org @\(self.userData.username), all data will be lost", leftActionTitle: "Yes", leftAction: { [weak self] in
+                        
+                        guard let self = self else { return }
+                        
+                        ref.document(self.userData.uid).delete()
+                        ref.document(uid!).updateData(["orgs.\(self.userData.uid)" : FieldValue.delete()
+                        ])
+                        
+                        self.deleteFollowers(uid: self.userData.uid)
+                        self.deleteFollowing(uid: self.userData.uid)
+                        NotificationCenter.default.post(name: .deletedOrg, object: nil)
+                        self.dismiss(animated: true, completion: nil)
+                        }, rightActionTitle: "No")
+                    
+                    self.present(alertVC, animated: true, completion: nil)
+                }else{
+                    let alertVC = AlertViewController(alertTitle: "Are you sure?", alertMessage: "This will remove admin priveliges for the org @\(self.userData.username) from your account", leftActionTitle: "Yes", leftAction: { [weak self] in
+                    
+                    guard let self = self else { return }
+                    
+                    ref.document(self.userData.uid).updateData(["admins.\(uid!)" : FieldValue.delete()
                     ])
-                    NotificationCenter.default.post(name: .deletedOrg, object: nil)
-                    self.dismiss(animated: true, completion: nil)
-                })
-                               let button2 = AlertButton(alertTitle: "no", alertButtonAction: nil)
-                               let alertVC = AlertViewController(alertTitle: "Are you sure?", alertMessage: "This will remove admin priveliges for the org @\(self.userData.username) from your account", alertButtons: [button1, button2])
-                               
-                               self.present(alertVC, animated: true, completion: nil)
-            }
+                        ref.document(uid!).updateData(["orgs.\(self.userData.uid)" : FieldValue.delete()
+                        ])
+                        NotificationCenter.default.post(name: .deletedOrg, object: nil)
+                        self.dismiss(animated: true, completion: nil)
+                        
+                    }, rightActionTitle: "No")
+                    
+                    self.present(alertVC, animated: true, completion: nil)
+                }
             }
         }
-
+        
         
     }
     
@@ -509,18 +513,18 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
                     valid += 2
                 }
                 switch valid{
-                case 1: let button1 = AlertButton(alertTitle: "ok", alertButtonAction: nil)
-                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Full  name missing", alertButtons: [button1])
+                case 1:
+                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Full  name missing")
                 
                 self.present(alertVC, animated: true, completion: nil)
                     
-                case 2: let button1 = AlertButton(alertTitle: "ok", alertButtonAction: nil)
-                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Username must be 3-15 characters (alphanumeric or underscore)", alertButtons: [button1])
+                case 2:
+                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Username must be 3-15 characters (alphanumeric or underscore)")
                 
                 self.present(alertVC, animated: true, completion: nil)
                     
-                case 3: let button1 = AlertButton(alertTitle: "ok", alertButtonAction: nil)
-                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Org name is missing and username must be 3-15 characters (alphanumeric or underscore)", alertButtons: [button1])
+                case 3:
+                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Org name is missing and username must be 3-15 characters (alphanumeric or underscore)")
                 
                 self.present(alertVC, animated: true, completion: nil)
                     
@@ -533,8 +537,7 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
                 NotificationCenter.default.post(name: .editedProfile, object: nil)
                 
                 default:
-                    let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                    let alertVC = AlertViewController(alertTitle: "error", alertMessage: "An error occured", alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: "error", alertMessage: "An error occured")
                     
                     self.present(alertVC, animated: true, completion: nil)
                 }
@@ -559,18 +562,18 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
                 }
                 
                 switch valid{
-                case 1: let button1 = AlertButton(alertTitle: "ok", alertButtonAction: nil)
-                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Org name missing", alertButtons: [button1])
+                case 1:
+                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Org name missing")
                 
                 self.present(alertVC, animated: true, completion: nil)
                     
-                case 2: let button1 = AlertButton(alertTitle: "of", alertButtonAction: nil)
-                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Username must be 3-15 characters (alphanumeric or underscore)", alertButtons: [button1])
+                case 2:
+                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Username must be 3-15 characters (alphanumeric or underscore)")
                 
                 self.present(alertVC, animated: true, completion: nil)
                     
-                case 3: let button1 = AlertButton(alertTitle: "ok", alertButtonAction: nil)
-                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Org name is missing and username must be 3-15 characters (alphanumeric or underscore)", alertButtons: [button1])
+                case 3:
+                let alertVC = AlertViewController(alertTitle: "error", alertMessage: "Org name is missing and username must be 3-15 characters (alphanumeric or underscore)")
                 
                 self.present(alertVC, animated: true, completion: nil)
                     
@@ -606,8 +609,7 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
                     NotificationCenter.default.post(name: .editedProfile, object: nil)
                     
                 default:
-                    let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                    let alertVC = AlertViewController(alertTitle: "error", alertMessage: "An error occured", alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: "error", alertMessage: "An error occured")
                     
                     self.present(alertVC, animated: true, completion: nil)
                 }
@@ -626,28 +628,22 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
                     self.dismiss(animated: true, completion: nil)
                     
                 }else{
-                    let button1 = AlertButton(alertTitle: "Yes", alertButtonAction: { [weak self] in
+                    
+                    let alertVC = AlertViewController(alertTitle: "Discard changes", alertMessage: "Are you sure you wish to discard changes?", leftActionTitle: "Yes", leftAction: { [weak self] in
                         
                         guard let self = self else { return }
                         self.dismiss(animated: true, completion: nil)
-                    })
-                    
-                    let button2 = AlertButton(alertTitle: "No", alertButtonAction: nil)
-                    
-                    let alertVC = AlertViewController(alertTitle: "Discard changes", alertMessage: "Are you sure you wish to discard changes?", alertButtons: [button1, button2])
+                    }, rightActionTitle: "No")
                     
                     self.present(alertVC, animated: true, completion: nil)
                 }
             }else{
-                let button1 = AlertButton(alertTitle: "Yes", alertButtonAction: { [weak self] in
-                    
-                    guard let self = self else { return }
-                    self.dismiss(animated: true, completion: nil)
-                 })
                 
-                let button2 = AlertButton(alertTitle: "No", alertButtonAction: nil)
-                
-                let alertVC = AlertViewController(alertTitle: "Discard changes", alertMessage: "Are you sure you wish to discard changes?", alertButtons: [button1, button2])
+                let alertVC = AlertViewController(alertTitle: "Discard changes", alertMessage: "Are you sure you wish to discard changes?", leftActionTitle: "Yes", leftAction: { [weak self] in
+                   
+                   guard let self = self else { return }
+                   self.dismiss(animated: true, completion: nil)
+                }, rightActionTitle: "No")
                 
                 self.present(alertVC, animated: true, completion: nil)
             }

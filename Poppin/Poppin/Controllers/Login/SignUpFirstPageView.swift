@@ -15,7 +15,7 @@ final class SignUpFirstPageView: UIView {
     // Hides picker on tap.
     lazy private var dismissPickerGesture: UITapGestureRecognizer = {
        
-        var dismissPickerGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissPicker))
+        let dismissPickerGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissPicker))
         dismissPickerGesture.cancelsTouchesInView = false
         return dismissPickerGesture
         
@@ -27,8 +27,7 @@ final class SignUpFirstPageView: UIView {
     // Card container.
     lazy private var cardView: UIView = {
        
-        var cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: .width(percent: 6.0), left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
-        cardView.clipsToBounds = true
+        let cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: .width(percent: 6.0), left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
         
         // 1. Add subviews to the card view (each one on top of the others).
         _ = [topStack, bottomStack].map { cardView.addSubview($0) }
@@ -45,14 +44,14 @@ final class SignUpFirstPageView: UIView {
     // Top content stack.
     lazy private var topStack: StackView = {
         
-        var topStack = StackView(subviews: [universityHelpLabel, universityTextField, nextButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 7.0), padding: .zero)
+        let topStack = StackView(subviews: [universityHelpLabel, universityTextField, nextButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 7.0), padding: .zero)
         topStack.setCustomSpacing(.width(percent: 8.0), after: universityHelpLabel)
         return topStack
         
     }()
     
     // Input description.
-    lazy private var universityHelpLabel = OctarineLabel(text: "Select University:", color: .mainDARKPURPLE, bold: true, style: .headline, size: nil, alignment: .center, lineLimit: 0)
+    lazy private var universityHelpLabel = OctarineLabel(text: "Select University:", color: .mainDARKPURPLE, bold: true, style: .headline, alignment: .center, lineLimit: 0)
     
     /// List of university names for the user to pick.
     lazy private(set) var universityPickerView: UIPickerView = UIPickerView()
@@ -60,7 +59,7 @@ final class SignUpFirstPageView: UIView {
     /// University input field.
     lazy private(set) var universityTextField: UITextField = {
         
-        var universityTextField = UITextField()
+        let universityTextField = UITextField()
         universityTextField.backgroundColor = .clear
         universityTextField.textColor = .mainDARKPURPLE
         universityTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
@@ -76,7 +75,7 @@ final class SignUpFirstPageView: UIView {
     }()
     
     /// Button that transitions to the next page of the sign up..
-    lazy private(set) var nextButton = LoadingButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Next", color: .white, bold: true, style: .subheadline, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.5), left: 0.0, bottom: .width(percent: 2.5), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+    lazy private(set) var nextButton = LoadingButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Next", color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.5), left: 0.0, bottom: .width(percent: 2.5), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
     
     // Bottom content stack.
     lazy private var bottomStack: StackView = StackView(subviews: [borderView, loginButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: 0.0, padding: .zero)
@@ -84,7 +83,7 @@ final class SignUpFirstPageView: UIView {
     // Login button border.
     lazy private var borderView: UIView = {
         
-        var borderView = UIView()
+        let borderView = UIView()
         borderView.backgroundColor = .mainDARKPURPLE
         borderView.anchor(size: CGSize(width: 0.0, height: 1.0))
         return borderView
@@ -100,7 +99,7 @@ final class SignUpFirstPageView: UIView {
         loginButtonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote), range: boldRange)
         loginButtonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Light", style: .footnote), range: lightRange)
         
-        var loginButton = OctarineButton(bgColor: .clear, label: OctarineLabel(text: nil, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 3.5), left: 0.0, bottom: .width(percent: 3.5), right: 0.0))
+        let loginButton = OctarineButton(bgColor: .clear, label: OctarineLabel(alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 3.5), left: 0.0, bottom: .width(percent: 3.5), right: 0.0))
         loginButton.titleEdgeInsets.top = -.width(percent: 1.0)
         loginButton.setAttributedTitle(loginButtonText, for: .normal)
         return loginButton

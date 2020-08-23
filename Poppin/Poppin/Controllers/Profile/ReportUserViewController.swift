@@ -320,10 +320,13 @@ class ReportUserViewController: UIViewController, UIGestureRecognizerDelegate, U
             if let err = err {
                 print("Error adding document: \(err)")
             } else {
-                let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
+                let alertVC = AlertViewController(alertTitle: "Reported User", alertMessage: "User successfully reported", leftAction: { [weak self] in
+                    
+                    guard let self = self else { return }
+                    
                     self.navigationController?.popViewController(animated: true)
+                    
                 })
-                let alertVC = AlertViewController(alertTitle: "Reported User", alertMessage: "User successfully reported", alertButtons: [button1])
                 
                 self.present(alertVC, animated: true, completion: nil)
             }

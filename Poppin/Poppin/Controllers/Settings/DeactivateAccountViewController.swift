@@ -196,16 +196,18 @@ class DeactivateAccountViewController: UIViewController, UIGestureRecognizerDele
                         let orgs = data?["orgs"] as? [String: Any] ?? [:]
                         
                         if(orgs.count > 0){
-                            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
                             
-                            let alertVC = AlertViewController(alertTitle: "Org Accounts", alertMessage: "Your account has org accounts attached to it, please remove these accounts before removing your account", alertButtons: [button1])
+                            let alertVC = AlertViewController(alertTitle: "Org Accounts", alertMessage: "Your account has org accounts attached to it, please remove these accounts before removing your account")
                             
                             self.present(alertVC, animated: true, completion: nil)
                         }else{
-                            let button1 = AlertButton(alertTitle: "Yes", alertButtonAction: self.deleteUser)
-                            let button2 = AlertButton(alertTitle: "No", alertButtonAction: nil)
                             
-                            let alertVC = AlertViewController(alertTitle: "Are you sure?", alertMessage: "This will delete all of your data including all accounts linked to your user", alertButtons: [button1, button2])
+                            let alertVC = AlertViewController(alertTitle: "Are you sure?", alertMessage: "This will delete all of your data including all accounts linked to your user", leftActionTitle: "Yes", leftAction: { [weak self] in
+                                
+                                guard let self = self else { return }
+                                self.deleteUser()
+                                
+                            }, rightActionTitle: "No")
                             
                             self.present(alertVC, animated: true, completion: nil)
                         }
@@ -214,9 +216,8 @@ class DeactivateAccountViewController: UIViewController, UIGestureRecognizerDele
                
                 
             }else{
-                let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
                 
-                let alertVC = AlertViewController(alertTitle: "Incorrect Password", alertMessage: "The password you entered is incorrect", alertButtons: [button1])
+                let alertVC = AlertViewController(alertTitle: "Incorrect Password", alertMessage: "The password you entered is incorrect")
                 
                 self.present(alertVC, animated: true, completion: nil)
                 
@@ -235,16 +236,18 @@ class DeactivateAccountViewController: UIViewController, UIGestureRecognizerDele
 
         user?.delete { error in
             if error != nil {
-                let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
                 
-                let alertVC = AlertViewController(alertTitle: "Error", alertMessage: "An error occured", alertButtons: [button1])
+                let alertVC = AlertViewController(alertTitle: "Error", alertMessage: "An error occured")
                 
                 self.present(alertVC, animated: true, completion: nil)
                 
             } else {
                 self.deleteFollowers(uid: userId)
                 self.deleteFollowing(uid: userId)
-                let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
+                
+                let alertVC = AlertViewController(alertTitle: "Success", alertMessage: "Account successfully deleted", leftAction: { [weak self] in
+                    
+                    guard let self = self else { return }
                     
                     let loginNavigationController = UINavigationController(rootViewController: StartViewController())
                     loginNavigationController.modalPresentationStyle = .overFullScreen
@@ -254,8 +257,6 @@ class DeactivateAccountViewController: UIViewController, UIGestureRecognizerDele
                     self.present(loginNavigationController, animated: true, completion: nil)
                     
                 })
-                
-                let alertVC = AlertViewController(alertTitle: "Success", alertMessage: "Account successfully deleted", alertButtons: [button1])
                 
                 self.present(alertVC, animated: true, completion: nil)
             }

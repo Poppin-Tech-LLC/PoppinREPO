@@ -45,6 +45,7 @@
 		642156BB24ED86830049D78E /* AuthController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642156BA24ED86830049D78E /* AuthController.swift */; };
 		642C315B24D4739F009618B4 /* DateInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642C315A24D4739F009618B4 /* DateInputView.swift */; };
 		642C315D24D473B3009618B4 /* DateInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642C315C24D473B3009618B4 /* DateInputViewController.swift */; };
+		644059E324F288EE005AB6C7 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644059E224F288EE005AB6C7 /* AlertView.swift */; };
 		645BE46324CF0681001A3232 /* CreateEventFirstSectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46224CF0681001A3232 /* CreateEventFirstSectionViewController.swift */; };
 		645BE46524CF2CE5001A3232 /* EventController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46424CF2CE5001A3232 /* EventController.swift */; };
 		645BE46724CF2D07001A3232 /* EventModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645BE46624CF2D07001A3232 /* EventModel.swift */; };
@@ -174,6 +175,7 @@
 		642156BA24ED86830049D78E /* AuthController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthController.swift; sourceTree = "<group>"; };
 		642C315A24D4739F009618B4 /* DateInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInputView.swift; sourceTree = "<group>"; };
 		642C315C24D473B3009618B4 /* DateInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateInputViewController.swift; sourceTree = "<group>"; };
+		644059E224F288EE005AB6C7 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		645BE46224CF0681001A3232 /* CreateEventFirstSectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateEventFirstSectionViewController.swift; sourceTree = "<group>"; };
 		645BE46424CF2CE5001A3232 /* EventController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventController.swift; sourceTree = "<group>"; };
 		645BE46624CF2D07001A3232 /* EventModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventModel.swift; sourceTree = "<group>"; };
@@ -405,6 +407,7 @@
 			isa = PBXGroup;
 			children = (
 				6417BCA224A255CD006AE467 /* AlertViewController.swift */,
+				644059E224F288EE005AB6C7 /* AlertView.swift */,
 			);
 			path = Alert;
 			sourceTree = "<group>";
@@ -912,6 +915,7 @@
 				64AB94E924F01894002F5D02 /* SignUpSecondPageView.swift in Sources */,
 				F5FC3F4424BDD73B00FA1AB0 /* SwitchAccountViewController.swift in Sources */,
 				642C315B24D4739F009618B4 /* DateInputView.swift in Sources */,
+				644059E324F288EE005AB6C7 /* AlertView.swift in Sources */,
 				64EDD74C24E6ACE500416C1F /* MapView.swift in Sources */,
 				6417BCAA24A25C4F006AE467 /* BouncyButtons.swift in Sources */,
 				645BE46724CF2D07001A3232 /* EventModel.swift in Sources */,

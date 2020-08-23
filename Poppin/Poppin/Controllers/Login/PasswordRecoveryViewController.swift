@@ -99,8 +99,7 @@ final class PasswordRecoveryViewController: UIViewController {
                 // 6. Error found. Display error.
                 if error != nil {
                     
-                    let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                    let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: errorTitle!, alertMessage: errorMessage!)
                     
                     self.present(alertVC, animated: true, completion: nil)
                     
@@ -109,8 +108,7 @@ final class PasswordRecoveryViewController: UIViewController {
                 // 7. Link was sent successfully. Show query result.
                 else {
                     
-                    let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-                    let alertVC = AlertViewController(alertTitle: "Link sent!", alertMessage: "Check your email for a recovery link. If you do not receive one, check your spam folder.", alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: "Link sent!", alertMessage: "Check your email for a recovery link. If you do not receive one, check your spam folder.")
                     
                     self.present(alertVC, animated: true, completion: nil)
                     
@@ -120,8 +118,7 @@ final class PasswordRecoveryViewController: UIViewController {
             
         } else {
             
-            let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-            let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button1])
+            let alertVC = AlertViewController()
             
             present(alertVC, animated: true, completion: nil)
             

@@ -8,198 +8,135 @@
 
 import UIKit
 
+/// Alert Popover UI Controller.
 final class AlertViewController: UIViewController {
     
-    public static let defaultAlertTitle = "Something went wrong"
-    public static let defaultAlertMessage = "Please try again."
+    /// "Something went wrong"
+    static let defaultAlertTitle = "Something went wrong"
     
-    lazy private var alertTitle: String = AlertViewController.defaultAlertTitle
-    lazy private var alertMessage: String = AlertViewController.defaultAlertMessage
-    lazy private var alertButtons: [AlertButton] = [AlertButton(alertTitle: nil, alertButtonAction: nil)]
-    private let horizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 4)
-    private let verticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 4)
+    /// "Please try again."
+    static let defaultAlertMessage = "Please try again."
     
-    lazy private var alertContainerView: UIView = {
-        
-        var alertContainerView = UIView()
-        alertContainerView.backgroundColor = .white
-        alertContainerView.addShadowAndRoundCorners()
-        alertContainerView.clipsToBounds = true
-        
-        alertContainerView.addSubview(alertButtonsStackView)
-        alertButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        alertButtonsStackView.leadingAnchor.constraint(equalTo: alertContainerView.leadingAnchor).isActive = true
-        alertButtonsStackView.trailingAnchor.constraint(equalTo: alertContainerView.trailingAnchor).isActive = true
-        alertButtonsStackView.bottomAnchor.constraint(equalTo: alertContainerView.bottomAnchor).isActive = true
-        
-        alertContainerView.addSubview(alertLabelsStackView)
-        alertLabelsStackView.translatesAutoresizingMaskIntoConstraints = false
-        alertLabelsStackView.topAnchor.constraint(equalTo: alertContainerView.topAnchor, constant: verticalEdgeInset).isActive = true
-        alertLabelsStackView.leadingAnchor.constraint(equalTo: alertContainerView.leadingAnchor, constant: horizontalEdgeInset).isActive = true
-        alertLabelsStackView.trailingAnchor.constraint(equalTo: alertContainerView.trailingAnchor, constant: -horizontalEdgeInset).isActive = true
-        alertLabelsStackView.bottomAnchor.constraint(equalTo: alertButtonsStackView.topAnchor, constant: -verticalEdgeInset).isActive = true
-        
-        return alertContainerView
-        
-    }()
+    /// "Ok"
+    static let defaultActionTitle = "Ok"
     
-    lazy private var alertLabelsStackView: UIStackView = {
-        
-        let edgeInset: CGFloat = .getPercentageWidth(percentage: 3)
-        
-        var alertLabelsStackView = UIStackView(arrangedSubviews: [alertTitleLabel, alertMessageLabel])
-        alertLabelsStackView.axis = .vertical
-        alertLabelsStackView.alignment = .fill
-        alertLabelsStackView.distribution = .fill
-        alertLabelsStackView.spacing = edgeInset
-        alertLabelsStackView.backgroundColor = .white
-        return alertLabelsStackView
-        
-    }()
+    /// Title of the alert (set to default value if nil).
+    private(set) var alertTitle: String = AlertViewController.defaultAlertTitle
     
-    lazy private var alertTitleLabel: UILabel = {
-        
-        var alertTitleLabel = UILabel()
-        alertTitleLabel.textAlignment = .center
-        alertTitleLabel.numberOfLines = 0
-        alertTitleLabel.sizeToFit()
-        alertTitleLabel.text = alertTitle
-        alertTitleLabel.textColor = .mainDARKPURPLE
-        alertTitleLabel.backgroundColor = .clear
-        alertTitleLabel.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
-        return alertTitleLabel
-        
-    }()
+    /// Message of the alert (set to default value if nil).
+    private(set) var alertMessage: String = AlertViewController.defaultAlertMessage
     
-    lazy private var alertMessageLabel: UILabel = {
-        
-        var alertMessageLabel = UILabel()
-        alertMessageLabel.textAlignment = .center
-        alertMessageLabel.numberOfLines = 0
-        alertMessageLabel.sizeToFit()
-        alertMessageLabel.text = alertMessage
-        alertMessageLabel.textColor = .mainDARKPURPLE
-        alertMessageLabel.backgroundColor = .clear
-        alertMessageLabel.font = .dynamicFont(with: "Octarine-Light", style: .footnote)
-        return alertMessageLabel
-        
-    }()
+    /// Title of the alert's left action (set to default value if nil).
+    private(set) var leftActionTitle: String = AlertViewController.defaultActionTitle
     
-    lazy private var alertButtonsStackView: UIStackView = {
-        
-        var alertButtonsStackView = UIStackView()
-        alertButtonsStackView.axis = .horizontal
-        alertButtonsStackView.alignment = .fill
-        alertButtonsStackView.distribution = .fillEqually
-        alertButtonsStackView.spacing = 2.0
-        alertButtonsStackView.backgroundColor = .mainDARKPURPLE
-        return alertButtonsStackView
-        
-    }()
+    /// Title of the alert's right action. Optional value.
+    private(set) var rightActionTitle: String?
     
-    convenience init() {
-        
-        self.init(alertTitle: nil, alertMessage: nil, alertButtons: nil)
-        
-    }
+    /// Alert's left action. Optional value.
+    private(set) var leftAction: (() -> Void)?
     
-    init(alertTitle: String?, alertMessage: String?, alertButtons: [AlertButton]?) {
+    /// Alert's right action. Optional value.
+    private(set) var rightAction: (() -> Void)?
+    
+    /**
+    Custom class init that initializes the alert's title, message, and actions. Also, the modal transition and presentation styles are set up.
+
+    - Parameters:
+        - alertTitle: Main reason for the alert (set to default value if nil).
+        - alertMessage: More details about the alert (set to default value if nil).
+        - leftActionTitle: Left action description (set to default value if nil).
+        - leftAction: Action performed if the left button of the alert is pressed (set to default value if nil).
+        - rightActionTitle: Right action description (set to default value if nil).
+        - rightAction: Action performed if the right button of the alert is pressed (set to default value if nil).
+    */
+    init(alertTitle: String? = AlertViewController.defaultAlertTitle, alertMessage: String? = AlertViewController.defaultAlertMessage, leftActionTitle: String? = AlertViewController.defaultActionTitle, leftAction: (() -> Void)? = nil, rightActionTitle: String? = nil, rightAction: (() -> Void)? = nil) {
         
         super.init(nibName: nil, bundle: nil)
         
-        if let newAlertTitle = alertTitle { self.alertTitle = newAlertTitle }
-        if let newAlertMessage = alertMessage { self.alertMessage = newAlertMessage }
-        if let newAlertButtons = alertButtons { self.alertButtons = newAlertButtons }
+        // 1. Initialize the alert parameters.
+        self.alertTitle = alertTitle ?? AlertViewController.defaultAlertTitle
+        self.alertMessage = alertMessage ?? AlertViewController.defaultAlertMessage
+        self.leftActionTitle = leftActionTitle ?? AlertViewController.defaultActionTitle
+        self.leftAction = leftAction
+        self.rightActionTitle = rightActionTitle
+        self.rightAction = rightAction
         
-        configureAlert()
-        
-    }
-    
-    required init?(coder: NSCoder) {
-        
-        super.init(coder: coder)
-        
-        configureAlert()
-        
-    }
-    
-    private func configureAlert() {
-        
-        for alertButton in alertButtons {
-            
-            alertButton.addTarget(self, action: #selector(executeAlertAction), for: .touchUpInside)
-            alertButtonsStackView.addArrangedSubview(alertButton)
-            
-        }
-        
+        // 2. Set transition styles.
         modalPresentationStyle = .overCurrentContext
         modalTransitionStyle = .crossDissolve
         
     }
     
+    /**
+    Required init?(coder:) not implemented (storyboard not available). WIll throw a fatal error.
+
+    - Parameter coder: NSCoder from storyboard.
+    */
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    /// Overrides superclass method to initialize the root view with a custom UI.
+    override func loadView() {
+        
+        self.view = AlertView()
+        
+    }
+    
+    /// Overrides superclass method to connect UI elements to the controller.
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
-        view.backgroundColor = UIColor.black.withAlphaComponent(0.7)
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? AlertView else { return }
         
-        view.addSubview(alertContainerView)
-        alertContainerView.translatesAutoresizingMaskIntoConstraints = false
-        alertContainerView.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        alertContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        alertContainerView.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 70)).isActive = true
-        
-    }
-    
-    @objc func executeAlertAction(sender: AlertButton) {
-        
-        self.dismiss(animated: true, completion: sender.alertButtonAction)
+        // 2. Setting targets.
+        view.leftButton.addTarget(self, action: #selector(executeAction(sender:)), for: .touchUpInside)
+        view.rightButton.addTarget(self, action: #selector(executeAction(sender:)), for: .touchUpInside)
         
     }
     
-}
-
-final class AlertButton: UIButton {
-    
-    public static let defaultTitle = "Ok"
+    /// Overrides superclass method to set the alert title, message, and buttons.
+    override func viewWillAppear(_ animated: Bool) {
         
-    lazy var alertButtonAction: (() -> Void) = {}
-    
-    private let edgeInset: CGFloat = .getPercentageWidth(percentage: 1.5)
-    
-    convenience init() {
+        super.viewWillAppear(animated)
         
-        self.init(alertTitle: nil, alertButtonAction: nil)
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? AlertView else { return }
         
-    }
-    
-    init(alertTitle: String?, alertButtonAction: (() -> Void)?) {
+        view.titleLabel.text = alertTitle
+        view.messageLabel.text = alertMessage
+        view.leftButton.setTitle(leftActionTitle, for: .normal)
         
-        super.init(frame: .zero)
-        
-        setTitle(alertTitle ?? AlertButton.defaultTitle, for: .normal)
-        if let newAlertButtonAction = alertButtonAction { self.alertButtonAction = newAlertButtonAction }
-        configureButton()
+        if let rightActionTitle = rightActionTitle {
+            
+            view.rightButton.setTitle(rightActionTitle, for: .normal)
+            
+        } else {
+            
+            view.rightButton.isHidden = true
+            
+        }
         
     }
     
-    required init?(coder: NSCoder) {
+    // According to which button was pressed, close the alert and perform the corresponding action (if any).
+    @objc private func executeAction(sender: UIButton) {
         
-        super.init(coder: coder)
-        
-        setTitle(AlertButton.defaultTitle, for: .normal)
-        configureButton()
-        
-    }
-    
-    private func configureButton() {
-        
-        backgroundColor = .mainDARKPURPLE
-        setTitleColor(.white, for: .normal)
-        titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
-        
-        translatesAutoresizingMaskIntoConstraints = false
-        heightAnchor.constraint(equalToConstant: intrinsicContentSize.height+edgeInset).isActive = true
+        if let senderTitle = sender.title(for: .normal), senderTitle == leftActionTitle {
+            
+            self.dismiss(animated: true, completion: leftAction)
+            
+        } else if let senderTitle = sender.title(for: .normal), let rightActionTitle = rightActionTitle, senderTitle == rightActionTitle {
+            
+            self.dismiss(animated: true, completion: rightAction)
+            
+        } else {
+            
+            self.dismiss(animated: true, completion: nil)
+            
+        }
         
     }
     

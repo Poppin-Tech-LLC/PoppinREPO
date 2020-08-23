@@ -149,17 +149,13 @@ final class OnlineLinkInputViewController: UIViewController {
             
         } else {
             
-            let button1 = AlertButton(alertTitle: "Exit", alertButtonAction: { [weak self] in
+            let alertVC = AlertViewController(alertTitle: "Are you sure you wisth to exit?", alertMessage: "Any edits will be lost.", leftActionTitle: "Exit", leftAction: { [weak self] in
                 
                 guard let self = self else { return }
                 
                 self.dismiss(animated: true, completion: nil)
             
-            })
-            
-            let button2 = AlertButton(alertTitle: "Stay", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Are you sure you wisth to exit?", alertMessage: "Any edits will be lost.", alertButtons: [button1, button2])
+            }, rightActionTitle: "Stay")
             
             self.present(alertVC, animated: true, completion: nil)
             
@@ -195,9 +191,7 @@ final class OnlineLinkInputViewController: UIViewController {
             
         } else {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Link is invalid", alertMessage: "Please enter a valid link.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "Link is invalid", alertMessage: "Please enter a valid link.")
             
             self.present(alertVC, animated: true, completion: nil)
             

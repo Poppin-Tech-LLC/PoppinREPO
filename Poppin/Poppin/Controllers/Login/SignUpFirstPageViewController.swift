@@ -131,8 +131,7 @@ final class SignUpFirstPageViewController: UIViewController {
             
         } else {
             
-            let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-            let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button1])
+            let alertVC = AlertViewController()
             
             present(alertVC, animated: true, completion: nil)
             

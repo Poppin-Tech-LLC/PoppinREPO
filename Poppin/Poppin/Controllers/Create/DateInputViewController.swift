@@ -258,17 +258,13 @@ final class DateInputViewController: UIViewController {
             
         } else {
             
-            let button1 = AlertButton(alertTitle: "Exit", alertButtonAction: { [weak self] in
+            let alertVC = AlertViewController(alertTitle: "Are you sure you wisth to exit?", alertMessage: "Any edits will be lost.", leftActionTitle: "Exit", leftAction: { [weak self] in
                 
                 guard let self = self else { return }
                 
                 self.dismiss(animated: true, completion: nil)
             
-            })
-            
-            let button2 = AlertButton(alertTitle: "Stay", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Are you sure you wisth to exit?", alertMessage: "Any edits will be lost.", alertButtons: [button1, button2])
+            }, rightActionTitle: "Stay")
             
             self.present(alertVC, animated: true, completion: nil)
             
@@ -282,49 +278,37 @@ final class DateInputViewController: UIViewController {
         
         if view.startDateTextField.isEmpty() && view.endDateTextField.isEmpty() {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Dates missing", alertMessage: "Please select a start and end date.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "Dates missing", alertMessage: "Please select a start and end date.")
             
             self.present(alertVC, animated: true, completion: nil)
             
         } else if view.startDateTextField.isEmpty() {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Start date missing", alertMessage: "Please select a start date.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "Start date missing", alertMessage: "Please select a start date.")
             
             self.present(alertVC, animated: true, completion: nil)
             
         } else if view.endDateTextField.isEmpty() {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "End date missing", alertMessage: "Please enter an end date.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "End date missing", alertMessage: "Please enter an end date.")
             
             self.present(alertVC, animated: true, completion: nil)
             
         } else if startDatePicker.date.isAfterDate(endDatePicker.date, granularity: .minute) {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Invalid date", alertMessage: "Start date should be prior to end date.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "Invalid date", alertMessage: "Start date should be prior to end date.")
             
             self.present(alertVC, animated: true, completion: nil)
         
         } else if (startDatePicker.date + 30.minutes) > endDatePicker.date {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Ivalid duration", alertMessage: "The event has to be at least 30 minutes long.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "Ivalid duration", alertMessage: "The event has to be at least 30 minutes long.")
             
             self.present(alertVC, animated: true, completion: nil)
             
         } else if (startDatePicker.date + 8.hours) < endDatePicker.date {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Ivalid duration", alertMessage: "The event has to be at most 8 hours long.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "Ivalid duration", alertMessage: "The event has to be at most 8 hours long.")
             
             self.present(alertVC, animated: true, completion: nil)
             

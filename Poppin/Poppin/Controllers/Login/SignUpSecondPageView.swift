@@ -15,7 +15,7 @@ final class SignUpSecondPageView: UIView {
     // Hides keyboard or picker on tap.
     lazy private var dismissInputGesture: UITapGestureRecognizer = {
        
-        var dismissPickerGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissInput))
+        let dismissPickerGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissInput))
         dismissPickerGesture.cancelsTouchesInView = false
         return dismissPickerGesture
         
@@ -27,8 +27,7 @@ final class SignUpSecondPageView: UIView {
     // Card container.
     lazy private var cardView: UIView = {
        
-        var cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: 0.0, left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
-        cardView.clipsToBounds = true
+        let cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: 0.0, left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
         
         // 1. Add subviews to the card view (each one on top of the others).
         _ = [topStack, backButton].map { cardView.addSubview($0) }
@@ -45,7 +44,7 @@ final class SignUpSecondPageView: UIView {
     /// Button that transitions to the previous page of the sign up..
     lazy private(set) var backButton: OctarineButton = {
         
-        var backButton = OctarineButton(bgColor: .clear, label: nil, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)))
+        let backButton = OctarineButton(bgColor: .clear, label: nil, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)))
         backButton.setImage(UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .medium)).withTintColor(.mainDARKPURPLE, renderingMode: .alwaysOriginal), for: .normal)
         return backButton
         
@@ -54,19 +53,19 @@ final class SignUpSecondPageView: UIView {
     // Top content scrollable stack.
     lazy private var topStack: StackView = {
         
-        var topStack = StackView(subviews: [secondPageHelpLabel, fullNameTextField, dateOfBirthTextField, nextButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 7.0), padding: .zero)
+        let topStack = StackView(subviews: [secondPageHelpLabel, fullNameTextField, dateOfBirthTextField, nextButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 7.0), padding: .zero)
         topStack.setCustomSpacing(.width(percent: 8.0), after: secondPageHelpLabel)
         return topStack
         
     }()
     
     // Input description.
-    lazy private var secondPageHelpLabel = OctarineLabel(text: "Enter Name and Birthday:", color: .mainDARKPURPLE, bold: true, style: .headline, size: nil, alignment: .center, lineLimit: 0)
+    lazy private var secondPageHelpLabel = OctarineLabel(text: "Enter Name and Birthday:", color: .mainDARKPURPLE, bold: true, style: .headline, alignment: .center, lineLimit: 0)
     
     /// Full name input field.
     lazy private(set) var fullNameTextField: UITextField = {
         
-        var fullNameTextField = UITextField()
+        let fullNameTextField = UITextField()
         fullNameTextField.backgroundColor = .clear
         fullNameTextField.textColor = .mainDARKPURPLE
         fullNameTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
@@ -84,7 +83,7 @@ final class SignUpSecondPageView: UIView {
     /// Date of birth input field.
     lazy private(set) var dateOfBirthTextField: UITextField = {
         
-        var dateOfBirthTextField = UITextField()
+        let dateOfBirthTextField = UITextField()
         dateOfBirthTextField.backgroundColor = .clear
         dateOfBirthTextField.textColor = .mainDARKPURPLE
         dateOfBirthTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
@@ -102,7 +101,7 @@ final class SignUpSecondPageView: UIView {
     /// Date picker for the user to pick a date of birth.
     lazy private(set) var datePicker: UIDatePicker = {
         
-        var datePicker = UIDatePicker()
+        let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.maximumDate = Date()
         return datePicker
@@ -110,7 +109,7 @@ final class SignUpSecondPageView: UIView {
     }()
     
     /// Button that transitions to the next page of the sign up..
-    lazy private(set) var nextButton = LoadingButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Next", color: .white, bold: true, style: .subheadline, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.5), left: 0.0, bottom: .width(percent: 2.5), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+    lazy private(set) var nextButton = LoadingButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Next", color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.5), left: 0.0, bottom: .width(percent: 2.5), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
     
     /**
     Overrides superclass initializer to configure the UI.

@@ -15,7 +15,7 @@ final class LoginView: UIView {
     // Hides keyboard on tap.
     lazy private var dismissKeyboardGesture: UITapGestureRecognizer = {
        
-        var dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        let dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         dismissKeyboardGesture.cancelsTouchesInView = false
         return dismissKeyboardGesture
         
@@ -27,8 +27,7 @@ final class LoginView: UIView {
     // Card container.
     lazy private var cardView: UIView = {
        
-        var cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: .width(percent: 6.0), left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
-        cardView.clipsToBounds = true
+        let cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: .width(percent: 6.0), left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
         
         // 1. Add subviews to the card view (each one on top of the others).
         _ = [topStack, bottomStack].map { cardView.addSubview($0) }
@@ -45,7 +44,7 @@ final class LoginView: UIView {
     // Top content stack.
     lazy private var topStack: StackView = {
         
-        var topStack = StackView(subviews: [poppinTitle, emailTextField, passwordTextField, loginButton, forgotPasswordButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 7.0), padding: .zero)
+        let topStack = StackView(subviews: [poppinTitle, emailTextField, passwordTextField, loginButton, forgotPasswordButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 7.0), padding: .zero)
         topStack.setCustomSpacing(.width(percent: 8.0), after: poppinTitle)
         topStack.setCustomSpacing(.width(percent: 4.5), after: loginButton)
         return topStack
@@ -58,7 +57,7 @@ final class LoginView: UIView {
     /// Email input field.
     lazy private(set) var emailTextField: UITextField = {
         
-        var emailTextField = UITextField()
+        let emailTextField = UITextField()
         emailTextField.backgroundColor = .clear
         emailTextField.textColor = .mainDARKPURPLE
         emailTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
@@ -78,7 +77,7 @@ final class LoginView: UIView {
     /// Password input field.
     lazy private(set) var passwordTextField: UITextField = {
         
-        var passwordTextField = UITextField()
+        let passwordTextField = UITextField()
         passwordTextField.backgroundColor = .clear
         passwordTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         passwordTextField.textColor = .mainDARKPURPLE
@@ -98,10 +97,10 @@ final class LoginView: UIView {
     }()
     
     /// Button that logins the user.
-    lazy private(set) var loginButton = LoadingButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Log In", color: .white, bold: true, style: .subheadline, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.5), left: 0.0, bottom: .width(percent: 2.5), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+    lazy private(set) var loginButton = LoadingButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Log In", color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.5), left: 0.0, bottom: .width(percent: 2.5), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
     
     /// Button that transitions to the password recovery page.
-    lazy private(set) var forgotPasswordButton = OctarineButton(bgColor: .clear, label: OctarineLabel(text: "Forgot your password?", color: .mainDARKPURPLE, bold: true, style: .footnote, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 1.5), left: 0.0, bottom: .width(percent: 1.5), right: 0.0), cornerRadius: 0.0)
+    lazy private(set) var forgotPasswordButton = OctarineButton(bgColor: .clear, label: OctarineLabel(text: "Forgot your password?", color: .mainDARKPURPLE, bold: true, style: .footnote, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 1.5), left: 0.0, bottom: .width(percent: 1.5), right: 0.0), cornerRadius: 0.0)
     
     // Bottom content stack.
     lazy private var bottomStack: StackView = StackView(subviews: [borderView, signUpButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: 0.0, padding: .zero)
@@ -109,7 +108,7 @@ final class LoginView: UIView {
     // Sign up button border.
     lazy private var borderView: UIView = {
         
-        var borderView = UIView()
+        let borderView = UIView()
         borderView.backgroundColor = .mainDARKPURPLE
         borderView.anchor(size: CGSize(width: 0.0, height: 1.0))
         return borderView
@@ -125,7 +124,7 @@ final class LoginView: UIView {
         signUpButtonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote), range: boldRange)
         signUpButtonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Light", style: .footnote), range: lightRange)
         
-        var signUpButton = OctarineButton(bgColor: .clear, label: OctarineLabel(text: nil, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 3.5), left: 0.0, bottom: .width(percent: 3.5), right: 0.0))
+        let signUpButton = OctarineButton(bgColor: .clear, label: OctarineLabel(alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 3.5), left: 0.0, bottom: .width(percent: 3.5), right: 0.0))
         signUpButton.titleEdgeInsets.top = -.width(percent: 1.0)
         signUpButton.setAttributedTitle(signUpButtonText, for: .normal)
         return signUpButton
@@ -232,12 +231,6 @@ struct LoginViewPreview_Test: PreviewProvider {
 
 class CardView: UIView {
     
-    convenience init() {
-        
-        self.init()
-        
-    }
-    
     init(bgColor: UIColor = .white, padding: UIEdgeInsets = .zero, cornerRadius: CGFloat = 0.0, shadow: Shadow = Shadow(color: .clear, radius: 0.0, x: 0.0, y: 0.0)) {
         
         super.init(frame: .zero)
@@ -246,6 +239,7 @@ class CardView: UIView {
         self.backgroundColor = bgColor
         self.layer.cornerRadius = cornerRadius
         self.apply(shadow: shadow)
+        if cornerRadius != 0.0 { self.clipsToBounds = true }
         
     }
     

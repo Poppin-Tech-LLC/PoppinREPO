@@ -95,8 +95,7 @@ final class LoginViewController: UIViewController {
                     
                     view.loginButton.stopLoading()
                     
-                    let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                    let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage)
                     
                     self.present(alertVC, animated: true, completion: nil)
                     
@@ -152,9 +151,7 @@ final class LoginViewController: UIViewController {
                         
                         view.loginButton.stopLoading()
                         
-                        let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-                        
-                        let button2 = AlertButton(alertTitle: "Resend", alertButtonAction: { [weak self] in
+                        let alertVC = AlertViewController(alertTitle: "Email not verified", alertMessage: "If you did not get a verification email, check your spam folder or click resend.", rightActionTitle: "Resend", rightAction: { [weak self] in
                          
                             guard let self = self else { return }
                             
@@ -162,18 +159,14 @@ final class LoginViewController: UIViewController {
                             self.authController.sendEmailVerification { (error) in
                                 
                                 if error != nil {
-                                 
-                                    let button3 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
                                     
-                                    let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button3])
+                                    let alertVC = AlertViewController()
                                     
                                     self.present(alertVC, animated: true, completion: nil)
                                     
                                 } else {
                                     
-                                    let button3 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-                                 
-                                    let alertVC = AlertViewController(alertTitle: "Verification sent!", alertMessage: "Check your email for a verification link. If you do not receive one, check your spam folder.", alertButtons: [button3])
+                                    let alertVC = AlertViewController(alertTitle: "Verification sent!", alertMessage: "Check your email for a verification link. If you do not receive one, check your spam folder.")
                                     
                                     self.present(alertVC, animated: true, completion: nil)
                                     
@@ -183,8 +176,6 @@ final class LoginViewController: UIViewController {
                             }
                             
                         })
-                        
-                        let alertVC = AlertViewController(alertTitle: "Email not verified", alertMessage: "If you did not get a verification email, check your spam folder or click resend.", alertButtons: [button1, button2])
                         
                         self.present(alertVC, animated: true, completion: nil)
                         
@@ -196,8 +187,7 @@ final class LoginViewController: UIViewController {
             
         } else {
             
-            let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-            let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button1])
+            let alertVC = AlertViewController()
             
             present(alertVC, animated: true, completion: nil)
             

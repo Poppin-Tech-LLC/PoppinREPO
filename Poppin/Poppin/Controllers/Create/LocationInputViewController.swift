@@ -143,17 +143,13 @@ final class LocationInputViewController: UIViewController {
         
         if let location = location, (location.latitude != eventAnnotation.coordinate.latitude || location.longitude != eventAnnotation.coordinate.longitude) {
             
-            let button1 = AlertButton(alertTitle: "Exit", alertButtonAction: { [weak self] in
+            let alertVC = AlertViewController(alertTitle: "Are you sure you wish to exit?", alertMessage: "Any changes will be lost.", leftActionTitle: "Exit", leftAction: { [weak self] in
                 
                 guard let self = self else { return }
                 
                 self.dismiss(animated: true, completion: nil)
             
-            })
-            
-            let button2 = AlertButton(alertTitle: "Stay", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Are you sure you wish to exit?", alertMessage: "Any changes will be lost.", alertButtons: [button1, button2])
+            }, rightActionTitle: "Stay")
             
             self.present(alertVC, animated: true, completion: nil)
             
@@ -169,9 +165,7 @@ final class LocationInputViewController: UIViewController {
         
         if isOutOfBounds {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Location is out of campus bounds", alertMessage: "Please try a different one.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "Location is out of campus bounds", alertMessage: "Please try a different one.")
             
             self.present(alertVC, animated: true, completion: nil)
             
@@ -511,9 +505,7 @@ extension LocationInputViewController: UITableViewDelegate, UITableViewDataSourc
                     
                     print("Local search error: ", error.localizedDescription)
                     
-                    let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-                    
-                    let alertVC = AlertViewController(alertTitle: "An error occurred", alertMessage: "Please try again.", alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: "An error occurred", alertMessage: "Please try again.")
                     
                     self.present(alertVC, animated: true, completion: nil)
                     
@@ -542,7 +534,7 @@ extension LocationInputViewController: UITableViewDelegate, UITableViewDataSourc
                         
                     }
                     
-                    let button1 = AlertButton(alertTitle: "Continue", alertButtonAction: { [weak self] in
+                    let alertVC = AlertViewController(alertTitle: "Location is out of bounds", alertMessage: "If you continue the location could be innacurate.", leftActionTitle: "Continue", leftAction: { [weak self] in
                         
                         guard let self = self else { return }
                         
@@ -551,12 +543,8 @@ extension LocationInputViewController: UITableViewDelegate, UITableViewDataSourc
                         self.isOutOfBounds = true
                         self.dropPopsicle(at: response.mapItems[0].placemark)
                         self.cancel()
-                    
-                    })
-                    
-                    let button2 = AlertButton(alertTitle: "Cancel", alertButtonAction: nil)
-                    
-                    let alertVC = AlertViewController(alertTitle: "Location is out of bounds", alertMessage: "If you continue the location could be innacurate.", alertButtons: [button1, button2])
+                        
+                        }, rightActionTitle: "Cancel")
                     
                     self.present(alertVC, animated: true, completion: nil)
                     
@@ -565,9 +553,7 @@ extension LocationInputViewController: UITableViewDelegate, UITableViewDataSourc
                     
                 } else {
                     
-                    let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
-                    
-                    let alertVC = AlertViewController(alertTitle: "Location not found", alertMessage: "The selected location was not found. Please try again.", alertButtons: [button1])
+                    let alertVC = AlertViewController(alertTitle: "Location not found", alertMessage: "The selected location was not found. Please try again.")
                     
                     self.present(alertVC, animated: true, completion: nil)
                     

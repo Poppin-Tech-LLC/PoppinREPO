@@ -73,17 +73,13 @@ final class CreateEventFirstSectionViewController: UIViewController {
         
         if eventPlaceholder.title != nil || eventPlaceholder.startDate != nil || eventPlaceholder.endDate != nil || eventPlaceholder.location != nil || eventPlaceholder.details != nil || eventPlaceholder.onlineURL != nil {
             
-            let button1 = AlertButton(alertTitle: "Exit", alertButtonAction: { [weak self] in
+            let alertVC = AlertViewController(alertTitle: "Are you sure you wisth to exit?", alertMessage: "Any progress will be lost.", leftActionTitle: "Exit", leftAction: { [weak self] in
                 
                 guard let self = self else { return }
                 
                 self.navigationController?.dismiss(animated: true, completion: nil)
             
-            })
-            
-            let button2 = AlertButton(alertTitle: "Stay", alertButtonAction: nil)
-            
-            let alertVC = AlertViewController(alertTitle: "Are you sure you wisth to exit?", alertMessage: "Any progress will be lost.", alertButtons: [button1, button2])
+            }, rightActionTitle: "Stay", rightAction: nil)
             
             self.present(alertVC, animated: true, completion: nil)
             
@@ -144,15 +140,13 @@ final class CreateEventFirstSectionViewController: UIViewController {
             
             print(error.rawValue)
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: { [weak self] in
+            let alertVC = AlertViewController(alertTitle: "Unable to proceed", alertMessage: "An error occured. Please try again.", leftAction: { [weak self] in
             
                 guard let self = self else { return }
                 
                 self.navigationController?.popToRootViewController(animated: true)
             
             })
-            
-            let alertVC = AlertViewController(alertTitle: "Unable to proceed", alertMessage: "An error occured. Please try again.", alertButtons: [button1])
             
             self.present(alertVC, animated: true, completion: nil)
             
@@ -160,15 +154,13 @@ final class CreateEventFirstSectionViewController: UIViewController {
             
             print(error.localizedDescription)
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: { [weak self] in
+            let alertVC = AlertViewController(alertTitle: "Unable to proceed", alertMessage: "An error occured. Please try again.", leftAction: { [weak self] in
             
                 guard let self = self else { return }
                 
                 self.navigationController?.popToRootViewController(animated: true)
             
             })
-            
-            let alertVC = AlertViewController(alertTitle: "Unable to proceed", alertMessage: "An error occured. Please try again.", alertButtons: [button1])
             
             self.present(alertVC, animated: true, completion: nil)
             

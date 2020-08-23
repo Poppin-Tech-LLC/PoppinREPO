@@ -20,7 +20,7 @@ final class SignUpSecondPageViewController: UIViewController {
     // Formats a date object into a human readable string.
     lazy private var dateFormatter: DateFormatter = {
         
-        var dateFormatter = DateFormatter()
+        let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
         return dateFormatter
         
@@ -29,9 +29,9 @@ final class SignUpSecondPageViewController: UIViewController {
     /**
     Custom class init that initializes the university object.
 
-    - Parameter university: University object (picked on the first page of sign up).
+    - Parameter university: University object (picked on the first page of sign up) - Default value: nil.
     */
-    init(university: University?) {
+    init(university: University? = nil) {
         
         super.init(nibName: nil, bundle: nil)
         
@@ -128,7 +128,7 @@ final class SignUpSecondPageViewController: UIViewController {
                 
             } else {
                 
-                let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: { [weak self] in
+                let alertVC = AlertViewController(alertTitle: "Unable to proceed with the sign up", alertMessage: "It was not possible to proceed with the sign up. Thanks for checking out Poppin.", leftAction: { [weak self] in
                 
                     guard let self = self else { return }
                     
@@ -136,16 +136,13 @@ final class SignUpSecondPageViewController: UIViewController {
                 
                 })
                 
-                let alertVC = AlertViewController(alertTitle: "Unable to proceed with the sign up", alertMessage: "It was not possible to proceed with the sign up. Thanks for checking out Poppin.", alertButtons: [button1])
-                
                 self.present(alertVC, animated: true, completion: nil)
                 
             }
             
         } else {
             
-            let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-            let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button1])
+            let alertVC = AlertViewController()
             
             present(alertVC, animated: true, completion: nil)
             

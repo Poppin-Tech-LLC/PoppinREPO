@@ -46,10 +46,10 @@ final class StartView: UIView {
     lazy private var bottomStackBottomConstraint = NSLayoutConstraint(item: bottomStack, attribute: .bottom, relatedBy: .equal, toItem: contentLayoutGuide, attribute: .bottom, multiplier: 1.0, constant: -.width(percent: 6.0))
     
     /// Button that transitions to the sign up page.
-    lazy private(set) var signUpButton = OctarineButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Sign Up", color: .white, bold: true, style: .title3, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 3.0), left: 0.0, bottom: .width(percent: 3.0), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+    lazy private(set) var signUpButton = OctarineButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Sign Up", color: .white, bold: true, style: .title3, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 3.0), left: 0.0, bottom: .width(percent: 3.0), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
     
     /// Button that transitions to the log in page.
-    lazy private(set) var loginButton = OctarineButton(bgColor: .white, label: OctarineLabel(text: "Log In", color: .mainDARKPURPLE, bold: true, style: .title3, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 3.0), left: 0.0, bottom: .width(percent: 3.0), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+    lazy private(set) var loginButton = OctarineButton(bgColor: .white, label: OctarineLabel(text: "Log In", color: .mainDARKPURPLE, bold: true, style: .title3, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 3.0), left: 0.0, bottom: .width(percent: 3.0), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
     
     /// Disclaimer message with links to the app terms and privacy policy.
     lazy private(set) var disclaimerTextView: UITextView = {
@@ -61,7 +61,7 @@ final class StartView: UIView {
         disclaimerText.addAttribute(.link, value: termsLink, range: termsRange)
         disclaimerText.addAttribute(.link, value: privacyPolicyLink, range: privacyPolicyRange)
         
-        var disclaimerTextView = UITextView()
+        let disclaimerTextView = UITextView()
         disclaimerTextView.textContainerInset = .zero
         disclaimerTextView.attributedText = disclaimerText
         disclaimerTextView.linkTextAttributes = [NSAttributedString.Key.underlineStyle : NSUnderlineStyle.single.rawValue, NSAttributedString.Key.foregroundColor : UIColor.white]
@@ -256,13 +256,7 @@ class OctarineLabel: UILabel {
         
     }
     
-    convenience init() {
-        
-        self.init(text: nil, size: nil)
-        
-    }
-    
-    init(text: String?, color: UIColor = .white, bold: Bool = true, style: UIFont.TextStyle = .headline, size: CGFloat?, alignment: NSTextAlignment = .left, lineLimit: Int = 1) {
+    init(text: String? = nil, color: UIColor = .white, bold: Bool = true, style: UIFont.TextStyle = .headline, size: CGFloat? = nil, alignment: NSTextAlignment = .left, lineLimit: Int = 1) {
         
         super.init(frame: .zero)
         
@@ -301,7 +295,6 @@ class OctarineLabel: UILabel {
         self.text = text
         self.lineBreakMode = .byTruncatingTail
         self.numberOfLines = lineLimit
-        self.adjustsFontForContentSizeCategory = true
         
     }
     
@@ -343,13 +336,7 @@ class OctarineButton: BouncyButton {
         
     }
     
-    convenience init() {
-        
-        self.init(bgColor: nil, label: nil)
-        
-    }
-    
-    init(bgColor: UIColor?, label: OctarineLabel?, padding: UIEdgeInsets = .zero, cornerRadius: CGFloat = 0.0, shadow: Shadow = Shadow(color: .clear, radius: 0.0, x: 0.0, y: 0.0)) {
+    init(bgColor: UIColor? = nil, label: OctarineLabel? = nil, padding: UIEdgeInsets = .zero, cornerRadius: CGFloat = 0.0, shadow: Shadow = Shadow(color: .clear, radius: 0.0, x: 0.0, y: 0.0)) {
         
         super.init(bouncyButtonImage: nil)
         
@@ -394,12 +381,6 @@ struct Shadow {
 }
 
 class StackView: UIStackView {
-    
-    convenience init() {
-        
-        self.init()
-        
-    }
     
     init(subviews: [UIView] = [], axis: NSLayoutConstraint.Axis = .vertical, alignment: UIStackView.Alignment = .fill, distribution: UIStackView.Distribution = .fill, spacing: CGFloat = 0.0, padding: NSDirectionalEdgeInsets = .zero) {
         

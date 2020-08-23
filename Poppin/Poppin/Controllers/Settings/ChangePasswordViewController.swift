@@ -259,9 +259,8 @@ class ChangePasswordViewController: UIViewController, UIGestureRecognizerDelegat
                 self.confirmButton.addTarget(self, action: #selector(self.confirmButtonTapped), for: .touchUpInside)
                 
             }else{
-                let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
                                
-                let alertVC = AlertViewController(alertTitle: "Incorrect Password", alertMessage: "The password you entered is incorrect", alertButtons: [button1])
+                let alertVC = AlertViewController(alertTitle: "Incorrect Password", alertMessage: "The password you entered is incorrect")
                                
                 self.present(alertVC, animated: true, completion: nil)
                 
@@ -278,45 +277,45 @@ class ChangePasswordViewController: UIViewController, UIGestureRecognizerDelegat
         let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordFormat)
         
         if(newPasswordTextField.text != confirmNewPasswordTextField.text){
-            let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                           
-            let alertVC = AlertViewController(alertTitle: "Confirm Password", alertMessage: "Your confirmed password does not match your new password", alertButtons: [button1])
+            
+            let alertVC = AlertViewController(alertTitle: "Confirm Password", alertMessage: "Your confirmed password does not match your new password")
                            
             self.present(alertVC, animated: true, completion: nil)
         }
         else if(newPasswordTextField.text == passwordTextField.text){
-            let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                           
-            let alertVC = AlertViewController(alertTitle: "Change Password", alertMessage: "Your new password cannot be the same as your current password", alertButtons: [button1])
+            
+            let alertVC = AlertViewController(alertTitle: "Change Password", alertMessage: "Your new password cannot be the same as your current password")
                            
             self.present(alertVC, animated: true, completion: nil)
         }
         else if !(passwordPredicate.evaluate(with: newPasswordTextField.text)) {
-            
-            let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
                            
-            let alertVC = AlertViewController(alertTitle: "Invalid Password", alertMessage: "Password must be at least 8 characters, 1 upper case, and 1 digit.", alertButtons: [button1])
+            let alertVC = AlertViewController(alertTitle: "Invalid Password", alertMessage: "Password must be at least 8 characters, 1 upper case, and 1 digit.")
                            
             self.present(alertVC, animated: true, completion: nil)
             
         }else{
             user?.updatePassword(to: newPasswordTextField.text!) { (error) in
                 if error == nil {
-                    let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
+                    
+                    let alertVC = AlertViewController(alertTitle: "Success", alertMessage: "Password successfully changed!", leftAction: { [weak self] in
+                        
+                        guard let self = self else { return }
+                        
                         self.navigationController?.popViewController(animated: true)
                     })
-                                              
-                    let alertVC = AlertViewController(alertTitle: "Success", alertMessage: "Password successfully changed!", alertButtons: [button1])
                                               
                     self.present(alertVC, animated: true, completion: nil)
                 }
                 else{
-                    let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
-                          self.navigationController?.popViewController(animated: true)
+                    
+                    let alertVC = AlertViewController(alertTitle: "Error", alertMessage: "An error occured", leftAction: { [weak self] in
+                        
+                        guard let self = self else { return }
+                        
+                        self.navigationController?.popViewController(animated: true)
                     })
-                                              
-                    let alertVC = AlertViewController(alertTitle: "Error", alertMessage: "An error occured", alertButtons: [button1])
-                                              
+                    
                     self.present(alertVC, animated: true, completion: nil)
                 }
             }

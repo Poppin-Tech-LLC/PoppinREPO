@@ -837,9 +837,9 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
 
         if followButton.titleLabel!.text == "Following" {
             
-            let button1 = AlertButton(alertTitle: "Cancel", alertButtonAction: nil)
-            
-            let button2 = AlertButton(alertTitle: "Unfollow", alertButtonAction: {
+            let alertVC = AlertViewController(alertTitle: "Unfollow " + userData.fullName, alertMessage: "Are you sure you wish to unfollow this user?", leftActionTitle: "Cancel", rightActionTitle: "Unfollow", rightAction: { [weak self] in
+                
+                guard let self = self else { return }
                 
                 followerRef.updateData(["followers.\(userId)" : FieldValue.delete(),
                 ]) { err in
@@ -865,8 +865,6 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
 
                 
             })
-            
-            let alertVC = AlertViewController(alertTitle: "Unfollow " + userData.fullName, alertMessage: "Are you sure you wish to unfollow this user?", alertButtons: [button1, button2])
             
             self.present(alertVC, animated: true, completion: nil)
             

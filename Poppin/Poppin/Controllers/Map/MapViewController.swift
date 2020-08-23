@@ -1449,8 +1449,7 @@ extension MapViewController: MenuDelegate {
                         
                     } catch let error {
                         
-                        let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                        let alertVC = AlertViewController(alertTitle: "Unable to logout", alertMessage: error.localizedDescription, alertButtons: [button1])
+                        let alertVC = AlertViewController(alertTitle: "Unable to logout", alertMessage: error.localizedDescription)
                         
                         self.present(alertVC, animated: true, completion: nil)
                     

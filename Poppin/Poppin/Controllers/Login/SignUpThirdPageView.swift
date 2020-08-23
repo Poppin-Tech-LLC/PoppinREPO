@@ -15,7 +15,7 @@ final class SignUpThirdPageView: UIView {
     // Hides keyboard on tap.
     lazy private var dismissKeyboardGesture: UITapGestureRecognizer = {
        
-        var dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        let dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         dismissKeyboardGesture.cancelsTouchesInView = false
         return dismissKeyboardGesture
         
@@ -27,8 +27,7 @@ final class SignUpThirdPageView: UIView {
     // Card container.
     lazy private var cardView: UIView = {
        
-        var cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: 0.0, left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
-        cardView.clipsToBounds = true
+        let cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: 0.0, left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
         
         // 1. Add subviews to the card view (each one on top of the others).
         _ = [topStack, navigationBar].map { cardView.addSubview($0) }
@@ -45,7 +44,7 @@ final class SignUpThirdPageView: UIView {
     /// Top bar containing the back button.
     lazy private var navigationBar: UIView = {
         
-        var navigationBar = UIView()
+        let navigationBar = UIView()
         navigationBar.backgroundColor = .white
         navigationBar.apply(shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
         navigationBar.layer.shadowOpacity = 0.0
@@ -60,7 +59,7 @@ final class SignUpThirdPageView: UIView {
     /// Button that transitions to the previous page of the sign up..
     lazy private(set) var backButton: OctarineButton = {
         
-        var backButton = OctarineButton(bgColor: .clear, label: nil, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)))
+        let backButton = OctarineButton(bgColor: .clear, label: nil, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)))
         backButton.setImage(UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .medium)).withTintColor(.mainDARKPURPLE, renderingMode: .alwaysOriginal), for: .normal)
         return backButton
         
@@ -69,7 +68,7 @@ final class SignUpThirdPageView: UIView {
     // Top content scrollable stack.
     lazy private(set) var topStack: ScrollableStackView = {
         
-        var topStack = ScrollableStackView(stackView: StackView(subviews: [thirdPageHelpLabel, usernameTextField, invalidUsernameLabel, emailTextField, invalidEmailLabel, passwordTextField, invalidPasswordLabel, confirmPasswordTextField, invalidConfirmPasswordLabel, signUpButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 7.0), padding: .zero), padding: UIEdgeInsets(top: .width(percent: 2.0), left: 0.0, bottom: 0.0, right: 0.0))
+        let topStack = ScrollableStackView(stackView: StackView(subviews: [thirdPageHelpLabel, usernameTextField, invalidUsernameLabel, emailTextField, invalidEmailLabel, passwordTextField, invalidPasswordLabel, confirmPasswordTextField, invalidConfirmPasswordLabel, signUpButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 7.0), padding: .zero), padding: UIEdgeInsets(top: .width(percent: 2.0), left: 0.0, bottom: 0.0, right: 0.0))
         topStack.delegate = self
         topStack.stackView.setCustomSpacing(.width(percent: 8.0), after: thirdPageHelpLabel)
         topStack.stackView.setCustomSpacing(.width(percent: 2.0), after: usernameTextField)
@@ -81,12 +80,12 @@ final class SignUpThirdPageView: UIView {
     }()
     
     // Input description.
-    lazy private var thirdPageHelpLabel = OctarineLabel(text: "Enter Username, Email and Password:", color: .mainDARKPURPLE, bold: true, style: .headline, size: nil, alignment: .center, lineLimit: 0)
+    lazy private var thirdPageHelpLabel = OctarineLabel(text: "Enter Username, Email and Password:", color: .mainDARKPURPLE, bold: true, style: .headline, alignment: .center, lineLimit: 0)
     
     /// Username input field.
     lazy private(set) var usernameTextField: UITextField = {
         
-        var usernameTextField = UITextField()
+        let usernameTextField = UITextField()
         usernameTextField.backgroundColor = .clear
         usernameTextField.textColor = .mainDARKPURPLE
         usernameTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
@@ -102,12 +101,12 @@ final class SignUpThirdPageView: UIView {
     }()
     
     /// Specifies what input is valid.
-    lazy private(set) var invalidUsernameLabel: OctarineLabel = OctarineLabel(text: "3-15 characters (alphanumeric or underscore)", color: .mainDARKPURPLE, bold: true, style: .caption1, size: nil, alignment: .left, lineLimit: 0)
+    lazy private(set) var invalidUsernameLabel: OctarineLabel = OctarineLabel(text: "3-15 characters (alphanumeric or underscore)", color: .mainDARKPURPLE, bold: true, style: .caption1, alignment: .left, lineLimit: 0)
     
     /// Email input field.
     lazy private(set) var emailTextField: UITextField = {
         
-        var emailTextField = UITextField()
+        let emailTextField = UITextField()
         emailTextField.backgroundColor = .clear
         emailTextField.textColor = .mainDARKPURPLE
         emailTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
@@ -123,12 +122,12 @@ final class SignUpThirdPageView: UIView {
     }()
     
     /// Specifies what input is valid.
-    lazy private(set) var invalidEmailLabel: OctarineLabel = OctarineLabel(text: "@du.edu", color: .mainDARKPURPLE, bold: true, style: .caption1, size: nil, alignment: .left, lineLimit: 0)
+    lazy private(set) var invalidEmailLabel: OctarineLabel = OctarineLabel(text: "@du.edu", color: .mainDARKPURPLE, bold: true, style: .caption1, alignment: .left, lineLimit: 0)
     
     /// Password input field.
     lazy private(set) var passwordTextField: UITextField = {
         
-        var passwordTextField = UITextField()
+        let passwordTextField = UITextField()
         passwordTextField.backgroundColor = .clear
         passwordTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         passwordTextField.textColor = .mainDARKPURPLE
@@ -148,12 +147,12 @@ final class SignUpThirdPageView: UIView {
     }()
     
     /// Specifies what input is valid.
-    lazy private(set) var invalidPasswordLabel: OctarineLabel = OctarineLabel(text: "At least 8 characters, 1 upper case, and 1 digit", color: .mainDARKPURPLE, bold: true, style: .caption1, size: nil, alignment: .left, lineLimit: 0)
+    lazy private(set) var invalidPasswordLabel: OctarineLabel = OctarineLabel(text: "At least 8 characters, 1 upper case, and 1 digit", color: .mainDARKPURPLE, bold: true, style: .caption1, alignment: .left, lineLimit: 0)
     
     /// Confirm password input field.
     lazy private(set) var confirmPasswordTextField: UITextField = {
         
-        var confirmPasswordTextField = UITextField()
+        let confirmPasswordTextField = UITextField()
         confirmPasswordTextField.backgroundColor = .clear
         confirmPasswordTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
         confirmPasswordTextField.textColor = .mainDARKPURPLE
@@ -173,10 +172,10 @@ final class SignUpThirdPageView: UIView {
     }()
     
     /// Specifies what input is valid.
-    lazy private(set) var invalidConfirmPasswordLabel: OctarineLabel = OctarineLabel(text: "Password mismatch", color: .mainDARKPURPLE, bold: true, style: .caption1, size: nil, alignment: .left, lineLimit: 0)
+    lazy private(set) var invalidConfirmPasswordLabel: OctarineLabel = OctarineLabel(text: "Password mismatch", color: .mainDARKPURPLE, bold: true, style: .caption1, alignment: .left, lineLimit: 0)
     
     /// Button that signs up the user.
-    lazy private(set) var signUpButton = LoadingButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Sign Up", color: .white, bold: true, style: .subheadline, size: nil, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.5), left: 0.0, bottom: .width(percent: 2.5), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+    lazy private(set) var signUpButton = LoadingButton(bgColor: .mainDARKPURPLE, label: OctarineLabel(text: "Sign Up", color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.5), left: 0.0, bottom: .width(percent: 2.5), right: 0.0), cornerRadius: .width(percent: 3.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
     
     /**
     Overrides superclass initializer to configure the UI.

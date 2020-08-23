@@ -27,11 +27,11 @@ final class SignUpThirdPageViewController: UIViewController {
     Custom class init that initializes the university, full name and date of birth objects.
 
     - Parameters:
-        - university: University object (picked on the first page of sign up).
-        - fullName: Full name of the user (entered on the second page of sign up).
-        - dateOfBirth: Date of birth of the user (entered on the second page of sign up).
+        - university: University object (picked on the first page of sign up) - Default value: nil.
+        - fullName: Full name of the user (entered on the second page of sign up) - Default value: nil.
+        - dateOfBirth: Date of birth of the user (entered on the second page of sign up) - Default value: nil.
     */
-    init(university: University?, fullName: String?, dateOfBirth: Date?) {
+    init(university: University? = nil, fullName: String? = nil, dateOfBirth: Date? = nil) {
         
         super.init(nibName: nil, bundle: nil)
         
@@ -179,8 +179,7 @@ final class SignUpThirdPageViewController: UIViewController {
                         
                         view.signUpButton.stopLoading()
                         
-                        let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                        let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button1])
+                        let alertVC = AlertViewController()
                         
                         self.present(alertVC, animated: true, completion: nil)
                         
@@ -199,8 +198,7 @@ final class SignUpThirdPageViewController: UIViewController {
                                 
                                 view.signUpButton.stopLoading()
                                 
-                                let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                                let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
+                                let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage)
                                 
                                 self.present(alertVC, animated: true, completion: nil)
                                 
@@ -216,8 +214,7 @@ final class SignUpThirdPageViewController: UIViewController {
                                         
                                         view.signUpButton.stopLoading()
                                         
-                                        let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                                        let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button1])
+                                        let alertVC = AlertViewController()
                                         
                                         self.present(alertVC, animated: true, completion: nil)
                                         
@@ -230,23 +227,20 @@ final class SignUpThirdPageViewController: UIViewController {
                                             
                                             view.signUpButton.stopLoading()
                                             
-                                            let button1 = AlertButton(alertTitle: "Log in", alertButtonAction: {
-                                                [weak self] in
+                                            let alertVC = AlertViewController(alertTitle: "Welcome to Poppin!", alertMessage: "Check your email for a verification link. If you do not receive one, check your spam folder.", leftActionTitle: "Log in", leftAction: { [weak self] in
                                                 
                                                 guard let self = self else { return }
                                                 
                                                 // 13. Core Data.
                                                 
-//                                                DataController.eraseAll(forEntity: "OtherAccounts")
-//                                                DataController.eraseAll(forEntity: "User")
-//                                                DataController.addUser(bio: "", username: view.usernameTextField.text, fullName: fullName, uid: result!.user.uid, radius: university.radius, latitude: university.latitude, longitude: university.longitude, notificationName: .userSignedIn)
+                                                //                                                DataController.eraseAll(forEntity: "OtherAccounts")
+                                                //                                                DataController.eraseAll(forEntity: "User")
+                                                //                                                DataController.addUser(bio: "", username: view.usernameTextField.text, fullName: fullName, uid: result!.user.uid, radius: university.radius, latitude: university.latitude, longitude: university.longitude, notificationName: .userSignedIn)
                                                 
                                                 // 14. Transition to the login page.
                                                 self.navigationController?.pushViewController(LoginViewController(), animated: true)
                                                 
                                             })
-                                            
-                                            let alertVC = AlertViewController(alertTitle: "Welcome to Poppin!", alertMessage: "Check your email for a verification link. If you do not receive one, check your spam folder.", alertButtons: [button1])
                                             
                                             self.present(alertVC, animated: true, completion: nil)
                                             
@@ -267,14 +261,13 @@ final class SignUpThirdPageViewController: UIViewController {
                         
                         view.signUpButton.stopLoading()
                         
-                        let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
+                        let alertVC = AlertViewController(alertTitle: "Username taken", alertMessage: view.usernameTextField.text! + " is not available, please try a different one.", leftAction: {
                         
                             view.usernameTextField.textColor = .red
                             view.usernameTextField.setBottomBorder(color: .red, height: 1.0)
                             view.invalidUsernameLabel.textColor = .red
                         
                         })
-                        let alertVC = AlertViewController(alertTitle: "Username taken", alertMessage: view.usernameTextField.text! + " is not available, please try a different one.", alertButtons: [button1])
                         
                         self.present(alertVC, animated: true, completion: nil)
                         
@@ -290,15 +283,13 @@ final class SignUpThirdPageViewController: UIViewController {
             
         } else {
             
-            let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: { [weak self] in
+            let alertVC = AlertViewController(alertTitle: "Unable to proceed with the sign up", alertMessage: "It was not possible to proceed with the sign up. Thanks for checking out Poppin.", leftAction: { [weak self] in
             
                 guard let self = self else { return }
                 
                 self.navigationController?.popToRootViewController(animated: true)
             
             })
-            
-            let alertVC = AlertViewController(alertTitle: "Unable to proceed with the sign up", alertMessage: "It was not possible to proceed with the sign up. Thanks for checking out Poppin.", alertButtons: [button1])
             
             self.present(alertVC, animated: true, completion: nil)
             
