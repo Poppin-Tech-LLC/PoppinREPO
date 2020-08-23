@@ -7,363 +7,286 @@
 //
 
 import UIKit
-import FirebaseAuth
-import FirebaseFirestore
-import FirebaseFirestoreSwift
-import CoreData
-import Geofirestore
-import MapKit
 
+/// Third Page of Sign Up (Username, Email, and Password) UI Controller.
 final class SignUpThirdPageViewController: UIViewController {
     
-    let loginInsetY: CGFloat = .getPercentageWidth(percentage: 5)
-    let loginInsetX: CGFloat = .getPercentageWidth(percentage: 5)
-    let loginInnerInset: CGFloat = .getPercentageWidth(percentage: 4)
+    // University passed on previous page.
+    private(set) var university: University?
     
-    let containerInsetY: CGFloat = .getPercentageWidth(percentage: 9)
-    let containerInsetX: CGFloat = .getPercentageWidth(percentage: 9)
+    // Name picked on previous page.
+    private(set) var fullName: String?
     
-    let innerElementsSpacing: CGFloat = .getPercentageWidth(percentage: 3)
+    // Date of birth picked on previous page.
+    private(set) var dateOfBirth: Date?
     
-    private var fullName: String = ""
-    private var age: Int = 0
-    private var email: String = ""
-    private var password: String = ""
+    // Firebase Auth wrapper.
+    lazy private var authController = AuthController()
     
-    private var radius: Double = 0.0
-    
-    private var longitude: Double = 0.0
+    /**
+    Custom class init that initializes the university, full name and date of birth objects.
 
-    private var latitude: Double = 0.0
-    
-    let db = Firestore.firestore()
-    
-    private let termsLink = "Terms"
-    private let privacyPolicyLink = "Privacy"
-        
-    lazy private var signUpContainerView: UIView = {
-        
-        let contentStackViewSpacing: CGFloat = .getPercentageWidth(percentage: 6.5)
-        
-        let contentStackView = UIStackView(arrangedSubviews: [usernameStackView, signUpButton, disclaimerTextView])
-        contentStackView.axis = .vertical
-        contentStackView.alignment = .fill
-        contentStackView.distribution = .fill
-        contentStackView.spacing = contentStackViewSpacing
-        
-        var signUpContainerView = UIView(frame: .zero)
-        signUpContainerView.backgroundColor = .white
-        signUpContainerView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.3, shadowRadius: 8.0)
-        
-        signUpContainerView.addSubview(poppinTitleLabel)
-        poppinTitleLabel.topAnchor.constraint(equalTo: signUpContainerView.topAnchor, constant: containerInsetY).isActive = true
-        poppinTitleLabel.centerXAnchor.constraint(equalTo: signUpContainerView.centerXAnchor).isActive = true
-        
-        signUpContainerView.addSubview(contentStackView)
-        contentStackView.translatesAutoresizingMaskIntoConstraints = false
-        contentStackView.topAnchor.constraint(equalTo: signUpContainerView.topAnchor, constant: (containerInsetY*1.1)+poppinTitleLabel.intrinsicContentSize.height+contentStackViewSpacing).isActive = true
-        contentStackView.leadingAnchor.constraint(equalTo: signUpContainerView.leadingAnchor, constant: containerInsetX).isActive = true
-        contentStackView.trailingAnchor.constraint(equalTo: signUpContainerView.trailingAnchor, constant: -containerInsetX).isActive = true
-        
-        signUpContainerView.addSubview(poppinTitleLabel)
-        poppinTitleLabel.topAnchor.constraint(equalTo: signUpContainerView.topAnchor, constant: containerInsetY).isActive = true
-        poppinTitleLabel.centerXAnchor.constraint(equalTo: signUpContainerView.centerXAnchor).isActive = true
-        
-        signUpContainerView.addSubview(signUpBackButton)
-        signUpBackButton.centerYAnchor.constraint(equalTo: poppinTitleLabel.centerYAnchor).isActive = true
-        signUpBackButton.heightAnchor.constraint(equalTo: poppinTitleLabel.heightAnchor).isActive = true
-        signUpBackButton.leadingAnchor.constraint(equalTo: contentStackView.leadingAnchor).isActive = true
-        
-        signUpContainerView.addSubview(switchToLoginTab)
-        switchToLoginTab.bottomAnchor.constraint(equalTo: signUpContainerView.bottomAnchor).isActive = true
-        switchToLoginTab.leadingAnchor.constraint(equalTo: signUpContainerView.leadingAnchor).isActive = true
-        switchToLoginTab.trailingAnchor.constraint(equalTo: signUpContainerView.trailingAnchor).isActive = true
-        
-        return signUpContainerView
-        
-    }()
-    
-    lazy private var signUpBackButton: BouncyButton = {
-        
-        var signUpBackButton = BouncyButton(bouncyButtonImage: UIImage(systemSymbol: .arrowLeft).withTintColor(UIColor.mainDARKPURPLE))
-        signUpBackButton.addTarget(self, action: #selector(transitionToPreviousPage(sender:)), for: .touchUpInside)
-        
-        signUpBackButton.translatesAutoresizingMaskIntoConstraints = false
-        signUpBackButton.widthAnchor.constraint(equalTo: signUpBackButton.heightAnchor).isActive = true
-        
-        return signUpBackButton
-        
-    }()
-    
-    lazy private var usernameStackView: UIStackView = {
-        
-        var usernameStackView = UIStackView(arrangedSubviews: [usernameTextField, invalidUsernameLabel])
-        usernameStackView.axis = .vertical
-        usernameStackView.alignment = .fill
-        usernameStackView.distribution = .fill
-        usernameStackView.spacing = innerElementsSpacing
-        return usernameStackView
-        
-    }()
-    
-    lazy private var usernameTextField: UITextField = {
-        
-        var usernameTextField = UITextField()
-        usernameTextField.backgroundColor = .clear
-        usernameTextField.textColor = .mainDARKPURPLE
-        usernameTextField.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        usernameTextField.attributedPlaceholder = NSAttributedString(string: "Username", attributes: [NSAttributedString.Key.font : UIFont.dynamicFont(with: "Octarine-Light", style: .subheadline), NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE])
-        usernameTextField.delegate = self
-        usernameTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 3, height: usernameTextField.intrinsicContentSize.height))
-        usernameTextField.leftViewMode = .always
-        usernameTextField.clearButtonMode = .whileEditing
-        usernameTextField.returnKeyType = .next
-        usernameTextField.autocapitalizationType = .none
-        usernameTextField.autocorrectionType = .no
-        usernameTextField.setBottomBorder(color: UIColor.mainDARKPURPLE, height: 1.0)
-        usernameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
-        
-        usernameTextField.translatesAutoresizingMaskIntoConstraints = false
-        usernameTextField.heightAnchor.constraint(equalToConstant: usernameTextField.intrinsicContentSize.height+(loginInnerInset*0.4)).isActive = true
-        
-        return usernameTextField
-        
-    }()
-    
-    lazy private var invalidUsernameLabel: UILabel = {
-        
-        var invalidUsernameLabel = UILabel()
-        invalidUsernameLabel.backgroundColor = .clear
-        invalidUsernameLabel.sizeToFit()
-        invalidUsernameLabel.numberOfLines = 0
-        invalidUsernameLabel.textColor = .mainDARKPURPLE
-        invalidUsernameLabel.font = .dynamicFont(with: "Octarine-Bold", style: .caption2)
-        invalidUsernameLabel.text = "3-15 characters (alphanumeric or underscore)."
-        
-        return invalidUsernameLabel
-        
-    }()
-    
-    lazy private var disclaimerTextView: UITextView = {
-        
-        let disclaimerText = NSMutableAttributedString(string: "By clicking Sign up, you agree to our Terms and Privacy Policy", attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption2)])
-        let termsRange = disclaimerText.mutableString.range(of: "Terms")
-        let privacyPolicyRange = disclaimerText.mutableString.range(of: "Privacy Policy")
-        
-        disclaimerText.addAttribute(.link, value: termsLink, range: termsRange)
-        disclaimerText.addAttribute(.link, value: privacyPolicyLink, range: privacyPolicyRange)
-        
-        var disclaimerTextView = UITextView()
-        disclaimerTextView.textContainerInset = .zero
-        disclaimerTextView.attributedText = disclaimerText
-        disclaimerTextView.linkTextAttributes = [NSAttributedString.Key.underlineStyle : NSUnderlineStyle.single.rawValue, NSAttributedString.Key.foregroundColor : UIColor.mainDARKPURPLE]
-        disclaimerTextView.textColor = .mainDARKPURPLE
-        disclaimerTextView.backgroundColor = .clear
-        disclaimerTextView.isEditable = false
-        disclaimerTextView.isSelectable = true
-        disclaimerTextView.isScrollEnabled = false
-        disclaimerTextView.delegate = self
-        disclaimerTextView.textAlignment = .center
-        return disclaimerTextView
-        
-    }()
-    
-    lazy private var signUpButton: LoadingButton = {
-        
-        let innerEdgeInset: CGFloat = .getPercentageWidth(percentage: 2.5)
-        
-        var signUpButton = LoadingButton(loadingIndicatorColor: .white)
-        signUpButton.backgroundColor = .mainDARKPURPLE
-        signUpButton.setTitle("Sign Up", for: .normal)
-        signUpButton.setTitleColor(.white, for: .normal)
-        signUpButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .callout)
-        signUpButton.titleLabel?.textAlignment = .center
-        signUpButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 10.0, maxSize: 12.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
-        signUpButton.isUserInteractionEnabled = false
-        signUpButton.addTarget(self, action: #selector(performSignUp(sender:)), for: .touchUpInside)
-        signUpButton.alpha = 0.6
-        
-        signUpButton.translatesAutoresizingMaskIntoConstraints = false
-        signUpButton.heightAnchor.constraint(equalToConstant: signUpButton.intrinsicContentSize.height+innerEdgeInset).isActive = true
-        
-        return signUpButton
-        
-    }()
-    
-    lazy private var switchToLoginTab: UIView = {
-        
-        let innerEdgeInset: CGFloat = .getPercentageWidth(percentage: 4)
-        
-        let switchToLoginButtonText = NSMutableAttributedString(string: "Already have an account? Log In", attributes: [.foregroundColor : UIColor.mainDARKPURPLE])
-        let lightRange = switchToLoginButtonText.mutableString.range(of: "Already have an account?")
-        let boldRange = switchToLoginButtonText.mutableString.range(of: "Log In")
-        switchToLoginButtonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Light", style: .footnote), range: lightRange)
-        switchToLoginButtonText.addAttribute(.font, value: UIFont.dynamicFont(with: "Octarine-Bold", style: .footnote), range: boldRange)
-        
-        let switchToLoginButton = BouncyButton(bouncyButtonImage: nil)
-        switchToLoginButton.backgroundColor = .clear
-        switchToLoginButton.setAttributedTitle(switchToLoginButtonText, for: .normal)
-        switchToLoginButton.titleLabel?.textAlignment = .center
-        switchToLoginButton.addTarget(self, action: #selector(switchToLogin(sender:)), for: .touchUpInside)
-        
-        let switchToLoginTabTopBorder = UIView()
-        switchToLoginTabTopBorder.backgroundColor = .mainDARKPURPLE
-        
-        var switchToLoginTab = UIView()
-        switchToLoginTab.backgroundColor = .white
-        switchToLoginTab.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
-        
-        switchToLoginTab.translatesAutoresizingMaskIntoConstraints = false
-        switchToLoginTab.heightAnchor.constraint(equalToConstant: switchToLoginButton.intrinsicContentSize.height+innerEdgeInset+4.0).isActive = true
-        
-        switchToLoginTab.addSubview(switchToLoginTabTopBorder)
-        switchToLoginTabTopBorder.translatesAutoresizingMaskIntoConstraints = false
-        switchToLoginTabTopBorder.topAnchor.constraint(equalTo: switchToLoginTab.topAnchor).isActive = true
-        switchToLoginTabTopBorder.heightAnchor.constraint(equalToConstant: 1.0).isActive = true
-        switchToLoginTabTopBorder.leadingAnchor.constraint(equalTo: switchToLoginTab.leadingAnchor).isActive = true
-        switchToLoginTabTopBorder.trailingAnchor.constraint(equalTo: switchToLoginTab.trailingAnchor).isActive = true
-        
-        switchToLoginTab.addSubview(switchToLoginButton)
-        switchToLoginButton.translatesAutoresizingMaskIntoConstraints = false
-        switchToLoginButton.topAnchor.constraint(equalTo: switchToLoginTabTopBorder.bottomAnchor).isActive = true
-        switchToLoginButton.bottomAnchor.constraint(equalTo: switchToLoginTab.bottomAnchor, constant: -3.0).isActive = true
-        switchToLoginButton.leadingAnchor.constraint(equalTo: switchToLoginTab.leadingAnchor).isActive = true
-        switchToLoginButton.trailingAnchor.constraint(equalTo: switchToLoginTab.trailingAnchor).isActive = true
-        
-        return switchToLoginTab
-        
-    }()
-    
-    lazy private var backgroundImageView: UIImageView = {
-        
-        var backgroundImageView = UIImageView(image: UIImage.appBackground)
-        backgroundImageView.contentMode = .scaleAspectFill
-        return backgroundImageView
-        
-    }()
-    
-    lazy private var poppinTitleLabel: UILabel = {
-        
-        var poppinTitleLabel = UILabel()
-        poppinTitleLabel.font = .dynamicFont(with: "Octarine-Bold", style: .title1)
-        poppinTitleLabel.textColor = .mainDARKPURPLE
-        poppinTitleLabel.text = "poppin"
-        poppinTitleLabel.textAlignment = .center
-        
-        poppinTitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        poppinTitleLabel.heightAnchor.constraint(equalToConstant: poppinTitleLabel.intrinsicContentSize.height).isActive = true
-        
-        return poppinTitleLabel
-        
-    }()
-    
-    init(fullName: String, age: Int, email: String, password: String, radius: Double, latitude: Double, longitude: Double) {
+    - Parameters:
+        - university: University object (picked on the first page of sign up).
+        - fullName: Full name of the user (entered on the second page of sign up).
+        - dateOfBirth: Date of birth of the user (entered on the second page of sign up).
+    */
+    init(university: University?, fullName: String?, dateOfBirth: Date?) {
         
         super.init(nibName: nil, bundle: nil)
         
+        self.university = university
         self.fullName = fullName
-        self.age = age
-        self.email = email
-        self.password = password
-        self.latitude = latitude
-        self.radius = radius
-        self.longitude = longitude
+        self.dateOfBirth = dateOfBirth
         
     }
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-        
-        /* FOR TRIAL PURPOSES */
-        
-        modalPresentationStyle = .overFullScreen
-        modalTransitionStyle = .coverVertical
-        
-    }
-    
+    /**
+    Required init?(coder:) not implemented (storyboard not available). WIll throw a fatal error.
+
+    - Parameter coder: NSCoder from storyboard.
+    */
     required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    /// Overrides superclass method to initialize the root view with a custom UI.
+    override func loadView() {
         
-        super.init(coder: coder)
-        
-        /* FOR TRIAL PURPOSES */
-        
-        modalPresentationStyle = .overFullScreen
-        modalTransitionStyle = .coverVertical
+        self.view = SignUpThirdPageView()
         
     }
     
+    /// Overrides superclass method to connect UI elements to the controller.
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
-        view.backgroundColor = .poppinLIGHTGOLD
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return }
         
-        let dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        dismissKeyboardGesture.cancelsTouchesInView = false
-        view.addGestureRecognizer(dismissKeyboardGesture)
+        // 2. Setting targets and delegation.
+        _ = [view.usernameTextField, view.emailTextField, view.passwordTextField, view.confirmPasswordTextField].map { $0.delegate = self }
         
-        view.addSubview(backgroundImageView)
-        backgroundImageView.translatesAutoresizingMaskIntoConstraints = false
-        backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
-        backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-        backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-        backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-        
-        view.addSubview(signUpContainerView)
-        signUpContainerView.translatesAutoresizingMaskIntoConstraints = false
-        signUpContainerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: loginInsetY).isActive = true
-        signUpContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: loginInsetX).isActive = true
-        signUpContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -loginInsetX).isActive = true
-        signUpContainerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -loginInsetY).isActive = true
+        view.signUpButton.addTarget(self, action: #selector(performSignUp), for: .touchUpInside)
+        view.backButton.addTarget(self, action: #selector(transitionToPreviousPage), for: .touchUpInside)
         
     }
     
-    @objc private func dismissKeyboard() { view.endEditing(true) }
-    
-    @objc private func textFieldDidChange() {
+    /// Overrides superclass method to reset input fields, enable swipe back, add observers for when the keyboard shows or hides, and adjust some UI elements.
+    override func viewWillAppear(_ animated: Bool) {
         
-        if usernameTextField.text != "" && !signUpButton.isUserInteractionEnabled {
+        super.viewWillAppear(animated)
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return }
+        
+        // 2. Resets previously entered credentials if any.
+        view.resetInputFields()
+        
+        // 3. Enables swipe to transition back.
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+        
+        // 4. Add observers for when the keyboard shows up or hides.
+        NotificationCenter.default.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+        
+        // 5. Adds the university email domain to the label below the email input field. If there is no domain, the label is hidden.
+        if let domain = university?.domain {
             
-            signUpButton.isUserInteractionEnabled = true
-            signUpButton.alpha = 1.0
-            
-        } else if usernameTextField.text == "" && signUpButton.isUserInteractionEnabled {
-            
-            signUpButton.isUserInteractionEnabled = false
-            signUpButton.alpha = 0.6
-            
-        }
-        
-    }
-    
-    @objc private func transitionToPreviousPage(sender: BouncyButton) {
-        
-        navigationController?.popViewController(animated: true)
-        
-    }
-    
-    @objc private func performSignUp(sender: BouncyButton) {
-        
-        let usernameFormat = "\\w{3,15}"
-        let usernamePredicate = NSPredicate(format:"SELF MATCHES %@", usernameFormat)
-        
-        var validSteps: Int = 0
-        
-        if usernamePredicate.evaluate(with: usernameTextField.text) && usernameTextField.text?.range(of: "poppin", options: .caseInsensitive) == nil && usernameTextField.text?.range(of: "admin", options: .caseInsensitive) == nil {
-            
-            validSteps+=1
+            view.invalidEmailLabel.text = "@" + domain
             
         } else {
             
-            usernameTextField.setBottomBorder(color: .socialDARKRED, height: 1.0)
-            invalidUsernameLabel.textColor = .socialDARKRED
+            view.invalidEmailLabel.isHidden = true
             
         }
         
-        if fullName != "" && age >= 13 && email != "" && password != "" {
+        // 6. Hide label below the confirm password input field.
+        view.topStack.stackView.setCustomSpacing(view.topStack.stackView.spacing, after: view.confirmPasswordTextField)
+        view.invalidConfirmPasswordLabel.isHidden = true
+        
+    }
+    
+    /// Overrides superclass method to disable swipe back.
+    override func viewWillDisappear(_ animated: Bool) {
+        
+        super.viewWillDisappear(animated)
+        
+        // 1. Disables swipe to transition back.
+        navigationController?.interactivePopGestureRecognizer?.delegate = nil
+        
+    }
+    
+    // Adjusts scollable content so that the input fields are not hidden by the keyboard. This function is called both when the keyboard appears and when it hides.
+    @objc private func adjustForKeyboard(notification: Notification) {
+        
+        // 1. Safe casting keyboard information (used to get the height).
+        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        
+        // 2. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return }
+
+        // 3. Getting keyboard height.
+        let keyboardHeight = view.convert(keyboardValue.cgRectValue, from: view.window).height
+
+        // 4. Adjust scrollable content according to whether the keyboard is showing or hiding and whether it is overlapping with any input fields.
+        if notification.name == UIResponder.keyboardWillHideNotification {
             
-            validSteps+=1
+            var contentInset = view.topStack.contentInset
+            contentInset.bottom = view.topStack.padding.bottom
+            view.topStack.contentInset = contentInset
+            
+        } else {
+            
+            var contentInset = view.topStack.contentInset
+            contentInset.bottom = keyboardHeight + view.topStack.padding.bottom
+            view.topStack.contentInset = contentInset
+            
+        }
+        
+        view.topStack.scrollIndicatorInsets = view.topStack.contentInset
+
+    }
+    
+    // Once all neccessary sign up information has been entered and passed all safe checks, this function performs the sign up.
+    @objc private func performSignUp() {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return }
+     
+        // 2. Safe check input from other pages. If fails, show error and return to start page.
+        if let university = university, let fullName = fullName, let dateOfBirth = dateOfBirth {
+            
+            // 3. Sign up button shows loading indicator.
+            view.signUpButton.startLoading()
+            
+            let usernameCheck = isUsernameValid(username: view.usernameTextField.text)
+            let emailCheck = isEmailValid(email: view.emailTextField.text, domain: university.domain)
+            let passwordCheck = isPasswordValid(password: view.passwordTextField.text)
+            let confirmPasswordCheck = doPasswordsMatch(password: view.passwordTextField.text, confirmPassword: view.confirmPasswordTextField.text)
+            
+            // 4. Safe input checks. If fails, mark the incorrect input fields and stop loading.
+            if usernameCheck, emailCheck, passwordCheck, confirmPasswordCheck {
+                
+                // 5. Username availability check (firebase).
+                authController.isUsernameAvailable(view.usernameTextField.text!) { [weak self] (isAvailable, error) in
+                    
+                    guard let self = self else { return }
+                    
+                    // 6. Error found. Stop loading and show error.
+                    if error != nil {
+                        
+                        view.signUpButton.stopLoading()
+                        
+                        let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
+                        let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button1])
+                        
+                        self.present(alertVC, animated: true, completion: nil)
+                        
+                    }
+                    
+                    // 7. Username is available.
+                    else if let isAvailable = isAvailable, isAvailable {
+                        
+                        // 8. Create user (firebase).
+                        self.authController.createUser(view.emailTextField.text!, view.passwordTextField.text!) { [weak self] (result, error, errorTitle, errorMessage) in
+                            
+                            guard let self = self else { return }
+                            
+                            // 9. Error found. Stop loading and show error.
+                            if error != nil {
+                                
+                                view.signUpButton.stopLoading()
+                                
+                                let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
+                                let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
+                                
+                                self.present(alertVC, animated: true, completion: nil)
+                                
+                            } else {
+                                
+                                // 10. Add new user to database (firebase).
+                                self.authController.addUser(result!.user, view.usernameTextField.text!, fullName: fullName, dateOfBirth: dateOfBirth, university: university) { [weak self] (error) in
+                                    
+                                    guard let self = self else { return }
+                                    
+                                    // 11. Error found. Stop loading and show error.
+                                    if error != nil {
+                                        
+                                        view.signUpButton.stopLoading()
+                                        
+                                        let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
+                                        let alertVC = AlertViewController(alertTitle: AlertViewController.defaultAlertTitle, alertMessage: AlertViewController.defaultAlertMessage, alertButtons: [button1])
+                                        
+                                        self.present(alertVC, animated: true, completion: nil)
+                                        
+                                    } else {
+                                        
+                                        // 12. Send email verification link.
+                                        self.authController.sendEmailVerification { [weak self] (error) in
+                                            
+                                            guard let self = self else { return }
+                                            
+                                            view.signUpButton.stopLoading()
+                                            
+                                            let button1 = AlertButton(alertTitle: "Log in", alertButtonAction: {
+                                                [weak self] in
+                                                
+                                                guard let self = self else { return }
+                                                
+                                                // 13. Core Data.
+                                                
+//                                                DataController.eraseAll(forEntity: "OtherAccounts")
+//                                                DataController.eraseAll(forEntity: "User")
+//                                                DataController.addUser(bio: "", username: view.usernameTextField.text, fullName: fullName, uid: result!.user.uid, radius: university.radius, latitude: university.latitude, longitude: university.longitude, notificationName: .userSignedIn)
+                                                
+                                                // 14. Transition to the login page.
+                                                self.navigationController?.pushViewController(LoginViewController(), animated: true)
+                                                
+                                            })
+                                            
+                                            let alertVC = AlertViewController(alertTitle: "Welcome to Poppin!", alertMessage: "Check your email for a verification link. If you do not receive one, check your spam folder.", alertButtons: [button1])
+                                            
+                                            self.present(alertVC, animated: true, completion: nil)
+                                            
+                                        }
+                                        
+                                    }
+                                    
+                                }
+                                
+                            }
+                            
+                        }
+                        
+                    }
+                    
+                    // 15. Username is taken. Stop loading and show error.
+                    else {
+                        
+                        view.signUpButton.stopLoading()
+                        
+                        let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
+                        
+                            view.usernameTextField.textColor = .red
+                            view.usernameTextField.setBottomBorder(color: .red, height: 1.0)
+                            view.invalidUsernameLabel.textColor = .red
+                        
+                        })
+                        let alertVC = AlertViewController(alertTitle: "Username taken", alertMessage: view.usernameTextField.text! + " is not available, please try a different one.", alertButtons: [button1])
+                        
+                        self.present(alertVC, animated: true, completion: nil)
+                        
+                    }
+                    
+                }
+                
+            } else {
+                
+                view.signUpButton.stopLoading()
+                
+            }
             
         } else {
             
@@ -371,7 +294,7 @@ final class SignUpThirdPageViewController: UIViewController {
             
                 guard let self = self else { return }
                 
-                self.navigationController?.popViewController(animated: true)
+                self.navigationController?.popToRootViewController(animated: true)
             
             })
             
@@ -381,192 +304,195 @@ final class SignUpThirdPageViewController: UIViewController {
             
         }
         
-        if validSteps == 2 {
-            
-            //self.navigationController?.dismiss(animated: true, completion: nil)
-            
-            signUpButton.startLoading()
-            view.isUserInteractionEnabled = false
-            
-            // Check if username is in db
-            
-            Auth.auth().createUser(withEmail: email, password: password) { [weak self] (authResult, error) in
-                
-                guard let self = self else { return }
-                
-                if error != nil {
-                    
-                    self.signUpButton.stopLoading()
-                    self.view.isUserInteractionEnabled = true
-                    
-                    let errorCode = AuthErrorCode(rawValue: error!._code)
-                    let errorTitle: String
-                    let errorMessage: String
-                    
-                    switch errorCode {
-                        
-                    case .emailAlreadyInUse:
-                        
-                        errorTitle = "Email is already in used"
-                        errorMessage = "The email you entered is already associated with an account. Please try again."
-                        
-                    case .invalidEmail:
-                        
-                        errorTitle = "Invalid email"
-                        errorMessage = "The email you entered is invalid. Please try again."
-                        
-                    case .networkError:
-                        
-                        errorTitle = "Network is unstable"
-                        errorMessage = "Please check your internet connection and try again."
-                        
-                    default:
-                        
-                        errorTitle = "Something went wrong"
-                        errorMessage = "Please try again."
-                        
-                    }
-                    
-                    let button1 = AlertButton(alertTitle: "Try again", alertButtonAction: nil)
-                    let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage, alertButtons: [button1])
-                    
-                    self.present(alertVC, animated: true, completion: nil)
-                    
-                } else {
-                    let geoFirestore = GeoFirestore(collectionRef: self.db.collection("userLocs"))
-                    self.db.collection("users").document(Auth.auth().currentUser!.uid).setData([
-                        "username": self.usernameTextField.text ?? "",
-                        "bio": "",
-                        "followers": [Auth.auth().currentUser?.uid : false],
-                        "following": [Auth.auth().currentUser?.uid : false],
-                        "fullName": self.fullName,
-                        "latitude": self.latitude,
-                        "longitude": self.longitude,
-                        "radius": self.radius,
-                        "myEvents": []
-                    ]) { err in
-                        if let err = err {
-                            print("Error adding document: \(err)")
-                        } else {
-                            print("Document added with ID: ")
-                            geoFirestore.setLocation(location: CLLocation(latitude: self.latitude, longitude: self.longitude), forDocumentWithID: Auth.auth().currentUser!.uid) { (error) in
-                            if let error = error {
-                                print("An error occured: \(error)")
-                            } else {
-                                print("Saved location successfully!")
-                                Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
-                                        // Notify the user that the mail has sent or couldn't because of an error.
-                                    if let error = error{
-                                        print("CANNOT SEND VERIFICATION EMAIL: \(error)")
-                                    }
-                                    else{
-                                        
-                                        let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: {
-                                            [weak self] in
-                                            
-                                            guard let self = self else { return }
-                                            DataController.eraseAll(forEntity: "OtherAccounts")
-                                            DataController.eraseAll(forEntity: "User")
-                                            DataController.addUser(bio: "", username: self.usernameTextField.text, fullName: self.fullName, uid: Auth.auth().currentUser?.uid, radius: self.radius, latitude: self.latitude, longitude: self.longitude, notificationName: .userSignedIn)
-                                            
-                                            self.signedUp()
-                                            
-                                            
-                                        })
-                                        
-                                        let button2 = AlertButton(alertTitle: "Re-send email", alertButtonAction: {
-                                            Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
-                                                if let error = error{
-                                                    print("CANNOT SEND VERIFICATION EMAIL: \(error)")
-                                                }
-                                            })
-                                        })
-                                        
-                                        let alertVC = AlertViewController(alertTitle: "Verification", alertMessage: "Email verification sent!", alertButtons: [button1, button2])
-                                        
-                                        self.present(alertVC, animated: true, completion: nil)
-                                    }
-                                    })
-                               
-                               
-                            }
-                        }
-                    }
-                    }
-                    
-//                    do{
-//                        try Auth.auth().signOut()
-//
-//                    }catch let error{
-//                        print("error \(error)")
-//                    }
-            
-
-                   
-                    //self.navigationController?.dismiss(animated: true, completion: nil)
-                    
-                }
-                
-            }
-            
-        }
-        
     }
     
-    private func signedUp() {
-          
-          if let firstAfterRootVC = navigationController?.viewControllers[1] as? LoginViewController {
-              
-              firstAfterRootVC.resetTextFields()
-              navigationController?.popToViewController(firstAfterRootVC, animated: true)
-              //NotificationCenter.default.post(name: .userSignedUp, object: nil)
-              
-          } else {
-              
-              navigationController?.pushViewController(LoginViewController(), animated: true)
-             // NotificationCenter.default.post(name: .userSignedUp, object: nil)
-              
-          }
-          
-      }
-    
-    @objc private func switchToLogin(sender: BouncyButton) {
+    // Checks if username has the correct length and does not contain app related words or unsupported characters. If fails, the input field is marked as invalid.
+    private func isUsernameValid(username: String?) -> Bool {
         
-        if let firstAfterRootVC = navigationController?.viewControllers[1] as? LoginViewController {
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return false }
+        
+        let usernameFormat = "\\w{3,15}"
+        let usernamePredicate = NSPredicate(format:"SELF MATCHES %@", usernameFormat)
+        
+        if let username = username, usernamePredicate.evaluate(with: username), username.range(of: "poppin", options: .caseInsensitive) == nil, username.range(of: "admin", options: .caseInsensitive) == nil {
             
-            firstAfterRootVC.resetTextFields()
-            navigationController?.popToViewController(firstAfterRootVC, animated: true)
+            return true
             
         } else {
             
-            navigationController?.pushViewController(LoginViewController(), animated: true)
+            // 2. Marked as invalid.
+            view.usernameTextField.textColor = .red
+            view.usernameTextField.setBottomBorder(color: .red, height: 1.0)
+            view.invalidUsernameLabel.textColor = .red
+            
+            return false
             
         }
         
     }
     
-    func resetTextFields() {
+    // Checks if email has the correct format and that is a valid school email according to their university domain. If fails, the input field is marked as invalid.
+    private func isEmailValid(email: String?, domain: String?) -> Bool {
         
-        usernameTextField.text = ""
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return false }
         
-        textFieldDidChange()
+        if let email = email, let domain = domain, email.lowercased().hasSuffix("@" + domain) {
+            
+            return true
+            
+        } else {
+            
+            // 2. Marked as invalid.
+            view.emailTextField.textColor = .red
+            view.emailTextField.setBottomBorder(color: .red, height: 1.0)
+            view.invalidEmailLabel.textColor = .red
+            
+            return false
+            
+        }
         
-        usernameTextField.setBottomBorder(color: .mainDARKPURPLE, height: 1.0)
-        invalidUsernameLabel.textColor = .mainDARKPURPLE
+    }
+    
+    // Checks if password has the correct length and contains at least one number and one upper case letter. If fails, the input field is marked as invalid.
+    private func isPasswordValid(password: String?) -> Bool {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return false }
+        
+        let passwordFormat = "(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,}"
+        let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordFormat)
+        
+        if let password = password, passwordPredicate.evaluate(with: password) {
+            
+            return true
+            
+        } else {
+            
+            // 2. Marked as invalid
+            view.passwordTextField.textColor = .red
+            view.passwordTextField.setBottomBorder(color: .red, height: 1.0)
+            view.invalidPasswordLabel.textColor = .red
+            
+            return false
+            
+        }
+        
+    }
+    
+    // Checks if the password and confirm password inputs match. If fails, the input field is marked as invalid.
+    private func doPasswordsMatch(password: String?, confirmPassword: String?) -> Bool {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return false }
+        
+        if let password = password, let confirmPassword = confirmPassword, password == confirmPassword {
+            
+            return true
+            
+        } else {
+            
+            // 2. Marked as invalid.
+            view.confirmPasswordTextField.textColor = .red
+            view.confirmPasswordTextField.setBottomBorder(color: .red, height: 1.0)
+            view.invalidConfirmPasswordLabel.textColor = .red
+            view.topStack.stackView.setCustomSpacing(view.topStack.stackView.customSpacing(after: view.usernameTextField), after: view.confirmPasswordTextField)
+            view.invalidConfirmPasswordLabel.isHidden = false
+            
+            return false
+            
+        }
+        
+    }
+    
+    // Transitions to the previous page of the sign up.
+    @objc private func transitionToPreviousPage() {
+        
+        navigationController?.popViewController(animated: true)
         
     }
     
 }
 
-extension SignUpThirdPageViewController: UITextFieldDelegate, UITextViewDelegate {
+extension SignUpThirdPageViewController: UITextFieldDelegate {
     
+    /**
+    Delegate function triggered when an input field begins editing. If the input field has been marked as invalid, it is unmarked and turned back to normal.
+
+    - Parameters:
+        - textField: Input field that returned
+    */
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return true }
+        
+        // 2. Check if input field is invalid.
+        if textField.textColor == .red {
+            
+            if textField == view.usernameTextField {
+                
+                view.usernameTextField.textColor = .mainDARKPURPLE
+                view.usernameTextField.setBottomBorder(color: .mainDARKPURPLE, height: 1.0)
+                view.invalidUsernameLabel.textColor = .mainDARKPURPLE
+                
+            } else if textField == view.emailTextField {
+                
+                view.emailTextField.textColor = .mainDARKPURPLE
+                view.emailTextField.setBottomBorder(color: .mainDARKPURPLE, height: 1.0)
+                view.invalidEmailLabel.textColor = .mainDARKPURPLE
+                
+            } else if textField == view.passwordTextField {
+                
+                view.passwordTextField.textColor = .mainDARKPURPLE
+                view.passwordTextField.setBottomBorder(color: .mainDARKPURPLE, height: 1.0)
+                view.invalidPasswordLabel.textColor = .mainDARKPURPLE
+                
+            } else if textField == view.confirmPasswordTextField {
+                
+                view.confirmPasswordTextField.textColor = .mainDARKPURPLE
+                view.confirmPasswordTextField.setBottomBorder(color: .mainDARKPURPLE, height: 1.0)
+                view.invalidConfirmPasswordLabel.textColor = .mainDARKPURPLE
+                view.topStack.stackView.setCustomSpacing(view.topStack.stackView.spacing, after: view.confirmPasswordTextField)
+                view.invalidConfirmPasswordLabel.isHidden = true
+                
+            }
+            
+        }
+        
+        return true
+        
+    }
+    
+    /**
+    Delegate function triggered by the return button on the keyboard. Hops to the next input field and finally performs the sign up.
+
+    - Parameters:
+        - textField: Input field that returned
+    */
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? SignUpThirdPageView else { return true }
         
         textField.resignFirstResponder()
         
-        if textField == usernameTextField {
+        if textField == view.usernameTextField {
             
-            performSignUp(sender: signUpButton)
+            view.emailTextField.becomeFirstResponder()
+            
+        } else if textField == view.emailTextField {
+            
+            view.passwordTextField.becomeFirstResponder()
+            
+        } else if textField == view.passwordTextField {
+            
+            view.confirmPasswordTextField.becomeFirstResponder()
+            
+        } else if textField == view.confirmPasswordTextField {
+            
+            performSignUp()
             
         }
         
@@ -574,36 +500,14 @@ extension SignUpThirdPageViewController: UITextFieldDelegate, UITextViewDelegate
         
     }
     
-    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        
-        if textField == usernameTextField && invalidUsernameLabel.textColor.isEqual(UIColor.socialDARKRED) {
-            
-            usernameTextField.setBottomBorder(color: .mainDARKPURPLE, height: 1.0)
-            invalidUsernameLabel.textColor = .mainDARKPURPLE
-            
-        }
+}
+
+extension SignUpThirdPageViewController: UIGestureRecognizerDelegate {
+    
+    /// REQUIRED: Fails other gesture recognizers when swiping to transition back.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
-        
-    }
-    
-    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-        
-        if URL.absoluteString == "Terms" {
-            
-            // Future Action
-            
-            print("Showing Terms")
-            
-        } else if URL.absoluteString == "Privacy" {
-            
-            // Future Action
-            
-            print("Showing Privacy Policy")
-            
-        }
-        
-        return false
         
     }
     

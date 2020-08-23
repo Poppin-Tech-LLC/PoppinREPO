@@ -236,7 +236,12 @@ final class CreateEventSecondSectionView: UIView {
         editLocationButtonContainerView.addSubview(editLocationButton)
         editLocationButton.anchor(top: editLocationButtonContainerView.topAnchor, bottom: editLocationButtonContainerView.bottomAnchor, centerX: editLocationButtonContainerView.centerXAnchor)
         
-        var containerStackView = UIStackView(arrangedSubviews: [titleTextView, popsicleBorderView, dateTextView, locationContainerView, editLocationButtonContainerView, detailsTextView, onlineURLTextView, onlineEventHelpTextView])
+        let editOnlineURLButtonContainerView = UIView()
+        editOnlineURLButtonContainerView.backgroundColor = .clear
+        editOnlineURLButtonContainerView.addSubview(editOnlineURLButton)
+        editOnlineURLButton.anchor(top: editOnlineURLButtonContainerView.topAnchor, bottom: editOnlineURLButtonContainerView.bottomAnchor, centerX: editOnlineURLButtonContainerView.centerXAnchor)
+        
+        var containerStackView = UIStackView(arrangedSubviews: [titleTextView, popsicleBorderView, dateTextView, locationContainerView, editLocationButtonContainerView, onlineURLContainerView, editOnlineURLButtonContainerView, detailsTextView])
         containerStackView.axis = .vertical
         containerStackView.alignment = .fill
         containerStackView.distribution = .fill
@@ -244,7 +249,8 @@ final class CreateEventSecondSectionView: UIView {
         containerStackView.setCustomSpacing(0.0, after: locationContainerView)
         containerStackView.setCustomSpacing(0.0, after: titleTextView)
         containerStackView.setCustomSpacing(0.0, after: popsicleBorderView)
-        containerStackView.setCustomSpacing(yInset*0.6, after: onlineURLTextView)
+        containerStackView.setCustomSpacing(yInset*0.8, after: editLocationButtonContainerView)
+        containerStackView.setCustomSpacing(0.0, after: onlineURLContainerView)
         return containerStackView
         
     }()
@@ -455,45 +461,91 @@ final class CreateEventSecondSectionView: UIView {
         
     }()
     
+    lazy private var onlineURLContainerView: UIView = {
+        
+        let innerInset: CGFloat = yInset*0.33
+        
+        var onlineURLContainerView = UIView()
+        onlineURLContainerView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        onlineURLContainerView.clipsToBounds = true
+        onlineURLContainerView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
+        
+        onlineURLContainerView.addSubview(onlineURLLabel)
+        onlineURLLabel.anchor(top: onlineURLContainerView.topAnchor, leading: onlineURLContainerView.leadingAnchor, trailing: onlineURLContainerView.trailingAnchor, padding: UIEdgeInsets(top: innerInset, left: innerInset, bottom: 0.0, right: innerInset))
+        
+        onlineURLContainerView.addSubview(onlineURLTextView)
+        onlineURLTextView.anchor(top: onlineURLLabel.bottomAnchor, leading: onlineURLLabel.leadingAnchor, bottom: onlineURLContainerView.bottomAnchor, trailing: onlineURLLabel.trailingAnchor, padding: UIEdgeInsets(top: innerInset, left: 0.0, bottom: innerInset, right: 0.0))
+        
+        return onlineURLContainerView
+        
+    }()
+    
+    lazy private(set) var onlineURLLabel: UILabel = {
+        
+        var onlineURLLabel = UILabel()
+        onlineURLLabel.textAlignment = .center
+        onlineURLLabel.backgroundColor = .clear
+        onlineURLLabel.numberOfLines = 1
+        onlineURLLabel.textColor = .white
+        onlineURLLabel.text = "Online Event Link"
+        onlineURLLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        return onlineURLLabel
+        
+    }()
+    
     lazy private(set) var onlineURLTextView : UITextView = {
         
         var onlineURLTextView = UITextView()
-        onlineURLTextView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
         onlineURLTextView.textColor = .white
-        onlineURLTextView.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        onlineURLTextView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+        onlineURLTextView.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
         
         if let onlineURL = eventModel.onlineURL {
             
-            onlineURLTextView.text = "Online Event Link: \n" + onlineURL.absoluteString
+            onlineURLTextView.text = onlineURL.absoluteString
             
         } else {
             
-            onlineURLTextView.text = "Add Online Event Link *"
+            onlineURLTextView.text = "Your event can take place online by adding a link. The physical location you enter will only be informative and help people find your event."
             
         }
         
+        onlineURLTextView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        onlineURLTextView.linkTextAttributes = [.foregroundColor: UIColor.white, .underlineStyle : NSUnderlineStyle.single.rawValue]
         onlineURLTextView.textAlignment = .center
-        onlineURLTextView.layer.cornerRadius = .getWidthFitSize(minSize: 12.0, maxSize: 14.0)
         onlineURLTextView.isScrollEnabled = false
+        onlineURLTextView.dataDetectorTypes = .link
+        onlineURLTextView.isSelectable = true
+        onlineURLTextView.isEditable = false
         onlineURLTextView.autocapitalizationType = .none
         onlineURLTextView.autocorrectionType = .no
         return onlineURLTextView
         
     }()
     
-    lazy private var onlineEventHelpTextView : UITextView = {
+    lazy private(set) var editOnlineURLButton: UIButton = {
         
-        var onlineEventHelpTextView = UITextView()
-        onlineEventHelpTextView.backgroundColor = .clear
-        onlineEventHelpTextView.textColor = .white
-        onlineEventHelpTextView.font = .dynamicFont(with: "Octarine-Light", style: .footnote)
-        onlineEventHelpTextView.text = "* Your event can take place online by adding a link. The physical location you enter will only be informative and help people find your event."
-        onlineEventHelpTextView.isScrollEnabled = false
-        onlineEventHelpTextView.isUserInteractionEnabled = false
-        onlineEventHelpTextView.autocapitalizationType = .none
-        onlineEventHelpTextView.autocorrectionType = .no
-        onlineEventHelpTextView.textContainerInset = UIEdgeInsets(top: 0.0, left: xInset*0.1, bottom: 0.0, right: xInset*0.1)
-        return onlineEventHelpTextView
+        let innerInset: CGFloat = yInset*0.33
+        
+        var editOnlineURLButton = UIButton(type: .system)
+        
+        if let onlineURL = eventModel.onlineURL {
+            
+            editOnlineURLButton.setTitle("Edit", for: .normal)
+            
+        } else {
+            
+            editOnlineURLButton.setTitle("Add", for: .normal)
+            
+        }
+        
+        editOnlineURLButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        editOnlineURLButton.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        editOnlineURLButton.setTitleColor(.white, for: .normal)
+        editOnlineURLButton.titleLabel?.textAlignment = .center
+        editOnlineURLButton.contentEdgeInsets = UIEdgeInsets(top: innerInset*0.5, left: innerInset*2.5, bottom: innerInset, right: innerInset*2.5)
+        editOnlineURLButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        return editOnlineURLButton
         
     }()
     
@@ -501,7 +553,7 @@ final class CreateEventSecondSectionView: UIView {
         
         let innerInset: CGFloat = yInset*0.4
         
-        var createButton = LoadingButton(loadingIndicatorColor: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1])
+        var createButton = LoadingButton(bgColor: nil, label: nil)
         createButton.backgroundColor = .white
         createButton.setTitle("Create", for: .normal)
         createButton.titleLabel?.textAlignment = .center

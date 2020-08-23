@@ -46,7 +46,8 @@ final class MapViewController: UIViewController {
     private var shouldPresentLoginVC: Bool = false
     private var menuIsVisible: Bool = false
     private var avIsVisible: Bool = false
-    private var eventInfoIsVisible: Bool = false
+    private var eventInfoIsHalfVisible: Bool = false
+    private var eventInfoIsFullyVisible: Bool = false
     private var firstTimeLoading: Bool = true
     
     let monitor = NWPathMonitor()
@@ -149,6 +150,7 @@ final class MapViewController: UIViewController {
         
         var mapCloseTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(closeMenu(sender:)))
         mapCloseTapGestureRecognizer.addTarget(self, action: #selector(closeAV(sender:)))
+        mapCloseTapGestureRecognizer.addTarget(self, action: #selector(closeEventInfo))
         return mapCloseTapGestureRecognizer
         
     }()
@@ -527,17 +529,21 @@ final class MapViewController: UIViewController {
     
     @objc private func handleEventInfoPan(sender: UIPanGestureRecognizer) {
         
-        let translation = sender.translation(in: self.view)
+        if !eventInfoIsFullyVisible && !eventInfoIsHalfVisible { return }
+        
+        guard let infoView = eventInfoViewController.view as? EventInfoView else { return }
+        
+        let translation = sender.translation(in: sender.view)
         
         if sender.state == .ended || sender.state == .failed || sender.state == .cancelled {
             
-            if eventInfoIsVisible, translation.y > 0.0 {
+            if translation.y > 0.0 {
                 
                 closeEventInfo()
                 
-            } else if !eventInfoIsVisible, translation.y < 0.0 {
+            } else if translation.y < 0.0 {
                 
-                openEventInfo()
+                openEventInfoFully()
                 
             }
             
@@ -545,74 +551,112 @@ final class MapViewController: UIViewController {
             
         }
         
-        let eventInfoHeight = view.frame.height - view.safeAreaInsets.top
+        print("Translation: ", translation.y, " Bottom: ", eventInfoBottomConstraint.constant)
         
-        if eventInfoIsVisible, translation.y > 0.0, translation.y <= eventInfoHeight {
-            
-            eventInfoBottomConstraint.constant = translation.y
-            
-        }
+        guard let superview = infoView.createdByView.superview else { return }
+        let height = superview.convert(infoView.createdByView.frame, to: infoView).maxY + infoView.yInset
         
-        if !eventInfoIsVisible, translation.y >= -eventInfoHeight, translation.y < 0.0 {
+        if eventInfoIsHalfVisible && !eventInfoIsFullyVisible {
             
-            eventInfoBottomConstraint.constant = translation.y + eventInfoHeight
+            if translation.y > 0.0, translation.y <= height {
+                
+                eventInfoBottomConstraint.constant = (infoView.frame.height - height) + translation.y
+                
+            } else if translation.y < 0.0, translation.y >= -(infoView.frame.height - height) {
+                
+                eventInfoBottomConstraint.constant = (infoView.frame.height - height) + translation.y
+                
+            }
+            
+        } else if eventInfoIsFullyVisible && !eventInfoIsHalfVisible {
+            
+            if translation.y > 0.0, translation.y <= infoView.frame.height {
+                
+                eventInfoBottomConstraint.constant = translation.y
+                
+            }
             
         }
         
     }
     
-    @objc private func openEventInfo() {
+    private func openEventInfoHalf() {
         
-        if !eventInfoIsVisible {
-            
-            guard let infoView = eventInfoViewController.view as? EventInfoView else { return }
-            
-            infoView.topFadeEdgeView.isHidden = true
-            infoView.bottomFadeEdgeView.isHidden = true
+        guard let infoView = eventInfoViewController.view as? EventInfoView else { return }
+        guard let superview = infoView.createdByView.superview else { return }
         
-            view.layoutIfNeeded()
+        infoView.topFadeEdgeView.isHidden = true
+        infoView.bottomFadeEdgeView.isHidden = true
+        
+        view.layoutIfNeeded()
+        
+        let height = superview.convert(infoView.createdByView.frame, to: infoView).maxY + infoView.yInset
+        
+        UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             
-            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                
-                self.eventInfoBottomConstraint.constant = 0.0
-                self.view.layoutIfNeeded()
-                
-            }, completion: { finished in
+            self.eventInfoBottomConstraint.constant = infoView.frame.height - height
+            self.view.layoutIfNeeded()
             
-                self.view.addGestureRecognizer(self.eventInfoSlidePanGestureRecognizer)
-                self.eventInfoIsVisible = true
-                infoView.topFadeEdgeView.isHidden = false
-                infoView.bottomFadeEdgeView.isHidden = false
+        }, completion: { finished in
             
-            })
+            self.view.addGestureRecognizer(self.eventInfoSlidePanGestureRecognizer)
+            self.mapContainerView.addGestureRecognizer(self.mapCloseTapGestureRecognizer)
+            self.mapView.isUserInteractionEnabled = false
+            self.eventInfoIsHalfVisible = true
+            self.eventInfoIsFullyVisible = false
+            infoView.cardScrollView.isScrollEnabled = false
+            infoView.topFadeEdgeView.isHidden = false
+            infoView.bottomFadeEdgeView.isHidden = false
             
-        }
+        })
+        
+    }
+    
+    private func openEventInfoFully() {
+        
+        guard let infoView = eventInfoViewController.view as? EventInfoView else { return }
+        
+        view.layoutIfNeeded()
+        
+        UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+            
+            self.eventInfoBottomConstraint.constant = 0.0
+            self.view.layoutIfNeeded()
+            
+        }, completion: { finished in
+            
+            self.eventInfoIsHalfVisible = false
+            self.eventInfoIsFullyVisible = true
+            infoView.cardScrollView.isScrollEnabled = true
+            
+        })
         
     }
     
     @objc private func closeEventInfo() {
         
-        if eventInfoIsVisible {
+        if !eventInfoIsHalfVisible && !eventInfoIsFullyVisible { return }
+        
+        guard let infoView = eventInfoViewController.view as? EventInfoView else { return }
+        
+        UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             
-            guard let infoView = eventInfoViewController.view as? EventInfoView else { return }
-         
-            UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                
-                self.eventInfoBottomConstraint.constant = self.view.frame.height - self.view.safeAreaInsets.top
-                self.view.layoutIfNeeded()
-                
-            }, completion: { finished in
-                
-                self.view.removeGestureRecognizer(self.eventInfoSlidePanGestureRecognizer)
-                self.eventInfoIsVisible = false
-
-                infoView.cardScrollView.setContentOffset(CGPoint(
+            self.eventInfoBottomConstraint.constant = infoView.frame.height
+            self.view.layoutIfNeeded()
+            
+        }, completion: { finished in
+            
+            self.view.removeGestureRecognizer(self.eventInfoSlidePanGestureRecognizer)
+            self.mapContainerView.removeGestureRecognizer(self.mapCloseTapGestureRecognizer)
+            self.mapView.isUserInteractionEnabled = true
+            self.eventInfoIsFullyVisible = false
+            self.eventInfoIsHalfVisible = false
+            
+            infoView.cardScrollView.setContentOffset(CGPoint(
                 x: -infoView.cardScrollView.adjustedContentInset.left,
                 y: -infoView.cardScrollView.adjustedContentInset.top), animated: false)
-                
-            })
             
-        }
+        })
         
     }
     
@@ -901,6 +945,8 @@ final class MapViewController: UIViewController {
             getPopsicles()
         
         mapView.addAnnotation(PopsicleAnnotation(eventTitle: "ISO Global Cafe", eventDetails: "jasda sdjhas djha sdh asjhd as djha sjhajh jhas dja sjh asjd ajs djha sj asjhd ad as djhas djha sjhd ajd as djhas djh asdjh asd ajd as djhas djh asj asd jas dja sdjh asjhd as djhas djha sdjh asdj asjd a djas dja sdj asd jhas djasdja sjh ashd asj djha sda sjhasd ajsd jhas djha sd ad ajs djha sdj asjd jhas djh asjd jS DJHa s asdh as djhas djha sdasd asjd jas djha sdj asjd asj das dj asdj asd ajS DJHa sdj asd ashdasdaisdbkabSDKBASJKDB as aSDJ  asdbna SDNB asbnd abnS DNBa sdnb ASDNB asbnd anbS Dnbasnb asnbd anS DNa sdn aSDNB anbs dnba SDNB asbnd anbS DNBa sdbn aSBND anbs dnba SDNBa sdnb aSND nbas dnbaSDNB anbs dna SND anbs dnba SDNB a ", eventStartDate: Date() + 15.minutes, eventEndDate: Date() + 45.minutes, eventCategory: .Food, eventHashtags: nil, eventLocation: CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619), eventAttendees: []))
+        
+        mapView.addAnnotation(PopsicleAnnotation(eventTitle: "ISO Global Cafe asbda sdjhas dja sdbab", eventDetails: "jasda sdjhas djha sdh asjhd as djha sjhajh jhas dja sjh asjd ajs djha sj asjhd ad as djhas djha sjhd ajd as djhas djh asdjh asd ajd as djhas djh asj asd jas dja sdjh asjhd as djhas djha sdjh asdj asjd a djas dja sdj asd jhas djasdja sjh ashd asj djha sda sjhasd ajsd jhas djha sd ad ajs djha sdj asjd jhas djh asjd jS DJHa s asdh as djhas djha sdasd asjd jas djha sdj asjd asj das dj asdj asd ajS DJHa sdj asd ashdasdaisdbkabSDKBASJKDB as aSDJ  asdbna SDNB asbnd abnS DNBa sdnb ASDNB asbnd anbS Dnbasnb asnbd anS DNa sdn aSDNB anbs dnba SDNB asbnd anbS DNBa sdbn aSBND anbs dnba SDNBa sdnb aSND nbas dnbaSDNB anbs dna SND anbs dnba SDNB a ", eventStartDate: Date() + 15.minutes, eventEndDate: Date() + 45.minutes, eventCategory: .Social, eventHashtags: nil, eventLocation: CLLocationCoordinate2D(latitude: 39.677, longitude: -104.963), eventAttendees: []))
         
     }
     
@@ -1276,11 +1322,21 @@ extension MapViewController: MKMapViewDelegate {
             
             print("Popsicle selected.")
             
-            let eventModel = EventModel(id: selectedPopsicle.popsicleAnnotationData.eventTitle, title: selectedPopsicle.popsicleAnnotationData.eventTitle, details: selectedPopsicle.popsicleAnnotationData.eventDetails, onlineURL: nil, startDate: selectedPopsicle.popsicleAnnotationData.eventStartDate, endDate: selectedPopsicle.popsicleAnnotationData.eventEndDate, location: selectedPopsicle.popsicleAnnotationData.eventLocation, authorId: "", category: selectedPopsicle.popsicleAnnotationData.eventCategory, attendeesIds: selectedPopsicle.popsicleAnnotationData.eventAttendees, isPublic: false, isPoppin: false, isEditable: true)
+            let eventModel: EventModel
+            
+            if selectedPopsicle.popsicleAnnotationData.eventTitle == "ISO Global Cafe" {
+                
+                eventModel = EventModel(id: selectedPopsicle.popsicleAnnotationData.eventTitle, title: selectedPopsicle.popsicleAnnotationData.eventTitle, details: selectedPopsicle.popsicleAnnotationData.eventDetails, onlineURL: nil, startDate: selectedPopsicle.popsicleAnnotationData.eventStartDate, endDate: selectedPopsicle.popsicleAnnotationData.eventEndDate, location: selectedPopsicle.popsicleAnnotationData.eventLocation, authorId: "", category: selectedPopsicle.popsicleAnnotationData.eventCategory, attendeesIds: selectedPopsicle.popsicleAnnotationData.eventAttendees, isPublic: false, isPoppin: false, isEditable: true)
+                
+            } else {
+                
+                eventModel = EventModel(id: selectedPopsicle.popsicleAnnotationData.eventTitle, title: selectedPopsicle.popsicleAnnotationData.eventTitle, details: selectedPopsicle.popsicleAnnotationData.eventDetails, onlineURL: URL(string: "https://udenver.zoom.us/j/246432601"), startDate: selectedPopsicle.popsicleAnnotationData.eventStartDate, endDate: selectedPopsicle.popsicleAnnotationData.eventEndDate, location: selectedPopsicle.popsicleAnnotationData.eventLocation, authorId: "", category: selectedPopsicle.popsicleAnnotationData.eventCategory, attendeesIds: selectedPopsicle.popsicleAnnotationData.eventAttendees, isPublic: false, isPoppin: false, isEditable: true)
+                
+            }
             
             eventInfoViewController.setEvent(eventModel: eventModel)
             
-            openEventInfo()
+            openEventInfoHalf()
             
         } else if let selectedPopsicle = view.annotation, selectedPopsicle is MKUserLocation {
             

@@ -11,6 +11,7 @@ import SFSafeSymbols // Allows for easy access of Apple Symbols
 import MapKit
 import SwiftDate
 import Contacts
+import SwiftUI
 
 extension UIFont {
     
@@ -213,7 +214,70 @@ extension UIImage {
     
     static let sadPopsicle = UIImage(named: "sadPopsicle")
     static let happyPopsicle = UIImage(named: "happyPopsicle")
+    
+    func scalePreservingAspectRatio(targetSize: CGSize) -> UIImage {
+        // Determine the scale factor that preserves aspect ratio
+        let widthRatio = targetSize.width / size.width
+        let heightRatio = targetSize.height / size.height
+        
+        let scaleFactor = min(widthRatio, heightRatio)
+        
+        // Compute the new image size that preserves aspect ratio
+        let scaledImageSize = CGSize(
+            width: size.width * scaleFactor,
+            height: size.height * scaleFactor
+        )
 
+        // Draw and return the resized UIImage
+        let renderer = UIGraphicsImageRenderer(
+            size: scaledImageSize
+        )
+
+        let scaledImage = renderer.image { _ in
+            self.draw(in: CGRect(
+                origin: .zero,
+                size: scaledImageSize
+            ))
+        }
+        
+        return scaledImage
+    }
+
+}
+
+extension UILayoutGuide {
+    
+    func anchor(top: NSLayoutYAxisAnchor? = nil, leading: NSLayoutXAxisAnchor? = nil, bottom: NSLayoutYAxisAnchor? = nil, trailing: NSLayoutXAxisAnchor? = nil, centerX: NSLayoutXAxisAnchor? = nil, centerY: NSLayoutYAxisAnchor? = nil, width: NSLayoutDimension? = nil, height: NSLayoutDimension? = nil, size: CGSize = .zero, padding: UIEdgeInsets = .zero, centerOffset: CGSize = .zero, multiples: CGSize = CGSize(width: 1.0, height: 1.0), constants: CGSize = CGSize(width: 0.0, height: 0.0)) {
+        
+        if let top = top { topAnchor.constraint(equalTo: top, constant: padding.top).isActive = true }
+        if let leading = leading { leadingAnchor.constraint(equalTo: leading, constant: padding.left).isActive = true }
+        if let bottom = bottom { bottomAnchor.constraint(equalTo: bottom, constant: -padding.bottom).isActive = true }
+        if let trailing = trailing { trailingAnchor.constraint(equalTo: trailing, constant: -padding.right).isActive = true }
+        if let centerX = centerX { centerXAnchor.constraint(equalTo: centerX, constant: centerOffset.width).isActive = true }
+        if let centerY = centerY { centerYAnchor.constraint(equalTo: centerY, constant: centerOffset.height).isActive = true }
+        if let width = width { widthAnchor.constraint(equalTo: width, multiplier: multiples.width, constant: constants.width).isActive = true }
+        if let height = height { heightAnchor.constraint(equalTo: height, multiplier: multiples.height, constant: constants.height).isActive = true }
+        if size.width != 0.0 { widthAnchor.constraint(equalToConstant: size.width).isActive = true }
+        if size.height != 0.0 { heightAnchor.constraint(equalToConstant: size.height).isActive = true }
+        
+    }
+    
+    func attatchEdgesTo(superview: UIView, safeArea: Bool, padding: UIEdgeInsets = .zero) {
+        
+        if !superview.layoutGuides.contains(self) { return }
+        
+        if safeArea {
+            
+            anchor(top: superview.safeAreaLayoutGuide.topAnchor, leading: superview.safeAreaLayoutGuide.leadingAnchor, bottom: superview.safeAreaLayoutGuide.bottomAnchor, trailing: superview.safeAreaLayoutGuide.trailingAnchor, padding: padding)
+            
+        } else {
+            
+            anchor(top: superview.topAnchor, leading: superview.leadingAnchor, bottom: superview.bottomAnchor, trailing: superview.trailingAnchor, padding: padding)
+            
+        }
+        
+    }
+    
 }
 
 extension UIView {
@@ -238,6 +302,17 @@ extension UIView {
     func attatchEdgesToSuperview(padding: UIEdgeInsets = .zero) {
         
         anchor(top: superview?.topAnchor, leading: superview?.leadingAnchor, bottom: superview?.bottomAnchor, trailing: superview?.trailingAnchor, padding: padding)
+        
+    }
+    
+    func apply(shadow: Shadow) {
+        
+        layer.masksToBounds = false
+        
+        layer.shadowColor = shadow.color.cgColor
+        layer.shadowRadius = shadow.radius < 0.0 ? 0.0 : shadow.radius
+        layer.shadowOffset = CGSize(width: shadow.x, height: shadow.y)
+        layer.shadowOpacity = 1.0
         
     }
     
@@ -430,6 +505,18 @@ extension CGFloat {
     public static func getPercentageWidth(percentage: CGFloat) -> CGFloat {
         
         return (CGFloat(abs(percentage))/100)*CGSize.currentIphoneSize.width
+        
+    }
+    
+    static func width(percent: CGFloat) -> CGFloat {
+        
+        return (CGFloat(abs(percent))/100)*CGSize.currentIphoneSize.width
+        
+    }
+    
+    static func height(percent: CGFloat) -> CGFloat {
+        
+        return (CGFloat(abs(percent))/100)*CGSize.currentIphoneSize.height
         
     }
     

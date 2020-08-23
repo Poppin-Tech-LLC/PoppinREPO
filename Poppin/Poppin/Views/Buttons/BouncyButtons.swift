@@ -44,7 +44,7 @@ class BouncyButton: UIButton {
     
     @objc private func animateDown(sender: UIButton) {
         
-        animate(sender, transform: CGAffineTransform.identity.scaledBy(x: 0.95, y: 0.95), alpha: 0.9)
+        animate(sender, transform: CGAffineTransform.identity.scaledBy(x: 0.90, y: 0.90), alpha: 0.9)
         
     }
     
@@ -56,10 +56,10 @@ class BouncyButton: UIButton {
     
     private func animate(_ button: UIButton, transform: CGAffineTransform, alpha: CGFloat) {
         
-        UIView.animate(withDuration: 0.4,
+        UIView.animate(withDuration: 0.55,
                        delay: 0,
-                       usingSpringWithDamping: 0.5,
-                       initialSpringVelocity: 3,
+                       usingSpringWithDamping: 0.825,
+                       initialSpringVelocity: 1.0,
                        options: [.curveEaseInOut, .allowUserInteraction],
                        animations: {
                         
@@ -131,69 +131,35 @@ final class ImageBubbleButton: BubbleButton {
     
 }
 
-final class LoadingButton: BouncyButton {
+final class LoadingButton: OctarineButton {
     
-    private var indicatorColor: UIColor = .white
-    private var buttonTitle: String = "Button"
-    
-    lazy private var loadingIndicatorView: UIActivityIndicatorView = {
+    lazy private var loadingView: UIActivityIndicatorView = {
         
-        var loadingIndicatorView = UIActivityIndicatorView()
-        loadingIndicatorView.color = indicatorColor
-        
-        loadingIndicatorView.translatesAutoresizingMaskIntoConstraints = false
-        loadingIndicatorView.widthAnchor.constraint(equalTo: loadingIndicatorView.heightAnchor).isActive = true
-        
-        return loadingIndicatorView
+        var loadingView = UIActivityIndicatorView()
+        loadingView.isUserInteractionEnabled = false
+        loadingView.color = self.backgroundColor
+        return loadingView
         
     }()
-    
-    init(loadingIndicatorColor: UIColor?) {
-        
-        super.init(bouncyButtonImage: nil)
-        
-        if let newLoadingIndicatorColor = loadingIndicatorColor { indicatorColor = newLoadingIndicatorColor}
-        
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        
-        super.init(coder: aDecoder)
-        
-    }
     
     func startLoading() {
         
         isUserInteractionEnabled = false
-        
-        if let title = title(for: .normal), title != "" {
-            
-            buttonTitle = title
-            
-        } else {
-            
-            buttonTitle = "Button"
-            
-        }
-        
-        setTitle(nil, for: .normal)
-        loadingIndicatorView.startAnimating()
-        
-        addSubview(loadingIndicatorView)
-        loadingIndicatorView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        loadingIndicatorView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-        loadingIndicatorView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+        loadingView.color = titleColor(for: .normal)
+        setTitleColor(backgroundColor, for: .normal)
+        loadingView.startAnimating()
+        addSubview(loadingView)
+        loadingView.anchor(centerX: centerXAnchor, centerY: centerYAnchor)
         
     }
     
     func stopLoading() {
         
         isUserInteractionEnabled = true
-        
-        loadingIndicatorView.removeFromSuperview()
-        loadingIndicatorView.stopAnimating()
-        
-        setTitle(buttonTitle, for: .normal)
+        loadingView.removeFromSuperview()
+        loadingView.stopAnimating()
+        setTitleColor(loadingView.color, for: .normal)
+        loadingView.color = backgroundColor
         
     }
     

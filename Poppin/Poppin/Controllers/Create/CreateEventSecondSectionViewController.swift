@@ -13,6 +13,7 @@ import CoreLocation
 import Firebase
 import GeoFire
 import Geofirestore
+import SafariServices
 
 struct PreviewCreateEventSecondSectionViewController: UIViewControllerRepresentable {
     
@@ -154,6 +155,7 @@ final class CreateEventSecondSectionViewController: UIViewController {
         view.locationMapView.delegate = self
         view.backButton.addTarget(self, action: #selector(segueBack), for: .touchUpInside)
         view.editLocationButton.addTarget(self, action: #selector(segueToLocationInput), for: .touchUpInside)
+        view.editOnlineURLButton.addTarget(self, action: #selector(segueToOnlineURLInput), for: .touchUpInside)
         view.createButton.addTarget(self, action: #selector(create(sender:)), for: .touchUpInside)
         
         if eventPlaceholder.location != nil {
@@ -239,6 +241,19 @@ final class CreateEventSecondSectionViewController: UIViewController {
         
     }
     
+    @objc private func segueToOnlineURLInput() {
+        
+        var onlineURL = eventPlaceholder.onlineURL
+        
+        do { onlineURL = try eventController.getOnlineURL() } catch let error as EventError { print("onlineURL: " + error.rawValue + "\n") } catch { print("onlineURL: " + error.localizedDescription + "\n") }
+        
+        let onlineURLVC = OnlineLinkInputViewController(onlineLink: onlineURL, category: eventPlaceholder.category)
+        onlineURLVC.delegate = self
+        
+        present(onlineURLVC, animated: true, completion: nil)
+        
+    }
+    
     @objc private func create(sender: LoadingButton) {
         
         sender.startLoading()
@@ -256,7 +271,7 @@ final class CreateEventSecondSectionViewController: UIViewController {
         dateFormatter.timeZone = .current
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
         
-        ref2 = db.collection("currentPopsicles").addDocument(data: [
+        ref2 = db.collection("privatePopsicles").addDocument(data: [
             "longitude": eventData.location!.longitude as Any,
             "latitude": eventData.location!.latitude as Any,
             "eventName": eventData.title as Any,
@@ -355,26 +370,33 @@ extension CreateEventSecondSectionViewController: UITextViewDelegate {
             
             return false
             
-        } else if textView == view.onlineURLTextView {
-            
-            textView.alpha = 0.7
-            
-            let onlineLinkVC = OnlineLinkInputViewController(onlineLink: eventPlaceholder.onlineURL, category: eventPlaceholder.category)
-            onlineLinkVC.delegate = self
-            
-            present(onlineLinkVC, animated: true, completion: {
-                
-                textView.alpha = 1.0
-            
-            })
-            
-            return false
-            
         } else {
             
             return false
             
         }
+        
+    }
+    
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
+        
+        let vc = SFSafariViewController(url: URL)
+        vc.modalPresentationStyle = .pageSheet
+        vc.modalTransitionStyle = .coverVertical
+        vc.delegate = self
+        present(vc, animated: true)
+        
+        return false
+        
+    }
+    
+}
+
+extension CreateEventSecondSectionViewController: SFSafariViewControllerDelegate {
+    
+    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        
+        controller.dismiss(animated: true)
         
     }
     
@@ -607,7 +629,8 @@ extension CreateEventSecondSectionViewController: OnlineLinkInputDelegate {
             
             guard let view = view as? CreateEventSecondSectionView else { return }
             
-            view.onlineURLTextView.text = "Online Event Link: \n" + onlineLink.absoluteString
+            view.editOnlineURLButton.setTitle("Edit", for: .normal)
+            view.onlineURLTextView.text = onlineLink.absoluteString
             view.formatLabel.text = "Online"
             view.formatIconImageView.image = UIImage(systemSymbol: .personCropRectangle).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
             
@@ -618,7 +641,8 @@ extension CreateEventSecondSectionViewController: OnlineLinkInputDelegate {
             
             guard let view = view as? CreateEventSecondSectionView else { return }
             
-            view.onlineURLTextView.text = "Add Online Event Link *"
+            view.editOnlineURLButton.setTitle("Add", for: .normal)
+            view.onlineURLTextView.text = "Your event can take place online by adding a link. The physical location you enter will only be informative and help people find your event."
             view.formatLabel.text = "Live"
             view.formatIconImageView.image = UIImage(systemSymbol: .person3Fill).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
             

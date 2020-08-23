@@ -10,8 +10,8 @@ import UIKit
 
 final class AlertViewController: UIViewController {
     
-    public static let defaultAlertTitle = "Alert Title"
-    public static let defaultAlertMessage = "Alert Message"
+    public static let defaultAlertTitle = "Something went wrong"
+    public static let defaultAlertMessage = "Please try again."
     
     lazy private var alertTitle: String = AlertViewController.defaultAlertTitle
     lazy private var alertMessage: String = AlertViewController.defaultAlertMessage

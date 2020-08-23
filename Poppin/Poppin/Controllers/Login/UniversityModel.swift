@@ -8,6 +8,16 @@
 
 import Foundation
 
+struct University {
+    
+    var name: String
+    var domain: String
+    var latitude: Double
+    var longitude: Double
+    var radius: Double
+    
+}
+
 enum UniversityError: String, Error {
     
     case invalidParameter = "Parameter passed is invalid."

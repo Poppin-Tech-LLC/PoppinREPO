@@ -9,6 +9,7 @@
 import UIKit
 import Firebase
 import CoreData
+import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -72,18 +73,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let rootVC: UIViewController
         //uncomment next line for email verification
 //        if Auth.auth().currentUser == nil || !Auth.auth().currentUser!.isEmailVerified
-        if Auth.auth().currentUser == nil{
-            
+        if Auth.auth().currentUser == nil {
+
             rootVC = MapViewController(shouldShowLoginVC: true) // User is not logged in*/
-            
+
         } else {
-            
+
             rootVC = MapViewController(shouldShowLoginVC: false) // User is logged in*/
-            
+
         }
         
         navigationController = UINavigationController(rootViewController: rootVC)
-        navigationController?.setNavigationBarHidden(true, animated: false)
+        navigationController?.isNavigationBarHidden = true
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
         

@@ -44,6 +44,16 @@ final class EventInfoView: UIView {
     
     private var eventModel = EventModel()
     private var isModallyPresented: Bool = true
+    private var firstTime: Bool = true
+    
+    lazy private var scrollIndicatorIconView: UIView = {
+        
+        var scrollIndicatorIconView = UIView()
+        scrollIndicatorIconView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+        scrollIndicatorIconView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 4.0, maxSize: 6.0), shadowOpacity: 0.0, topRightMask: true, topLeftMask: true, bottomRightMask: true, bottomLeftMask: true)
+        return scrollIndicatorIconView
+        
+    }()
     
     lazy private var cardView: UIView = {
         
@@ -244,6 +254,7 @@ final class EventInfoView: UIView {
         containerStackView.anchor(top: topSpacingView.bottomAnchor, leading: containerView.leadingAnchor, bottom: containerView.bottomAnchor, trailing: containerView.trailingAnchor)
         
         var cardScrollView = UIScrollView()
+        cardScrollView.contentInsetAdjustmentBehavior = .never
         cardScrollView.alwaysBounceVertical = false
         cardScrollView.showsVerticalScrollIndicator = false
         
@@ -267,13 +278,15 @@ final class EventInfoView: UIView {
     lazy private var containerStackView: UIStackView = {
         
         var containerStackView: UIStackView
-        containerStackView = UIStackView(arrangedSubviews: [titleTextView, popsicleBorderView, dateTextView, locationContainerView, detailsTextView, onlineURLTextView])
+        containerStackView = UIStackView(arrangedSubviews: [titleTextView, popsicleBorderView, dateTextView, createdByView, locationContainerView, onlineURLContainerView, detailsTextView])
         containerStackView.axis = .vertical
         containerStackView.alignment = .fill
         containerStackView.distribution = .fill
         containerStackView.spacing = yInset*0.5
         containerStackView.setCustomSpacing(0.0, after: titleTextView)
         containerStackView.setCustomSpacing(0.0, after: popsicleBorderView)
+        containerStackView.setCustomSpacing(yInset, after: createdByView)
+        containerStackView.setCustomSpacing(yInset, after: locationContainerView)
         return containerStackView
         
     }()
@@ -337,6 +350,67 @@ final class EventInfoView: UIView {
         dateTextView.autocapitalizationType = .none
         dateTextView.autocorrectionType = .no
         return dateTextView
+        
+    }()
+    
+    lazy private(set) var createdByView: UIView = {
+        
+        var createdByView = UIView()
+        createdByView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        createdByView.clipsToBounds = true
+        createdByView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
+        
+        createdByView.addSubview(createdByTextStackView)
+        createdByTextStackView.anchor(top: createdByView.topAnchor, leading: createdByView.leadingAnchor, bottom: createdByView.bottomAnchor, padding: UIEdgeInsets(top: yInset, left: xInset, bottom: yInset, right: 0.0))
+        
+        createdByView.addSubview(userImageView)
+        userImageView.anchor(top: createdByView.topAnchor, bottom: createdByView.bottomAnchor, trailing: createdByView.trailingAnchor, width: userImageView.heightAnchor, padding: UIEdgeInsets(top: yInset, left: 0.0, bottom: yInset, right: xInset))
+        
+        return createdByView
+        
+    }()
+    
+    lazy private var createdByTextStackView: UIStackView = {
+        
+        var createdByStackView = UIStackView(arrangedSubviews: [createdByLabel, usernameLabel])
+        createdByStackView.axis = .vertical
+        createdByStackView.alignment = .fill
+        createdByStackView.distribution = .fill
+        createdByStackView.spacing = yInset*0.5
+        return createdByStackView
+        
+    }()
+    
+    lazy private var createdByLabel: UILabel = {
+        
+        var createdByLabel = UILabel()
+        createdByLabel.lineBreakMode = .byTruncatingTail
+        createdByLabel.numberOfLines = 1
+        createdByLabel.textAlignment = .left
+        createdByLabel.text = "Created By:"
+        createdByLabel.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        createdByLabel.textColor = UIColor.white
+        return createdByLabel
+        
+    }()
+    
+    lazy private(set) var usernameLabel: UILabel = {
+        
+        var usernameLabel = UILabel()
+        usernameLabel.lineBreakMode = .byTruncatingTail
+        usernameLabel.numberOfLines = 1
+        usernameLabel.textAlignment = .left
+        usernameLabel.text = "@username"
+        usernameLabel.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        usernameLabel.textColor = UIColor.white
+        return usernameLabel
+        
+    }()
+    
+    lazy private(set) var userImageView: BubbleImageView = {
+        
+        var userImageView = BubbleImageView(image: UIImage.defaultUserPicture64)
+        return userImageView
         
     }()
     
@@ -433,26 +507,60 @@ final class EventInfoView: UIView {
         
     }()
     
+    lazy private var onlineURLContainerView: UIView = {
+        
+        let innerInset: CGFloat = yInset*0.33
+        
+        var onlineURLContainerView = UIView()
+        onlineURLContainerView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        onlineURLContainerView.clipsToBounds = true
+        onlineURLContainerView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
+        
+        onlineURLContainerView.addSubview(onlineURLLabel)
+        onlineURLLabel.anchor(top: onlineURLContainerView.topAnchor, leading: onlineURLContainerView.leadingAnchor, trailing: onlineURLContainerView.trailingAnchor, padding: UIEdgeInsets(top: innerInset, left: innerInset, bottom: 0.0, right: innerInset))
+        
+        onlineURLContainerView.addSubview(onlineURLTextView)
+        onlineURLTextView.anchor(top: onlineURLLabel.bottomAnchor, leading: onlineURLLabel.leadingAnchor, bottom: onlineURLContainerView.bottomAnchor, trailing: onlineURLLabel.trailingAnchor, padding: UIEdgeInsets(top: innerInset, left: 0.0, bottom: innerInset, right: 0.0))
+        
+        if eventModel.onlineURL == nil { onlineURLContainerView.isHidden = true }
+        
+        return onlineURLContainerView
+        
+    }()
+    
+    lazy private(set) var onlineURLLabel: UILabel = {
+        
+        var onlineURLLabel = UILabel()
+        onlineURLLabel.textAlignment = .center
+        onlineURLLabel.backgroundColor = .clear
+        onlineURLLabel.numberOfLines = 1
+        onlineURLLabel.textColor = .white
+        onlineURLLabel.text = "Online Event Link"
+        onlineURLLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        return onlineURLLabel
+        
+    }()
+    
     lazy private(set) var onlineURLTextView : UITextView = {
         
         var onlineURLTextView = UITextView()
-        onlineURLTextView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
         onlineURLTextView.textColor = .white
-        onlineURLTextView.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        onlineURLTextView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+        onlineURLTextView.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
         
         if let onlineURL = eventModel.onlineURL {
             
-            onlineURLTextView.text = "Online Event Link: \n" + onlineURL.absoluteString
-            
-        } else {
-            
-            onlineURLTextView.isHidden = true
+            onlineURLTextView.text = onlineURL.absoluteString
             
         }
         
+        onlineURLTextView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        onlineURLTextView.linkTextAttributes = [.foregroundColor: UIColor.white, .underlineStyle : NSUnderlineStyle.single.rawValue]
         onlineURLTextView.textAlignment = .center
-        onlineURLTextView.layer.cornerRadius = .getWidthFitSize(minSize: 12.0, maxSize: 14.0)
         onlineURLTextView.isScrollEnabled = false
+        onlineURLTextView.dataDetectorTypes = .link
+        onlineURLTextView.isSelectable = true
+        onlineURLTextView.isEditable = false
         onlineURLTextView.autocapitalizationType = .none
         onlineURLTextView.autocorrectionType = .no
         return onlineURLTextView
@@ -463,7 +571,7 @@ final class EventInfoView: UIView {
         
         let innerInset: CGFloat = yInset*0.4
         
-        var rsvpButton = LoadingButton(loadingIndicatorColor: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1])
+        var rsvpButton = LoadingButton(bgColor: nil, label: nil)
         rsvpButton.backgroundColor = .white
         rsvpButton.setTitle("RSVP", for: .normal)
         rsvpButton.titleLabel?.textAlignment = .center
@@ -479,7 +587,7 @@ final class EventInfoView: UIView {
         
         let innerInset: CGFloat = yInset*0.4
         
-        var editButton = LoadingButton(loadingIndicatorColor: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1])
+        var editButton = LoadingButton(bgColor: nil, label: nil)
         editButton.backgroundColor = .white
         editButton.setTitle("Edit", for: .normal)
         editButton.titleLabel?.textAlignment = .center
@@ -527,8 +635,11 @@ final class EventInfoView: UIView {
         
         if isModallyPresented {
             
+            addSubview(scrollIndicatorIconView)
+            scrollIndicatorIconView.anchor(centerX: centerXAnchor, width: widthAnchor, multiples: CGSize(width: 0.25, height: 1.0))
+            
             addSubview(cardView)
-            cardView.anchor(top: topAnchor, leading: leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: trailingAnchor, padding: UIEdgeInsets(top: xInset, left: xInset, bottom: yInset, right: xInset))
+            cardView.anchor(leading: leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: trailingAnchor, padding: UIEdgeInsets(top: 0.0, left: xInset, bottom: yInset, right: xInset))
             
         } else {
             
@@ -541,11 +652,28 @@ final class EventInfoView: UIView {
         
     }
     
+    override func layoutSubviews() {
+        
+        super.layoutSubviews()
+        
+        if !firstTime { return }
+        
+        scrollIndicatorIconView.anchor(size: CGSize(width: 0.0, height: yInset*0.45))
+        scrollIndicatorIconView.anchor(top: topAnchor, padding: UIEdgeInsets(top: yInset*0.6, left: 0.0, bottom: 0.0, right: 0.0))
+        
+        cardView.anchor(top: scrollIndicatorIconView.bottomAnchor, padding: UIEdgeInsets(top: yInset*0.6, left: 0.0, bottom: 0.0, right: 0.0))
+        
+        firstTime = false
+        
+    }
+    
     func resetView(with model: EventModel) {
         
         eventModel = model
         
         backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        
+        if isModallyPresented { scrollIndicatorIconView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0] }
         
         cardView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
         
@@ -629,6 +757,8 @@ final class EventInfoView: UIView {
             
         }
         
+        createdByView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        
         locationContainerView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
         
         if let location = eventModel.location {
@@ -669,13 +799,16 @@ final class EventInfoView: UIView {
         
         if let onlineURL = eventModel.onlineURL {
             
-            onlineURLTextView.text = "Online Event Link: \n" + onlineURL.absoluteString
-            onlineURLTextView.isHidden = false
+            onlineURLContainerView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+            onlineURLTextView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+            
+            onlineURLTextView.text = onlineURL.absoluteString
+            onlineURLContainerView.isHidden = false
             
         } else {
             
             onlineURLTextView.text = ""
-            onlineURLTextView.isHidden = true
+            onlineURLContainerView.isHidden = true
             
         }
         
