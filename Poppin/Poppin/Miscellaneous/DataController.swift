@@ -252,7 +252,7 @@ class DataController{
         
         //2
         let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "User")
+            NSFetchRequest<NSManagedObject>(entityName: "UserCoreData")
         
         do {
             let user = try managedContext.fetch(fetchRequest)

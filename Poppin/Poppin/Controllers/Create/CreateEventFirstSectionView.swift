@@ -9,45 +9,12 @@
 import UIKit
 import SwiftUI
 
-struct PreviewCreateEventFirstSectionView: UIViewRepresentable {
-    
-    func makeUIView(context: Context) -> UIViewType {
-        
-        return UIViewType()
-        
-    }
-    
-    
-    func updateUIView(_ uiView: UIViewType, context: Context) {}
-    
-    typealias UIViewType = CreateEventFirstSectionView
-    
-}
-
-struct TestPreviewCreateEventFirstSectionView: PreviewProvider {
-    
-    static var previews: Previews {
-        
-        return Previews()
-        
-    }
-    
-    typealias Previews = PreviewCreateEventFirstSectionView
-    
-}
-
 final class CreateEventFirstSectionView: UIView {
     
     private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
     
-    lazy private(set) var backgroundImageView: UIImageView = {
-        
-        var backgroundImageView = UIImageView(image: EventCategory.allCases[0].getGradientBackground())
-        backgroundImageView.contentMode = .scaleAspectFill
-        return backgroundImageView
-        
-    }()
+    lazy private(set) var backgroundImageView: UIImageView = UIImageView(image: EventCategory.allCases[0].getGradientBackground().scalePreservingAspectRatio(targetSize: CGSize(width: .width(percent: 100), height: .height(percent: 100))))
     
     lazy private(set) var closeButton: BubbleButton = {
         
@@ -379,5 +346,32 @@ final class CategoryViewCell : UICollectionViewCell {
         borderView.anchor(width: contentView.widthAnchor, multiples: CGSize(width: 0.33, height: 1.0))
     
     }
+    
+}
+
+struct PreviewCreateEventFirstSectionView: UIViewRepresentable {
+    
+    func makeUIView(context: Context) -> UIViewType {
+        
+        return UIViewType()
+        
+    }
+    
+    
+    func updateUIView(_ uiView: UIViewType, context: Context) {}
+    
+    typealias UIViewType = CreateEventFirstSectionView
+    
+}
+
+struct TestPreviewCreateEventFirstSectionView: PreviewProvider {
+    
+    static var previews: Previews {
+        
+        return Previews()
+        
+    }
+    
+    typealias Previews = PreviewCreateEventFirstSectionView
     
 }

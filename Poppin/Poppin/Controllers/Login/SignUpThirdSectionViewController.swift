@@ -53,7 +53,7 @@ final class SignUpThirdSectionViewController: UIViewController {
     /// Overrides superclass method to initialize the root view with a custom UI.
     override func loadView() {
         
-        self.view = SignUpThirdPageView()
+        self.view = SignUpThirdSectionView()
         
     }
     
@@ -63,7 +63,7 @@ final class SignUpThirdSectionViewController: UIViewController {
         super.viewDidLoad()
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return }
+        guard let view = view as? SignUpThirdSectionView else { return }
         
         // 2. Setting targets and delegation.
         _ = [view.usernameTextField, view.emailTextField, view.passwordTextField, view.confirmPasswordTextField].map { $0.delegate = self }
@@ -79,7 +79,7 @@ final class SignUpThirdSectionViewController: UIViewController {
         super.viewWillAppear(animated)
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return }
+        guard let view = view as? SignUpThirdSectionView else { return }
         
         // 2. Resets previously entered credentials if any.
         view.resetInputFields()
@@ -125,7 +125,7 @@ final class SignUpThirdSectionViewController: UIViewController {
         guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         
         // 2. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return }
+        guard let view = view as? SignUpThirdSectionView else { return }
 
         // 3. Getting keyboard height.
         let keyboardHeight = view.convert(keyboardValue.cgRectValue, from: view.window).height
@@ -153,7 +153,7 @@ final class SignUpThirdSectionViewController: UIViewController {
     @objc private func performSignUp() {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return }
+        guard let view = view as? SignUpThirdSectionView else { return }
      
         // 2. Safe check input from other pages. If fails, show error and return to start page.
         if let university = university, let fullName = fullName, let dateOfBirth = dateOfBirth {
@@ -301,7 +301,7 @@ final class SignUpThirdSectionViewController: UIViewController {
     private func isUsernameValid(username: String?) -> Bool {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return false }
+        guard let view = view as? SignUpThirdSectionView else { return false }
         
         let usernameFormat = "\\w{3,15}"
         let usernamePredicate = NSPredicate(format:"SELF MATCHES %@", usernameFormat)
@@ -327,7 +327,7 @@ final class SignUpThirdSectionViewController: UIViewController {
     private func isEmailValid(email: String?, domain: String?) -> Bool {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return false }
+        guard let view = view as? SignUpThirdSectionView else { return false }
         
         if let email = email, let domain = domain, email.lowercased().hasSuffix("@" + domain) {
             
@@ -350,7 +350,7 @@ final class SignUpThirdSectionViewController: UIViewController {
     private func isPasswordValid(password: String?) -> Bool {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return false }
+        guard let view = view as? SignUpThirdSectionView else { return false }
         
         let passwordFormat = "(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{8,}"
         let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordFormat)
@@ -376,7 +376,7 @@ final class SignUpThirdSectionViewController: UIViewController {
     private func doPasswordsMatch(password: String?, confirmPassword: String?) -> Bool {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return false }
+        guard let view = view as? SignUpThirdSectionView else { return false }
         
         if let password = password, let confirmPassword = confirmPassword, password == confirmPassword {
             
@@ -417,7 +417,7 @@ extension SignUpThirdSectionViewController: UITextFieldDelegate {
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return true }
+        guard let view = view as? SignUpThirdSectionView else { return true }
         
         // 2. Check if input field is invalid.
         if textField.textColor == .red {
@@ -465,7 +465,7 @@ extension SignUpThirdSectionViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpThirdPageView else { return true }
+        guard let view = view as? SignUpThirdSectionView else { return true }
         
         textField.resignFirstResponder()
         

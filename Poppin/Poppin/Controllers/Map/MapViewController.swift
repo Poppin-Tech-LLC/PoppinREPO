@@ -775,23 +775,23 @@ final class MapViewController: UIViewController {
         
     }
     
-    private func setLocation() {
-        if(Auth.auth().currentUser != nil){
-        let user = DataController.getUser()
-            
-        MapViewController.uid = user.value(forKey: "uid") as? String ?? ""
-        MapViewController.username = user.value(forKey: "username") as? String ?? ""
-        MapViewController.bio = user.value(forKey: "bio") as? String ?? ""
-        MapViewController.fullName = user.value(forKey: "fullName") as? String ?? ""
-        
-        let radius = user.value(forKey: "radius") as? Double ?? 0.0
-        let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
-        let latitude = user.value(forKey: "latitude") as? Double ?? 0.0
-                
-        MapViewController.defaultMapViewRegionRadius = radius * 1000
-        MapViewController.defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-        }
-    }
+//    private func setLocation() {
+//        if(Auth.auth().currentUser != nil){
+//        let user = DataController.getUser()
+//
+//        MapViewController.uid = user.value(forKey: "uid") as? String ?? ""
+//        MapViewController.username = user.value(forKey: "username") as? String ?? ""
+//        MapViewController.bio = user.value(forKey: "bio") as? String ?? ""
+//        MapViewController.fullName = user.value(forKey: "fullName") as? String ?? ""
+//
+//        let radius = user.value(forKey: "radius") as? Double ?? 0.0
+//        let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
+//        let latitude = user.value(forKey: "latitude") as? Double ?? 0.0
+//
+//        MapViewController.defaultMapViewRegionRadius = radius * 1000
+//        MapViewController.defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+//        }
+//    }
     
     override func viewDidLoad() {
         
@@ -801,7 +801,7 @@ final class MapViewController: UIViewController {
         
         print("LOADDEDDD")
         
-        setLocation()
+        // setLocation()
     
         NotificationCenter.default.addObserver(self, selector: #selector(contextDidSave(_:)), name: .userSignedIn, object: nil)
         

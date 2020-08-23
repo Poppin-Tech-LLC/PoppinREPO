@@ -15,33 +15,6 @@ protocol CreateEventDelegate: NSObject {
     
 }
 
-struct PreviewCreateEventFirstSectionViewController: UIViewControllerRepresentable {
-    
-    func makeUIViewController(context: Context) -> UIViewControllerType {
-        
-        return UIViewControllerType()
-        
-    }
-    
-    
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
-    
-    typealias UIViewControllerType = CreateEventFirstSectionViewController
-    
-}
-
-struct TestPreviewCreateEventFirstSectionViewController: PreviewProvider {
-    
-    static var previews: Previews {
-        
-        return Previews()
-        
-    }
-    
-    typealias Previews = PreviewCreateEventFirstSectionViewController
-    
-}
-
 final class CreateEventFirstSectionViewController: UIViewController {
     
     private var eventController = EventController()
@@ -334,5 +307,32 @@ extension CreateEventFirstSectionViewController: CreateEventDelegate {
         self.eventController.merge(with: eventController)
         
     }
+    
+}
+
+struct PreviewCreateEventFirstSectionViewController: UIViewControllerRepresentable {
+    
+    func makeUIViewController(context: Context) -> UIViewControllerType {
+        
+        return UIViewControllerType()
+        
+    }
+    
+    
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
+    
+    typealias UIViewControllerType = CreateEventFirstSectionViewController
+    
+}
+
+struct TestPreviewCreateEventFirstSectionViewController: PreviewProvider {
+    
+    static var previews: Previews {
+        
+        return Previews()
+        
+    }
+    
+    typealias Previews = PreviewCreateEventFirstSectionViewController
     
 }

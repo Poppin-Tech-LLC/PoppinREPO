@@ -51,7 +51,7 @@ final class SignUpSecondSectionViewController: UIViewController {
     /// Overrides superclass method to initialize the root view with a custom UI.
     override func loadView() {
         
-        self.view = SignUpSecondPageView()
+        self.view = SignUpSecondSectionView()
         
     }
     
@@ -61,7 +61,7 @@ final class SignUpSecondSectionViewController: UIViewController {
         super.viewDidLoad()
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpSecondPageView else { return }
+        guard let view = view as? SignUpSecondSectionView else { return }
         
         // 2. Setting targets and delegation.
         _ = [view.fullNameTextField, view.dateOfBirthTextField].map { $0.delegate = self }
@@ -78,7 +78,7 @@ final class SignUpSecondSectionViewController: UIViewController {
         super.viewWillAppear(animated)
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpSecondPageView else { return }
+        guard let view = view as? SignUpSecondSectionView else { return }
         
         // 2. Resets previously entered credentials if any.
         view.inputFieldsDidChange()
@@ -94,7 +94,7 @@ final class SignUpSecondSectionViewController: UIViewController {
         super.viewDidAppear(animated)
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpSecondPageView else { return }
+        guard let view = view as? SignUpSecondSectionView else { return }
         
         // 2. Activate the name input field.
         view.fullNameTextField.becomeFirstResponder()
@@ -115,7 +115,7 @@ final class SignUpSecondSectionViewController: UIViewController {
     @objc private func transitionToNextPage() {
         
         // 1. Safe cast root view to custom view.
-        guard let view = view as? SignUpSecondPageView else { return }
+        guard let view = view as? SignUpSecondSectionView else { return }
         
         // 2. Empty input safe check. If fails, show error.
         if let fullName = view.fullNameTextField.text, let dateOfBirth = view.dateOfBirthTextField.text, fullName != "", dateOfBirth != "" {
@@ -124,7 +124,7 @@ final class SignUpSecondSectionViewController: UIViewController {
             if isAgeValid(dateOfBirth: view.datePicker.date) {
                 
                 // 4. Transition to next page.
-                navigationController?.pushViewController(SignUpThirdPageViewController(university: university, fullName: fullName, dateOfBirth: view.datePicker.date), animated: true)
+                navigationController?.pushViewController(SignUpThirdSectionViewController(university: university, fullName: fullName, dateOfBirth: view.datePicker.date), animated: true)
                 
             } else {
                 
@@ -170,7 +170,7 @@ final class SignUpSecondSectionViewController: UIViewController {
     @objc private func setDateFromPicker() {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpSecondPageView else { return }
+        guard let view = view as? SignUpSecondSectionView else { return }
         
         // 2. Format new date from picker and assign it to the input field.
         view.dateOfBirthTextField.text = dateFormatter.string(from: view.datePicker.date)
@@ -193,7 +193,7 @@ extension SignUpSecondSectionViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
         // 1. Safe casting root view to custom view.
-        guard let view = view as? SignUpSecondPageView else { return true }
+        guard let view = view as? SignUpSecondSectionView else { return true }
         
         textField.resignFirstResponder()
         
