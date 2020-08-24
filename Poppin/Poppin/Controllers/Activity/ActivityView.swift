@@ -145,13 +145,14 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
         avFeed.dataSource = self
         avFeed.delegate = self
         avFeed.register(ActivityCell.self, forCellReuseIdentifier: "avCell")
+        avFeed.register(RequestsCell.self, forCellReuseIdentifier: "rCell")
         
     }
     
     private func populateActivities() {
         
         let ref = Firestore.firestore().collection("users").document(Auth.auth().currentUser!.uid).collection("activities")
-        
+
         ref.getDocuments(completion: { (querySnapshot, err) in
                 if let err = err {
                     print("Error getting documents: \(err)")
@@ -166,25 +167,39 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return activities.count
+        return activities.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "avCell", for: indexPath) as! ActivityCell
-        let ac = activities[indexPath.row]
         
-        let username = ac.inducedBy!
-        let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
-        
-        attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
-        
-        cell.activityDetails.attributedText = attributedString
-        cell.activityDate.text = agoTime(date: ac.dateInduced!)
-        
-        cell.activityPic.setImage(.defaultUserPicture128, for: .normal)
-        cell.activityPic.contentEdgeInsets = UIEdgeInsets()
+        if(indexPath.row == 0) {
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "rCell", for: indexPath) as! RequestsCell
+            
+            return cell
+            
+        } else {
+            
+            let cell = tableView.dequeueReusableCell(withIdentifier: "avCell", for: indexPath) as! ActivityCell
+            
+            let ac = activities[indexPath.row - 1]
+            
+            let username = ac.inducedBy!
+            let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
+            
+            attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
+            
+            cell.activityDetails.attributedText = attributedString
+            
+            cell.activityDate.text = agoTime(date: ac.dateInduced!)
+            
+            cell.activityPic.setImage(.defaultUserPicture128, for: .normal)
+            cell.activityPic.contentEdgeInsets = UIEdgeInsets()
 
-        return cell
+            return cell
+            
+        }
+        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -341,7 +356,84 @@ class ActivityCell : UITableViewCell {
     }
     
 }
+
     
 
+class RequestsCell : UITableViewCell {
+    
+    private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
+    private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
+    
+    lazy var requestLabel : UILabel = {
+        
+        let l = UILabel()
+        l.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        l.adjustsFontSizeToFitWidth = false
+        l.textColor = .white
+        l.numberOfLines = 1
+        l.textAlignment = .left
+        l.text = "No new requests"
+        
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 40)).isActive = true
+        
+        return l
+        
+    }()
+    
+    lazy var requestCount : ImageBubbleButton = {
+        
+        var i = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .chevronRight, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal))
+        i.contentEdgeInsets = UIEdgeInsets(top: .getPercentageWidth(percentage: 1), left: .getPercentageWidth(percentage: 1), bottom: .getPercentageWidth(percentage: 1), right: .getPercentageWidth(percentage: 1))
+        i.backgroundColor = .mainDARKPURPLE
+        
+        i.translatesAutoresizingMaskIntoConstraints = false
+        i.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 5.5)).isActive = true
+        i.heightAnchor.constraint(equalTo: i.widthAnchor).isActive = true
+        
+        return i
+        
+    }()
+    
+    lazy var rStackView : UIStackView = {
+        
+        let s = UIStackView()
+        s.axis = .horizontal
+        s.alignment = .center
+        s.distribution = .equalCentering
+        
+        s.addArrangedSubview(requestLabel)
+        s.addArrangedSubview(requestCount)
+        
+        s.setCustomSpacing(.getPercentageWidth(percentage: 33), after: requestLabel)
+    
+        return s
+        
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        backgroundColor = .mainDARKPURPLE
+        
+        self.contentView.backgroundColor = UIColor.gray.withAlphaComponent(0.25)
+        self.contentView.layer.cornerRadius = 10
+        
+        self.contentView.addSubview(rStackView)
+        rStackView.anchor(top: self.contentView.topAnchor, leading: self.contentView.leadingAnchor, bottom: self.contentView.bottomAnchor, trailing: self.contentView.trailingAnchor, padding: UIEdgeInsets(top: 0, left: xInset, bottom: 0, right: xInset))
+        
+     }
+
+    required init?(coder aDecoder: NSCoder) {
+       super.init(coder: aDecoder)
+    }
+    
+    override func layoutSubviews() {
+       super.layoutSubviews()
+       
+        self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: xInset/5, left: yInset/2, bottom: xInset/5, right: yInset/2))
+    }
+    
+}
 
 
