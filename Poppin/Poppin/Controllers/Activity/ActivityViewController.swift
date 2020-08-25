@@ -75,7 +75,7 @@ final class ActivityViewController: UIViewController {
         view.delegate = self.delegate
         
     }
-    
+
 }
 
 //import UIKit

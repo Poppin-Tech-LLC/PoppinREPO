@@ -47,6 +47,9 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     weak var delegate: ActivityDelegate?
     
     private var activities : [ActivityModel] = []
+    private var requests: [ActivityModel] = []
+    
+    private var ro: Bool = false
     
     lazy private var cardView: UIView = {
        
@@ -106,7 +109,7 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
         
     }()
     
-    lazy private var avFeed: UITableView = {
+    lazy var avFeed: UITableView = {
         
         var t = UITableView()
         t.backgroundColor = .mainDARKPURPLE
@@ -145,7 +148,8 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
         avFeed.dataSource = self
         avFeed.delegate = self
         avFeed.register(ActivityCell.self, forCellReuseIdentifier: "avCell")
-        avFeed.register(RequestsCell.self, forCellReuseIdentifier: "rCell")
+        avFeed.register(RequestCell.self, forCellReuseIdentifier: "rCell")
+        avFeed.register(RequestsCell.self, forCellReuseIdentifier: "rsCell")
         
     }
     
@@ -158,7 +162,11 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
                     print("Error getting documents: \(err)")
                 } else {
                     for document in querySnapshot!.documents {
-                        self.activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
+                        if((((document.data()["details"] as? String)?.contains("requested")))!) {
+                            self.requests.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
+                        } else {
+                            self.activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
+                        }
                         self.avFeed.reloadData()
                     }
                 }
@@ -174,30 +182,55 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
         
         if(indexPath.row == 0) {
             
-            let cell = tableView.dequeueReusableCell(withIdentifier: "rCell", for: indexPath) as! RequestsCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "rsCell", for: indexPath) as! RequestsCell
+            
+            if(requests.count > 1) { cell.requestLabel.text = "\(requests.count) new requests"} else { cell.requestLabel.text = "\(requests.count) new request" }
+            
+            let gesture = UITapGestureRecognizer(target: self, action: #selector(showRequests(sender:)))
+            gesture.addTarget(cell, action: #selector(RequestsCell.openRequests))
+            cell.addGestureRecognizer(gesture)
             
             return cell
             
         } else {
             
-            let cell = tableView.dequeueReusableCell(withIdentifier: "avCell", for: indexPath) as! ActivityCell
-            
             let ac = activities[indexPath.row - 1]
             
-            let username = ac.inducedBy!
-            let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
-            
-            attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
-            
-            cell.activityDetails.attributedText = attributedString
-            
-            cell.activityDate.text = agoTime(date: ac.dateInduced!)
-            
-            cell.activityPic.setImage(.defaultUserPicture128, for: .normal)
-            cell.activityPic.contentEdgeInsets = UIEdgeInsets()
+            if(ac.details!.contains("requested")) {
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "rCell", for: indexPath) as! RequestCell
+                
+                let username = ac.inducedBy!
+                let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
+                
+                attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
+                
+                cell.requestDetails.attributedText = attributedString
+                
+                cell.requestPic.setImage(.defaultUserPicture128, for: .normal)
+                cell.requestPic.contentEdgeInsets = UIEdgeInsets()
 
-            return cell
-            
+                return cell
+                
+            } else {
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "avCell", for: indexPath) as! ActivityCell
+                
+                let username = ac.inducedBy!
+                let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
+                
+                attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
+                
+                cell.activityDetails.attributedText = attributedString
+                
+                cell.activityDate.text = agoTime(date: ac.dateInduced!)
+                
+                cell.activityPic.setImage(.defaultUserPicture128, for: .normal)
+                cell.activityPic.contentEdgeInsets = UIEdgeInsets()
+
+                return cell
+                
+            }
         }
         
     }
@@ -260,6 +293,30 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
         }
     
         return "n/a"
+    }
+    
+    @objc func showRequests(sender: RequestsCell) {
+        
+        if(ro) {
+//            sender.requestChevron.setImage(UIImage(systemSymbol: .chevronDown, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
+            avFeed.beginUpdates()
+            for i in (1...requests.count) {
+                avFeed.deleteRows(at: [IndexPath(row: i, section: 0)], with: .top)
+                activities.remove(at: i)
+            }
+            avFeed.endUpdates()
+        } else {
+//            sender.requestChevron.setImage(UIImage(systemSymbol: .chevronUp, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
+            avFeed.beginUpdates()
+            for i in (1...requests.count) {
+                avFeed.insertRows(at: [IndexPath(row: i, section: 0)], with: .top)
+                activities.insert(requests[i-1], at: i-1)
+            }
+            avFeed.endUpdates()
+        }
+        
+        ro = !ro
+        
     }
     
 }
@@ -357,12 +414,119 @@ class ActivityCell : UITableViewCell {
     
 }
 
+
+
+
+class RequestCell : UITableViewCell {
+    
+    private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
+    private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
+        
+    lazy var requestPic : ImageBubbleButton = {
+            
+        var i = ImageBubbleButton(bouncyButtonImage: .culturePopsicleIcon128)
+        i.backgroundColor = UIColor.white.withAlphaComponent(0.25)
+        i.contentEdgeInsets = UIEdgeInsets(top: .getPercentageWidth(percentage: 1), left: .getPercentageWidth(percentage: 1), bottom: .getPercentageWidth(percentage: 1), right: .getPercentageWidth(percentage: 1))
+            
+        i.translatesAutoresizingMaskIntoConstraints = false
+        i.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 8)).isActive = true
+        i.heightAnchor.constraint(equalTo: i.widthAnchor).isActive = true
+            
+        return i
+            
+    }()
+        
+    lazy var requestDetails : UILabel = {
+            
+        let l = UILabel()
+        l.font = .dynamicFont(with: "Octarine-Light", style: .caption1)
+        l.adjustsFontSizeToFitWidth = false
+        l.textColor = .white
+        l.numberOfLines = 2
+        l.textAlignment = .left
+            
+        l.translatesAutoresizingMaskIntoConstraints = false
+        l.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 46)).isActive = true
+            
+        return l
+            
+    }()
+        
+    lazy var acceptButton : UIButton = {
+            
+        let b = UIButton()
+        b.backgroundColor = UIColor.gray.withAlphaComponent(0.25)
+        b.setTitleColor(.white, for: .normal)
+        b.titleLabel?.font =  .dynamicFont(with: "Octarine-Bold", style: .caption1)
+        b.setTitle("Accept", for: .normal)
+        b.layer.cornerRadius = 7
+            
+        b.translatesAutoresizingMaskIntoConstraints = false
+        b.widthAnchor.constraint(equalToConstant: .getPercentageWidth(percentage: 18)).isActive = true
+        
+        b.addTarget(self, action: #selector(acceptRequest), for: .touchUpInside)
+            
+        return b
+            
+    }()
+        
+    lazy var rStackView : UIStackView = {
+            
+        let s = UIStackView()
+        s.axis = .horizontal
+        s.alignment = .center
+        s.distribution = .equalCentering
+            
+        s.addArrangedSubview(requestPic)
+        s.addArrangedSubview(requestDetails)
+        s.addArrangedSubview(acceptButton)
+            
+        s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: requestPic)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 5), after: requestDetails)
+            
+        return s
+            
+    }()
+        
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+            
+        backgroundColor = .mainDARKPURPLE
+        
+        self.contentView.layer.borderWidth = 4
+        self.contentView.layer.borderColor = UIColor.gray.withAlphaComponent(0.25).cgColor
+        self.contentView.layer.cornerRadius = 10
+            
+        self.contentView.addSubview(rStackView)
+        rStackView.anchor(top: self.contentView.topAnchor, leading: self.contentView.leadingAnchor, bottom: self.contentView.bottomAnchor, trailing: self.contentView.trailingAnchor, padding: UIEdgeInsets(top: 0, left: xInset, bottom: 0, right: xInset))
+            
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
+        
+    override func layoutSubviews() {
+        super.layoutSubviews()
+           
+        self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: xInset/4, left: yInset/2, bottom: xInset/4, right: yInset/2))
+    }
+    
+    @objc func acceptRequest() {
+        
+    }
+        
+}
+
+
     
 
 class RequestsCell : UITableViewCell {
     
     private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
+    
+    private var ro: Bool = false
     
     lazy var requestLabel : UILabel = {
         
@@ -381,9 +545,9 @@ class RequestsCell : UITableViewCell {
         
     }()
     
-    lazy var requestCount : ImageBubbleButton = {
+    lazy var requestChevron : ImageBubbleButton = {
         
-        var i = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .chevronRight, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal))
+        var i = ImageBubbleButton(bouncyButtonImage: UIImage(systemSymbol: .chevronDown, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal))
         i.contentEdgeInsets = UIEdgeInsets(top: .getPercentageWidth(percentage: 1), left: .getPercentageWidth(percentage: 1), bottom: .getPercentageWidth(percentage: 1), right: .getPercentageWidth(percentage: 1))
         i.backgroundColor = .mainDARKPURPLE
         
@@ -403,7 +567,7 @@ class RequestsCell : UITableViewCell {
         s.distribution = .equalCentering
         
         s.addArrangedSubview(requestLabel)
-        s.addArrangedSubview(requestCount)
+        s.addArrangedSubview(requestChevron)
         
         s.setCustomSpacing(.getPercentageWidth(percentage: 33), after: requestLabel)
     
@@ -431,7 +595,18 @@ class RequestsCell : UITableViewCell {
     override func layoutSubviews() {
        super.layoutSubviews()
        
-        self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: xInset/5, left: yInset/2, bottom: xInset/5, right: yInset/2))
+        self.contentView.frame = self.contentView.frame.inset(by: UIEdgeInsets(top: xInset/3, left: yInset/2, bottom: xInset/3, right: yInset/2))
+    }
+    
+    @objc func openRequests() {
+        
+        if(ro) {
+            requestChevron.setImage(UIImage(systemSymbol: .chevronDown, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
+        } else {
+            requestChevron.setImage(UIImage(systemSymbol: .chevronUp, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
+        }
+                
+        ro = !ro
     }
     
 }
