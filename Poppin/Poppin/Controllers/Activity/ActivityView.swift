@@ -46,8 +46,8 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     weak var delegate: ActivityDelegate?
     
-    private var activities : [ActivityModel] = []
-    private var requests: [ActivityModel] = []
+    fileprivate var activities : [ActivityModel] = []
+    fileprivate var requests: [ActivityModel] = []
     
     private var ro: Bool = false
     
@@ -184,7 +184,7 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "rsCell", for: indexPath) as! RequestsCell
             
-            if(requests.count > 1) { cell.requestLabel.text = "\(requests.count) new requests"} else { cell.requestLabel.text = "\(requests.count) new request" }
+            if(requests.count == 1) { cell.requestLabel.text = "\(requests.count) new request"} else { cell.requestLabel.text = "\(requests.count) new requests" }
             
             let gesture = UITapGestureRecognizer(target: self, action: #selector(showRequests(sender:)))
             gesture.addTarget(cell, action: #selector(RequestsCell.openRequests))
@@ -201,6 +201,7 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "rCell", for: indexPath) as! RequestCell
                 
                 let username = ac.inducedBy!
+                cell.username = username
                 let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
                 
                 attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
@@ -237,6 +238,10 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return .getPercentageHeight(percentage: 7)
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+        avFeed.reloadData()
     }
     
     func agoTime(date: String) -> String {
@@ -296,27 +301,27 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     }
     
     @objc func showRequests(sender: RequestsCell) {
-        
-        if(ro) {
-//            sender.requestChevron.setImage(UIImage(systemSymbol: .chevronDown, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
-            avFeed.beginUpdates()
-            for i in (1...requests.count) {
-                avFeed.deleteRows(at: [IndexPath(row: i, section: 0)], with: .top)
-                activities.remove(at: i)
-            }
-            avFeed.endUpdates()
-        } else {
-//            sender.requestChevron.setImage(UIImage(systemSymbol: .chevronUp, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
-            avFeed.beginUpdates()
-            for i in (1...requests.count) {
-                avFeed.insertRows(at: [IndexPath(row: i, section: 0)], with: .top)
-                activities.insert(requests[i-1], at: i-1)
-            }
-            avFeed.endUpdates()
+        if(requests.count > 0) {
+            if(ro) {
+            //            sender.requestChevron.setImage(UIImage(systemSymbol: .chevronDown, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
+                        avFeed.beginUpdates()
+                        for i in (1...requests.count) {
+                            avFeed.deleteRows(at: [IndexPath(row: i, section: 0)], with: .top)
+                            activities.remove(at: i-1)
+                        }
+                        avFeed.endUpdates()
+                    } else {
+            //            sender.requestChevron.setImage(UIImage(systemSymbol: .chevronUp, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
+                        avFeed.beginUpdates()
+                        for i in (1...requests.count) {
+                            avFeed.insertRows(at: [IndexPath(row: i, section: 0)], with: .top)
+                            activities.insert(requests[i-1], at: i-1)
+                        }
+                        avFeed.endUpdates()
+                    }
+                    
+                    ro = !ro
         }
-        
-        ro = !ro
-        
     }
     
 }
@@ -421,6 +426,8 @@ class RequestCell : UITableViewCell {
     
     private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
+    
+    fileprivate var username: String = ""
         
     lazy var requestPic : ImageBubbleButton = {
             
@@ -475,14 +482,14 @@ class RequestCell : UITableViewCell {
         let s = UIStackView()
         s.axis = .horizontal
         s.alignment = .center
-        s.distribution = .equalCentering
+        s.distribution = .fill
             
         s.addArrangedSubview(requestPic)
         s.addArrangedSubview(requestDetails)
         s.addArrangedSubview(acceptButton)
             
         s.setCustomSpacing(.getPercentageWidth(percentage: 3), after: requestPic)
-        s.setCustomSpacing(.getPercentageWidth(percentage: 5), after: requestDetails)
+        s.setCustomSpacing(.getPercentageWidth(percentage: 6), after: requestDetails)
             
         return s
             
@@ -493,12 +500,12 @@ class RequestCell : UITableViewCell {
             
         backgroundColor = .mainDARKPURPLE
         
-        self.contentView.layer.borderWidth = 4
+        self.contentView.layer.borderWidth = 2
         self.contentView.layer.borderColor = UIColor.gray.withAlphaComponent(0.25).cgColor
         self.contentView.layer.cornerRadius = 10
             
         self.contentView.addSubview(rStackView)
-        rStackView.anchor(top: self.contentView.topAnchor, leading: self.contentView.leadingAnchor, bottom: self.contentView.bottomAnchor, trailing: self.contentView.trailingAnchor, padding: UIEdgeInsets(top: 0, left: xInset, bottom: 0, right: xInset))
+        rStackView.anchor(top: self.contentView.topAnchor, leading: self.contentView.leadingAnchor, bottom: self.contentView.bottomAnchor, trailing: self.contentView.trailingAnchor, padding: UIEdgeInsets(top: 0, left: xInset, bottom: 0, right: xInset/1.5))
             
     }
 
@@ -513,6 +520,29 @@ class RequestCell : UITableViewCell {
     }
     
     @objc func acceptRequest() {
+        
+        acceptButton.isHidden = true
+        
+        let attributedString = NSMutableAttributedString(string: "You've accepted " , attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)])
+        
+        attributedString.append(NSAttributedString(string: "@\(username)'s", attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1)]))
+        
+        attributedString.append(NSAttributedString(string: " follow request.", attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
+        
+        requestDetails.attributedText = attributedString
+        
+        // create activity for following someone
+        Firestore.firestore().collection("users").document( Auth.auth().currentUser!.uid).collection("activities").addDocument(data: [
+                    "inducedBy" : username,
+                    "details" : " started following you.",
+                    "dateInduced" : Date().toString(.custom("yyyy'-'MM'-'dd' 'HH':'mm'"))])
+                { err in
+                    if let err = err {
+                        print("Error adding document: \(err)")
+                    } else {
+                        print("Document added.")
+                    }
+                }
         
     }
         

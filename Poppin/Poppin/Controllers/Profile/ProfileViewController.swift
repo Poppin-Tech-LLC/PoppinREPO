@@ -872,53 +872,92 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             
         } else {
             
-            followerRef.updateData(["followers.\(userId)" : true,
-            ]) { err in
-                if let err = err {
-                    print("Error updating document: \(err)")
-                } else {
-                    print("Document successfully updated")
-                }
-            }
-
-            followingRef.updateData(["following.\(userData.uid)" : true,
-            ]) { err in
-                if let err = err {
-                    print("Error updating document: \(err)")
-                } else {
-                    print("Document successfully updated")
-                    self.followers = String(Int(self.followers)! + 1)
-                    
-                    self.followButton.setTitle("Following", for: .normal)
-                    self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
-                    self.followButton.backgroundColor = .white
-                }
-            }
-
-            // create activity for following someone
-            Firestore.firestore().collection("users").document(userId).getDocument { (document, error) in
-                
+            followingRef.getDocument(completion: { (document, error) in
                 if let document = document, document.exists {
-
-                    let username = (document.data()!["username"] as? String)!
                     
-                    Firestore.firestore().collection("users").document(self.userData.uid).collection("activities").addDocument(data: [
-                        "inducedBy" : username,
-                        "details" : " started following you.",
-                        "dateInduced" : Date().toString(.custom("yyyy'-'MM'-'dd' 'HH':'mm'"))])
-                    { err in
-                        if let err = err {
-                            print("Error adding document: \(err)")
-                        } else {
-                            print("Document added.")
+                    let isPublic = document.data()!["isPublic"] as! Bool
+                    
+                    if(isPublic) {
+                        
+                        followerRef.updateData(["followers.\(userId)" : true,
+                        ]) { err in
+                            if let err = err {
+                                print("Error updating document: \(err)")
+                            } else {
+                                print("Document successfully updated")
+                            }
                         }
+
+                        followingRef.updateData(["following.\(self.userData.uid)" : true,
+                        ]) { err in
+                            if let err = err {
+                                print("Error updating document: \(err)")
+                            } else {
+                                print("Document successfully updated")
+                                self.followers = String(Int(self.followers)! + 1)
+                                
+                                self.followButton.setTitle("Following", for: .normal)
+                                self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
+                                self.followButton.backgroundColor = .white
+                            }
+                        }
+                        
+                        // create activity for following someone
+                        Firestore.firestore().collection("users").document(userId).getDocument { (document, error) in
+                            
+                            if let document = document, document.exists {
+
+                                let username = (document.data()!["username"] as? String)!
+                                
+                                Firestore.firestore().collection("users").document(self.userData.uid).collection("activities").addDocument(data: [
+                                    "inducedBy" : username,
+                                    "details" : " started following you.",
+                                    "dateInduced" : Date().toString(.custom("yyyy'-'MM'-'dd' 'HH':'mm'"))])
+                                { err in
+                                    if let err = err {
+                                        print("Error adding document: \(err)")
+                                    } else {
+                                        print("Document added.")
+                                    }
+                                }
+                                
+                            } else {
+                                    print("Document does not exist")
+                            }
+                        }
+                        
+                    } else {
+                        
+                        // create activity for requesting to follow someone
+                        Firestore.firestore().collection("users").document(userId).getDocument { (document, error) in
+                            
+                            if let document = document, document.exists {
+
+                                let username = (document.data()!["username"] as? String)!
+                                
+                                Firestore.firestore().collection("users").document(self.userData.uid).collection("activities").addDocument(data: [
+                                    "inducedBy" : username,
+                                    "details" : " requested to follow you.",
+                                    "dateInduced" : Date().toString(.custom("yyyy'-'MM'-'dd' 'HH':'mm'"))])
+                                { err in
+                                    if let err = err {
+                                        print("Error adding document: \(err)")
+                                    } else {
+                                        print("Document added.")
+                                    }
+                                }
+                                
+                            } else {
+                                    print("Document does not exist")
+                            }
+                        }
+                        
                     }
                     
                 } else {
-                        print("Document does not exist")
+                    print("Document does not exist")
                 }
-            }
-            
+            })
             
         }
         
