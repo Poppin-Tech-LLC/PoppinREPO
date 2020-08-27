@@ -936,6 +936,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                                 let username = (document.data()!["username"] as? String)!
                                 
                                 Firestore.firestore().collection("users").document(self.userData.uid).collection("activities").addDocument(data: [
+                                    "requesterId" : userId,
                                     "inducedBy" : username,
                                     "details" : " requested to follow you.",
                                     "dateInduced" : Date().toString(.custom("yyyy'-'MM'-'dd' 'HH':'mm'"))])

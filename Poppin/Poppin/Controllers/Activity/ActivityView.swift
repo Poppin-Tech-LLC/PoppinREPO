@@ -168,7 +168,7 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
                 } else {
                     for document in querySnapshot!.documents {
                         if((((document.data()["details"] as? String)?.contains("requested")))!) {
-                            requests.append(ActivityModel(rId: document.documentID, inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
+                            requests.append(ActivityModel(rId: document.documentID, requesterId: document.data()["requesterId"] as? String, inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
                         } else {
                             activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
                         }
@@ -208,6 +208,10 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
                 let username = ac.inducedBy!
                 cell.username = username
                 cell.reqId = ac.rId!
+                
+                //TO-DO: ff request functionality
+                //cell.requesterId = ac.requesterId!
+                
                 let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
                 
                 attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
@@ -437,6 +441,7 @@ class RequestCell : UITableViewCell {
     
     fileprivate var username: String = ""
     fileprivate var reqId: String = ""
+    fileprivate var requesterId: String = ""
         
     lazy var requestPic : ImageBubbleButton = {
             
@@ -571,8 +576,9 @@ class RequestCell : UITableViewCell {
                 }
             }
         
-        //TO-DO: implement follow once a request is accepted
-//        Firestore.firestore().collection("users").document(ProfileViewController().userData.uid).updateData(["followers.\(Auth.auth().currentUser!.uid)" : true,
+        //TO-DO: ff request functionality
+        // update the requester's following list and the current user's followers list
+//        Firestore.firestore().collection("users").document(requesterId).updateData(["following.\(Auth.auth().currentUser!.uid)" : true,
 //        ]) { err in
 //            if let err = err {
 //                print("Error updating document: \(err)")
@@ -581,7 +587,7 @@ class RequestCell : UITableViewCell {
 //            }
 //        }
 //
-//        Firestore.firestore().collection("users").document(Auth.auth().currentUser!.uid).updateData(["following.\(self.userData.uid)" : true,
+//        Firestore.firestore().collection("users").document(Auth.auth().currentUser!.uid).updateData(["followers.\(requesterId)" : true,
 //        ]) { err in
 //            if let err = err {
 //                print("Error updating document: \(err)")
