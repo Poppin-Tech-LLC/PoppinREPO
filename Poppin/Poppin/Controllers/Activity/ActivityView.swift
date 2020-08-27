@@ -39,6 +39,9 @@ struct TestPreviewActivityView: PreviewProvider {
     
 }
 
+fileprivate var activities : [ActivityModel] = []
+fileprivate var requests: [ActivityModel] = []
+
 final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     private let xInset: CGFloat = .getPercentageWidth(percentage: 5)
@@ -46,8 +49,7 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     weak var delegate: ActivityDelegate?
     
-    fileprivate var activities : [ActivityModel] = []
-    fileprivate var requests: [ActivityModel] = []
+    
     
     private var ro: Bool = false
     
@@ -155,6 +157,9 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     private func populateActivities() {
         
+        activities = []
+        requests = []
+        
         let ref = Firestore.firestore().collection("users").document(Auth.auth().currentUser!.uid).collection("activities")
 
         ref.getDocuments(completion: { (querySnapshot, err) in
@@ -163,9 +168,9 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
                 } else {
                     for document in querySnapshot!.documents {
                         if((((document.data()["details"] as? String)?.contains("requested")))!) {
-                            self.requests.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
+                            requests.append(ActivityModel(rId: document.documentID, inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
                         } else {
-                            self.activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
+                            activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
                         }
                         self.avFeed.reloadData()
                     }
@@ -202,6 +207,7 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
                 
                 let username = ac.inducedBy!
                 cell.username = username
+                cell.reqId = ac.rId!
                 let attributedString = NSMutableAttributedString(string: "@" + username, attributes:[NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1), NSAttributedString.Key.attachment: URL(string: "http://www.google.com")!])
                 
                 attributedString.append(NSAttributedString(string: ac.details!, attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
@@ -238,10 +244,6 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return .getPercentageHeight(percentage: 7)
-    }
-    
-    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-        avFeed.reloadData()
     }
     
     func agoTime(date: String) -> String {
@@ -290,24 +292,30 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
         }
     
         // Seconds
-        if let interval = Calendar.current.dateComponents([.second], from: fromDate!, to: toDate).minute, interval > 0 {
+        if let interval = Calendar.current.dateComponents([.second], from: fromDate!, to: toDate).second, interval > 0 {
     
             if(interval >= 1) {
                 return "\(interval)" + "s"
             }
         }
     
-        return "n/a"
+        return "now"
     }
     
     @objc func showRequests(sender: RequestsCell) {
         if(requests.count > 0) {
             if(ro) {
             //            sender.requestChevron.setImage(UIImage(systemSymbol: .chevronDown, withConfiguration: UIImage.SymbolConfiguration(pointSize: 16, weight: .bold, scale: .medium)).withTintColor(.white).withRenderingMode(.alwaysOriginal), for: .normal)
+                        var rc = 0
                         avFeed.beginUpdates()
                         for i in (1...requests.count) {
                             avFeed.deleteRows(at: [IndexPath(row: i, section: 0)], with: .top)
                             activities.remove(at: i-1)
+                            if(requests[i-1-rc].details!.contains("-")) {
+                                requests.remove(at: i-1)
+                                avFeed.reloadRows(at: [IndexPath(row: 0, section: 0)], with: .none)
+                                rc = rc + 1
+                            }
                         }
                         avFeed.endUpdates()
                     } else {
@@ -428,6 +436,7 @@ class RequestCell : UITableViewCell {
     private let yInset: CGFloat = .getPercentageWidth(percentage: 4)
     
     fileprivate var username: String = ""
+    fileprivate var reqId: String = ""
         
     lazy var requestPic : ImageBubbleButton = {
             
@@ -506,6 +515,8 @@ class RequestCell : UITableViewCell {
             
         self.contentView.addSubview(rStackView)
         rStackView.anchor(top: self.contentView.topAnchor, leading: self.contentView.leadingAnchor, bottom: self.contentView.bottomAnchor, trailing: self.contentView.trailingAnchor, padding: UIEdgeInsets(top: 0, left: xInset, bottom: 0, right: xInset/1.5))
+        
+        acceptButton.isHidden = false
             
     }
 
@@ -529,6 +540,12 @@ class RequestCell : UITableViewCell {
         
         attributedString.append(NSAttributedString(string: " follow request.", attributes: [NSAttributedString.Key.font: UIFont.dynamicFont(with: "Octarine-Light", style: .caption1)]))
         
+        for i in (0...requests.count-1) {
+            if(requests[i].inducedBy == username) {
+                requests[i].details = "-"
+            }
+        }
+        
         requestDetails.attributedText = attributedString
         
         // create activity for following someone
@@ -544,6 +561,35 @@ class RequestCell : UITableViewCell {
                     }
                 }
         
+        // delete the request to follow
+        Firestore.firestore().collection("users").document( Auth.auth().currentUser!.uid).collection("activities").document(reqId).delete()
+            { err in
+                if let err = err {
+                    print("Error removing document: \(err)")
+                } else {
+                    print("Document successfully removed!")
+                }
+            }
+        
+        //TO-DO: implement follow once a request is accepted
+//        Firestore.firestore().collection("users").document(ProfileViewController().userData.uid).updateData(["followers.\(Auth.auth().currentUser!.uid)" : true,
+//        ]) { err in
+//            if let err = err {
+//                print("Error updating document: \(err)")
+//            } else {
+//                print("Document successfully updated")
+//            }
+//        }
+//
+//        Firestore.firestore().collection("users").document(Auth.auth().currentUser!.uid).updateData(["following.\(self.userData.uid)" : true,
+//        ]) { err in
+//            if let err = err {
+//                print("Error updating document: \(err)")
+//            } else {
+//                print("Document successfully updated")
+//            }
+//        }
+    
     }
         
 }
