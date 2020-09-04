@@ -196,7 +196,7 @@ final class EventController: NSObject {
         
         if now.isAfterDate(startDate, granularity: .minute) { throw EventError.invalidParameter }
         
-        if (now + 15.minutes) > startDate { throw EventError.invalidParameter }
+        if (now + 0.minutes) > startDate { throw EventError.invalidParameter } // this was 15.minutes
         
         if (now + 7.days) < startDate { throw EventError.invalidParameter }
         
@@ -212,7 +212,7 @@ final class EventController: NSObject {
         
         if startDate.isAfterDate(endDate, granularity: .minute) { throw EventError.invalidParameter }
         
-        if (startDate + 30.minutes) > endDate { throw EventError.invalidParameter }
+        if (startDate + 0.minutes) > endDate { throw EventError.invalidParameter } // this was 30.minutes
         
         if (startDate + 8.hours) < endDate { throw EventError.invalidParameter }
         

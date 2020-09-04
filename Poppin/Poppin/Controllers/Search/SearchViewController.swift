@@ -31,7 +31,7 @@ final class SearchViewController: UIViewController {
     private var searchBarWasActive: Bool = false
     private var alwaysShowsCancelButton: Bool = false
     private var startIndex: Int = 0
-    
+        
     lazy private var backgroundView: UIView = {
         
         let backgroundImageView = UIImageView(image: UIImage.appBackground)

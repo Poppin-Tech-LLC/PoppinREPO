@@ -30,11 +30,13 @@ protocol ProfileActionsDelegate: class {
 final class ProfileViewController: UIViewController, UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     var myEvents : [[PopsicleAnnotation]] = [[], [], []]
+    
+    
         
     func populateEvents() {
         
         let ref = Firestore.firestore().collection("users")
-        let eref = Firestore.firestore().collection("currentPopsicles")
+        let eref = Firestore.firestore().collection("privatePopsicles")
 
         ref.document(Auth.auth().currentUser!.uid).getDocument{ (document, error) in
         if let document = document, document.exists {
@@ -48,6 +50,8 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                         
                         let data = document.data()
                         
+                        let popUid = document.documentID
+                        
                         let dateFormatter = DateFormatter()
                         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
                         
@@ -55,6 +59,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                         let eventEndDate: Date = dateFormatter.date(from: data!["endDate"] as! String)!
                         let eventName = data!["eventName"] as! String
                         //let eventCategory = data!["category"] as! String
+                        let createdById = data!["createdBy"] as! String
                         let hashtags = data!["hashtags"] as! String
                         let eventInfo = data!["eventDetails"] as! String
                         let latitude = data!["latitude"] as! CLLocationDegrees
@@ -74,7 +79,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                             popsicleCategory = PopsicleCategory.Culture
                         }*/
                         
-                        let p = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: EventCategory.Culture, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
+                        let p = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: EventCategory.Culture, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [], createdBy: createdById, isPublic: false, uid: popUid)
                         
                         if(Calendar.current.isDateInToday(eventStartDate)) {
                             self.myEvents[0].append(p)
@@ -276,7 +281,6 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     private var switchAccountHeight: CGFloat = .getPercentageHeight(percentage: 50)
     private var profileActionsHeight: CGFloat = .getPercentageHeight(percentage: 18)
-
     
     var switchAccountHeightAnchor:NSLayoutConstraint!
     
@@ -830,10 +834,10 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
     
     @objc private func performFollow() {
         
-        let userId = Auth.auth().currentUser!.uid
+        let userId = MapViewController.uid
                 
-        let followerRef = Firestore.firestore().collection("users").document(userData.uid)
-        let followingRef = Firestore.firestore().collection("users").document(userId)
+        let followerRef = Firestore.firestore().collection("followers").document(userData.uid)
+        let followingRef = Firestore.firestore().collection("following").document(userId)
 
         if followButton.titleLabel!.text == "Following" {
             
@@ -841,7 +845,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             
             let button2 = AlertButton(alertTitle: "Unfollow", alertButtonAction: {
                 
-                followerRef.updateData(["followers.\(userId)" : FieldValue.delete(),
+                followerRef.updateData(["followers" : FieldValue.arrayRemove([userId])
                 ]) { err in
                     if let err = err {
                         print("Error updating document: \(err)")
@@ -849,8 +853,24 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                         print("Document successfully updated")
                     }
                 }
+                
+                followerRef.updateData(["followerCount" : FieldValue.increment(Int64(-1))]){ err in
+                    if let err = err {
+                        print("Error updating document: \(err)")
+                    } else {
+                        print("Document successfully updated")
+                    }
+                }
+                
+                followingRef.updateData(["followingCount" : FieldValue.increment(Int64(-1))]){ err in
+                    if let err = err {
+                        print("Error updating document: \(err)")
+                    } else {
+                        print("Document successfully updated")
+                    }
+                }
 
-                followingRef.updateData(["following.\(self.userData.uid)" : FieldValue.delete(),
+                followingRef.updateData(["following" : FieldValue.arrayRemove([self.userData.uid])
                 ]) { err in
                     if let err = err {
                         print("Error updating document: \(err)")
@@ -860,6 +880,10 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                         self.followButton.setTitleColor(.white, for: .normal)
                         self.followButton.backgroundColor = .mainDARKPURPLE
                         self.followers = String(Int(self.followers)! - 1)
+                        let id = ["uid": self.userData.uid]
+
+                        NotificationCenter.default.post(name: .unfollowedUser, object: self, userInfo: id)
+
                     }
                 }
 
@@ -872,7 +896,7 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
             
         } else {
             
-            followerRef.updateData(["followers.\(userId)" : true,
+            followerRef.updateData(["followers" : FieldValue.arrayUnion([userId])
             ]) { err in
                 if let err = err {
                     print("Error updating document: \(err)")
@@ -880,8 +904,24 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                     print("Document successfully updated")
                 }
             }
+            
+            followerRef.updateData(["followerCount" : FieldValue.increment(Int64(1))]){ err in
+                if let err = err {
+                    print("Error updating document: \(err)")
+                } else {
+                    print("Document successfully updated")
+                }
+            }
+            
+            followingRef.updateData(["followingCount" : FieldValue.increment(Int64(1))]){ err in
+                if let err = err {
+                    print("Error updating document: \(err)")
+                } else {
+                    print("Document successfully updated")
+                }
+            }
 
-            followingRef.updateData(["following.\(userData.uid)" : true,
+            followingRef.updateData(["following" : FieldValue.arrayUnion([userData.uid])
             ]) { err in
                 if let err = err {
                     print("Error updating document: \(err)")
@@ -892,6 +932,12 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
                     self.followButton.setTitle("Following", for: .normal)
                     self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
                     self.followButton.backgroundColor = .white
+                    let id = ["uid": self.userData.uid]
+
+                    NotificationCenter.default.post(name: .followedUser, object: self, userInfo: id)
+
+                    //self.mapDelegate?.getPopsicleFromUser(uid: self.userData.uid)
+
                 }
             }
 
@@ -1038,19 +1084,20 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         
         let ref2 = storage.reference().child("images/\(uid)/profilepic.jpg")
         
-        let followerRef = Firestore.firestore().collection("users").document(uid)
+        let followerRef = Firestore.firestore().collection("followers").document(uid)
+        let followingRef = Firestore.firestore().collection("following").document(uid)
+
         
         followerRef.getDocument{ (document, error) in
         if let document = document, document.exists {
             let data = document.data()
-            let followers = data?["followers"] as? [String: Any] ?? [:]
-            let following = data?["following"] as? [String: Any] ?? [:]
+            let followerCount = data?["followerCount"] as? Int ?? 0
+            let followers = data?["followers"] as? [String] ?? []
             
-            self.followers = String(followers.count - 1)
-            self.following = String(following.count - 1)
+            self.followers = String(followerCount)
             
             if(!self.isUser){
-                if(followers[Auth.auth().currentUser?.uid ?? ""] != nil){
+                if(followers.contains(MapViewController.uid)){
                     self.followButton.setTitle("Following", for: .normal)
                     self.followButton.setTitleColor(.mainDARKPURPLE, for: .normal)
                     self.followButton.backgroundColor = .white
@@ -1064,7 +1111,20 @@ final class ProfileViewController: UIViewController, UINavigationControllerDeleg
         } else {
             print("Document does not exist")
         }
-    }
+        }
+            
+            followingRef.getDocument{ (document, error) in
+                if let document = document, document.exists {
+                    let data = document.data()
+                    let followingCount = data?["followingCount"] as? Int ?? 0
+                    
+                    self.following = String(followingCount)
+                    
+                    
+                } else {
+                    print("Document does not exist")
+                }
+            }
         
         ref2.downloadURL { [weak self] url, error in
             

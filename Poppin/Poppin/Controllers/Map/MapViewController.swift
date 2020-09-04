@@ -32,11 +32,12 @@ protocol ActivityDelegate: class {
     
 }
 
+
 final class MapViewController: UIViewController {
     
     public static var defaultMapViewRegionRadius = 3000.0 // 3km
     public static var defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
-        
+    
     private let mapVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let mapHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
     
@@ -47,6 +48,8 @@ final class MapViewController: UIViewController {
     private var menuIsVisible: Bool = false
     private var avIsVisible: Bool = false
     
+    private var listenerAttached: Bool = false
+    
     let monitor = NWPathMonitor()
     
     let queue = DispatchQueue(label: "InternetConnectionMonitor")
@@ -55,6 +58,16 @@ final class MapViewController: UIViewController {
     
     var mapPopsicles: [PopsicleAnnotation] = []
     
+    var popsiclesToAdd: [PopsicleAnnotation] = []
+    
+    var popsiclesToModify: [PopsicleAnnotation] = []
+    
+    var popsiclesToDelete: [String] = []
+    
+    var publicListenerAttached: Bool = false
+    
+    var privateListenerAttached: Bool = false
+    
     public static var username: String = ""
     
     public static var uid: String = ""
@@ -62,6 +75,12 @@ final class MapViewController: UIViewController {
     public static var bio: String = ""
     
     public static var fullName: String = ""
+    
+    public static var following: [String] = []
+    
+    private var listeners: [String: ListenerRegistration] = [:]
+    
+    
     
     lazy private var launchScreenOverlayView: UIView = {
         
@@ -97,7 +116,7 @@ final class MapViewController: UIViewController {
         
         var mapContainerView = UIView(frame: .zero)
         mapContainerView.backgroundColor = .clear
-
+        
         mapContainerView.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
         mapView.topAnchor.constraint(equalTo: mapContainerView.topAnchor).isActive = true
@@ -119,6 +138,10 @@ final class MapViewController: UIViewController {
         mapContainerView.addSubview(mapTopStackView)
         mapTopStackView.topAnchor.constraint(equalTo: mapContainerView.safeAreaLayoutGuide.topAnchor, constant: mapVerticalEdgeInset).isActive = true
         mapTopStackView.centerXAnchor.constraint(equalTo: mapContainerView.centerXAnchor).isActive = true
+        
+        mapContainerView.addSubview(newUpdatesButton)
+        newUpdatesButton.topAnchor.constraint(equalTo: mapTopStackView.bottomAnchor, constant: mapVerticalEdgeInset).isActive = true
+        newUpdatesButton.centerXAnchor.constraint(equalTo: mapContainerView.centerXAnchor).isActive = true
         
         mapContainerView.addSubview(mapFiltersView)
         mapFiltersView.translatesAutoresizingMaskIntoConstraints = false
@@ -143,7 +166,7 @@ final class MapViewController: UIViewController {
         return mapCloseTapGestureRecognizer
         
     }()
-
+    
     lazy private var mapMenuSlidePanGestureRecognizer: UIPanGestureRecognizer = {
         
         var mapMenuSlidePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(handleMenuPan(sender:)))
@@ -216,7 +239,7 @@ final class MapViewController: UIViewController {
     }()
     
     lazy private var mapTopStackView: UIStackView = {
-
+        
         var mapTopStackView = UIStackView(arrangedSubviews: [mapMenuButton, mapSearchBar, mapAVButton])
         mapTopStackView.axis = .horizontal
         mapTopStackView.alignment = .fill
@@ -284,18 +307,18 @@ final class MapViewController: UIViewController {
     }()
     
     lazy private var mapAVController: ActivityViewController = {
-           
-           var mapAVController = ActivityViewController()
-           mapAVController.delegate = self
-           return mapAVController
-           
+        
+        var mapAVController = ActivityViewController()
+        mapAVController.delegate = self
+        return mapAVController
+        
     }()
-       
+    
     lazy private var avLeadingConstraint: NSLayoutConstraint = {
-           
+        
         var avLeadingConstraint = NSLayoutConstraint(item: mapAVController.view!, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: view, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1.0, constant: 0)
         return avLeadingConstraint
-           
+        
     }()
     
     lazy private var mapFiltersView: FiltersView = {
@@ -321,7 +344,7 @@ final class MapViewController: UIViewController {
     }()
     
     lazy private var mapDarkOverlayView: DarkOverlayView = {
-    
+        
         var mapDarkOverlayView = DarkOverlayView()
         
         let darkOverlayViewTapRecognizer = UITapGestureRecognizer(target: self, action: #selector(toggleFilters))
@@ -333,32 +356,49 @@ final class MapViewController: UIViewController {
         mapDarkOverlayView.toggleDarkOverlayView()
         
         return mapDarkOverlayView
+        
+    }()
     
+    lazy var newUpdatesButton: BubbleButton = {
+        let innerEdgeInset: CGFloat = .getPercentageWidth(percentage: 1.8)
+        
+        let newUpdatesButton = BubbleButton(bouncyButtonImage: nil)
+        newUpdatesButton.backgroundColor = .mainDARKPURPLE
+        newUpdatesButton.setTitle("New Updates Available", for: .normal)
+        newUpdatesButton.setTitleColor(.white, for: .normal)
+        newUpdatesButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .footnote)
+        newUpdatesButton.titleLabel?.textAlignment = .center
+        newUpdatesButton.translatesAutoresizingMaskIntoConstraints = false
+        newUpdatesButton.isHidden = true
+        newUpdatesButton.contentEdgeInsets = UIEdgeInsets(top: innerEdgeInset, left: innerEdgeInset*2, bottom: innerEdgeInset, right: innerEdgeInset*2)
+        newUpdatesButton.addTarget(self, action: #selector(updatePopsicles), for: .touchUpInside)
+        
+        return newUpdatesButton
     }()
     
     
     lazy var noInternetView: UIView = {
-       let noInternetView = UIView()
+        let noInternetView = UIView()
         noInternetView.backgroundColor = .clear
         noInternetView.sizeToFit()
         return noInternetView
     }()
     
     lazy var noInternetLabel: UILabel = {
-         let noInternetLabel = UILabel()
-          noInternetLabel.backgroundColor = .clear
+        let noInternetLabel = UILabel()
+        noInternetLabel.backgroundColor = .clear
         noInternetLabel.text = "No Internet Connection"
         noInternetLabel.textColor = .mainDARKPURPLE
         noInternetLabel.textAlignment = .center
-          noInternetLabel.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
-          noInternetLabel.sizeToFit()
+        noInternetLabel.font = .dynamicFont(with: "Octarine-Bold", style: .title3)
+        noInternetLabel.sizeToFit()
         noInternetLabel.alpha = 0.0
-          return noInternetLabel
-      }()
+        return noInternetLabel
+    }()
     
     lazy var noInternetIcon: UIImageView = {
         let purpleWifi = UIImage(systemName: "wifi.exclamationmark")!.withTintColor(.mainDARKPURPLE, renderingMode: .alwaysOriginal)
-       let noInternetIcon = UIImageView()
+        let noInternetIcon = UIImageView()
         noInternetIcon.image = .sadPopsicle
         noInternetIcon.contentMode = .scaleAspectFit
         noInternetIcon.alpha = 0.0
@@ -423,7 +463,6 @@ final class MapViewController: UIViewController {
         }
         
         if !menuIsVisible, translation.x > 0.0, translation.x <= mapMenuWidth, !avIsVisible {
-            
             let alphaFactorMenuButton = 1 - (translation.x / mapMenuWidth)
             let alphaFactorContainerView = 1.2 - ((translation.x * 0.8) / mapMenuWidth)
             
@@ -453,7 +492,6 @@ final class MapViewController: UIViewController {
     @objc private func handleAVPan(sender: UIPanGestureRecognizer) {
         
         let translation = sender.translation(in: self.view)
-        
         if sender.state == .ended || sender.state == .failed || sender.state == .cancelled {
             
             if avIsVisible, !menuIsVisible, translation.x > 0 {
@@ -497,7 +535,7 @@ final class MapViewController: UIViewController {
     @objc private func closeMenu(sender: BouncyButton) {
         
         closeMenu(with: nil)
-
+        
     }
     
     @objc private func openMenu(sender: BouncyButton) {
@@ -576,12 +614,12 @@ final class MapViewController: UIViewController {
         
         mapMenuViewController.username = MapViewController.username
         mapMenuViewController.fullName = MapViewController.fullName
-      
+        
     }
     
-    @objc func contextDidSave(_ notification: Notification) {
+    @objc func userSignedIn(_ notification: Notification) {
         print("SAVED USER")
-
+        
         let user = DataController.getUser()
         
         MapViewController.uid = user.value(forKey: "uid") as? String ?? ""
@@ -591,40 +629,64 @@ final class MapViewController: UIViewController {
         
         mapMenuViewController.username = MapViewController.username
         mapMenuViewController.fullName = MapViewController.fullName
- 
+        
         let radius = user.value(forKey: "radius") as? Double ?? 0.0
         let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
         let latitude = user.value(forKey: "latitude") as? Double ?? 0.0
         
         MapViewController.defaultMapViewRegionRadius = radius * 1000
         MapViewController.defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-
+        
         mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
         mapViewRegion = MKCoordinateRegion(center: MapViewController.defaultMapViewCenterLocation, latitudinalMeters: MapViewController.defaultMapViewRegionRadius, longitudinalMeters: MapViewController.defaultMapViewRegionRadius)
         mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
         mapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: radius * 1000)
         mapView.setRegion(mapViewRegion, animated: true)
         
-        getPopsicles()
+        getPublicPopsicles()
+        // getPrivatePopsicles()
         
+        
+    }
+    
+    @objc func followedUser(_ notification: Notification)
+    {
+        if let data = notification.userInfo as? [String: Any]
+        {
+            let id = data["uid"] as? String ?? ""
+            getPopsicleFromUser(uid: id)
+            MapViewController.following.append(id)
+        }
+    }
+    
+    @objc func unfollowedUser(_ notification: Notification)
+    {
+        if let data = notification.userInfo as? [String: Any]
+        {
+            let id = data["uid"] as? String ?? ""
+            removePopsicleFromUser(uid: id)
+            MapViewController.following.remove(object: id)
+        }
     }
     
     private func setLocation() {
         if(Auth.auth().currentUser != nil){
-        let user = DataController.getUser()
+            let user = DataController.getUser()
             
-        MapViewController.uid = user.value(forKey: "uid") as? String ?? ""
-        MapViewController.username = user.value(forKey: "username") as? String ?? ""
-        MapViewController.bio = user.value(forKey: "bio") as? String ?? ""
-        MapViewController.fullName = user.value(forKey: "fullName") as? String ?? ""
-        
-        let radius = user.value(forKey: "radius") as? Double ?? 0.0
-        let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
-        let latitude = user.value(forKey: "latitude") as? Double ?? 0.0
-                
-        MapViewController.defaultMapViewRegionRadius = radius * 1000
-        MapViewController.defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            MapViewController.uid = user.value(forKey: "uid") as? String ?? ""
+            MapViewController.username = user.value(forKey: "username") as? String ?? ""
+            MapViewController.bio = user.value(forKey: "bio") as? String ?? ""
+            MapViewController.fullName = user.value(forKey: "fullName") as? String ?? ""
+            
+            let radius = user.value(forKey: "radius") as? Double ?? 0.0
+            let longitude = user.value(forKey: "longitude") as? Double ?? 0.0
+            let latitude = user.value(forKey: "latitude") as? Double ?? 0.0
+            
+            MapViewController.defaultMapViewRegionRadius = radius * 1000
+            MapViewController.defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
         }
+        
+        
     }
     
     override func viewDidLoad() {
@@ -636,10 +698,18 @@ final class MapViewController: UIViewController {
         print("LOADDEDDD")
         
         setLocation()
-    
-        NotificationCenter.default.addObserver(self, selector: #selector(contextDidSave(_:)), name: .userSignedIn, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(followedUser(_:)), name: .followedUser, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(unfollowedUser(_:)), name: .unfollowedUser, object: nil)
+        
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userSignedIn(_:)), name: .userSignedIn, object: nil)
         
         NotificationCenter.default.addObserver(self, selector: #selector(editedProfile(_:)), name: .editedProfileMap, object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(eventCreated(_:)), name: .eventCreated, object: nil)
+
         
         let mapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleMapTap(sender:)))
         mapGestureRecognizer.numberOfTapsRequired = 1
@@ -712,38 +782,38 @@ final class MapViewController: UIViewController {
         mapLocationManager.startUpdatingLocation()
         
         monitor.pathUpdateHandler = { pathUpdateHandler in
-                if pathUpdateHandler.status == .satisfied {
-                    DispatchQueue.main.async {
-                        self.noInternetIcon.image = .happyPopsicle
+            if pathUpdateHandler.status == .satisfied {
+                DispatchQueue.main.async {
+                    self.noInternetIcon.image = .happyPopsicle
+                    self.view.layoutIfNeeded()
+                    
+                    UIView.animate(withDuration: 0.5, delay: 0.5, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                        //self.view.layoutIfNeeded()
+                        
+                        self.noInternetView.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                        
+                        //self.confirmLocView.alpha = 1.0
+                        self.noInternetIcon.alpha = 0.0
+                        self.noInternetLabel.alpha = 0.0
+                        self.mapCreateEventButton.isUserInteractionEnabled = true
+                        self.mapCreateEventButton.alpha = 1.0
+                        
                         self.view.layoutIfNeeded()
                         
-                        UIView.animate(withDuration: 0.5, delay: 0.5, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
-                            //self.view.layoutIfNeeded()
-                            
-                            self.noInternetView.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
-                            
-                            //self.confirmLocView.alpha = 1.0
-                            self.noInternetIcon.alpha = 0.0
-                            self.noInternetLabel.alpha = 0.0
-                            self.mapCreateEventButton.isUserInteractionEnabled = true
-                            self.mapCreateEventButton.alpha = 1.0
-                            
-                            self.view.layoutIfNeeded()
-                            
-                            
-                        })
-                    }
-                    print("Internet connection is on.")
-                } else {
-                    DispatchQueue.main.async {
                         
-                        if(self.noInternetIcon.alpha != 1.0){
-                            // UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
-                            self.noInternetIcon.image = .sadPopsicle
+                    })
+                }
+                print("Internet connection is on.")
+            } else {
+                DispatchQueue.main.async {
+                    
+                    if(self.noInternetIcon.alpha != 1.0){
+                        // UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                        self.noInternetIcon.image = .sadPopsicle
                         self.noInternetView.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
                         self.view.layoutIfNeeded()
                         
-                            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
                             //self.view.layoutIfNeeded()
                             
                             self.noInternetView.transform = .identity
@@ -758,22 +828,23 @@ final class MapViewController: UIViewController {
                             
                             
                         })
-                        }
                     }
-                    print("There's no internet connection.")
                 }
+                print("There's no internet connection.")
             }
-            
-            monitor.start(queue: queue)
-            
-            getPopsicles()
+        }
+        
+        monitor.start(queue: queue)
+        
+        getPublicPopsicles()
+        //  getPrivatePopsicles()
         
     }
     
     override func viewDidAppear(_ animated: Bool) {
-    
+        
         super.viewDidAppear(animated)
-
+        
         
         if shouldPresentLoginVC {
             
@@ -786,36 +857,520 @@ final class MapViewController: UIViewController {
                 
                 self.launchScreenOverlayView.removeFromSuperview()
                 self.shouldPresentLoginVC = false
-            
+                
             })
             
         }
         
     }
     
-    public func getPopsicles(){
+    @objc func eventCreated(_ notification: Notification){
         
-        print("Getting popsicles")
+            for popsicle in popsiclesToAdd {
+                print("ADDED \(popsicle.popsicleAnnotationData.eventTitle)")
+                mapView.addAnnotation(popsicle)
+            }
+            popsiclesToAdd = []
+            
+            for popsicle in popsiclesToModify {
+                for annotation in self.mapView.annotations{
+                    if let popsicleAnnotation = annotation as? PopsicleAnnotation{
+                        if(popsicleAnnotation.popsicleAnnotationData.uid == popsicle.popsicleAnnotationData.uid){
+                            print("MODIFIED \(popsicle.popsicleAnnotationData.eventTitle)")
+                            self.mapView.removeAnnotation(popsicleAnnotation)
+                            self.mapView.addAnnotation(popsicle)
+                        }
+                    }
+                }
+            }
+            popsiclesToModify = []
+            
+            for popsicle in popsiclesToDelete {
+                for annotation in self.mapView.annotations{
+                    if let popsicleAnnotation = annotation as? PopsicleAnnotation{
+                        if(popsicleAnnotation.popsicleAnnotationData.uid == popsicle){
+                            print("REMOVED \(popsicle)")
+                            self.mapView.removeAnnotation(popsicleAnnotation)
+                        }
+                    }
+                }
+            }
+            popsiclesToDelete = []
+            
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                self.newUpdatesButton.isHidden = true
+            }
+            )
+    }
+
+    
+    @objc func updatePopsicles(){
         
-        mapView.removeAnnotations(mapPopsicles)
-        mapPopsicles = []
+        for popsicle in popsiclesToAdd {
+            print("ADDED \(popsicle.popsicleAnnotationData.eventTitle)")
+            mapView.addAnnotation(popsicle)
+        }
+        popsiclesToAdd = []
+        
+        for popsicle in popsiclesToModify {
+            for annotation in self.mapView.annotations{
+                if let popsicleAnnotation = annotation as? PopsicleAnnotation{
+                    if(popsicleAnnotation.popsicleAnnotationData.uid == popsicle.popsicleAnnotationData.uid){
+                        print("MODIFIED \(popsicle.popsicleAnnotationData.eventTitle)")
+                        self.mapView.removeAnnotation(popsicleAnnotation)
+                        self.mapView.addAnnotation(popsicle)
+                    }
+                }
+            }
+        }
+        popsiclesToModify = []
+        
+        for popsicle in popsiclesToDelete {
+            for annotation in self.mapView.annotations{
+                if let popsicleAnnotation = annotation as? PopsicleAnnotation{
+                    if(popsicleAnnotation.popsicleAnnotationData.uid == popsicle){
+                        print("REMOVED \(popsicle)")
+                        self.mapView.removeAnnotation(popsicleAnnotation)
+                    }
+                }
+            }
+        }
+        popsiclesToDelete = []
+        
+        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+            self.newUpdatesButton.isHidden = true
+        }
+        )
+    }
+    
+    private func attachPrivateEventListener(){
         
         let geoFirestoreRef = Firestore.firestore()
         
-        let geoFirestore = GeoFirestore(collectionRef: geoFirestoreRef.collection("geolocs"))
+        let geoFirestore = GeoFirestore(collectionRef: geoFirestoreRef.collection("privatePopsicleLocs"))
         
-        let popRef = geoFirestoreRef.collection("currentPopsicles")
+        let popRef = geoFirestoreRef.collection("privatePopsicles")
         // Query using CLLocation
         let center = CLLocation(latitude: MapViewController.defaultMapViewCenterLocation.latitude, longitude: MapViewController.defaultMapViewCenterLocation.longitude)
-
-        let circleQuery2 = geoFirestore.query(withCenter: center, radius: 3)
         
-        let group = DispatchGroup()
+        let circleQuery2 = geoFirestore.query(withCenter: center, radius: MapViewController.defaultMapViewRegionRadius/1000.0)
+        
+        
+        
+        //let group = DispatchGroup()
+        
+        _ = circleQuery2.observeReady {
+            print("LISTENER ATTACHED SIR")
+            self.privateListenerAttached = true
+        }
+        
+        _ = circleQuery2.observe( .documentExited, with: { (key, location) in
+            for annotation in self.mapView.annotations {
+                if let popsicleAnnotation = annotation as? PopsicleAnnotation{
+                    if(popsicleAnnotation.popsicleAnnotationData.uid == key!){
+                        self.popsiclesToDelete.append(key!)
+                        
+                        if(self.newUpdatesButton.isHidden){
+                            self.newUpdatesButton.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                            self.newUpdatesButton.isHidden = false
+                            self.view.layoutIfNeeded()
+                            
+                            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                                
+                                self.newUpdatesButton.transform = .identity
+                                
+                                self.view.layoutIfNeeded()
+                                
+                                
+                            })
+                        }
+                        break
+                    }
+                }
+            }
+            
+            
+        })
+        
         
         _ = circleQuery2.observe(.documentEntered, with: { (key, location) in
             print("The document with documentID '\(String(describing: key))' entered the search area and is at location '\(String(describing: location))'")
             
-            group.enter()
+            let popUid = key ?? "NOTHING"
+            
+            print(popUid)
+            
+            if(self.privateListenerAttached){
+                
+                //  group.enter()
+                popRef.document(key!).getDocument{ (document, error) in
+                    if let document = document, document.exists {
+                        
+                        let data = document.data()
+                        
+                        let eventStartDate: Date = DateInRegion(data!["startDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+                        let eventEndDate: Date = DateInRegion(data!["endDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+                        
+                        let eventName = data!["eventName"] as! String
+                        let eventCategory = data!["category"] as! String
+                        let hashtags = data!["hashtags"] as! String
+                        let eventInfo = data!["eventDetails"] as! String
+                        let createdById = data!["createdBy"] as! String
+                        let latitude = data!["latitude"] as! CLLocationDegrees
+                        let longitude = data!["longitude"] as! CLLocationDegrees
+                        
+                        let popsicleCategory: EventCategory
+                        
+                        if (eventCategory == "education") {
+                            
+                            popsicleCategory = .Education
+                            
+                            
+                            
+                        } else if (eventCategory == "food") {
+                            
+                            popsicleCategory = .Food
+                            
+                            
+                        } else if (eventCategory == "social") {
+                            
+                            popsicleCategory = .Social
+                            
+                            
+                        } else if (eventCategory == "sports") {
+                            
+                            popsicleCategory = .Sports
+                        } else {
+                            
+                            popsicleCategory = .Culture
+                        }
+                        
+                        let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [], createdBy: createdById, isPublic: false, uid: popUid)
+                        
+                        //self.mapView.addAnnotation(popsicleToAdd)
+                        
+                        print("CREATED BY \(createdById)")
+                        
+                        if(MapViewController.following.contains(createdById)){
+                            
+                            self.popsiclesToAdd.append(popsicleToAdd)
+                            
+                            if(self.newUpdatesButton.isHidden){
+                                self.newUpdatesButton.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                                self.newUpdatesButton.isHidden = false
+                                self.view.layoutIfNeeded()
+                                
+                                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                                    
+                                    self.newUpdatesButton.transform = .identity
+                                    
+                                    self.view.layoutIfNeeded()
+                                    
+                                    
+                                })
+                            }
+                        }
+                        // self.mapPopsicles.append(popsicleToAdd)
+                        
+                        
+                    } else {
+                        print("Document does not exist")
+                    }
+                    
+                    //  group.leave()
+                    
+                }
+            }
+            
+            //            group.notify(queue: .main) {
+            //
+            //                self.mapView.addAnnotations(self.mapPopsicles)
+            //
+            //            }
+            
+        })
+    }
+    
+    
+    private func removePopsicleFromUser(uid: String){
+        MapViewController.following.remove(object: uid)
+
+        for annotation in mapView.annotations{
+            if let popsicleAnnotation = annotation as? PopsicleAnnotation{
+                print("POPSICLE CREATED BY \(popsicleAnnotation.popsicleAnnotationData.createdBy)")
+                
+                if(popsicleAnnotation.popsicleAnnotationData.createdBy == uid && !popsicleAnnotation.popsicleAnnotationData.isPublic){
+                    print("REMOVE ANNOTATION")
+                    mapView.removeAnnotation(popsicleAnnotation)
+                }
+            }
+        }
+    }
+    
+    
+    private func getPopsicleFromUser(uid: String){
+        
+        print("GETTING USER POPSICLEEEE")
+        
+        let popRef = Firestore.firestore().collection("privatePopsicles")
+        
+        MapViewController.following.append(uid)
+        
+        
+        popRef.whereField("createdBy", isEqualTo: uid).getDocuments { (querySnapshot, error) in
+            if let error = error {
+                print("Error getting documents: \(error)")
+            } else {
+                querySnapshot!.documents.forEach { doc in
+                    
+                    let data = doc.data()
+                    
+                    print("FOUND RPIVATE POPSICLE")
+                    
+                    let eventStartDate: Date = DateInRegion(data["startDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+                    let eventEndDate: Date = DateInRegion(data["endDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+                    
+                    let popUid = doc.documentID
+                    
+                    let eventName = data["eventName"] as! String
+                    print("EVEEENNTT \(eventName)")
+                    let eventCategory = data["category"] as! String
+                    let hashtags = data["hashtags"] as! String
+                    let eventInfo = data["eventDetails"] as! String
+                    let createdById = data["createdBy"] as! String
+                    let latitude = data["latitude"] as! CLLocationDegrees
+                    let longitude = data["longitude"] as! CLLocationDegrees
+                    
+                    let popsicleCategory: EventCategory
+                    
+                    if (eventCategory == "education") {
+                        
+                        popsicleCategory = .Education
+                        
+                        
+                        
+                    } else if (eventCategory == "food") {
+                        
+                        popsicleCategory = .Food
+                        
+                        
+                    } else if (eventCategory == "social") {
+                        
+                        popsicleCategory = .Social
+                        
+                        
+                    } else if (eventCategory == "sports") {
+                        
+                        popsicleCategory = .Sports
+                    } else {
+                        
+                        popsicleCategory = .Culture
+                    }
+                    
+                    let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [], createdBy: createdById, isPublic: false, uid: popUid)
+                    
+                    self.popsiclesToAdd.append(popsicleToAdd)
+                    
+                    
+                    if(self.newUpdatesButton.isHidden){
+                        self.newUpdatesButton.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                        self.newUpdatesButton.isHidden = false
+                        self.view.layoutIfNeeded()
+                        
+                        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                            //self.view.layoutIfNeeded()
+                            
+                            self.newUpdatesButton.transform = .identity
+                            
+                            self.view.layoutIfNeeded()
+                            
+                            
+                        })
+                    }
+                    
+                    
+                    
+                }
+                
+                
+            }
+        }
+    }
+    
+    
+    
+    
+    public func getPrivatePopsicles(){
+        print("Getting private popsicles")
+        attachPrivateEventListener()
+        
+        let popRef = Firestore.firestore().collection("privatePopsicles")
+        let followingRef = Firestore.firestore().collection("following").document(MapViewController.uid)
+        
+        // Query using CLLocation
+        
+        followingRef.getDocument{ (document, error) in
+            if let document = document, document.exists {
+                let data = document.data()
+                MapViewController.following = data?["following"] as? [String] ?? []
+                print(MapViewController.following)
+                for id in MapViewController.following {
+                    print(id)
+                    popRef.whereField("createdBy", isEqualTo: id).getDocuments { (querySnapshot, error) in
+                        if let error = error {
+                            print("Error getting documents: \(error)")
+                        } else {
+                            //                            var last = false
+                            //                            if(id == MapViewController.following.last){
+                            //                                last = true
+                            //                            }
+                            querySnapshot!.documents.forEach { doc in
+                                let data = doc.data()
+                                
+                                print("FOUND RPIVATE POPSICLE")
+                                
+                                let eventStartDate: Date = DateInRegion(data["startDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+                                let eventEndDate: Date = DateInRegion(data["endDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+                                
+                                let popUid = doc.documentID
+                                
+                                let eventName = data["eventName"] as! String
+                                print("EVEEENNTT \(eventName)")
+                                let eventCategory = data["category"] as! String
+                                let hashtags = data["hashtags"] as! String
+                                let eventInfo = data["eventDetails"] as! String
+                                let createdById = data["createdBy"] as! String
+                                let latitude = data["latitude"] as! CLLocationDegrees
+                                let longitude = data["longitude"] as! CLLocationDegrees
+                                
+                                let popsicleCategory: EventCategory
+                                
+                                if (eventCategory == "education") {
+                                    
+                                    popsicleCategory = .Education
+                                    
+                                    
+                                    
+                                } else if (eventCategory == "food") {
+                                    
+                                    popsicleCategory = .Food
+                                    
+                                    
+                                } else if (eventCategory == "social") {
+                                    
+                                    popsicleCategory = .Social
+                                    
+                                    
+                                } else if (eventCategory == "sports") {
+                                    
+                                    popsicleCategory = .Sports
+                                } else {
+                                    
+                                    popsicleCategory = .Culture
+                                }
+                                
+                                let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [], createdBy: createdById, isPublic: false, uid: popUid)
+                                
+                                
+                                self.popsiclesToAdd.append(popsicleToAdd)
+                                
+                                //                                    if(self.newUpdatesButton.isHidden){
+                                //                                        self.newUpdatesButton.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                                //                                        self.newUpdatesButton.isHidden = false
+                                //                                        self.view.layoutIfNeeded()
+                                //
+                                //                                        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                                //
+                                //                                            self.newUpdatesButton.transform = .identity
+                                //
+                                //                                            self.view.layoutIfNeeded()
+                                //
+                                //
+                                //                                        })
+                                //                                    }
+                                
+                                self.mapView.addAnnotation(popsicleToAdd)
+                                
+                            }
+                            //
+                            //                            if(last){
+                            //                                self.privateListenerAttached = true
+                            //                            }
+                            
+                        }
+                    }
+                }
+            }
+            
+            
+        }
+        
+    }
+    
+    
+    public func getPublicPopsicles(){
+        
+        print("Getting public popsicles")
+        
+        //mapView.removeAnnotations(mapPopsicles)
+        mapPopsicles = []
+        
+        getPrivatePopsicles()
+        
+        
+        let geoFirestoreRef = Firestore.firestore()
+        
+        let geoFirestore = GeoFirestore(collectionRef: geoFirestoreRef.collection("publicPopsicleLocs"))
+        
+        let popRef = geoFirestoreRef.collection("publicPopsicles")
+        // Query using CLLocation
+        let center = CLLocation(latitude: MapViewController.defaultMapViewCenterLocation.latitude, longitude: MapViewController.defaultMapViewCenterLocation.longitude)
+        
+        let circleQuery2 = geoFirestore.query(withCenter: center, radius: MapViewController.defaultMapViewRegionRadius/1000.0)
+        
+        
+        
+        //let group = DispatchGroup()
+        
+        _ = circleQuery2.observeReady {
+            print("LISTENER ATTACHED SIR")
+            self.publicListenerAttached = true
+        }
+        
+        _ = circleQuery2.observe( .documentExited, with: { (key, location) in
+            for annotation in self.mapView.annotations {
+                if let popsicleAnnotation = annotation as? PopsicleAnnotation{
+                    if(popsicleAnnotation.popsicleAnnotationData.uid == key!){
+                        self.popsiclesToDelete.append(key!)
+                        
+                        if(self.newUpdatesButton.isHidden){
+                            self.newUpdatesButton.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                            self.newUpdatesButton.isHidden = false
+                            self.view.layoutIfNeeded()
+                            
+                            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                                
+                                self.newUpdatesButton.transform = .identity
+                                
+                                self.view.layoutIfNeeded()
+                                
+                                
+                            })
+                        }
+                        break
+                    }
+                }
+            }
+            
+            
+        })
+        
+        _ = circleQuery2.observe(.documentEntered, with: { (key, location) in
+            print("The document with documentID '\(String(describing: key))' entered the search area and is at location '\(String(describing: location))'")
+            
+            let popUid = key ?? ""
+            
+            //  group.enter()
             popRef.document(key!).getDocument{ (document, error) in
                 if let document = document, document.exists {
                     
@@ -828,6 +1383,7 @@ final class MapViewController: UIViewController {
                     let eventCategory = data!["category"] as! String
                     let hashtags = data!["hashtags"] as! String
                     let eventInfo = data!["eventDetails"] as! String
+                    let createdById = data!["createdBy"] as! String
                     let latitude = data!["latitude"] as! CLLocationDegrees
                     let longitude = data!["longitude"] as! CLLocationDegrees
                     
@@ -857,25 +1413,47 @@ final class MapViewController: UIViewController {
                         popsicleCategory = .Culture
                     }
                     
-                    let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
+                    let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [], createdBy: createdById, isPublic: true, uid: popUid)
                     
-                    self.mapPopsicles.append(popsicleToAdd)
+                    if(self.publicListenerAttached){
+                        self.popsiclesToAdd.append(popsicleToAdd)
+                        
+                        if(self.newUpdatesButton.isHidden){
+                            self.newUpdatesButton.transform = CGAffineTransform(translationX: 0, y: -self.view.bounds.height * 0.5)
+                            self.newUpdatesButton.isHidden = false
+                            self.view.layoutIfNeeded()
+                            
+                            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations:{
+                                
+                                self.newUpdatesButton.transform = .identity
+                                
+                                self.view.layoutIfNeeded()
+                                
+                                
+                            })
+                        }
+                    }else{
+                        
+                        self.mapView.addAnnotation(popsicleToAdd)
+                    }
                     
-                    // print("Document data: \(dataDescription)")
+                    // self.mapPopsicles.append(popsicleToAdd)
+                    
                     
                 } else {
                     print("Document does not exist")
                 }
                 
-                group.leave()
+                //  group.leave()
                 
             }
             
-            group.notify(queue: .main) {
-             
-                self.mapView.addAnnotations(self.mapPopsicles)
-                
-            }
+            
+            //            group.notify(queue: .main) {
+            //
+            //                self.mapView.addAnnotations(self.mapPopsicles)
+            //
+            //            }
             
         })
     }
@@ -887,7 +1465,7 @@ extension MapViewController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         
         switch status {
-        
+            
         case .authorizedAlways: manager.startUpdatingLocation()
         case .authorizedWhenInUse: manager.startUpdatingLocation()
         case .denied: manager.requestWhenInUseAuthorization()
@@ -908,12 +1486,12 @@ extension MapViewController: CLLocationManagerDelegate {
             if !mapView.visibleMapRect.contains(MKMapPoint(userLocation)) {
                 
                 mapViewRegion.center = userLocation
-               // mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
+                // mapView.cameraBoundary = MKMapView.CameraBoundary(coordinateRegion: mapViewRegion)
                 
             }
             
         }
-
+        
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -939,7 +1517,7 @@ extension MapViewController: MKMapViewDelegate {
     func mapViewDidFinishRenderingMap(_ mapView: MKMapView, fullyRendered: Bool) {
         
         if !mapView.showsUserLocation {
-        
+            
             mapView.showsUserLocation = true
             
         }
@@ -947,62 +1525,62 @@ extension MapViewController: MKMapViewDelegate {
     }
     
     func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
-       /*
-        if placingPin {
-            
-            self.view.layoutIfNeeded()
-            
-            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                
-                self.eventLocationDraggingNotification.alpha = 0.0
-                self.view.layoutIfNeeded()
-                
-            }, completion: nil)
-            
-        }
-        */
+        /*
+         if placingPin {
+         
+         self.view.layoutIfNeeded()
+         
+         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.8, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+         
+         self.eventLocationDraggingNotification.alpha = 0.0
+         self.view.layoutIfNeeded()
+         
+         }, completion: nil)
+         
+         }
+         */
     }
     
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-      /*
-        if placingPin {
-            
-            let centerCoordinate = mapView.centerCoordinate
-            
-            let centerLocation = CLLocation(latitude: centerCoordinate.latitude - 0.0001, longitude: centerCoordinate.longitude)
-            
-            lookUpAddress(from: centerLocation) { (address) in
-                
-                if (address != nil) {
-                    
-                    self.eventLocationConfirmationAddress.text = address
-                    
-                    if (!self.confirmationViewIsVisible) {
-                        
-                        self.eventLocationConfirmationContainerView.transform = CGAffineTransform(translationX: 0, y: +self.eventLocationConfirmationContainerView.frame.height)
-                        self.eventLocationConfirmationContainerView.alpha = 1.0
-                        self.view.layoutIfNeeded()
-                        
-                        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.95, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-                            
-                            self.eventLocationConfirmationContainerView.transform = .identity
-                            self.view.layoutIfNeeded()
-                            
-                        }, completion: nil)
-                        
-                        self.confirmationViewIsVisible = true
-                        
-                    }
-                    
-                } else {
-                    
-                    print("Error: mainMapView was unable to retrieve the address from the current center location.")
-                    
-                }
-                
-            }
-            
-        }*/
+        /*
+         if placingPin {
+         
+         let centerCoordinate = mapView.centerCoordinate
+         
+         let centerLocation = CLLocation(latitude: centerCoordinate.latitude - 0.0001, longitude: centerCoordinate.longitude)
+         
+         lookUpAddress(from: centerLocation) { (address) in
+         
+         if (address != nil) {
+         
+         self.eventLocationConfirmationAddress.text = address
+         
+         if (!self.confirmationViewIsVisible) {
+         
+         self.eventLocationConfirmationContainerView.transform = CGAffineTransform(translationX: 0, y: +self.eventLocationConfirmationContainerView.frame.height)
+         self.eventLocationConfirmationContainerView.alpha = 1.0
+         self.view.layoutIfNeeded()
+         
+         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.95, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
+         
+         self.eventLocationConfirmationContainerView.transform = .identity
+         self.view.layoutIfNeeded()
+         
+         }, completion: nil)
+         
+         self.confirmationViewIsVisible = true
+         
+         }
+         
+         } else {
+         
+         print("Error: mainMapView was unable to retrieve the address from the current center location.")
+         
+         }
+         
+         }
+         
+         }*/
         
     }
     
@@ -1034,12 +1612,12 @@ extension MapViewController: MKMapViewDelegate {
         if let userAnnotation = annotation as? MKUserLocation {
             
             if let userLocationAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: UserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier) as? UserLocationAnnotationView {
-             
+                
                 userLocationAnnotationView.setUserLocationIcon(icon: nil)
                 return userLocationAnnotationView
                 
             } else {
-             
+                
                 let userLocationAnnotationView = UserLocationAnnotationView(annotation: userAnnotation, reuseIdentifier: UserLocationAnnotationView.defaultUserLocationAnnotationViewReuseIdentifier)
                 userLocationAnnotationView.setUserLocationIcon(icon: nil)
                 return userLocationAnnotationView
@@ -1064,12 +1642,12 @@ extension MapViewController: MKMapViewDelegate {
         } else if let popsicleGroupAnnotation = annotation as? MKClusterAnnotation {
             
             if let popsicleGroupAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: PopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier) as? PopsicleGroupAnnotationView {
-             
+                
                 popsicleGroupAnnotationView.setGroupCount(count: popsicleGroupAnnotation.memberAnnotations.count)
                 return popsicleGroupAnnotationView
                 
             } else {
-             
+                
                 let popsicleGroupAnnotationView = PopsicleGroupAnnotationView(annotation: popsicleGroupAnnotation, reuseIdentifier: PopsicleGroupAnnotationView.defaultPopsicleGroupAnnotationViewReuseIdentifier)
                 popsicleGroupAnnotationView.setGroupCount(count: popsicleGroupAnnotation.memberAnnotations.count)
                 return popsicleGroupAnnotationView
@@ -1083,43 +1661,43 @@ extension MapViewController: MKMapViewDelegate {
     }
     
     /*func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
-        
-        for annotationView in views {
-            
-            if annotationView is PopsicleAnnotationView, let annotationCoordinates = annotationView.annotation?.coordinate, mapView.visibleMapRect.contains(MKMapPoint(annotationCoordinates)) {
-                
-                let endFrame:CGRect = annotationView.frame
-                
-                annotationView.frame = CGRect(origin: CGPoint(x: annotationView.frame.origin.x, y: annotationView.frame.origin.y - self.view.frame.size.height), size: CGSize(width: annotationView.frame.size.width, height: annotationView.frame.size.height))
-                
-                self.view.layoutIfNeeded()
-                
-                UIView.animate(withDuration: 0.5, delay: 0, options: UIView.AnimationOptions.curveEaseIn, animations:{() in
-                    
-                    annotationView.frame = endFrame
-                    
-                    self.view.layoutIfNeeded()
-                    
-                }, completion: nil)
-                
-            } else if annotationView is PopsicleGroupAnnotationView || annotationView is UserLocationAnnotationView, let annotationCoordinates = annotationView.annotation?.coordinate, mapView.visibleMapRect.contains(MKMapPoint(annotationCoordinates)) {
-                
-                annotationView.alpha = 0
-                annotationView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
-                
-                UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 3,
-                               options: .curveEaseOut, animations: {
-                                
-                                annotationView.transform = .identity
-                                annotationView.alpha = 1
-                                
-                }, completion: nil)
-                
-            }
-            
-        }
-        
-    }*/
+     
+     for annotationView in views {
+     
+     if annotationView is PopsicleAnnotationView, let annotationCoordinates = annotationView.annotation?.coordinate, mapView.visibleMapRect.contains(MKMapPoint(annotationCoordinates)) {
+     
+     let endFrame:CGRect = annotationView.frame
+     
+     annotationView.frame = CGRect(origin: CGPoint(x: annotationView.frame.origin.x, y: annotationView.frame.origin.y - self.view.frame.size.height), size: CGSize(width: annotationView.frame.size.width, height: annotationView.frame.size.height))
+     
+     self.view.layoutIfNeeded()
+     
+     UIView.animate(withDuration: 0.5, delay: 0, options: UIView.AnimationOptions.curveEaseIn, animations:{() in
+     
+     annotationView.frame = endFrame
+     
+     self.view.layoutIfNeeded()
+     
+     }, completion: nil)
+     
+     } else if annotationView is PopsicleGroupAnnotationView || annotationView is UserLocationAnnotationView, let annotationCoordinates = annotationView.annotation?.coordinate, mapView.visibleMapRect.contains(MKMapPoint(annotationCoordinates)) {
+     
+     annotationView.alpha = 0
+     annotationView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
+     
+     UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 0.55, initialSpringVelocity: 3,
+     options: .curveEaseOut, animations: {
+     
+     annotationView.transform = .identity
+     annotationView.alpha = 1
+     
+     }, completion: nil)
+     
+     }
+     
+     }
+     
+     }*/
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         
@@ -1137,7 +1715,7 @@ extension MapViewController: MKMapViewDelegate {
             bottomSheetVC.popsicleEndDate = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventEndDate.toString(.standard)
             bottomSheetVC.popsicleDetails = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventDetails!
             bottomSheetVC.popsicleAddy = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventLocation
-//            bottomSheetVC.popsicleHashtags = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventHashtags
+            //            bottomSheetVC.popsicleHashtags = (selectedPopsicle as! PopsicleAnnotation).popsicleAnnotationData.eventHashtags
             
             self.addChild(bottomSheetVC)
             self.view.addSubview(bottomSheetVC.view)
@@ -1152,14 +1730,14 @@ extension MapViewController: MKMapViewDelegate {
             print("User location selected.")
             
         } else if let selectedAnnotation = view.annotation as? MKClusterAnnotation {
-         
+            
             var minLat = selectedAnnotation.memberAnnotations[0].coordinate.latitude
             var maxLat = selectedAnnotation.memberAnnotations[0].coordinate.latitude
             var minLng = selectedAnnotation.memberAnnotations[0].coordinate.longitude
             var maxLng = selectedAnnotation.memberAnnotations[0].coordinate.longitude
             
             for annotation in selectedAnnotation.memberAnnotations {
-             
+                
                 minLat = min(minLat, annotation.coordinate.latitude)
                 maxLat = max(maxLat, annotation.coordinate.latitude)
                 minLng = min(minLng, annotation.coordinate.longitude)
@@ -1169,7 +1747,7 @@ extension MapViewController: MKMapViewDelegate {
             
             let midLat = (minLat + maxLat) / 2
             let midLng = (minLng + maxLng) / 2
-
+            
             let deltaLat = (maxLat - minLat) * 5
             let deltaLng = (maxLng - minLng) * 5
             
@@ -1212,11 +1790,11 @@ extension MapViewController: UISearchBarDelegate {
 }
 
 extension MapViewController: MenuDelegate {
-
+    
     func closeMenu(with action: MenuAction?) {
         
         if menuIsVisible {
-         
+            
             UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
                 
                 self.menuLeadingConstraint.constant = -self.mapMenuWidth
@@ -1262,7 +1840,7 @@ extension MapViewController: MenuDelegate {
                         let alertVC = AlertViewController(alertTitle: "Unable to logout", alertMessage: error.localizedDescription, alertButtons: [button1])
                         
                         self.present(alertVC, animated: true, completion: nil)
-                    
+                        
                     }
                 case .Profile: print(action)
                 case .Default: print(action)
@@ -1276,9 +1854,9 @@ extension MapViewController: MenuDelegate {
     }
     
     func openMenu() {
-     
-        if(!menuIsVisible && !avIsVisible) {
         
+        if(!menuIsVisible && !avIsVisible) {
+            
             view.layoutIfNeeded()
             
             UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
@@ -1290,27 +1868,27 @@ extension MapViewController: MenuDelegate {
                 self.view.layoutIfNeeded()
                 
             }, completion: { finished in
-            
+                
                 self.view.addGestureRecognizer(self.mapMenuSlidePanGestureRecognizer)
                 
                 self.menuIsVisible = true
                 self.mapContainerView.addGestureRecognizer(self.mapCloseTapGestureRecognizer)
                 self.mapView.isUserInteractionEnabled = false
-            
+                
             })
             
         }
         
     }
-        
+    
 }
 
 extension MapViewController: ActivityDelegate {
-
+    
     func closeAV() {
         
         if avIsVisible {
-         
+            
             UIView.animate(withDuration: 0.5, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
                 
                 self.avLeadingConstraint.constant = 0
@@ -1331,7 +1909,7 @@ extension MapViewController: ActivityDelegate {
             })
             
         }
-            
+        
     }
     
     func openAV() {
@@ -1351,7 +1929,7 @@ extension MapViewController: ActivityDelegate {
             }, completion: { finished in
                 
                 self.view.addGestureRecognizer(self.mapAVSlidePanGestureRecognizer)
-            
+                
                 self.avIsVisible = true
                 self.mapContainerView.addGestureRecognizer(self.mapCloseTapGestureRecognizer)
                 self.mapView.isUserInteractionEnabled = false
@@ -1362,22 +1940,105 @@ extension MapViewController: ActivityDelegate {
         }
         
     }
-        
+    
 }
 
+//extension MapViewController: MapDelegate {
+//
+//    func getPopsicleFromUser(uid: String){
+//
+//        print("GETTING USER POPSICLEEEE")
+//
+//           let popRef = Firestore.firestore().collection("privatePopsicles")
+//
+//
+//           popRef.whereField("createdBy", isEqualTo: uid).getDocuments{ (querySnapshot, error) in
+//               if let error = error {
+//                   print("ERRROOORRR")
+//                   print("Error getting documents: \(error)")
+//               } else {
+//                print("DOC COUNT")
+//                print(String(querySnapshot!.documents.count))
+//                   for document in querySnapshot!.documents {
+//
+//                       if document.exists {
+//
+//                           let data = document.data()
+//
+//                           print("FOUND USERS POPSICLE")
+//
+//                           let eventStartDate: Date = DateInRegion(data["startDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+//                           let eventEndDate: Date = DateInRegion(data["endDate"] as! String, format: "yyyy-MM-dd HH:mm", region: .current)!.date
+//
+//                           let eventName = data["eventName"] as! String
+//                           let eventCategory = data["category"] as! String
+//                           let hashtags = data["hashtags"] as! String
+//                           let eventInfo = data["eventDetails"] as! String
+//                           let latitude = data["latitude"] as! CLLocationDegrees
+//                           let longitude = data["longitude"] as! CLLocationDegrees
+//
+//                           let popsicleCategory: EventCategory
+//
+//                           if (eventCategory == "education") {
+//
+//                               popsicleCategory = .Education
+//
+//
+//
+//                           } else if (eventCategory == "food") {
+//
+//                               popsicleCategory = .Food
+//
+//
+//                           } else if (eventCategory == "social") {
+//
+//                               popsicleCategory = .Social
+//
+//
+//                           } else if (eventCategory == "sports") {
+//
+//                               popsicleCategory = .Sports
+//                           } else {
+//
+//                               popsicleCategory = .Culture
+//                           }
+//
+//                           let popsicleToAdd = PopsicleAnnotation(eventTitle: eventName, eventDetails: eventInfo, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: popsicleCategory, eventHashtags: hashtags, eventLocation: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), eventAttendees: [])
+//
+//                           self.mapPopsicles.append(popsicleToAdd)
+//
+//                           self.mapView.addAnnotations(self.mapPopsicles)
+//
+//
+//
+//                           // print("Document data: \(dataDescription)")
+//
+//                       } else {
+//                           print("Document does not exist")
+//                       }
+//                   }
+//               }
+//           }
+//       }
+//
+//    func removePopsicleFromUser(uid: String) {
+//
+//    }
+//}
+
 /*extension MapViewController: UIViewControllerTransitioningDelegate {
-
-    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        
-        return ViewControllerFadeTransitionAnimator(presenting: true)
-        
-    }
-
-    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
-        
-        return ViewControllerFadeTransitionAnimator(presenting: false)
-        
-    }
-}*/
+ 
+ func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+ 
+ return ViewControllerFadeTransitionAnimator(presenting: true)
+ 
+ }
+ 
+ func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+ 
+ return ViewControllerFadeTransitionAnimator(presenting: false)
+ 
+ }
+ }*/
 
 

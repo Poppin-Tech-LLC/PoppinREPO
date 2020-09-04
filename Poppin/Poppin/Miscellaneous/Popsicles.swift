@@ -96,6 +96,9 @@ struct PopsicleAnnotationData {
     var eventHashtags: String?
     var eventLocation: CLLocationCoordinate2D
     var eventAttendees: [String]
+    var createdBy: String
+    var isPublic: Bool
+    var uid: String
     
     init() {
         
@@ -107,10 +110,12 @@ struct PopsicleAnnotationData {
         eventHashtags = ""
         eventLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
         eventAttendees = []
-        
+        createdBy = ""
+        isPublic = true
+        uid = ""
     }
     
-    init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: EventCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]) {
+    init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: EventCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String], createdBy: String, isPublic: Bool, uid: String) {
         
         self.eventTitle = eventTitle
         self.eventDetails = eventDetails
@@ -120,7 +125,10 @@ struct PopsicleAnnotationData {
         self.eventHashtags = eventHashtags
         self.eventLocation = eventLocation
         self.eventAttendees = eventAttendees
-        
+        self.createdBy = createdBy
+        self.isPublic = isPublic
+        self.uid = uid
+
     }
     
 }
@@ -178,9 +186,9 @@ class PopsicleAnnotation: MKPointAnnotation {
     
     lazy private(set) var popsicleAnnotationData: PopsicleAnnotationData = PopsicleAnnotation.defaultPopsicleAnnotationData
     
-    convenience init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: EventCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String]) {
+    convenience init(eventTitle: String, eventDetails: String?, eventStartDate: Date, eventEndDate: Date, eventCategory: EventCategory, eventHashtags: String?, eventLocation: CLLocationCoordinate2D, eventAttendees: [String], createdBy: String, isPublic: Bool, uid: String) {
         
-        self.init(popsicleAnnotationData: PopsicleAnnotationData(eventTitle: eventTitle, eventDetails: eventDetails, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: eventCategory, eventHashtags: eventHashtags, eventLocation: eventLocation, eventAttendees: eventAttendees))
+        self.init(popsicleAnnotationData: PopsicleAnnotationData(eventTitle: eventTitle, eventDetails: eventDetails, eventStartDate: eventStartDate, eventEndDate: eventEndDate, eventCategory: eventCategory, eventHashtags: eventHashtags, eventLocation: eventLocation, eventAttendees: eventAttendees, createdBy: createdBy, isPublic: isPublic, uid: uid))
         
     }
     

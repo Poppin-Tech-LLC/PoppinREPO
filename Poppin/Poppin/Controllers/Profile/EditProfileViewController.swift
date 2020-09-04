@@ -575,7 +575,7 @@ class EditProfileViewController: UIViewController, UINavigationControllerDelegat
                 self.present(alertVC, animated: true, completion: nil)
                     
                 case 0:
-                    let uid = UUID().uuidString
+                    let uid = "org-" + UUID().uuidString
                     let ref = Firestore.firestore().collection("users").document(uid)
                     ref.setData([
                         "bio": bio,
