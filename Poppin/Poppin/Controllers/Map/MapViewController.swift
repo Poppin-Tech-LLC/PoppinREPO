@@ -635,7 +635,7 @@ final class MapViewController: UIViewController {
         
         print("LOADDEDDD")
         
-       // setLocation()
+        setLocation()
     
         NotificationCenter.default.addObserver(self, selector: #selector(contextDidSave(_:)), name: .userSignedIn, object: nil)
         
@@ -766,7 +766,7 @@ final class MapViewController: UIViewController {
             
             monitor.start(queue: queue)
             
-           // getPopsicles()
+            getPopsicles()
         
     }
     
