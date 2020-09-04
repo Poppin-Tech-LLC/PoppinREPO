@@ -150,18 +150,22 @@ final class ActivityView: UIView, UITableViewDataSource, UITableViewDelegate {
     
     private func populateActivities() {
         
-        let ref = Firestore.firestore().collection("users").document(Auth.auth().currentUser!.uid).collection("activities")
+        print("UID == \(MapViewController.uid)")
         
-        ref.getDocuments(completion: { (querySnapshot, err) in
-                if let err = err {
-                    print("Error getting documents: \(err)")
-                } else {
-                    for document in querySnapshot!.documents {
-                        self.activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
-                        self.avFeed.reloadData()
-                    }
-                }
-        })
+        //This causes an error because it uses firestore before a user is actually logged in
+        
+//        let ref = Firestore.firestore().collection("users").document(MapViewController.uid).collection("activities")
+//
+//        ref.getDocuments(completion: { (querySnapshot, err) in
+//                if let err = err {
+//                    print("Error getting documents: \(err)")
+//                } else {
+//                    for document in querySnapshot!.documents {
+//                        self.activities.append(ActivityModel(inducedBy: document.data()["inducedBy"] as? String, details: document.data()["details"] as? String, dateInduced: document.data()["dateInduced"] as? String))
+//                        self.avFeed.reloadData()
+//                    }
+//                }
+//        })
         
     }
     
