@@ -261,25 +261,42 @@ final class CreateEventSecondSectionViewController: UIViewController {
         sender.startLoading()
         
         let db = Firestore.firestore()
-        
-        let geoFirestore = GeoFirestore(collectionRef: db.collection("geolocs"))
-        
+                
         var ref2: DocumentReference? = nil
         
         let eventData = eventController.rawValue()
         
+        guard let view = view as? CreateEventSecondSectionView else { return }
+        
+        var docLocation = ""
+        
+        var geoLocation = ""
+        
+        if(view.visibilityLabel.text == "Private"){
+            docLocation = "privatePopsicles"
+            geoLocation = "privatePopsicleLocs"
+        }else{
+            docLocation = "publicPopsicles"
+            geoLocation = "publicPopsicleLocs"
+        }
+        
+        let geoFirestore = GeoFirestore(collectionRef: db.collection(geoLocation))
+        
         let dateFormatter = DateFormatter()
         dateFormatter.locale = .current
-        dateFormatter.timeZone = .current
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        let startDate = eventData.startDate!
+        let endDate = eventData.endDate!
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
         
-        ref2 = db.collection("currentPopsicles").addDocument(data: [
+        
+        ref2 = db.collection(docLocation).addDocument(data: [
             "longitude": eventData.location!.longitude as Any,
             "latitude": eventData.location!.latitude as Any,
             "eventName": eventData.title as Any,
             "eventDetails": eventData.details as Any,
-            "startDate": dateFormatter.string(from: eventData.startDate!),
-            "endDate": dateFormatter.string(from: eventData.endDate!),
+            "startDate": dateFormatter.string(from: startDate),
+            "endDate": dateFormatter.string(from: endDate),
             "hashtags": "",
             "createdBy": MapViewController.uid,
             "category": eventData.category?.rawValue as Any
@@ -293,26 +310,48 @@ final class CreateEventSecondSectionViewController: UIViewController {
             } else {
                 
                 print("Document added with ID: \(ref2!.documentID)")
-                geoFirestore.setLocation(location: CLLocation(latitude: eventData.location!.latitude, longitude: eventData.location!.longitude), forDocumentWithID: ref2!.documentID) { [weak self] (error) in
+                
+                _ = db.collection("users").document(MapViewController.uid).collection("userPopsicles").document(ref2!.documentID).setData([
+                    "longitude": eventData.location!.longitude as Any,
+                    "latitude": eventData.location!.latitude as Any,
+                    "eventName": eventData.title as Any,
+                    "eventDetails": eventData.details as Any,
+                    "startDate": dateFormatter.string(from: startDate),
+                    "endDate": dateFormatter.string(from: endDate),
+                    "hashtags": "",
+                    "createdBy": MapViewController.uid,
+                    "category": eventData.category?.rawValue as Any
+                ]) { err in
                     
-                    guard let self = self else { return }
-                    
-                    if let error = error {
+                    if let err = err {
                         
-                        sender.stopLoading()
-                        print("An error occured: \(error)")
+                        print("Error adding document: \(err)")
                         
                     } else {
+                        print("Document added innit")
+
+                    }
+                }
+                    geoFirestore.setLocation(location: CLLocation(latitude: eventData.location!.latitude, longitude: eventData.location!.longitude), forDocumentWithID: ref2!.documentID) { [weak self] (error) in
                         
-                        sender.stopLoading()
-                        print("Saved location successfully!")
+                        guard let self = self else { return }
                         
-                        self.navigationController?.dismiss(animated: true, completion: nil)
+                        if let error = error {
+                            
+                            sender.stopLoading()
+                            print("An error occured: \(error)")
+                            
+                        } else {
+                            
+                            sender.stopLoading()
+                            print("Saved location successfully!")
+                            NotificationCenter.default.post(name: .eventCreated, object: nil)
+                            self.navigationController?.dismiss(animated: true, completion: nil)
+                            
+                        }
                         
                     }
-                    
-                }
-                
+
             }
             
         }

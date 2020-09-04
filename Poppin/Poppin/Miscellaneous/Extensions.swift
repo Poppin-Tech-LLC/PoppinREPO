@@ -495,7 +495,9 @@ extension Notification.Name {
     static let editedProfile = Notification.Name("editedProfile")
     static let editedProfileMap = Notification.Name("editedProfileMap")
     static let deletedOrg = Notification.Name("deletedOrg")
-    
+    static let unfollowedUser = Notification.Name("unfollowedUser")
+    static let followedUser = Notification.Name("followedUser")
+
     
     
     

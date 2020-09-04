@@ -350,6 +350,12 @@ final class SignUpThirdPageViewController: UIViewController {
         
         var validSteps: Int = 0
         
+        let uid = Auth.auth().currentUser!.uid
+        
+        let followerRef = Firestore.firestore().collection("followers").document(uid)
+        let followingRef = Firestore.firestore().collection("following").document(uid)
+
+        
         if usernamePredicate.evaluate(with: usernameTextField.text) && usernameTextField.text?.range(of: "poppin", options: .caseInsensitive) == nil && usernameTextField.text?.range(of: "admin", options: .caseInsensitive) == nil {
             
             validSteps+=1
@@ -434,7 +440,24 @@ final class SignUpThirdPageViewController: UIViewController {
                     
                 } else {
                     let geoFirestore = GeoFirestore(collectionRef: self.db.collection("userLocs"))
-                    self.db.collection("users").document(Auth.auth().currentUser!.uid).setData([
+                    
+                    followerRef.setData([:]){ err in
+                    if let err = err {
+                        print("Error adding document: \(err)")
+                    } else {
+                        print("Saved doc successfully!")
+                    }
+                    }
+                    
+                    followingRef.setData(["following": [uid]]){ err in
+                        if let err = err {
+                            print("Error adding document: \(err)")
+                        } else {
+                            print("Saved doc successfully!")
+                        }
+                    }
+                        
+                    self.db.collection("users").document(uid).setData([
                         "username": self.usernameTextField.text ?? "",
                         "bio": "",
                         "followers": [Auth.auth().currentUser?.uid : false],

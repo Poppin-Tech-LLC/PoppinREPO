@@ -53,8 +53,8 @@ final class DateInputViewController: UIViewController {
         
         var startDatePicker = UIDatePicker()
         startDatePicker.datePickerMode = .dateAndTime
-        startDatePicker.minuteInterval = 5
-        startDatePicker.minimumDate = minimumDate
+        startDatePicker.minuteInterval = 1 //this was 5
+        //startDatePicker.minimumDate = minimumDate
         startDatePicker.maximumDate = maximumDate
         startDatePicker.addTarget(self, action: #selector(setDate(from:)), for: .valueChanged)
         return startDatePicker
@@ -65,8 +65,8 @@ final class DateInputViewController: UIViewController {
         
         var endDatePicker = UIDatePicker()
         endDatePicker.datePickerMode = .dateAndTime
-        endDatePicker.minuteInterval = 5
-        endDatePicker.minimumDate = minimumDate
+        endDatePicker.minuteInterval = 1 //this was 5
+        //endDatePicker.minimumDate = minimumDate
         endDatePicker.maximumDate = maximumDate
         endDatePicker.addTarget(self, action: #selector(setDate(from:)), for: .valueChanged)
         return endDatePicker
@@ -166,11 +166,11 @@ final class DateInputViewController: UIViewController {
             if view.endDateTextField.isEmpty() {
                 
                 view.startDateTextField.text = picker.date.getFormattedDate()
-                endDatePicker.date = picker.date + 30.minutes
+                endDatePicker.date = picker.date + 1.minutes // this was 30.minutes
                 
             } else {
                 
-                if (picker.date + 30.minutes) > endDatePicker.date {
+                if (picker.date + 0.minutes) > endDatePicker.date { //this was 30.minutes
                 
                     picker.date = endDatePicker.date - 30.minutes
                     
@@ -207,7 +207,7 @@ final class DateInputViewController: UIViewController {
             
         } else if picker == endDatePicker {
             
-            if (startDatePicker.date + 30.minutes) > picker.date {
+            if (startDatePicker.date + 0.minutes) > picker.date { // this was 30.minutes
             
                 picker.date = startDatePicker.date + 30.minutes
                 
@@ -312,7 +312,7 @@ final class DateInputViewController: UIViewController {
             
             self.present(alertVC, animated: true, completion: nil)
         
-        } else if (startDatePicker.date + 30.minutes) > endDatePicker.date {
+        } else if (startDatePicker.date + 0.minutes) > endDatePicker.date { // this was 30.minutes
             
             let button1 = AlertButton(alertTitle: "Ok", alertButtonAction: nil)
             

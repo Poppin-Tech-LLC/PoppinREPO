@@ -17,7 +17,7 @@ class ProfileActionsViewController: UIViewController {
       let actionsInnerInset: CGFloat = .getPercentageWidth(percentage: 4)
     
     var uid: String = ""
-    
+        
     lazy private var blockButtonView: ActionsButtonView = {
            
         var blockButtonView = ActionsButtonView(actionsButtonImage: UIImage(systemSymbol: .nosign), actionsButtonText: "Block user")
