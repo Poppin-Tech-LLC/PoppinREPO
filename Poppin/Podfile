@@ -10,6 +10,7 @@ use_frameworks!
 target 'Poppin' do
 
   # Pods for Poppin
+  pod 'Firebase/Core'
   pod 'Firebase/Auth'
   pod 'Firebase/Database', :binary => false
   pod 'Firebase/Storage'

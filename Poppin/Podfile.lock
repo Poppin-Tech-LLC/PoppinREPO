@@ -363,6 +363,7 @@ PODS:
 
 DEPENDENCIES:
   - Firebase/Auth
+  - Firebase/Core
   - Firebase/Database
   - Firebase/Firestore
   - Firebase/Storage
@@ -443,6 +444,6 @@ SPEC CHECKSUMS:
   SFSafeSymbols: deeb973675d234251b215d3cf4c1965249fb7440
   SwiftDate: 6329e58969a2de31cea7f1ee1143b247693196e7
 
-PODFILE CHECKSUM: 0a9b863e71844f37a7d0cd77a55cde9537aba39c
+PODFILE CHECKSUM: 916463b4cb0482847417587450d4c09cf84e37ba
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.3

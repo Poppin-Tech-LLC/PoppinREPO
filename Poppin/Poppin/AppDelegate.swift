@@ -8,9 +8,9 @@
 
 import UIKit
 import CoreData
-import Firebase
 import Network
 import Kronos
+import FirebaseCore
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

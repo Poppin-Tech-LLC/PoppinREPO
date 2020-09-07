@@ -9,7 +9,9 @@
 import UIKit
 import MapKit
 import CoreLocation
-import Firebase
+import FirebaseFirestoreSwift
+import FirebaseFirestore
+import FirebaseAuth
 import Network
 import Kronos
 import Contacts

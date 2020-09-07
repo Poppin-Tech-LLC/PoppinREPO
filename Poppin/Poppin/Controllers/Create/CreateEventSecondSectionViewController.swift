@@ -10,7 +10,8 @@ import UIKit
 import SwiftUI
 import MapKit
 import CoreLocation
-import Firebase
+import FirebaseFirestoreSwift
+import FirebaseFirestore
 import GeoFire
 import Geofirestore
 
