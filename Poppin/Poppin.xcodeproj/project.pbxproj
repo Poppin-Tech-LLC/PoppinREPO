@@ -305,6 +305,7 @@
 		6403142724A1F136006A55EB /* Poppin */ = {
 			isa = PBXGroup;
 			children = (
+				64CCD3852551E062001AAE5B /* Deprecated */,
 				6417BCA724A25BE6006AE467 /* Views */,
 				6417BCA424A25652006AE467 /* Miscellaneous */,
 				6417BCA024A2559E006AE467 /* Controllers */,
@@ -560,6 +561,13 @@
 				64BF883924AB2DB10008659D /* BubbleImageView.swift */,
 			);
 			path = Image;
+			sourceTree = "<group>";
+		};
+		64CCD3852551E062001AAE5B /* Deprecated */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Deprecated;
 			sourceTree = "<group>";
 		};
 		64CF0C8524A48A450077C1D7 /* Menu */ = {

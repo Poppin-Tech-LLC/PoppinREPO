@@ -47,7 +47,7 @@ final class LocationInputView: UIView {
     lazy private(set) var backButton: OctarineButton = {
         
         let backButton = OctarineButton(bgColor: .clear, label: nil, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 3.0), right: .width(percent: 4.0)))
-        backButton.setImage(UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .medium)).withTintColor(EventCategory.allCases[0].getGradientColors()[1], renderingMode: .alwaysOriginal), for: .normal)
+        backButton.setImage(UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .bold)).withTintColor(EventCategory.allCases[0].getGradientColors()[1], renderingMode: .alwaysOriginal), for: .normal)
         return backButton
         
     }()
@@ -70,6 +70,7 @@ final class LocationInputView: UIView {
         
     }()
     
+    // Dimmed Background.
     lazy private var cardBackgroundView: CardView = {
        
         let cardBackgroundView = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[1], padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 3.0), right: .width(percent: 4.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))

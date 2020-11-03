@@ -11,6 +11,7 @@ import SwiftUI
 import CoreLocation
 import MapKit
 
+/// Event Location Input Page UI Controller.
 final class LocationInputViewController: UIViewController {
     
     // Holds the event input.

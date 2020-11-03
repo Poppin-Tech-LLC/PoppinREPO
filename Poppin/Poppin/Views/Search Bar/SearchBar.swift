@@ -60,8 +60,6 @@ final class SearchBarView: CardView {
     
     private func configureView() {
         
-        backgroundColor = .clear
-        
         _ = [cancelButton, searchBar].map { addSubview($0) }
         
         cancelButton.anchor(top: layoutMarginsGuide.topAnchor, bottom: layoutMarginsGuide.bottomAnchor, trailing: layoutMarginsGuide.trailingAnchor)

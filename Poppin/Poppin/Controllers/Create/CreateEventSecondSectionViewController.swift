@@ -232,143 +232,148 @@ final class CreateEventSecondSectionViewController: UIViewController {
     // Once all required input has been entered, it creates a new event on the database and stores the information entered.
     @objc private func create(sender: LoadingButton) {
         
-        // 1. Safe casting root view to custom view.
-        guard let _ = self.view as? CreateEventSecondSectionView else { return }
+        self.navigationController?.dismiss(animated: true, completion: nil)
         
-        // 2. Empty input safe check. If fails, show error.
-        if let eventInput = eventInput, let category = eventInput.category, let title = eventInput.title, let startDate = eventInput.startDate, let endDate = eventInput.endDate, let location = eventInput.location {
-            
-            // 3. Create button shows loading indicator.
-            sender.startLoading()
-            
-            // 4. Creates a date formatter readable for the database.
-            let dateFormatter = DateFormatter()
-            dateFormatter.locale = .current
-            dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
-            
-            // 5. Adds newly created event to the database (Firebase).
-            var newEventRef: DocumentReference? = nil
-            
-            newEventRef = Firestore.firestore().collection(eventInput.isPublic ? "publicPopsicles" : "privatePopsicles").addDocument(data: ["longitude": location.longitude,
-                "latitude": location.latitude,
-                "eventName": title,
-                "eventDetails": eventInput.details != nil ? eventInput.details! : "",
-                "startDate": dateFormatter.string(from: startDate),
-                "endDate": dateFormatter.string(from: endDate),
-                "createdBy": MapViewController.uid,
-                "category": category.rawValue]) { [weak self] error in
-                    
-                    guard let self = self else { return }
-                    
-                    // 6. If an error is found, stop loading and show it.
-                    if error != nil {
-                        
-                        sender.stopLoading()
-                        
-                        let alertVC = AlertViewController()
-                        
-                        self.present(alertVC, animated: true, completion: nil)
-                        
-                    } else if let newEventRef = newEventRef {
-                        
-                        print("First Step Success!")
-                        
-                        // 7. Adds newly created event to the user's event list.
-                        Firestore.firestore().collection("users").document(MapViewController.uid).collection("userPopsicles").document(newEventRef.documentID).setData(["longitude": location.longitude,
-                        "latitude": location.latitude,
-                        "eventName": title,
-                        "eventDetails": eventInput.details != nil ? eventInput.details! : "",
-                        "startDate": dateFormatter.string(from: startDate),
-                        "endDate": dateFormatter.string(from: endDate),
-                        "createdBy": MapViewController.uid,
-                        "category": category.rawValue]) { [weak self] error in
-                            
-                            guard let self = self else { return }
-                            
-                            // 8. If an error is found, remove newly created event from the database, stop loading and show error message.
-                            if error != nil {
-                                
-                                newEventRef.delete()
-                                
-                                sender.stopLoading()
-                                
-                                print("HEREEE")
-                                print(MapViewController.uid)
-                                
-                                let alertVC = AlertViewController()
-                                
-                                self.present(alertVC, animated: true, completion: nil)
-                                
-                            } else {
-                                
-                                print("Second Step Success!")
-                                
-                                // 9. Add newly created event to the geo location list for location querying.
-                                GeoFirestore(collectionRef: Firestore.firestore().collection(eventInput.isPublic ? "publicPopsicleLocs" : "privatePopsicleLocs")).setLocation(location: CLLocation(latitude: location.latitude, longitude: location.longitude), forDocumentWithID: newEventRef.documentID) { [weak self] (error) in
-                                    
-                                    guard let self = self else { return }
-                                    
-                                    // 10. If an error is found, remove newly created event, stop loading and show error message.
-                                    if error != nil {
-                                        
-                                        newEventRef.delete()
-                                        
-                                        Firestore.firestore().collection("users").document(MapViewController.uid).collection("userPopsicles").document(newEventRef.documentID).delete()
-                                        
-                                        sender.stopLoading()
-                                        
-                                        let alertVC = AlertViewController()
-                                        
-                                        self.present(alertVC, animated: true, completion: nil)
-                                        
-                                    }
-                                    
-                                    // 11. Stop loading and show a success message. Transition back to the map.
-                                    else {
-                                        
-                                        sender.stopLoading()
-                                        
-                                        let alertVC = AlertViewController(alertTitle: "All Done!", alertMessage: "Your new event was created successfully.", leftActionTitle: "Back to the map", leftAction: { [weak self] in
-                                            
-                                            guard let self = self else { return }
-                                            
-                                            NotificationCenter.default.post(name: .eventCreated, object: nil)
-                                            self.navigationController?.dismiss(animated: true, completion: nil)
-                                            
-                                        })
-                                        
-                                        self.present(alertVC, animated: true, completion: nil)
-                                        
-                                    }
-                                    
-                                }
-                                
-                            }
-                            
-                            
-                        }
-                        
-                    } else {
-                        
-                        sender.stopLoading()
-                        
-                        let alertVC = AlertViewController()
-                        
-                        self.present(alertVC, animated: true, completion: nil)
-                        
-                    }
-                    
-                    
-            }
-            
-        } else {
-            
-            let alertVC = AlertViewController()
-            
-            present(alertVC, animated: true, completion: nil)
-            
-        }
+        /*
+         // 1. Safe casting root view to custom view.
+         guard let _ = self.view as? CreateEventSecondSectionView else { return }
+         
+         // 2. Empty input safe check. If fails, show error.
+         if let eventInput = eventInput, let category = eventInput.category, let title = eventInput.title, let startDate = eventInput.startDate, let endDate = eventInput.endDate, let location = eventInput.location {
+         
+         // 3. Create button shows loading indicator.
+         sender.startLoading()
+         
+         // 4. Creates a date formatter readable for the database.
+         let dateFormatter = DateFormatter()
+         dateFormatter.locale = .current
+         dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+         
+         // 5. Adds newly created event to the database (Firebase).
+         var newEventRef: DocumentReference? = nil
+         
+         newEventRef = Firestore.firestore().collection(eventInput.isPublic ? "publicPopsicles" : "privatePopsicles").addDocument(data: ["longitude": location.longitude,
+         "latitude": location.latitude,
+         "eventName": title,
+         "eventDetails": eventInput.details != nil ? eventInput.details! : "",
+         "startDate": dateFormatter.string(from: startDate),
+         "endDate": dateFormatter.string(from: endDate),
+         "createdBy": MapViewController.uid,
+         "category": category.rawValue]) { [weak self] error in
+         
+         guard let self = self else { return }
+         
+         // 6. If an error is found, stop loading and show it.
+         if error != nil {
+         
+         sender.stopLoading()
+         
+         let alertVC = AlertViewController()
+         
+         self.present(alertVC, animated: true, completion: nil)
+         
+         } else if let newEventRef = newEventRef {
+         
+         print("First Step Success!")
+         
+         // 7. Adds newly created event to the user's event list.
+         Firestore.firestore().collection("users").document(MapViewController.uid).collection("userPopsicles").document(newEventRef.documentID).setData(["longitude": location.longitude,
+         "latitude": location.latitude,
+         "eventName": title,
+         "eventDetails": eventInput.details != nil ? eventInput.details! : "",
+         "startDate": dateFormatter.string(from: startDate),
+         "endDate": dateFormatter.string(from: endDate),
+         "createdBy": MapViewController.uid,
+         "category": category.rawValue]) { [weak self] error in
+         
+         guard let self = self else { return }
+         
+         // 8. If an error is found, remove newly created event from the database, stop loading and show error message.
+         if error != nil {
+         
+         newEventRef.delete()
+         
+         sender.stopLoading()
+         
+         print("HEREEE")
+         print(MapViewController.uid)
+         
+         let alertVC = AlertViewController()
+         
+         self.present(alertVC, animated: true, completion: nil)
+         
+         } else {
+         
+         print("Second Step Success!")
+         
+         // 9. Add newly created event to the geo location list for location querying.
+         GeoFirestore(collectionRef: Firestore.firestore().collection(eventInput.isPublic ? "publicPopsicleLocs" : "privatePopsicleLocs")).setLocation(location: CLLocation(latitude: location.latitude, longitude: location.longitude), forDocumentWithID: newEventRef.documentID) { [weak self] (error) in
+         
+         guard let self = self else { return }
+         
+         // 10. If an error is found, remove newly created event, stop loading and show error message.
+         if error != nil {
+         
+         newEventRef.delete()
+         
+         Firestore.firestore().collection("users").document(MapViewController.uid).collection("userPopsicles").document(newEventRef.documentID).delete()
+         
+         sender.stopLoading()
+         
+         let alertVC = AlertViewController()
+         
+         self.present(alertVC, animated: true, completion: nil)
+         
+         }
+         
+         // 11. Stop loading and show a success message. Transition back to the map.
+         else {
+         
+         sender.stopLoading()
+         
+         let alertVC = AlertViewController(alertTitle: "All Done!", alertMessage: "Your new event was created successfully.", leftActionTitle: "Back to the map", leftAction: { [weak self] in
+         
+         guard let self = self else { return }
+         
+         NotificationCenter.default.post(name: .eventCreated, object: nil)
+         self.navigationController?.dismiss(animated: true, completion: nil)
+         
+         })
+         
+         self.present(alertVC, animated: true, completion: nil)
+         
+         }
+         
+         }
+         
+         }
+         
+         
+         }
+         
+         } else {
+         
+         sender.stopLoading()
+         
+         let alertVC = AlertViewController()
+         
+         self.present(alertVC, animated: true, completion: nil)
+         
+         }
+         
+         
+         }
+         
+         } else {
+         
+         let alertVC = AlertViewController()
+         
+         present(alertVC, animated: true, completion: nil)
+         
+         }
+         
+         */
         
     }
 
@@ -465,407 +470,3 @@ extension CreateEventSecondSectionViewController: MKMapViewDelegate {
     }
     
 }
-    
-//    private func setVisibility(isPublic: Bool) {
-//
-////        guard let view = view as? CreateEventSecondSectionView else { return }
-////
-////        if isPublic {
-////
-////            UIView.transition(with: view.visibilityLabel, duration: 0.2, options: .transitionCrossDissolve, animations: {
-////
-////                view.visibilityLabel.text = "Public"
-////
-////            }, completion: nil)
-////
-////            UIView.transition(with: view.visibilityIconImageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
-////
-////                view.visibilityIconImageView.image = UIImage(systemSymbol: .globe).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
-////
-////            }, completion: nil)
-////
-////        } else {
-////
-////            UIView.transition(with: view.visibilityLabel, duration: 0.2, options: .transitionCrossDissolve, animations: {
-////
-////                view.visibilityLabel.text = "Private"
-////
-////            }, completion: nil)
-////
-////            UIView.transition(with: view.visibilityIconImageView, duration: 0.2, options: .transitionCrossDissolve, animations: {
-////
-////                view.visibilityIconImageView.image = UIImage(systemSymbol: .lockFill).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
-////
-////            }, completion: nil)
-////
-////        }
-//
-//    }
-//
-//    @objc private func segueBack() {
-//
-//        navigationController?.popViewController(animated: true)
-//
-//    }
-//
-//    @objc private func segueToLocationInput() {
-//
-////        var location = eventPlaceholder.location
-////
-////        do { location = try eventController.getLocation() } catch let error as EventError { print("location: " + error.rawValue + "\n") } catch { print("location: " + error.localizedDescription + "\n") }
-////
-////        let locationVC = LocationInputViewController(location: location, mapBoundry: nil, category: eventPlaceholder.category)
-////        locationVC.delegate = self
-////
-////        present(locationVC, animated: true, completion: nil)
-//
-//    }
-//
-//    @objc private func segueToOnlineURLInput() {
-//
-////        var onlineURL = eventPlaceholder.onlineURL
-////
-////        do { onlineURL = try eventController.getOnlineURL() } catch let error as EventError { print("onlineURL: " + error.rawValue + "\n") } catch { print("onlineURL: " + error.localizedDescription + "\n") }
-////
-////        let onlineURLVC = OnlineLinkInputViewController(onlineLink: onlineURL, category: eventPlaceholder.category)
-////        onlineURLVC.delegate = self
-////
-////        present(onlineURLVC, animated: true, completion: nil)
-//
-//    }
-//
-
-//extension CreateEventSecondSectionViewController: UITextViewDelegate {
-//
-//    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
-//
-////        guard let view = view as? CreateEventSecondSectionView else { return false }
-////
-////        if textView == view.detailsTextView {
-////
-////            textView.alpha = 0.7
-////
-////            let detailsVC = DetailsInputViewController(details: eventPlaceholder.details, category: eventPlaceholder.category)
-////            detailsVC.delegate = self
-////
-////            present(detailsVC, animated: true, completion: {
-////
-////                textView.alpha = 1.0
-////
-////            })
-////
-////            return false
-////
-////        } else if textView == view.titleTextView {
-////
-////            textView.alpha = 0.7
-////
-////            let titleVC = TitleInputViewController(title: eventPlaceholder.title, category: eventPlaceholder.category)
-////            titleVC.delegate = self
-////
-////            present(titleVC, animated: true, completion: {
-////
-////                textView.alpha = 1.0
-////
-////            })
-////
-////            return false
-////
-////        } else if textView == view.dateTextView {
-////
-////            textView.alpha = 0.7
-////
-////            let dateVC = DateInputViewController(startDate: eventPlaceholder.startDate, endDate: eventPlaceholder.endDate, category: eventPlaceholder.category)
-////            dateVC.delegate = self
-////
-////            present(dateVC, animated: true, completion: {
-////
-////                textView.alpha = 1.0
-////
-////            })
-////
-////            return false
-////
-////        } else {
-////
-////            return false
-////
-////        }
-//
-//        return true
-//
-//    }
-//
-//    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange, interaction: UITextItemInteraction) -> Bool {
-//
-//        let vc = SFSafariViewController(url: URL)
-//        vc.modalPresentationStyle = .pageSheet
-//        vc.modalTransitionStyle = .coverVertical
-//        vc.delegate = self
-//        present(vc, animated: true)
-//
-//        return false
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: SFSafariViewControllerDelegate {
-//
-//    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-//
-//        controller.dismiss(animated: true)
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: MKMapViewDelegate {
-//
-//    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-//
-//        if let eventAnnotation = annotation as? EventAnnotation {
-//
-//            if let eventAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: EventAnnotationView.defaultEventAnnotationViewReuseIdentifier) as? EventAnnotationView {
-//
-//                eventAnnotationView.setEventAnnotation(eventAnnotation: eventAnnotation)
-//                return eventAnnotationView
-//
-//            } else {
-//
-//                let eventAnnotationView = EventAnnotationView(annotation: eventAnnotation, reuseIdentifier: EventAnnotationView.defaultEventAnnotationViewReuseIdentifier)
-//                eventAnnotationView.setEventAnnotation(eventAnnotation: eventAnnotation)
-//                return eventAnnotationView
-//
-//            }
-//
-//        } else {
-//
-//            return nil
-//
-//        }
-//
-//    }
-//
-//    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
-//
-//        if views.count == 1, let eventAnnotationView = views[0] as? EventAnnotationView {
-//
-//            eventAnnotationView.alpha = 0.0
-//            eventAnnotationView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
-//
-//            UIView.animate(withDuration: 0.4, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1,
-//                           options: .curveEaseOut, animations: {
-//
-//                            eventAnnotationView.transform = .identity
-//                            eventAnnotationView.alpha = 1.0
-//
-//            }, completion: nil)
-//
-//        } else {
-//
-//            return
-//
-//        }
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: UIScrollViewDelegate {
-//
-//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//
-//        scrollView.contentOffset.x = 0
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: UIGestureRecognizerDelegate {
-//
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-//
-//        return true
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: TitleInputDelegate {
-//
-//    func setTitle(title: String?) {
-//
-//        guard let view = view as? CreateEventSecondSectionView else { return }
-//
-//        if let title = title {
-//
-//            eventPlaceholder.title = title
-//
-//            do { try eventController.setTitle(title: title) } catch let error as EventError { print("title: " + error.rawValue + "\n") } catch { print("title: " + error.localizedDescription + "\n") }
-//
-//            //view.titleTextView.text = title
-//
-//        }
-//
-//        if eventPlaceholder.title != nil && eventPlaceholder.startDate != nil && eventPlaceholder.endDate != nil && eventPlaceholder.location != nil {
-//
-//            view.createButton.isUserInteractionEnabled = true
-//            view.createButton.alpha = 1.0
-//
-//        } else {
-//
-//            view.createButton.isUserInteractionEnabled = false
-//            view.createButton.alpha = 0.6
-//
-//        }
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: DateInputDelegate {
-//
-//    func setDate(startDate: Date?, endDate: Date?) {
-//
-//        guard let view = view as? CreateEventSecondSectionView else { return }
-//
-//        if let startDate = startDate, let endDate = endDate, let formattedDate = Date.getFormattedDateInterval(start: startDate, end: endDate) {
-//
-//            eventPlaceholder.startDate = startDate
-//            eventPlaceholder.endDate = endDate
-//
-//            do { try eventController.setStartDate(startDate: startDate) } catch let error as EventError { print("startDate: " + error.rawValue + "\n") } catch { print("startDate: " + error.localizedDescription + "\n") }
-//            do { try eventController.setEndDate(endDate: endDate) } catch let error as EventError { print("endDate: " + error.rawValue + "\n") } catch { print("endDate: " + error.localizedDescription + "\n") }
-//
-//            //view.dateTextView.text = formattedDate
-//
-//        }
-//
-//        if eventPlaceholder.title != nil && eventPlaceholder.startDate != nil && eventPlaceholder.endDate != nil && eventPlaceholder.location != nil {
-//
-//            view.createButton.isUserInteractionEnabled = true
-//            view.createButton.alpha = 1.0
-//
-//        } else {
-//
-//            view.createButton.isUserInteractionEnabled = false
-//            view.createButton.alpha = 0.6
-//
-//        }
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: LocationInputDelegate {
-//
-//    func setLocation(location: CLLocationCoordinate2D?) {
-//
-//        guard let view = view as? CreateEventSecondSectionView else { return }
-//
-//        if let location = location {
-//
-//            eventPlaceholder.location = location
-//            eventAnnotation.coordinate = location
-//
-//            do { try eventController.setLocation(location: location) } catch let error as EventError { print("location: " + error.rawValue + "\n") } catch { print("location: " + error.localizedDescription + "\n") }
-//
-//            if view.locationButton.titleLabel?.text == "Add" {
-//
-//                view.locationButton.setTitle("Edit", for: .normal)
-//
-//            }
-//
-//            location.lookUpLocationAddress { (address) in
-//
-//                if let address = address {
-//
-//                    view.locationLabel.text = String(address.split(separator: "\n")[0])
-//
-//                } else {
-//
-//                    view.locationLabel.text = "Address unavailable"
-//
-//                }
-//
-//            }
-//
-//            view.locationMapView.removeAnnotations(view.locationMapView.annotations)
-//            view.locationMapView.setCameraBoundary(MKMapView.CameraBoundary(coordinateRegion: MKCoordinateRegion(center: eventAnnotation.coordinate, latitudinalMeters: 200, longitudinalMeters: 200)), animated: false)
-//            view.locationMapView.addAnnotation(eventAnnotation)
-//
-//            view.locationMapView.setRegion(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: eventAnnotation.coordinate.latitude + 0.00015, longitude: eventAnnotation.coordinate.longitude), latitudinalMeters: 200, longitudinalMeters: 200), animated: true)
-//
-//        }
-//
-//        if eventPlaceholder.title != nil && eventPlaceholder.startDate != nil && eventPlaceholder.endDate != nil && eventPlaceholder.location != nil {
-//
-//            view.createButton.isUserInteractionEnabled = true
-//            view.createButton.alpha = 1.0
-//
-//        } else {
-//
-//            view.createButton.isUserInteractionEnabled = false
-//            view.createButton.alpha = 0.6
-//
-//        }
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: DetailsInputDelegate {
-//
-//    func setDetails(details: String?) {
-//
-//        if let details = details {
-//
-//            eventPlaceholder.details = details
-//
-//            do { try eventController.setDetails(details: details) } catch let error as EventError { print("details: " + error.rawValue + "\n") } catch { print("details: " + error.localizedDescription + "\n") }
-//
-//            guard let view = view as? CreateEventSecondSectionView else { return }
-//
-//            //view.detailsTextView.text = details
-//
-//        }
-//
-//    }
-//
-//}
-//
-//extension CreateEventSecondSectionViewController: OnlineLinkInputDelegate {
-//
-//    func setOnlineLink(onlineLink: URL?) {
-//
-//        if let onlineLink = onlineLink {
-//
-//            eventPlaceholder.onlineURL = onlineLink
-//
-//            do { try eventController.setOnlineURL(onlineURL: onlineLink.absoluteString) } catch let error as EventError { print("onlineURL: " + error.rawValue + "\n") } catch { print("onlineURL: " + error.localizedDescription + "\n") }
-//
-//            guard let view = view as? CreateEventSecondSectionView else { return }
-//
-//            //view.editOnlineURLButton.setTitle("Edit", for: .normal)
-//            view.onlineURLTextView.text = onlineLink.absoluteString
-//            view.formatLabel.text = "Online"
-////            view.formatIconImageView.image = UIImage(systemSymbol: .personCropRectangle).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
-//
-//        } else {
-//
-//            eventPlaceholder.onlineURL = nil
-//            eventController.removeOnlineURL()
-//
-//            guard let view = view as? CreateEventSecondSectionView else { return }
-//
-//            //view.editOnlineURLButton.setTitle("Add", for: .normal)
-//            view.onlineURLTextView.text = "Your event can take place online by adding a link. The physical location you enter will only be informative and help people find your event."
-//            view.formatLabel.text = "Live"
-////            view.formatIconImageView.image = UIImage(systemSymbol: .person3Fill).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
-//
-//        }
-//
-//    }
-//
-//}
