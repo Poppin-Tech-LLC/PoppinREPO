@@ -100,16 +100,18 @@ final class EventInfoView: UIView {
         
     }()
     
-    lazy private(set) var topFadeEdgeView: FadeEdgeView = {
+    lazy private(set) var topFadeEdgeView: UIView = {
         
-        var topFadeEdgeView = FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: true)
+        var topFadeEdgeView = UIView()
+        //FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: true)
         return topFadeEdgeView
         
     }()
     
-    lazy private(set) var bottomFadeEdgeView: FadeEdgeView = {
+    lazy private(set) var bottomFadeEdgeView: UIView = {
         
-        var bottomFadeEdgeView = FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: false)
+        var bottomFadeEdgeView = UIView()
+        //FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: false)
         return bottomFadeEdgeView
         
     }()
@@ -291,7 +293,7 @@ final class EventInfoView: UIView {
         
     }()
     
-    lazy private var popsicleBorderView: PopsicleBorderView = PopsicleBorderView(with: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1], lineHeight: nil)
+    lazy private var popsicleBorderView: PopsicleBorderView = PopsicleBorderView(with: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1])
     
     lazy private(set) var titleTextView: UITextView = {
         
@@ -677,9 +679,9 @@ final class EventInfoView: UIView {
         
         cardView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
         
-        topFadeEdgeView.color = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+        //topFadeEdgeView.color = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
         
-        bottomFadeEdgeView.color = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
+        //bottomFadeEdgeView.color = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
         
         if MapViewController.uid == eventModel.authorId {
             
@@ -735,7 +737,7 @@ final class EventInfoView: UIView {
             
         }
         
-        popsicleBorderView.borderColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
+        popsicleBorderView.borderTraits.0 = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
         
         if let title = eventModel.title {
             

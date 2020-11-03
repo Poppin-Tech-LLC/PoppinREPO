@@ -12,7 +12,7 @@ import UIKit
 final class SignUpSecondSectionViewController: UIViewController {
     
     // University picked on previous page.
-    private(set) var university: University?
+    private var university: University?
     
     // Firebase Auth wrapper.
     lazy private var authController = AuthController()
@@ -29,7 +29,7 @@ final class SignUpSecondSectionViewController: UIViewController {
     /**
     Custom class init that initializes the university object.
 
-    - Parameter university: University object (picked on the first page of sign up) - Default value: nil.
+    - Parameter university: University object (picked on the first section of sign up) - Default value: nil.
     */
     init(university: University? = nil) {
         

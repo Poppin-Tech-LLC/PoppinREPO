@@ -120,7 +120,7 @@ final class SearchViewController: UIViewController {
         }
         
         searchTopStackView.translatesAutoresizingMaskIntoConstraints = false
-        searchTopStackView.widthAnchor.constraint(equalToConstant: SearchBar.defaultSearchBarWidth).isActive = true
+        searchTopStackView.widthAnchor.constraint(equalToConstant: .width(percent: 90)).isActive = true
         
         searchBarHiddenConstraint.isActive = true
         
@@ -141,7 +141,7 @@ final class SearchViewController: UIViewController {
         searchHeaderView.backgroundColor = .clear
         
         searchHeaderView.translatesAutoresizingMaskIntoConstraints = false
-        searchHeaderView.heightAnchor.constraint(equalToConstant: SearchBar.defaultSearchBarHeight).isActive = true
+        searchHeaderView.heightAnchor.constraint(equalToConstant: .width(percent: 30)).isActive = true
         
         searchHeaderView.addSubview(searchHeaderUsernameLabel)
         searchHeaderUsernameLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -175,7 +175,7 @@ final class SearchViewController: UIViewController {
         searchBarView.backgroundColor = .clear
         
         searchBarView.translatesAutoresizingMaskIntoConstraints = false
-        searchBarView.heightAnchor.constraint(equalToConstant: SearchBar.defaultSearchBarHeight).isActive = true
+        searchBarView.heightAnchor.constraint(equalToConstant: .width(percent: 30)).isActive = true
         
         searchBarView.addSubview(searchBar)
         searchBar.translatesAutoresizingMaskIntoConstraints = false
@@ -195,7 +195,7 @@ final class SearchViewController: UIViewController {
     
     lazy private var searchBar: SearchBar = {
         
-        var searchBar = SearchBar(tintColor: UIColor.white)
+        var searchBar = SearchBar(searchBarColor: UIColor.white)
         searchBar.delegate = self
         return searchBar
         
@@ -241,13 +241,13 @@ final class SearchViewController: UIViewController {
         sectionButtonsStackView.spacing = 0
         
         sectionButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        sectionButtonsStackView.heightAnchor.constraint(equalToConstant: SearchBar.defaultSearchBarHeight - .getPercentageWidth(percentage: 0.7)).isActive = true
+        sectionButtonsStackView.heightAnchor.constraint(equalToConstant: .width(percent: 30) - .getPercentageWidth(percentage: 0.7)).isActive = true
         
         var searchSectionsView = UIView()
         searchSectionsView.backgroundColor = .clear
         
         searchSectionsView.translatesAutoresizingMaskIntoConstraints = false
-        searchSectionsView.heightAnchor.constraint(equalToConstant: SearchBar.defaultSearchBarHeight).isActive = true
+        searchSectionsView.heightAnchor.constraint(equalToConstant: .width(percent: 30)).isActive = true
         
         searchSectionsView.addSubview(sectionButtonsStackView)
         sectionButtonsStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -297,7 +297,7 @@ final class SearchViewController: UIViewController {
         searchSectionBarView.addShadowAndRoundCorners(cornerRadius: 2.0, shadowOpacity: 0.0)
         
         searchSectionBarView.translatesAutoresizingMaskIntoConstraints = false
-        searchSectionBarView.widthAnchor.constraint(equalToConstant: SearchBar.defaultSearchBarWidth / CGFloat(searchSectionButtons.count)).isActive = true
+        searchSectionBarView.widthAnchor.constraint(equalToConstant: .width(percent: 90) / CGFloat(searchSectionButtons.count)).isActive = true
         
         return searchSectionBarView
         

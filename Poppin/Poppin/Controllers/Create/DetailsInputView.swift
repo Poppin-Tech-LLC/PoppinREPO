@@ -9,11 +9,221 @@
 import UIKit
 import SwiftUI
 
+/// Event Details Input Page UI
+final class DetailsInputView: UIView {
+    
+    /// Event details character limit (500).
+    let maxCharacterCount: Int = EventModel.maxDetailsLength
+    
+    // Card container.
+    lazy private var cardView: CardView = {
+        
+        let cardView = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[0], padding: UIEdgeInsets(top: 0.0, left: .width(percent: 8.0), bottom: .width(percent: 3.0), right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+        
+        // 1. Add subviews to the card view (each one on top of the others).
+        _ = [contentStack, navigationBar].map { cardView.addSubview($0) }
+        
+        // 2. Apply constraints.
+        navigationBar.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, trailing: cardView.trailingAnchor)
+        
+        contentStack.anchor(top: navigationBar.bottomAnchor, leading: cardView.layoutMarginsGuide.leadingAnchor, bottom: cardView.bottomAnchor, trailing: cardView.layoutMarginsGuide.trailingAnchor)
+        
+        return cardView
+        
+    }()
+    
+    // Top bar containing the cancel button, the input title label, and the save button.
+    lazy private var navigationBar: CardView = {
+        
+        let navigationBar = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[0], padding: .zero, cornerRadius: 0.0, shadow: Shadow(color: EventCategory.allCases[0].getGradientColors()[1].withAlphaComponent(0.6), radius: 4.0, x: 0.0, y: 1.0))
+        navigationBar.layer.shadowOpacity = 0.0
+        
+        // 1. Add subviews to the card view (each one on top of the others).
+        _ = [cancelButton, titleLabel, saveButton].map { navigationBar.addSubview($0) }
+        
+        // 2. Apply constraints.
+        cancelButton.anchor(top: navigationBar.topAnchor, leading: navigationBar.leadingAnchor, bottom: navigationBar.bottomAnchor)
+        
+        titleLabel.anchor(top: navigationBar.topAnchor, bottom: navigationBar.bottomAnchor, centerX: navigationBar.centerXAnchor, padding: UIEdgeInsets(top: cancelButton.padding.top, left: 0.0, bottom: cancelButton.padding.bottom, right: 0.0))
+        
+        saveButton.anchor(top: navigationBar.topAnchor, bottom: navigationBar.bottomAnchor, trailing: navigationBar.trailingAnchor)
+        
+        return navigationBar
+        
+    }()
+    
+    /// Closes the input field and ignores any changes.
+    lazy private(set) var cancelButton = OctarineButton(bgColor: EventCategory.allCases[0].getGradientColors()[0], label: OctarineLabel(text: "Cancel", color: .white, bold: false, style: .subheadline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 4.0), left: .width(percent: 4.0), bottom: .width(percent: 4.0), right: .width(percent: 4.0)), cornerRadius: .width(percent: 4.0))
+    
+    // Input title label.
+    lazy private var titleLabel = OctarineLabel(text: "Event Details", color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1)
+    
+    /// Closes the input field and updates the event details.
+    lazy private(set) var saveButton = OctarineButton(bgColor: EventCategory.allCases[0].getGradientColors()[0], label: OctarineLabel(text: "Save", color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 4.0), left: .width(percent: 4.0), bottom: .width(percent: 4.0), right: .width(percent: 4.0)), cornerRadius: .width(percent: 4.0))
+    
+    /// Content scrollable stack.
+    lazy private(set) var contentStack: ScrollableStackView = {
+        
+        let contentStack = ScrollableStackView(stackView: StackView(subviews: [detailsTextView], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 4.0), padding: .zero), padding: UIEdgeInsets(top: .width(percent: 1.0), left: 0.0, bottom: .width(percent: 1.0), right: 0.0))
+        contentStack.delegate = self
+        return contentStack
+        
+    }()
+
+    /// Event details input field.
+    lazy private(set) var detailsTextView: UITextView = {
+        
+        let detailsTextView = UITextView()
+        detailsTextView.backgroundColor = EventCategory.allCases[0].getGradientColors()[0]
+        detailsTextView.textColor = .white
+        detailsTextView.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
+        detailsTextView.inputAccessoryView = characterCountView
+        detailsTextView.isScrollEnabled = false
+        detailsTextView.textAlignment = .left
+        detailsTextView.setBottomBorder(color: .white, height: 1.0)
+        return detailsTextView
+        
+    }()
+    
+    // Accessory view on top of the keyboard.
+    lazy private var characterCountView: CardView = {
+        
+        let characterCountView = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[0])
+        characterCountView.frame = CGRect(x: 0.0, y: 0.0, width: .width(percent: 100), height: characterCountLabel.intrinsicContentSize.height + 2.0 + .width(percent: 4.0))
+        
+        // 1. Add subviews to the card view (each one on top of the others).
+        _ = [borderView, characterCountLabel].map { characterCountView.addSubview($0) }
+        
+        // 2. Apply constraints.
+        borderView.anchor(top: characterCountView.topAnchor, leading: characterCountView.leadingAnchor, trailing: characterCountView.trailingAnchor)
+        
+        characterCountLabel.anchor(centerX: characterCountView.centerXAnchor, centerY: characterCountView.centerYAnchor)
+
+        return characterCountView
+        
+    }()
+    
+    // Border of the accessory view.
+    lazy private var borderView: CardView = {
+        
+        let borderView = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[1])
+        borderView.anchor(size: CGSize(width: 0.0, height: 2.0))
+        return borderView
+        
+    }()
+    
+    /// Length (in number of characters) of the current event details.
+    lazy private(set) var characterCountLabel = OctarineLabel(text: "0 / " + String(maxCharacterCount), color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1)
+    
+    /**
+    Overrides superclass initializer to configure the UI.
+
+    - Parameter frame: Ignored by AutoLayout (default it to .zero)
+    */
+    override init(frame: CGRect) {
+        
+        super.init(frame: frame)
+        
+        configureView()
+        
+    }
+    
+    /**
+    Required init?(coder:) not implemented (storyboard not available). WIll throw a fatal error.
+
+    - Parameter coder: NSCoder from storyboard.
+    */
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // Configure UI.
+    private func configureView() {
+        
+        // 1. Sets the color of the background to the current event category (defaults to culture purple).
+        backgroundColor = EventCategory.allCases[0].getGradientColors()[1]
+        
+        // 2. Add subviews to the root view.
+        addSubview(cardView)
+        
+        // 3. Apply constraints.
+        cardView.anchor(top: safeAreaLayoutGuide.topAnchor, leading: safeAreaLayoutGuide.leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: safeAreaLayoutGuide.trailingAnchor, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 3.0), right: .width(percent: 4.0)))
+        
+    }
+    
+    /// Updates the UI according to the current input entered for the event being created. If any values are nil, default ones are used.
+    func updateUI(eventInput: EventModel?) {
+        
+        let lightColor = eventInput?.category?.getGradientColors()[0] ?? EventCategory.allCases[0].getGradientColors()[0]
+        let highlightedColor = lightColor.darkerColor(percent: 0.1)
+        let darkColor = eventInput?.category?.getGradientColors()[1] ?? EventCategory.allCases[0].getGradientColors()[1]
+     
+        // 1. Change background and card color.
+        backgroundColor = darkColor
+        cardView.backgroundColor = lightColor
+        
+        // 2. Change navigation bar color.
+        navigationBar.backgroundColor = lightColor
+        navigationBar.layer.shadowColor = darkColor.withAlphaComponent(0.6).cgColor
+        
+        // 3. Change cancel button color.
+        cancelButton.backgroundColor = lightColor
+        cancelButton.highlightedColor = highlightedColor
+        cancelButton.nonHighlightedColor = lightColor
+        
+        // 4. Change save button color.
+        saveButton.backgroundColor = lightColor
+        saveButton.highlightedColor = highlightedColor
+        saveButton.nonHighlightedColor = lightColor
+        
+        // 5. Update details text view.
+        detailsTextView.backgroundColor = lightColor
+        detailsTextView.text = eventInput?.details
+        
+        // 6. Change character count view and border view color.
+        characterCountView.backgroundColor = lightColor
+        borderView.backgroundColor = darkColor
+        
+        // 7. Update character count label.
+        characterCountLabel.text = String(eventInput?.details != nil && eventInput?.details?.count != nil ? eventInput!.details!.count : 0) + " / " + String(maxCharacterCount)
+        
+    }
+    
+}
+
+extension DetailsInputView: UIScrollViewDelegate {
+    
+    /**
+    Delegate function triggered when the scroll view scrolls. Depending on the position of the scrollable content, the navigation bar drops a shadow.
+
+    - Parameters:
+        - scrollView: Scroll view that scrolled.
+    */
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        if scrollView.contentOffset.y >= 0.0, scrollView.contentOffset.y <= scrollView.contentInset.top {
+         
+            navigationBar.layer.shadowOpacity = Float(scrollView.contentOffset.y / scrollView.contentInset.top)
+            
+        } else if scrollView.contentOffset.y < 0.0 {
+            
+            navigationBar.layer.shadowOpacity = 0.0
+            
+        } else {
+            
+            navigationBar.layer.shadowOpacity = 1.0
+            
+        }
+        
+    }
+    
+}
+
 struct PreviewDetailsInputView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UIViewType {
         
-        return UIViewType(details: nil, category: nil)
+        return UIViewType()
         
     }
     
@@ -33,192 +243,5 @@ struct TestPreviewDetailsInputView: PreviewProvider {
     }
     
     typealias Previews = PreviewDetailsInputView
-    
-}
-
-final class DetailsInputView: UIView {
-    
-    let xInset: CGFloat = .getPercentageWidth(percentage: 5)
-    let yInset: CGFloat = .getPercentageWidth(percentage: 4)
-    
-    private var details: String?
-    private var category: EventCategory = .Culture
-    
-    lazy private var cardView: UIView = {
-        
-        let topFadeEdgeView = FadeEdgeView(color: category.getGradientColors()[0], top: true)
-        let bottomFadeEdgeView = FadeEdgeView(color: category.getGradientColors()[0], top: false)
-       
-        var cardView = UIView()
-        cardView.clipsToBounds = true
-        cardView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
-        cardView.backgroundColor = category.getGradientColors()[0]
-        
-        cardView.addSubview(cardScrollView)
-        cardScrollView.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, bottom: cardView.bottomAnchor, trailing: cardView.trailingAnchor, padding: UIEdgeInsets(top: -yInset, left: xInset, bottom: 0.0, right: xInset))
-        
-        cardView.addSubview(topFadeEdgeView)
-        topFadeEdgeView.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, trailing: cardView.trailingAnchor)
-        
-        cardView.addSubview(bottomFadeEdgeView)
-        bottomFadeEdgeView.anchor(leading: cardView.leadingAnchor, bottom: cardView.bottomAnchor, trailing: cardView.trailingAnchor, size: CGSize(width: 0.0, height: yInset))
-        
-        cardView.addSubview(cancelButton)
-        cancelButton.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, padding: UIEdgeInsets(top: yInset, left: xInset, bottom: 0.0, right: 0.0))
-        topFadeEdgeView.anchor(height: cancelButton.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
-        
-        cardView.addSubview(detailsTitleLabel)
-        detailsTitleLabel.anchor(centerX: cardView.centerXAnchor, centerY: cancelButton.centerYAnchor)
-        
-        cardView.addSubview(saveButton)
-        saveButton.anchor(top: cardView.topAnchor, trailing: cardView.trailingAnchor, padding: UIEdgeInsets(top: yInset, left: 0.0, bottom: 0.0, right: xInset))
-        
-        return cardView
-        
-    }()
-    
-    lazy private(set) var cancelButton: BouncyButton = {
-        
-        var cancelButton = BouncyButton(bouncyButtonImage: nil)
-        cancelButton.setTitle("Cancel", for: .normal)
-        cancelButton.titleLabel?.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
-        cancelButton.setTitleColor(.white, for: .normal)
-        return cancelButton
-        
-    }()
-    
-    lazy private var detailsTitleLabel: UILabel = {
-        
-        var titleTitleLabel = UILabel()
-        titleTitleLabel.text = "Details"
-        titleTitleLabel.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        titleTitleLabel.textColor = .white
-        titleTitleLabel.textAlignment = .center
-        titleTitleLabel.numberOfLines = 1
-        return titleTitleLabel
-        
-    }()
-    
-    lazy private(set) var saveButton: BouncyButton = {
-        
-        var saveButton = BouncyButton(bouncyButtonImage: nil)
-        saveButton.setTitle("Save", for: .normal)
-        saveButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        saveButton.setTitleColor(.white, for: .normal)
-        return saveButton
-        
-    }()
-    
-    lazy private(set) var cardScrollView: UIScrollView = {
-        
-        let topSpacingView = UIView()
-        topSpacingView.backgroundColor = .clear
-        topSpacingView.anchor(size: CGSize(width: 0.0, height: yInset))
-        
-        let containerView = UIView()
-        containerView.backgroundColor = .clear
-        
-        containerView.addSubview(topSpacingView)
-        topSpacingView.anchor(top: containerView.topAnchor, leading: containerView.leadingAnchor, trailing: containerView.trailingAnchor)
-        
-        containerView.addSubview(detailsTextView)
-        detailsTextView.anchor(top: topSpacingView.bottomAnchor, leading: containerView.leadingAnchor, bottom: containerView.bottomAnchor, trailing: containerView.trailingAnchor)
-        
-        var cardScrollView = UIScrollView()
-        cardScrollView.alwaysBounceVertical = false
-        cardScrollView.showsVerticalScrollIndicator = false
-        cardScrollView.contentInset = UIEdgeInsets(top: saveButton.intrinsicContentSize.height + (yInset*2), left: 0.0, bottom: yInset, right: 0.0)
-        
-        cardScrollView.addSubview(containerView)
-        containerView.anchor(top: cardScrollView.topAnchor, leading: cardScrollView.leadingAnchor, bottom: cardScrollView.bottomAnchor, trailing: cardScrollView.trailingAnchor, width: cardScrollView.widthAnchor)
-        
-        return cardScrollView
-        
-    }()
-
-    lazy private(set) var detailsTextView: UITextView = {
-        
-        var detailsTextView = UITextView()
-        detailsTextView.backgroundColor = category.getGradientColors()[0]
-        detailsTextView.textColor = .white
-        
-        if let details = details {
-            
-            detailsTextView.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-            detailsTextView.text = details
-            
-        } else {
-            
-            detailsTextView.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
-            detailsTextView.text = "Details"
-            
-        }
-        
-        detailsTextView.inputAccessoryView = characterCountView
-        detailsTextView.textContainerInset = UIEdgeInsets(top: yInset*0.16, left: xInset*0.16, bottom: yInset*0.16, right: xInset*0.16)
-        detailsTextView.isScrollEnabled = false
-        detailsTextView.textAlignment = .left
-        detailsTextView.setBottomBorder(color: .white, height: 1.0)
-        return detailsTextView
-        
-    }()
-    
-    lazy private(set) var characterCountView: UIView = {
-        
-        var characterCountView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: .getPercentageWidth(percentage: 100), height: characterCountLabel.intrinsicContentSize.height + (yInset*1.5)))
-        characterCountView.backgroundColor = category.getGradientColors()[0]
-        
-        let borderView = UIView()
-        borderView.backgroundColor = category.getGradientColors()[1]
-        
-        characterCountView.addSubview(borderView)
-        borderView.anchor(top: characterCountView.topAnchor, leading: characterCountView.leadingAnchor, trailing: characterCountView.trailingAnchor, size: CGSize(width: 0.0, height: 2.0))
-        
-        characterCountView.addSubview(characterCountLabel)
-        characterCountLabel.anchor(centerX: characterCountView.centerXAnchor, centerY: characterCountView.centerYAnchor)
-
-        return characterCountView
-        
-    }()
-    
-    lazy private(set) var characterCountLabel: UILabel = {
-        
-        var characterCountLabel = UILabel()
-        characterCountLabel.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        characterCountLabel.text = "0 / 0"
-        characterCountLabel.textColor = .white
-        characterCountLabel.numberOfLines = 1
-        characterCountLabel.textAlignment = .center
-        return characterCountLabel
-        
-    }()
-    
-    init(details: String?, category: EventCategory?) {
-        
-        super.init(frame: .zero)
-        
-        self.details = details
-        if let category = category { self.category = category }
-        
-        configureView()
-        
-    }
-    
-    required init?(coder: NSCoder) {
-        
-        super.init(coder: coder)
-        
-        configureView()
-        
-    }
-    
-    private func configureView() {
-        
-        backgroundColor = category.getGradientColors()[1]
-        
-        addSubview(cardView)
-        cardView.anchor(top: safeAreaLayoutGuide.topAnchor, leading: leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: trailingAnchor, padding: UIEdgeInsets(top: yInset, left: xInset, bottom: yInset, right: xInset))
-        
-    }
     
 }

@@ -21,7 +21,7 @@ struct MainView: View {
             
             ZStack(alignment: .center) {
                 
-                MapView(draggedOffset: $draggedOffset, menuIsShowing: $menuIsShowing, activityIsShowing: $activityIsShowing)
+                MapContentView(draggedOffset: $draggedOffset, menuIsShowing: $menuIsShowing, activityIsShowing: $activityIsShowing)
                     .offset(x: self.menuIsShowing ? MenuView.menuWidth + self.draggedOffset.width : self.activityIsShowing ? self.draggedOffset.width - ActivityView.activityWidth : 0.0)
                 
                 MenuView()

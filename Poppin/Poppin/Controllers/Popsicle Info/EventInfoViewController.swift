@@ -202,14 +202,14 @@ extension EventInfoViewController: MKMapViewDelegate {
         
         if let eventAnnotation = annotation as? EventAnnotation {
             
-            if let eventAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: EventAnnotationView.defaultEventAnnotationViewReuseIdentifier) as? EventAnnotationView {
+            if let eventAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: EventAnnotationView.defaultReuseIdentifier) as? EventAnnotationView {
                 
                 eventAnnotationView.setEventAnnotation(eventAnnotation: eventAnnotation)
                 return eventAnnotationView
                 
             } else {
                 
-                let eventAnnotationView = EventAnnotationView(annotation: eventAnnotation, reuseIdentifier: EventAnnotationView.defaultEventAnnotationViewReuseIdentifier)
+                let eventAnnotationView = EventAnnotationView(annotation: eventAnnotation, reuseIdentifier: EventAnnotationView.defaultReuseIdentifier)
                 eventAnnotationView.setEventAnnotation(eventAnnotation: eventAnnotation)
                 return eventAnnotationView
                 

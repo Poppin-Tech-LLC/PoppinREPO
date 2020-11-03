@@ -8,78 +8,88 @@
 
 import UIKit
 
+/// Border with a Popsicle Icon in the Middle.
 final class PopsicleBorderView: UIView {
     
-    var borderColor: UIColor = .black {
+    /// Characteristics of the border (color and style).
+    var borderTraits: (UIColor, UIFont.TextStyle) {
         
         didSet {
             
-            popsicleIconImageView.image = UIImage.filledPopsicleIcon64.withTintColor(borderColor, renderingMode: .alwaysOriginal)
-            popsicleBorderRightView.backgroundColor = UIColor(cgColor: borderColor.cgColor)
-            popsicleBorderLeftView.backgroundColor = UIColor(cgColor: borderColor.cgColor)
+            borderIcon.image = UIImage.filledPopsicleIcon128.scalePreservingAspectRatio(targetSize: CGSize(width: UIFont.dynamicFont(with: "Octarine-Bold", style: borderTraits.1).pointSize, height: UIFont.dynamicFont(with: "Octarine-Bold", style: borderTraits.1).pointSize)).withTintColor(borderTraits.0, renderingMode: .alwaysOriginal)
+            borderLeft.backgroundColor = UIColor(cgColor: borderTraits.0.cgColor)
+            borderRight.backgroundColor = UIColor(cgColor: borderTraits.0.cgColor)
             
         }
         
     }
-    private(set) var lineHeight: CGFloat = .getPercentageWidth(percentage: 0.5)
     
-    lazy private var popsicleIconImageView: UIImageView = {
-        
-        var popsicleIconImageView = UIImageView(image: UIImage.filledPopsicleIcon64.withTintColor(borderColor, renderingMode: .alwaysOriginal))
-        popsicleIconImageView.contentMode = .scaleAspectFit
-        return popsicleIconImageView
-        
-    }()
+    // Horizontal stack containing the three components of the border.
+    lazy private var borderStack = StackView(subviews: [borderLeft, borderIcon, borderRight], axis: .horizontal, alignment: .center, distribution: .fill, spacing: .width(percent: 2.0), padding: .zero)
     
-    lazy private var popsicleBorderLeftView: UIView = {
-        
-        var popsicleBorderLeftView = UIView()
-        popsicleBorderLeftView.backgroundColor = UIColor(cgColor: borderColor.cgColor)
-        popsicleBorderLeftView.addShadowAndRoundCorners(cornerRadius: 2.0, shadowOpacity: 0.0)
-        return popsicleBorderLeftView
-        
-    }()
+    // Popsicle icon.
+    lazy private var borderIcon = UIImageView(image: UIImage.filledPopsicleIcon128.scalePreservingAspectRatio(targetSize: CGSize(width: UIFont.dynamicFont(with: "Octarine-Bold", style: borderTraits.1).pointSize, height: UIFont.dynamicFont(with: "Octarine-Bold", style: borderTraits.1).pointSize)).withTintColor(borderTraits.0, renderingMode: .alwaysOriginal))
     
-    lazy var popsicleBorderRightView: UIView = {
-        
-        var popsicleBorderRightView = UIView()
-        popsicleBorderRightView.backgroundColor = UIColor(cgColor: borderColor.cgColor)
-        popsicleBorderRightView.addShadowAndRoundCorners(cornerRadius: 2.0, shadowOpacity: 0.0)
-        return popsicleBorderRightView
-        
-    }()
+    // Left line of the border.
+    lazy private var borderLeft = CardView(bgColor: borderTraits.0, cornerRadius: 1.5)
+
+    // Right line of the border.
+    lazy private var borderRight = CardView(bgColor: borderTraits.0, cornerRadius: 1.5)
     
-    init(with color: UIColor?, lineHeight: CGFloat?) {
+    /**
+    Overrides superclass initializer to initialize the border traits to default values (color black and headline style).
+
+    - Parameter frame: Ignored by AutoLayout (default it to .zero)
+    */
+    override init(frame: CGRect) {
+        
+        borderTraits = (.black, .headline)
         
         super.init(frame: .zero)
         
-        if let color = color { self.borderColor = color }
-        if let lineHeight = lineHeight { self.lineHeight = lineHeight }
+    }
+    
+    /**
+    Custom class init that initializes a popsicle border with a color and a style (size).
+
+    - Parameters:
+        - color: The background color of the border (defaults to black).
+        - style: Text style that sets the size of the border.
+    */
+    init(with color: UIColor = .black, _ style: UIFont.TextStyle = .headline) {
+        
+        borderTraits = (color, style)
+        
+        super.init(frame: .zero)
         
         configureView()
         
     }
     
+    /**
+    Required init?(coder:) not implemented (storyboard not available). WIll throw a fatal error.
+
+    - Parameter coder: NSCoder from storyboard.
+    */
     required init?(coder: NSCoder) {
-        
-        super.init(coder: coder)
-        
-        configureView()
-        
+        fatalError("init(coder:) has not been implemented")
     }
     
+    // Configures UI.
     private func configureView() {
         
+        // 1. Clears the background.
         backgroundColor = .clear
         
-        addSubview(popsicleIconImageView)
-        popsicleIconImageView.anchor(top: topAnchor, bottom: bottomAnchor, centerX: centerXAnchor, width: widthAnchor, size: CGSize(width: 0.0, height: lineHeight * 8.5), multiples: CGSize(width: 0.06, height: 1.0))
+        // 2. Add subviews to the root view.
+        addSubview(borderStack)
         
-        addSubview(popsicleBorderLeftView)
-        popsicleBorderLeftView.anchor(leading: leadingAnchor, centerY: centerYAnchor, width: widthAnchor, size: CGSize(width: 0.0, height: lineHeight), multiples: CGSize(width: 0.44, height: 1.0))
+        // 3. Apply constraints.
+        borderStack.attatchEdgesToSuperview()
         
-        addSubview(popsicleBorderRightView)
-        popsicleBorderRightView.anchor(trailing: trailingAnchor, centerY: centerYAnchor, width: widthAnchor, size: CGSize(width: 0.0, height: lineHeight), multiples: CGSize(width: 0.44, height: 1.0))
+        borderLeft.anchor(height: borderIcon.heightAnchor, multiples: CGSize(width: 1.0, height: 0.15))
+
+        borderRight.anchor(width: borderLeft.widthAnchor, height: borderIcon.heightAnchor, multiples: CGSize(width: 1.0, height: 0.15))
         
     }
     

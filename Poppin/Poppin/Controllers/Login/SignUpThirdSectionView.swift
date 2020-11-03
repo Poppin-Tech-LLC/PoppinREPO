@@ -25,7 +25,7 @@ final class SignUpThirdSectionView: UIView {
     lazy private var backgroundView = UIImageView(image: UIImage.appBackground.scalePreservingAspectRatio(targetSize: CGSize(width: .width(percent: 100), height: .height(percent: 100))))
     
     // Card container.
-    lazy private var cardView: UIView = {
+    lazy private var cardView: CardView = {
        
         let cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: 0.0, left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
         
@@ -42,11 +42,9 @@ final class SignUpThirdSectionView: UIView {
     }()
     
     /// Top bar containing the back button.
-    lazy private var navigationBar: UIView = {
+    lazy private var navigationBar: CardView = {
         
-        let navigationBar = UIView()
-        navigationBar.backgroundColor = .white
-        navigationBar.apply(shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+        let navigationBar = CardView(bgColor: .white, padding: .zero, cornerRadius: 0.0, shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
         navigationBar.layer.shadowOpacity = 0.0
         
         navigationBar.addSubview(backButton)
@@ -56,7 +54,7 @@ final class SignUpThirdSectionView: UIView {
         
     }()
     
-    /// Button that transitions to the previous page of the sign up..
+    /// Button that transitions to the previous section of the sign up.
     lazy private(set) var backButton: OctarineButton = {
         
         let backButton = OctarineButton(bgColor: .clear, label: nil, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)))
@@ -342,6 +340,8 @@ class ScrollableStackView: UIScrollView {
     
     private func configureView() {
         
+        delaysContentTouches = false
+        
         if stackView.axis == .vertical {
             
             alwaysBounceVertical = false
@@ -359,6 +359,14 @@ class ScrollableStackView: UIScrollView {
             stackView.anchor(top: topAnchor, leading: leadingAnchor, bottom: bottomAnchor, trailing: trailingAnchor, height: heightAnchor)
             
         }
+        
+    }
+    
+    override func touchesShouldCancel(in view: UIView) -> Bool {
+        
+        if view is UIControl { return true }
+        
+        return super.touchesShouldCancel(in: view)
         
     }
     

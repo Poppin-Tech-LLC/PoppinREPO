@@ -35,7 +35,7 @@ protocol ActivityDelegate: class {
 final class MapViewController: UIViewController {
     
     public static var defaultMapViewRegionRadius = 3000.0 // 3km
-    public static var defaultMapViewCenterLocation = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619) // DU Campus
+    public static var defaultMapViewCenterLocation: CLLocationCoordinate2D = .DU // DU Campus
         
     private let mapVerticalEdgeInset: CGFloat = .getPercentageWidth(percentage: 5)
     private let mapHorizontalEdgeInset: CGFloat = .getPercentageWidth(percentage: 3)
@@ -431,7 +431,7 @@ final class MapViewController: UIViewController {
             
         }
         
-        let createEventNavigationController = UINavigationController(rootViewController: CreateEventFirstSectionViewController()/*NewCreateEventViewController(userLocation: userLocation)*/)
+        let createEventNavigationController = UINavigationController(rootViewController: CreateEventFirstSectionViewController())
         createEventNavigationController.modalPresentationStyle = .overFullScreen
         createEventNavigationController.modalTransitionStyle = .coverVertical
         createEventNavigationController.setNavigationBarHidden(true, animated: false)

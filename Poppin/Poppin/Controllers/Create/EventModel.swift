@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreLocation
+import SwiftDate
 
 enum EventCategory: String, CaseIterable {
     
@@ -175,6 +176,11 @@ enum EventCategory: String, CaseIterable {
 
 struct EventModel {
     
+    static let maxTitleLength: Int = 50
+    static let maxDetailsLength: Int = 500
+    static let minEventDuration: DateComponents = 30.minutes
+    static let maxEventDuration: DateComponents = 8.hours
+    
     var id: String?
     var title: String?
     var details: String?
@@ -189,7 +195,7 @@ struct EventModel {
     var isPoppin: Bool
     var isEditable: Bool
     
-    init(id: String? = nil, title: String? = nil, details: String? = nil, onlineURL: URL? = nil, startDate: Date? = nil, endDate: Date? = nil, location: CLLocationCoordinate2D? = nil, authorId: String? = nil, category: EventCategory? = nil, attendeesIds: [String] = [], isPublic: Bool = false, isPoppin: Bool = false, isEditable: Bool = true) {
+    init(id: String? = nil, title: String? = nil, details: String? = nil, onlineURL: URL? = nil, startDate: Date? = nil, endDate: Date? = nil, location: CLLocationCoordinate2D? = nil, authorId: String? = nil, category: EventCategory? = nil, attendeesIds: [String] = [], isPublic: Bool? = true, isPoppin: Bool = false, isEditable: Bool = true) {
         
         self.id = id
         self.title = title
@@ -201,7 +207,7 @@ struct EventModel {
         self.authorId = authorId
         self.category = category
         self.attendeesIds = attendeesIds
-        self.isPublic = isPublic
+        self.isPublic = isPublic ?? false
         self.isPoppin = isPoppin
         self.isEditable = isEditable
         

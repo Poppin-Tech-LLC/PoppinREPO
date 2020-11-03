@@ -343,6 +343,9 @@ class OctarineButton: BouncyButton {
         self.backgroundColor = bgColor
         self.setTitle(label?.text, for: .normal)
         self.setTitleColor(label?.textColor, for: .normal)
+        self.titleLabel?.lineBreakMode = .byWordWrapping
+        self.titleLabel?.numberOfLines = label?.numberOfLines ?? 1
+        if let label = label, label.numberOfLines == 0 { self.titleLabel?.translatesAutoresizingMaskIntoConstraints = false }
         
         if let bold = label?.fontTraits.0, let style = label?.fontTraits.1 {
             
@@ -361,12 +364,57 @@ class OctarineButton: BouncyButton {
         self.padding = padding
         self.contentEdgeInsets = padding
         self.layer.cornerRadius = cornerRadius
+        self.layer.cornerCurve = .continuous
         self.apply(shadow: shadow)
         
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func setTitleColor(_ color: UIColor?, for state: UIControl.State) {
+        
+        super.setTitleColor(color, for: state)
+        
+        if state != .normal { return }
+        
+        self.setTitleColor(color?.darkerColor(percent: 0.2), for: .highlighted)
+        
+    }
+    
+    override func setAttributedTitle(_ title: NSAttributedString?, for state: UIControl.State) {
+        
+        super.setAttributedTitle(title, for: state)
+        
+        if state != .normal { return }
+        
+        if let title = title {
+            
+            let highlightedTitle = NSMutableAttributedString(attributedString: title)
+            
+            highlightedTitle.addAttribute(.foregroundColor, value: currentTitleColor.darkerColor(percent: 0.2), range: NSRange(location: 0, length: highlightedTitle.length))
+            
+            highlightedTitle.enumerateAttribute(.attachment, in: NSRange(location: 0, length: highlightedTitle.length), options: .longestEffectiveRangeNotRequired) { (attachment, range, pointer) in
+                
+                if let attachment = attachment as? NSTextAttachment, let image = attachment.image {
+                
+                    let highlightedAttachment = NSTextAttachment(image: image.withTintColor(currentTitleColor.darkerColor(percent: 0.2), renderingMode: .alwaysOriginal))
+                    
+                    highlightedTitle.addAttribute(.attachment, value: highlightedAttachment, range: range)
+                
+                }
+                
+                setAttributedTitle(highlightedTitle, for: .highlighted)
+                
+            }
+            
+        } else {
+            
+            setAttributedTitle(nil, for: .highlighted)
+            
+        }
+        
     }
     
 }

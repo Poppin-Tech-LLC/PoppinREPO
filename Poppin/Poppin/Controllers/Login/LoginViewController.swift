@@ -83,7 +83,7 @@ final class LoginViewController: UIViewController {
         if let email = view.emailTextField.text, let password = view.passwordTextField.text, email != "", password != "" {
             
             // 3. Login button shows loading indicator.
-            view.loginButton.startLoading()
+            sender.startLoading()
             
             // 4. Perform sign in (firebase).
             authController.signIn(email, password) { [weak self] (result, error, errorTitle, errorMessage) in
@@ -93,7 +93,7 @@ final class LoginViewController: UIViewController {
                 // 5. Error found. Stop showing loading indicator and display error.
                 if error != nil {
                     
-                    view.loginButton.stopLoading()
+                    sender.stopLoading()
                     
                     let alertVC = AlertViewController(alertTitle: errorTitle, alertMessage: errorMessage)
                     
@@ -106,12 +106,11 @@ final class LoginViewController: UIViewController {
                         
                         // 8. Core Data.
                         
-//                        DataController.eraseAll(forEntity: "User")
-//                        DataController.addUser(notificationName: .userSignedIn)
-//                        DataController.eraseAll(forEntity: "OtherAccounts")
-//                        DataController.eraseAll(forEntity: "RecentSearches")
-//
-//
+                        DataController.eraseAll(forEntity: "UserCoreData")
+                        DataController.addUser(notificationName: .userSignedIn)
+                        DataController.eraseAll(forEntity: "OtherAccounts")
+                        DataController.eraseAll(forEntity: "RecentSearches")
+
 //                        let orgRef = Firestore.firestore().collection("users")
 //
 //                        orgRef.document(Auth.auth().currentUser!.uid).getDocument{ (document, error) in
@@ -149,7 +148,7 @@ final class LoginViewController: UIViewController {
                         
                     } else {
                         
-                        view.loginButton.stopLoading()
+                        sender.stopLoading()
                         
                         let alertVC = AlertViewController(alertTitle: "Email not verified", alertMessage: "If you did not get a verification email, check your spam folder or click resend.", rightActionTitle: "Resend", rightAction: { [weak self] in
                          

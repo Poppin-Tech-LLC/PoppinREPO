@@ -7,252 +7,169 @@
 //
 
 import UIKit
-import SwiftUI
-import Kronos
 import SwiftDate
 
-struct PreviewDateInputViewController: UIViewControllerRepresentable {
-    
-    func makeUIViewController(context: Context) -> UIViewControllerType {
-        
-        return UIViewControllerType(startDate: nil, endDate: nil, category: nil)
-        
-    }
-    
-    
-    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
-    
-    typealias UIViewControllerType = DateInputViewController
-    
-}
-
-struct TestPreviewDateInputViewController: PreviewProvider {
-    
-    static var previews: Previews {
-        
-        return Previews()
-        
-    }
-    
-    typealias Previews = PreviewDateInputViewController
-    
-}
-
+/// Event Date Input Page UI Controller.
 final class DateInputViewController: UIViewController {
     
-    private var startDate: Date?
-    private var endDate: Date?
-    private var category: EventCategory?
+    // Holds the event input.
+    private var eventInput: EventModel?
     
-    weak var delegate: DateInputDelegate?
+    // Closure called when transitioning to the previous page.
+    private var completionHandler: ((Date?, Date?) -> Void)?
     
-    lazy private var minimumDate: Date = { return Date().dateRoundedAt(at: .toCeil5Mins) + 15.minutes }()
-    lazy private var maximumDate: Date = { return minimumDate + 7.days }()
-    
-    lazy private var startDatePicker: UIDatePicker = {
-        
-        var startDatePicker = UIDatePicker()
-        startDatePicker.datePickerMode = .dateAndTime
-        startDatePicker.minuteInterval = 5
-        startDatePicker.minimumDate = minimumDate
-        startDatePicker.maximumDate = maximumDate
-        startDatePicker.addTarget(self, action: #selector(setDate(from:)), for: .valueChanged)
-        return startDatePicker
-        
-    }()
-    
-    lazy private var endDatePicker: UIDatePicker = {
-        
-        var endDatePicker = UIDatePicker()
-        endDatePicker.datePickerMode = .dateAndTime
-        endDatePicker.minuteInterval = 5
-        endDatePicker.minimumDate = minimumDate
-        endDatePicker.maximumDate = maximumDate
-        endDatePicker.addTarget(self, action: #selector(setDate(from:)), for: .valueChanged)
-        return endDatePicker
-        
-    }()
-    
-    init(startDate: Date?, endDate: Date?, category: EventCategory?) {
+    /**
+    Custom class init to set the modal presentation and transition style, update the date input fields for the current event, and assign a completion handler.
+
+    - Parameters:
+        - eventInput: Input entered so far for the current event being created.
+        - completionHandler: Closure called when transitioning to the previous section.
+    */
+    init(eventInput: EventModel?, completionHandler: ((Date?, Date?) -> Void)?) {
         
         super.init(nibName: nil, bundle: nil)
         
         modalPresentationStyle = .overFullScreen
         modalTransitionStyle = .coverVertical
         
-        self.startDate = startDate
-        self.endDate = endDate
-        self.category = category
-        
-        if let startDate = startDate {
-            
-            startDatePicker.setDate(startDate, animated: false)
-            
-        } else {
-            
-            startDatePicker.setDate(minimumDate, animated: false)
-            
-        }
-        
-        if let endDate = endDate {
-            
-            endDatePicker.setDate(endDate, animated: false)
-            
-        } else {
-            
-            endDatePicker.setDate(startDatePicker.date + 30.minutes, animated: false)
-            
-        }
+        self.eventInput = eventInput
+        self.completionHandler = completionHandler
         
     }
     
+    /**
+    Required init?(coder:) not implemented (storyboard not available). WIll throw a fatal error.
+
+    - Parameter coder: NSCoder from storyboard.
+    */
     required init?(coder: NSCoder) {
-        
-        super.init(coder: coder)
-        
-        modalPresentationStyle = .overFullScreen
-        modalTransitionStyle = .coverVertical
-        
+        fatalError("init(coder:) has not been implemented")
     }
     
+    /// Overrides superclass method to initialize the root view with a custom UI.
     override func loadView() {
         
-        var duration: String?
-        
-        if let endDate = endDate {
-            
-            duration = "Duration: "
-            
-            if let hours = (endDate - startDatePicker.date).hour {
-                
-                duration = duration! + String(hours) + "h "
-                
-            }
-            
-            if let minutes = (endDate - startDatePicker.date).minute {
-                
-                duration = duration! + String(minutes) + "m "
-                
-            }
-            
-        }
-        
-        self.view = DateInputView(formattedStartDate: startDatePicker.date.getFormattedDate(), formattedEndDate: endDate?.getFormattedDate(), formattedDuration: duration, category: category)
+        self.view = DateInputView()
         
     }
     
+    /// Overrides superclass method to connect UI elements to the controller.
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
+        // 1. Safe casting root view to custom view.
         guard let view = view as? DateInputView else { return }
         
-        view.delegate = self
-        view.startDateTextField.inputView = startDatePicker
-        view.endDateTextField.inputView = endDatePicker
+        // 2. Setting targets and delegation.
+        _ = [view.startDateTextField, view.endDateTextField].map { $0.delegate = self }
+        
+        _ = [view.startDatePicker, view.endDatePicker].map { $0.addTarget(self, action: #selector(setDate(from:)), for: .valueChanged) }
+        
+        view.actionButton.addTarget(self, action: #selector(moveToNextInputField), for: .touchUpInside)
         view.cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
         view.saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
         
+    }
+    
+    /// Overrides superclass method to update UI, and begin editing the input field.
+    override func viewWillAppear(_ animated: Bool) {
+        
+        super.viewWillAppear(animated)
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? DateInputView else { return }
+        
+        // 2. Updating input field UI with event input passed.
+        view.updateUI(eventInput: eventInput)
+        
+        // 3. Begin editing.
         view.startDateTextField.becomeFirstResponder()
         
     }
     
+    // Formats the date from the picker passed and assigns it to the respective input field. Also, it updates the duration label.
     @objc private func setDate(from picker: UIDatePicker) {
         
+        // 1. Safe casting root view to custom view.
         guard let view = view as? DateInputView else { return }
         
-        if picker == startDatePicker {
+        if picker == view.startDatePicker {
             
+            // 2. Update input field with formatted date from picker.
+            view.startDateTextField.text = picker.date.getFormattedDate()
+            
+            // 3. Update duration label (and if next input field is empty, update the default date shown on the next date picker).
             if view.endDateTextField.isEmpty() {
                 
-                view.startDateTextField.text = picker.date.getFormattedDate()
-                endDatePicker.date = picker.date + 30.minutes
+                view.endDatePicker.date = picker.date + view.minEventDuration
+                view.durantionLabel.text = "Duration: " + view.getFormattedDuration(startDate: picker.date, endDate: nil)
                 
             } else {
                 
-                if (picker.date + 30.minutes) > endDatePicker.date {
-                
-                    picker.date = endDatePicker.date - 30.minutes
-                    
-                    return
-                
-                }
-                
-                if (picker.date + 8.hours) < endDatePicker.date {
-                
-                    picker.date = endDatePicker.date - 8.hours
-                    
-                    return
-                
-                }
-                
-                var duration: String = "Duration: "
-                
-                if let hours = (endDatePicker.date - picker.date).hour {
-                    
-                    duration = duration + String(hours) + "h "
-                    
-                }
-                
-                if let minutes = (endDatePicker.date - picker.date).minute {
-                    
-                    duration = duration + String(minutes) + "m "
-                    
-                }
-                
-                view.durantionTitleLabel.text = duration
-                view.startDateTextField.text = picker.date.getFormattedDate()
+                view.durantionLabel.text = "Duration: " + view.getFormattedDuration(startDate: picker.date, endDate: view.endDatePicker.date)
                 
             }
             
-        } else if picker == endDatePicker {
+            // 4. Notify input field changes.
+            view.inputFieldsDidChange()
             
-            if (startDatePicker.date + 30.minutes) > picker.date {
+        } else if picker == view.endDatePicker {
             
-                picker.date = startDatePicker.date + 30.minutes
-                
-                return
-            
-            }
-            
-            if (startDatePicker.date + 8.hours) < picker.date {
-            
-                picker.date = startDatePicker.date + 8.hours
-                
-                return
-            
-            }
-            
-            var duration: String = "Duration: "
-            
-            if let hours = (picker.date - startDatePicker.date).hour {
-                
-                duration = duration + String(hours) + "h "
-                
-            }
-            
-            if let minutes = (picker.date - startDatePicker.date).minute {
-                
-                duration = duration + String(minutes) + "m "
-                
-            }
-            
-            view.durantionTitleLabel.text = duration
+            // 5. Update input field with formatted date from picker.
             view.endDateTextField.text = picker.date.getFormattedDate()
+            
+            // 6. Update duration label.
+            if view.startDateTextField.isEmpty() {
+                
+                view.durantionLabel.text = "Duration: " + view.getFormattedDuration(startDate: nil, endDate: picker.date)
+                
+            } else {
+                
+                view.durantionLabel.text = "Duration: " + view.getFormattedDuration(startDate: view.startDatePicker.date, endDate: picker.date)
+                
+            }
+            
+            // 7. Notify input field changes.
+            view.inputFieldsDidChange()
             
         }
         
     }
     
-    @objc private func cancel() {
-        
+    // Transitions to the next input field. It is called by the action button inside the picker bar view.
+    @objc private func moveToNextInputField() {
+     
+        // 1. Safe casting root view to custom view.
         guard let view = view as? DateInputView else { return }
         
+        // 2. Transition to the next input field.
+        if view.startDateTextField.isEditing {
+            
+            view.startDateTextField.resignFirstResponder()
+            view.endDateTextField.becomeFirstResponder()
+            
+        } else if view.endDateTextField.isEditing {
+            
+            view.endDateTextField.resignFirstResponder()
+            view.startDateTextField.becomeFirstResponder()
+            
+        }
+        
+    }
+    
+    // Close the input field without saving changes.
+    @objc private func cancel() {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? DateInputView else { return }
+        
+        // 2. If the user has made any changes, show an alert reminding the user that any changes will be lost.
         if view.startDateTextField.isEmpty() || view.endDateTextField.isEmpty() {
             
             dismiss(animated: true, completion: nil)
             
-        } else if let startDate = startDate, let endDate = endDate, startDate == startDatePicker.date, endDate == endDatePicker.date {
+        } else if let startDate = eventInput?.startDate, let endDate = eventInput?.endDate, startDate == view.startDatePicker.date, endDate == view.endDatePicker.date {
             
             dismiss(animated: true, completion: nil)
             
@@ -272,10 +189,13 @@ final class DateInputViewController: UIViewController {
         
     }
     
+    // Close the input field and save changes by calling the return closure.
     @objc private func save() {
     
+        // 1. Safe casting root view to custom view.
         guard let view = view as? DateInputView else { return }
         
+        // 2. If any dates are missing, or the start date is after the end date, or the duration is too small or too big show an error. Else, if changes have been made call the return closure.
         if view.startDateTextField.isEmpty() && view.endDateTextField.isEmpty() {
             
             let alertVC = AlertViewController(alertTitle: "Dates missing", alertMessage: "Please select a start and end date.")
@@ -294,31 +214,31 @@ final class DateInputViewController: UIViewController {
             
             self.present(alertVC, animated: true, completion: nil)
             
-        } else if startDatePicker.date.isAfterDate(endDatePicker.date, granularity: .minute) {
+        } else if view.startDatePicker.date.isAfterDate(view.endDatePicker.date, granularity: .minute) {
             
             let alertVC = AlertViewController(alertTitle: "Invalid date", alertMessage: "Start date should be prior to end date.")
             
             self.present(alertVC, animated: true, completion: nil)
         
-        } else if (startDatePicker.date + 30.minutes) > endDatePicker.date {
+        } else if (view.startDatePicker.date + view.minEventDuration) > view.endDatePicker.date {
             
             let alertVC = AlertViewController(alertTitle: "Ivalid duration", alertMessage: "The event has to be at least 30 minutes long.")
             
             self.present(alertVC, animated: true, completion: nil)
             
-        } else if (startDatePicker.date + 8.hours) < endDatePicker.date {
+        } else if (view.startDatePicker.date + view.maxEventDuration) < view.endDatePicker.date {
             
-            let alertVC = AlertViewController(alertTitle: "Ivalid duration", alertMessage: "The event has to be at most 8 hours long.")
+            let alertVC = AlertViewController(alertTitle: "Ivalid duration", alertMessage: "The event cannot be more than 8 hours long.")
             
             self.present(alertVC, animated: true, completion: nil)
             
-        } else if let startDate = startDate, let endDate = endDate, startDate == startDatePicker.date, endDate == endDatePicker.date {
+        } else if let startDate = eventInput?.startDate, let endDate = eventInput?.endDate, startDate == view.startDatePicker.date, endDate == view.endDatePicker.date {
             
             dismiss(animated: true, completion: nil)
             
         } else {
             
-            delegate?.setDate(startDate: startDatePicker.date, endDate: endDatePicker.date)
+            completionHandler?(view.startDatePicker.date, view.endDatePicker.date)
             dismiss(animated: true, completion: nil)
             
         }
@@ -327,23 +247,61 @@ final class DateInputViewController: UIViewController {
     
 }
 
-extension DateInputViewController: DateInputDelegate {
+extension DateInputViewController: UITextFieldDelegate {
     
-    func closeDatePicker() {
+    /**
+    Delegate function triggered when an input field begins editing. Update the picker bar view elements.
+
+    - Parameters:
+        - textField: Input field that began editing.
+    */
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         
-        guard let view = view as? DateInputView else { return }
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? DateInputView else { return false }
         
-        if view.startDateTextField.isFirstResponder {
+        if textField == view.startDateTextField {
             
-            setDate(from: startDatePicker)
-            view.endDateTextField.becomeFirstResponder()
+            view.typeLabel.text = "Start Date and Time"
+            view.actionButton.setTitle("Next", for: .normal)
             
-        } else if view.endDateTextField.isFirstResponder {
+            return true
             
-            setDate(from: endDatePicker)
-            view.startDateTextField.becomeFirstResponder()
+        } else if textField == view.endDateTextField {
+            
+            view.typeLabel.text = "End Date and Time"
+            view.actionButton.setTitle("Back", for: .normal)
+            
+            return true
             
         }
+        
+        return false
+        
+    }
+    
+    /**
+    Delegate function triggered when an input field finishes editing. Format the date returned from the respective date picker and assign it to the text field.
+
+    - Parameters:
+        - textField: Input field that finished editing.
+    */
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? DateInputView else { return true }
+        
+        if textField == view.startDateTextField {
+            
+            setDate(from: view.startDatePicker)
+            
+        } else if textField == view.endDateTextField {
+            
+            setDate(from: view.endDatePicker)
+            
+        }
+        
+        return true
         
     }
     

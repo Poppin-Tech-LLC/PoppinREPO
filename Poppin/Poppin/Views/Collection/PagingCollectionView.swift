@@ -93,18 +93,10 @@ final class SearchPageCell: UICollectionViewCell {
         
     }()
     
-    lazy private(set) var searchTableView: SelfSizedTableView = {
+    lazy private(set) var searchTableView: TableView = {
         
-        var searchTableView = SelfSizedTableView()
-        searchTableView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 16.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.3, shadowRadius: 8.0)
-        searchTableView.isScrollEnabled = true
-        searchTableView.clipsToBounds = true
-        searchTableView.separatorColor = UIColor.mainDARKPURPLE.withAlphaComponent(0.7)
-        searchTableView.backgroundColor = .white
-        searchTableView.rowHeight = UITableView.automaticDimension
-        searchTableView.estimatedRowHeight = UITableView.automaticDimension
+        var searchTableView = TableView(bgColor: .white, cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0), separatorColor: .mainDARKPURPLE)
         searchTableView.register(UserSearchCell.self, forCellReuseIdentifier: UserSearchCell.cellIdentifier)
-        
         return searchTableView
         
     }()

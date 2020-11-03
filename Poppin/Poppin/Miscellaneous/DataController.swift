@@ -62,7 +62,7 @@ class DataController{
           appDelegate.persistentContainer.viewContext
         
         let entity =
-        NSEntityDescription.entity(forEntityName: "User",
+        NSEntityDescription.entity(forEntityName: "UserCoreData",
                            in: managedContext)!
         
         let userData = NSManagedObject(entity: entity, insertInto: managedContext)

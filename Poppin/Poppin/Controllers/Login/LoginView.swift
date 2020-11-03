@@ -25,7 +25,7 @@ final class LoginView: UIView {
     lazy private var backgroundView = UIImageView(image: UIImage.appBackground.scalePreservingAspectRatio(targetSize: CGSize(width: .width(percent: 100), height: .height(percent: 100))))
     
     // Card container.
-    lazy private var cardView: UIView = {
+    lazy private var cardView: CardView = {
        
         let cardView = CardView(bgColor: .white, padding: UIEdgeInsets(top: .width(percent: 6.0), left: .width(percent: 9.0), bottom: 0.0, right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
         

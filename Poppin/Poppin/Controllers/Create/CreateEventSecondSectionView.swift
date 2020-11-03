@@ -10,11 +10,617 @@ import UIKit
 import SwiftUI
 import MapKit
 
+/// Second Section of the Create Event Page (Title, Date, Location, Online Link, and Details) UI.
+final class CreateEventSecondSectionView: UIView {
+    
+    /// Event annotation representing the current selected location.
+    lazy private(set) var eventAnnotation = EventAnnotation(id: nil, location: MapViewController.defaultMapViewCenterLocation, category: EventCategory.allCases[0])
+    
+    // Card container.
+    lazy private var cardView: CardView = {
+        
+        let cardView = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[0], padding: UIEdgeInsets(top: 0.0, left: .width(percent: 8.0), bottom: .width(percent: 3.0), right: .width(percent: 9.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: UIColor.gray.withAlphaComponent(0.4), radius: 4.0, x: 0.0, y: 1.0))
+        
+        // 1. Add subviews to the card view (each one on top of the others).
+        _ = [contentStack, navigationBar, createButton].map { cardView.addSubview($0) }
+        
+        // 2. Apply constraints.
+        navigationBar.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, trailing: cardView.trailingAnchor)
+        
+        contentStack.anchor(top: navigationBar.bottomAnchor, leading: cardView.layoutMarginsGuide.leadingAnchor, bottom: cardView.bottomAnchor, trailing: cardView.layoutMarginsGuide.trailingAnchor)
+        
+        createButton.anchor(bottom: cardView.layoutMarginsGuide.bottomAnchor, centerX: cardView.centerXAnchor)
+        
+        return cardView
+        
+    }()
+    
+    /// Top bar containing the back button and a tag with the event type and visibility.
+    lazy private var navigationBar: CardView = {
+        
+        let navigationBar = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[0], padding: .zero, cornerRadius: 0.0, shadow: Shadow(color: EventCategory.allCases[0].getGradientColors()[1].withAlphaComponent(0.6), radius: 4.0, x: 0.0, y: 1.0))
+        navigationBar.layer.shadowOpacity = 0.0
+        
+        navigationBar.addSubview(backButton)
+        backButton.anchor(top: navigationBar.topAnchor, leading: navigationBar.leadingAnchor, bottom: navigationBar.bottomAnchor)
+        
+        navigationBar.addSubview(topTag)
+        topTag.anchor(top: backButton.topAnchor, bottom: backButton.bottomAnchor, centerX: navigationBar.centerXAnchor, padding: UIEdgeInsets(top: backButton.padding.top, left: 0.0, bottom: backButton.padding.bottom, right: 0.0))
+        
+        return navigationBar
+        
+    }()
+    
+    /// Button that transitions to the previous section of the create event.
+    lazy private(set) var backButton: OctarineButton = {
+        
+        let backButton = OctarineButton(bgColor: .clear, label: nil, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)))
+        backButton.setImage(UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal), for: .normal)
+        return backButton
+        
+    }()
+    
+    // Tag that specifies whether the event is public/private and live/online.
+    lazy private var topTag: CardView = {
+        
+        let visibilityStack = StackView(subviews: [visibilityIcon, visibilityLabel], axis: .horizontal, alignment: .center, distribution: .fill, spacing: .width(percent: 2.0), padding: .zero)
+        
+        let separator = CardView(bgColor: .white, padding: .zero, cornerRadius: 1.0)
+        separator.anchor(size: CGSize(width: 2.0, height: 0.0))
+        
+        let formatStack = StackView(subviews: [formatIcon, formatLabel], axis: .horizontal, alignment: .center, distribution: .fill, spacing: .width(percent: 2.0), padding: .zero)
+        
+        let contentStack = StackView(subviews: [visibilityStack, separator, formatStack], axis: .horizontal, alignment: .fill, distribution: .fill, spacing: .width(percent: 3.0), padding: .zero)
+        
+        let topTag = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[1], padding: UIEdgeInsets(top: .width(percent: 1.5), left: .width(percent: 2.5), bottom: .width(percent: 1.5), right: .width(percent: 2.5)), cornerRadius: .width(percent: 3))
+        
+        topTag.addSubview(contentStack)
+        contentStack.anchor(top: topTag.layoutMarginsGuide.topAnchor, leading: topTag.layoutMarginsGuide.leadingAnchor, bottom: topTag.layoutMarginsGuide.bottomAnchor, trailing: topTag.layoutMarginsGuide.trailingAnchor)
+        return topTag
+        
+    }()
+    
+    /// Symbol representing whether the event is public (globe) or private (lock).
+    lazy private(set) var visibilityIcon = UIImageView(image: UIImage(systemSymbol: .globe, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal))
+    
+    /// Public or private.
+    lazy private(set) var visibilityLabel = OctarineLabel(text: "Public", color: .white, bold: true, style: .caption1, alignment: .center, lineLimit: 1)
+    
+    /// Symbol representing whether the event is live (people) or online (screen).
+    lazy private(set) var formatIcon = UIImageView(image: UIImage(systemSymbol: .person3Fill, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal))
+    
+    /// Live or online.
+    lazy private(set) var formatLabel = OctarineLabel(text: "Live", color: .white, bold: true, style: .caption1, alignment: .center, lineLimit: 1)
+    
+    // Content scrollable stack.
+    lazy private(set) var contentStack: ScrollableStackView = {
+        
+        let contentStack = ScrollableStackView(stackView: StackView(subviews: [titleButton, popsicleBorder, dateButton, locationContainer, locationButtonContainer, onlineURLContainer, onlineURLButtonContainer, detailsButton], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 4.0), padding: .zero), padding: UIEdgeInsets(top: .width(percent: 1.0), left: 0.0, bottom: createButton.intrinsicContentSize.height*1.5, right: 0.0))
+        contentStack.delegate = self
+        contentStack.stackView.setCustomSpacing(.width(percent: 1.0), after: titleButton)
+        contentStack.stackView.setCustomSpacing(.width(percent: 1.0), after: popsicleBorder)
+        contentStack.stackView.setCustomSpacing(0.0, after: locationContainer)
+        contentStack.stackView.setCustomSpacing(.width(percent: 6.0), after: locationButtonContainer)
+        contentStack.stackView.setCustomSpacing(0.0, after: onlineURLContainer)
+        return contentStack
+        
+    }()
+    
+    /// Displays the title of the event and when pressed, transitions to another page for edition. By default, the button shows a placeholder icon and label.
+    lazy private(set) var titleButton: OctarineButton = {
+        
+        let pencil = NSTextAttachment()
+        pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+        let placeholderTitle = NSMutableAttributedString(string: "Add Title ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline), .foregroundColor: UIColor.white])
+        placeholderTitle.append(NSAttributedString(attachment: pencil))
+        
+        let titleButton = OctarineButton(bgColor: EventCategory.allCases[0].getGradientColors()[0], label: OctarineLabel(color: .white, bold: true, style: .headline, alignment: .center, lineLimit: 0), padding: UIEdgeInsets(top: .width(percent: 1.5), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)), cornerRadius: .width(percent: 2.0))
+        titleButton.setAttributedTitle(placeholderTitle, for: .normal)
+        return titleButton
+        
+    }()
+    
+    // Separates the title and description labels.
+    lazy private var popsicleBorder = PopsicleBorderView(with: EventCategory.allCases[0].getGradientColors()[1], .headline)
+    
+    /// Displays the start and end date of the event in a formatted fashion and when pressed, transitions to another page for edition. By default, the button shows a placeholder icon and label.
+    lazy private(set) var dateButton: OctarineButton = {
+        
+        let pencil = NSTextAttachment()
+        pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Light", style: .callout).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+        let placeholderTitle = NSMutableAttributedString(string: "Add Date ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Light", style: .callout), .foregroundColor: UIColor.white])
+        placeholderTitle.append(NSAttributedString(attachment: pencil))
+        
+        let dateButton = OctarineButton(bgColor: EventCategory.allCases[0].getGradientColors()[0], label: OctarineLabel(color: .white, bold: false, style: .callout, alignment: .center, lineLimit: 0), padding: UIEdgeInsets(top: .width(percent: 2.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)), cornerRadius: .width(percent: 2.0))
+        dateButton.setAttributedTitle(placeholderTitle, for: .normal)
+        return dateButton
+        
+    }()
+    
+    // Container holding the event address label and a map.
+    lazy private var locationContainer: CardView = {
+        
+        let contentStack = StackView(subviews: [locationLabel, locationMapView], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 1.5), padding: NSDirectionalEdgeInsets(top: .width(percent: 1.5), leading: .width(percent: 1.5), bottom: .width(percent: 1.5), trailing: .width(percent: 1.5)))
+        
+        let locationContainer = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[1], cornerRadius: .width(percent: 4.0))
+        
+        // 1. Add subviews.
+        _ = [contentStack].map { locationContainer.addSubview($0) }
+        
+        // 2. Apply constraints.
+        contentStack.attatchEdgesToSuperview()
+        return locationContainer
+        
+    }()
+    
+    /// Displays the location address of the event. By default, it shows placeholder text.
+    lazy private(set) var locationLabel = OctarineLabel(text: "Location", color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1)
+    
+    /// Map showing the location of the event (marked with a popsicle annotation). Defaults to the middle of campus.
+    lazy private(set) var locationMapView: MapView = {
+        
+        let locationMapView = MapView(center: MapViewController.defaultMapViewCenterLocation, radius: 200.0, showsUserLocation: false, tapAction: nil)
+        locationMapView.addShadowAndRoundCorners(cornerRadius: .width(percent: 3.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        locationMapView.layer.masksToBounds = true
+        return locationMapView
+        
+    }()
+    
+    // Container for the location button (allows custom width for the button).
+    lazy private var locationButtonContainer: UIView = {
+        
+        let locationButtonContainer = UIView()
+        locationButtonContainer.backgroundColor = .clear
+        locationButtonContainer.addSubview(locationButton)
+        locationButton.anchor(top: locationButtonContainer.topAnchor, bottom: locationButtonContainer.bottomAnchor, centerX: locationButtonContainer.centerXAnchor)
+        return locationButtonContainer
+        
+    }()
+    
+    /// When pressed, transitions to another page for edition. By default, the button shows a placeholder icon and label.
+    lazy private(set) var locationButton: OctarineButton = {
+        
+        let pencil = NSTextAttachment()
+        pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+        let placeholderTitle = NSMutableAttributedString(string: "Add ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline), .foregroundColor: UIColor.white])
+        placeholderTitle.append(NSAttributedString(attachment: pencil))
+        
+        let locationButton = OctarineButton(bgColor: EventCategory.allCases[0].getGradientColors()[1], label: OctarineLabel(color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 1.5), left: .width(percent: 3.0), bottom: .width(percent: 1.5), right: .width(percent: 3.0)))
+        locationButton.shouldBounce = false
+        locationButton.setAttributedTitle(placeholderTitle, for: .normal)
+        locationButton.addShadowAndRoundCorners(cornerRadius: .width(percent: 3.5), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        return locationButton
+        
+    }()
+    
+    // Container holding the event online URL.
+    lazy private var onlineURLContainer: CardView = {
+        
+        let contentStack = StackView(subviews: [onlineURLLabel, onlineURLTextView], axis: .vertical, alignment: .fill, distribution: .fill, spacing: .width(percent: 1.5), padding: NSDirectionalEdgeInsets(top: .width(percent: 1.5), leading: .width(percent: 1.5), bottom: .width(percent: 1.5), trailing: .width(percent: 1.5)))
+        
+        let onlineURLContainer = CardView(bgColor: EventCategory.allCases[0].getGradientColors()[1], cornerRadius: .width(percent: 4.0))
+        
+        // 1. Add subviews.
+        _ = [contentStack].map { onlineURLContainer.addSubview($0) }
+        
+        // 2. Apply constraints.
+        contentStack.attatchEdgesToSuperview()
+        
+        return onlineURLContainer
+        
+    }()
+    
+    // Title of the online URL container.
+    lazy private var onlineURLLabel = OctarineLabel(text: "Online Event Link", color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1)
+    
+    /// Displays the online URL of the event (if any). When pressed, it opens the link on a safari page. By defaults, it shows a disclaimer message explaining the purpose of the link.
+    lazy private(set) var onlineURLTextView: UITextView = {
+        
+        let onlineURLTextView = UITextView()
+        onlineURLTextView.textColor = .white
+        onlineURLTextView.backgroundColor = EventCategory.allCases[0].getGradientColors()[0]
+        onlineURLTextView.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
+        onlineURLTextView.text = "Your event can take place online by adding a link. The physical location you enter will only be informative and help people find your event."
+        onlineURLTextView.addShadowAndRoundCorners(cornerRadius: .width(percent: 4.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        onlineURLTextView.linkTextAttributes = [.foregroundColor: UIColor.white, .underlineStyle : NSUnderlineStyle.single.rawValue]
+        onlineURLTextView.textAlignment = .center
+        onlineURLTextView.isScrollEnabled = false
+        onlineURLTextView.dataDetectorTypes = .link
+        onlineURLTextView.isSelectable = true
+        onlineURLTextView.isEditable = false
+        onlineURLTextView.autocapitalizationType = .none
+        onlineURLTextView.autocorrectionType = .no
+        return onlineURLTextView
+        
+    }()
+    
+    // Container for the location button (allows custom width for the button).
+    lazy private var onlineURLButtonContainer: UIView = {
+        
+        let onlineURLButtonContainer = UIView()
+        onlineURLButtonContainer.backgroundColor = .clear
+        onlineURLButtonContainer.addSubview(onlineURLButton)
+        onlineURLButton.anchor(top: onlineURLButtonContainer.topAnchor, bottom: onlineURLButtonContainer.bottomAnchor, centerX: onlineURLButtonContainer.centerXAnchor)
+        return onlineURLButtonContainer
+        
+    }()
+    
+    /// When pressed, transitions to another page for edition. By default, the button shows a placeholder icon and label.
+    lazy private(set) var onlineURLButton: OctarineButton = {
+        
+        let pencil = NSTextAttachment()
+        pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+        let placeholderTitle = NSMutableAttributedString(string: "Add ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline), .foregroundColor: UIColor.white])
+        placeholderTitle.append(NSAttributedString(attachment: pencil))
+        
+        let onlineURLButton = OctarineButton(bgColor: EventCategory.allCases[0].getGradientColors()[1], label: OctarineLabel(color: .white, bold: true, style: .subheadline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 1.5), left: .width(percent: 3.0), bottom: .width(percent: 1.5), right: .width(percent: 3.0)))
+        onlineURLButton.shouldBounce = false
+        onlineURLButton.setAttributedTitle(placeholderTitle, for: .normal)
+        onlineURLButton.addShadowAndRoundCorners(cornerRadius: .width(percent: 3.5), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
+        return onlineURLButton
+        
+    }()
+    
+    /// Displays the details of the event and when pressed, transitions to another page for edition. By default, the button shows a placeholder icon and label.
+    lazy private(set) var detailsButton: OctarineButton = {
+        
+        let pencil = NSTextAttachment()
+        pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Light", style: .headline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+        let placeholderTitle = NSMutableAttributedString(string: "Add Details ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Light", style: .headline), .foregroundColor: UIColor.white])
+        placeholderTitle.append(NSAttributedString(attachment: pencil))
+        
+        let detailsButton = OctarineButton(bgColor: EventCategory.allCases[0].getGradientColors()[0], label: OctarineLabel(color: .white, bold: false, style: .headline, alignment: .center, lineLimit: 0), padding: UIEdgeInsets(top: .width(percent: 2.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)), cornerRadius: .width(percent: 2.0))
+        detailsButton.setAttributedTitle(placeholderTitle, for: .normal)
+        return detailsButton
+        
+    }()
+    
+    /// Once all required input has been entered, creates the event and updates the database.
+    lazy private(set) var createButton = LoadingButton(bgColor: .white, label: OctarineLabel(text: "Create", color: EventCategory.allCases[0].getGradientColors()[1], bold: true, style: .headline, alignment: .center, lineLimit: 1), padding: UIEdgeInsets(top: .width(percent: 2.0), left: .width(percent: 4.0), bottom: .width(percent: 2.0), right: .width(percent: 4.0)), cornerRadius: .width(percent: 4.0), shadow: Shadow(color: EventCategory.allCases[0].getGradientColors()[1], radius: 6.0, x: 0.0, y: 0.0))
+    
+    /**
+    Overrides superclass initializer to configure the UI.
+
+    - Parameter frame: Ignored by AutoLayout (default it to .zero)
+    */
+    override init(frame: CGRect) {
+        
+        super.init(frame: frame)
+        
+        configureView()
+        
+    }
+    
+    /**
+    Required init?(coder:) not implemented (storyboard not available). WIll throw a fatal error.
+
+    - Parameter coder: NSCoder from storyboard.
+    */
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // Configures UI.
+    private func configureView() {
+     
+        // 1. Sets the color of the background to the current event category (defaults to culture purple).
+        backgroundColor = EventCategory.allCases[0].getGradientColors()[1]
+        
+        // 2. Add subviews to the root view.
+        addSubview(cardView)
+        
+        // 3. Apply constraints.
+        cardView.anchor(top: safeAreaLayoutGuide.topAnchor, leading: safeAreaLayoutGuide.leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: safeAreaLayoutGuide.trailingAnchor, padding: UIEdgeInsets(top: .width(percent: 3.0), left: .width(percent: 4.0), bottom: .width(percent: 3.0), right: .width(percent: 4.0)))
+        
+        locationMapView.anchor(height: heightAnchor, multiples: CGSize(width: 1.0, height: 0.15))
+        
+    }
+    
+    /// Updates the UI according to the current input entered for the event being created. If any values are nil, default ones are used.
+    func updateUI(eventInput: EventModel?) {
+        
+        let lightColor = eventInput?.category?.getGradientColors()[0] ?? EventCategory.allCases[0].getGradientColors()[0]
+        let highlightedColor = lightColor.darkerColor(percent: 0.1)
+        let darkColor = eventInput?.category?.getGradientColors()[1] ?? EventCategory.allCases[0].getGradientColors()[1]
+        
+        // 1. Change background and card color.
+        backgroundColor = darkColor
+        cardView.backgroundColor = lightColor
+        
+        // 2. Update navigation bar.
+        navigationBar.backgroundColor = lightColor
+        navigationBar.layer.shadowColor = darkColor.withAlphaComponent(0.6).cgColor
+        
+        // 3. Update top tag.
+        topTag.backgroundColor = darkColor
+        
+        // 4. Update visibility icon and label.
+        update(visibility: eventInput?.isPublic)
+        
+        // 5. Update event format icon and label.
+        update(format: eventInput?.onlineURL != nil)
+        
+        // 6. Update title button.
+        titleButton.backgroundColor = lightColor
+        titleButton.highlightedColor = highlightedColor
+        titleButton.nonHighlightedColor = lightColor
+        
+        update(title: eventInput?.title)
+        
+        // 7. Update popsicle border view.
+        popsicleBorder.borderTraits.0 = darkColor
+        
+        // 8. Update date button.
+        dateButton.backgroundColor = lightColor
+        dateButton.highlightedColor = highlightedColor
+        dateButton.nonHighlightedColor = lightColor
+        
+        update(startDate: eventInput?.startDate, endDate: eventInput?.endDate)
+        
+        // 9. Update location container.
+        locationContainer.backgroundColor = darkColor
+        
+        // 10. Update event annotation.
+        eventAnnotation.category = eventInput?.category ?? EventCategory.allCases[0]
+        
+        // 11. Update location label, map, and button.
+        locationLabel.text = "Location"
+        locationButton.backgroundColor = darkColor
+        locationButton.highlightedColor = darkColor.darkerColor(percent: 0.1)
+        locationButton.nonHighlightedColor = darkColor
+        
+        update(location: eventInput?.location, address: nil)
+        
+        // 12. Update online URL container.
+        onlineURLContainer.backgroundColor = darkColor
+        
+        // 13. Update online URL text view and button.
+        onlineURLTextView.backgroundColor = lightColor
+        onlineURLButton.backgroundColor = darkColor
+        onlineURLButton.highlightedColor = darkColor.darkerColor(percent: 0.1)
+        onlineURLButton.nonHighlightedColor = darkColor
+        
+        update(onlineURL: eventInput?.onlineURL)
+        
+        // 14. Update details button.
+        detailsButton.backgroundColor = lightColor
+        detailsButton.highlightedColor = highlightedColor
+        detailsButton.nonHighlightedColor = lightColor
+        
+        update(details: eventInput?.details)
+        
+        // 15. Update create button.
+        createButton.setTitleColor(darkColor, for: .normal)
+        createButton.layer.shadowColor = darkColor.cgColor
+        
+    }
+    
+    func update(visibility isPublic: Bool?) {
+        
+        if let isPublic = isPublic, !isPublic {
+            
+            visibilityIcon.image = UIImage(systemSymbol: .lockFill, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal)
+            visibilityLabel.text = "Private"
+            
+        } else {
+            
+            visibilityIcon.image = UIImage(systemSymbol: .globe, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal)
+            visibilityLabel.text = "Public"
+            
+        }
+        
+    }
+    
+    func update(format isOnline: Bool?) {
+        
+        if let isOnline = isOnline, isOnline {
+            
+            formatIcon.image = UIImage(systemSymbol: .personCropRectangle, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal)
+            formatLabel.text = "Online"
+            
+        } else {
+            
+            formatIcon.image = UIImage(systemSymbol: .person3Fill, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .caption1).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal)
+            formatLabel.text = "Live"
+            
+        }
+        
+    }
+    
+    func update(title: String?) {
+        
+        if let title = title {
+            
+            titleButton.setAttributedTitle(nil, for: .normal)
+            titleButton.setTitle(title, for: .normal)
+            
+        } else {
+            
+            let pencil = NSTextAttachment()
+            pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+            let placeholderTitle = NSMutableAttributedString(string: "Add Title ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline), .foregroundColor: UIColor.white])
+            placeholderTitle.append(NSAttributedString(attachment: pencil))
+            
+            titleButton.setTitle(nil, for: .normal)
+            titleButton.setAttributedTitle(placeholderTitle, for: .normal)
+            
+        }
+        
+    }
+    
+    func update(startDate: Date?, endDate: Date?) {
+        
+        if let startDate = startDate, let endDate = endDate {
+            
+            dateButton.setAttributedTitle(nil, for: .normal)
+            dateButton.setTitle(Date.getFormattedDateInterval(start: startDate, end: endDate), for: .normal)
+            
+        } else {
+            
+            let pencil = NSTextAttachment()
+            pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Light", style: .callout).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+            let placeholderTitle = NSMutableAttributedString(string: "Add Date ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Light", style: .callout), .foregroundColor: UIColor.white])
+            placeholderTitle.append(NSAttributedString(attachment: pencil))
+            
+            dateButton.setTitle(nil, for: .normal)
+            dateButton.setAttributedTitle(placeholderTitle, for: .normal)
+            
+        }
+        
+    }
+    
+    func update(location: CLLocationCoordinate2D?, address: String?) {
+     
+        if let location = location {
+            
+            if let address = address {
+                
+                self.locationLabel.text = address
+                
+            } else {
+                
+                self.locationLabel.text = "Location"
+                
+                location.lookUpLocationAddress { [weak self] (address) in
+                    
+                    guard let self = self else { return }
+                    
+                    if let address = address {
+                        
+                        self.locationLabel.text = address
+                        
+                    } else {
+                        
+                        self.locationLabel.text = "Address Unavailable"
+                        
+                    }
+                    
+                }
+                
+            }
+            
+            locationMapView.removeAnnotations(locationMapView.annotations)
+            eventAnnotation.coordinate = location
+            locationMapView.updateBoundaryRegion(center: eventAnnotation.coordinate, radius: 200.0, animated: false)
+            locationMapView.addAnnotation(eventAnnotation)
+            locationMapView.updateVisibleRegion(center: CLLocationCoordinate2D(latitude: eventAnnotation.coordinate.latitude + 0.00015, longitude: eventAnnotation.coordinate.longitude), radius: 200.0, animated: true)
+            
+            locationButton.setAttributedTitle(nil, for: .normal)
+            locationButton.setTitle("Edit", for: .normal)
+            
+        } else {
+            
+            locationMapView.removeAnnotations(locationMapView.annotations)
+            
+            locationMapView.updateBoundaryRegion(center: MapViewController.defaultMapViewCenterLocation, radius: 200.0, animated: false)
+            
+            locationMapView.updateVisibleRegion(center: MapViewController.defaultMapViewCenterLocation, radius: 200.0, animated: true)
+            
+            let pencil = NSTextAttachment()
+            pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+            let placeholderTitle = NSMutableAttributedString(string: "Add ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline), .foregroundColor: UIColor.white])
+            placeholderTitle.append(NSAttributedString(attachment: pencil))
+            
+            locationButton.setTitle(nil, for: .normal)
+            locationButton.setAttributedTitle(placeholderTitle, for: .normal)
+            
+        }
+        
+    }
+    
+    func update(onlineURL: URL?) {
+        
+        update(format: onlineURL != nil)
+     
+        if let onlineURL = onlineURL {
+            
+            onlineURLTextView.text = onlineURL.absoluteString
+            
+            onlineURLButton.setAttributedTitle(nil, for: .normal)
+            onlineURLButton.setTitle("Edit", for: .normal)
+            
+        } else {
+            
+            onlineURLTextView.text = "Your event can take place online by adding a link. The physical location you enter will only be informative and help people find your event."
+            
+            let pencil = NSTextAttachment()
+            pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+            let placeholderTitle = NSMutableAttributedString(string: "Add ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline), .foregroundColor: UIColor.white])
+            placeholderTitle.append(NSAttributedString(attachment: pencil))
+            
+            onlineURLButton.setTitle(nil, for: .normal)
+            onlineURLButton.setAttributedTitle(placeholderTitle, for: .normal)
+            
+        }
+        
+    }
+    
+    func update(details: String?) {
+        
+        if let details = details {
+            
+            detailsButton.setAttributedTitle(nil, for: .normal)
+            detailsButton.setTitle(details, for: .normal)
+            
+        } else {
+            
+            let pencil = NSTextAttachment()
+            pencil.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Light", style: .headline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
+
+            let placeholderTitle = NSMutableAttributedString(string: "Add Details ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Light", style: .headline), .foregroundColor: UIColor.white])
+            placeholderTitle.append(NSAttributedString(attachment: pencil))
+            
+            detailsButton.setTitle(nil, for: .normal)
+            detailsButton.setAttributedTitle(placeholderTitle, for: .normal)
+            
+        }
+        
+    }
+    
+}
+
+extension CreateEventSecondSectionView: UIScrollViewDelegate {
+    
+    /**
+    Delegate function triggered when the scroll view scrolls. Depending on the position of the scrollable content, the navigation bar drops a shadow.
+
+    - Parameters:
+        - scrollView: Scroll view that scrolled.
+    */
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        if scrollView.contentOffset.y >= 0.0, scrollView.contentOffset.y <= scrollView.contentInset.top {
+         
+            navigationBar.layer.shadowOpacity = Float(scrollView.contentOffset.y / scrollView.contentInset.top)
+            
+        } else if scrollView.contentOffset.y < 0.0 {
+            
+            navigationBar.layer.shadowOpacity = 0.0
+            
+        } else {
+            
+            navigationBar.layer.shadowOpacity = 1.0
+            
+        }
+        
+    }
+    
+}
+
 struct PreviewCreateEventSecondSectionView: UIViewRepresentable {
     
     func makeUIView(context: Context) -> UIViewType {
         
-        return UIViewType(eventModel: EventModel())
+        return UIViewType()
         
     }
     
@@ -34,669 +640,5 @@ struct TestPreviewCreateEventSecondSectionView: PreviewProvider {
     }
     
     typealias Previews = PreviewCreateEventSecondSectionView
-    
-}
-
-final class CreateEventSecondSectionView: UIView {
-    
-    let xInset: CGFloat = .getPercentageWidth(percentage: 5)
-    let yInset: CGFloat = .getPercentageWidth(percentage: 4)
-    
-    private var eventModel = EventModel()
-    
-    lazy private var cardView: UIView = {
-        
-        let topFadeEdgeView = FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: true)
-        let bottomFadeEdgeView = FadeEdgeView(color: (eventModel.category ?? EventCategory.Culture).getGradientColors()[0], top: false)
-        
-        var cardView = UIView()
-        cardView.clipsToBounds = true
-        cardView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
-        cardView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
-        
-        cardView.addSubview(cardScrollView)
-        cardScrollView.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, bottom: cardView.bottomAnchor, trailing: cardView.trailingAnchor, padding: UIEdgeInsets(top: -yInset*1.5, left: xInset, bottom: 0.0, right: xInset))
-        
-        cardView.addSubview(topFadeEdgeView)
-        topFadeEdgeView.anchor(top: cardView.topAnchor, leading: cardView.leadingAnchor, trailing: cardView.trailingAnchor)
-        
-        cardView.addSubview(bottomFadeEdgeView)
-        bottomFadeEdgeView.anchor(leading: cardView.leadingAnchor, bottom: cardView.bottomAnchor, trailing: cardView.trailingAnchor)
-        
-        cardView.addSubview(topTagView)
-        topTagView.anchor(top: cardView.topAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: yInset, left: 0.0, bottom: 0.0, right: 0.0))
-        topFadeEdgeView.anchor(height: topTagView.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
-        
-        cardView.addSubview(backButton)
-        backButton.anchor(leading: cardView.leadingAnchor, centerY: topTagView.centerYAnchor, padding: UIEdgeInsets(top: 0.0, left: xInset-(yInset*0.5), bottom: 0.0, right: 0.0))
-        
-        cardView.addSubview(createButton)
-        createButton.anchor(bottom: cardView.bottomAnchor, centerX: cardView.centerXAnchor, padding: UIEdgeInsets(top: 0.0, left: 0.0, bottom: yInset, right: 0.0))
-        bottomFadeEdgeView.anchor(height: createButton.heightAnchor, constants: CGSize(width: 0.0, height: yInset*2))
-        
-        return cardView
-        
-    }()
-    
-    lazy private var topTagView: UIView = {
-        
-        let xInnerInset = xInset*0.6
-        let yInnerInset = yInset*0.5
-        
-        let visibilityStackView: UIStackView = UIStackView(arrangedSubviews: [visibilityIconImageView, visibilityLabel])
-        visibilityStackView.alignment = .center
-        visibilityStackView.axis = .horizontal
-        visibilityStackView.distribution = .fill
-        visibilityStackView.spacing = xInnerInset*0.5
-        
-        let separatorView = UIView()
-        separatorView.backgroundColor = .white
-        separatorView.anchor(size: CGSize(width: 2.0, height: 0.0))
-        
-        let formatStackView: UIStackView = UIStackView(arrangedSubviews: [formatIconImageView, formatLabel])
-        formatStackView.alignment = .fill
-        formatStackView.axis = .horizontal
-        formatStackView.distribution = .fill
-        formatStackView.spacing = xInnerInset*0.5
-        
-        let visibilityAndFormatStackView = UIStackView(arrangedSubviews: [visibilityStackView, separatorView, formatStackView])
-        visibilityAndFormatStackView.axis = .horizontal
-        visibilityAndFormatStackView.alignment = .fill
-        visibilityAndFormatStackView.distribution = .fill
-        visibilityAndFormatStackView.spacing = xInnerInset
-        
-        var topTagView = UIView()
-        topTagView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
-        topTagView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 14.0), shadowOpacity: 0.0, topRightMask: true, topLeftMask: true, bottomRightMask: true, bottomLeftMask: true)
-        
-        topTagView.addSubview(visibilityAndFormatStackView)
-        visibilityAndFormatStackView.anchor(top: topTagView.topAnchor, leading: topTagView.leadingAnchor, bottom: topTagView.bottomAnchor, trailing: topTagView.trailingAnchor, padding: UIEdgeInsets(top: yInnerInset, left: xInnerInset, bottom: yInnerInset, right: xInnerInset*1.1))
-        
-        return topTagView
-        
-    }()
-    
-    lazy private(set) var visibilityIconImageView: UIImageView = {
-        
-        let visibilityIcon: UIImage
-        
-        if eventModel.isPublic {
-            
-            visibilityIcon = UIImage(systemSymbol: .globe).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
-            
-        } else {
-            
-            visibilityIcon = UIImage(systemSymbol: .lockFill).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
-            
-        }
-        
-        var visibilityIconImageView: UIImageView = UIImageView(image: visibilityIcon)
-        visibilityIconImageView.contentMode = .scaleAspectFit
-        visibilityIconImageView.anchor(size: CGSize(width: 0.0, height: visibilityLabel.intrinsicContentSize.height))
-        return visibilityIconImageView
-        
-    }()
-    
-    lazy private(set) var visibilityLabel: UILabel = {
-        
-        var visibilityLabel: UILabel = UILabel()
-        
-        if eventModel.isPublic {
-            
-            visibilityLabel.text = "Public"
-            
-        } else {
-            
-            visibilityLabel.text = "Private"
-            
-        }
-        
-        visibilityLabel.font = .dynamicFont(with: "Octarine-Bold", style: .caption1)
-        visibilityLabel.numberOfLines = 1
-        visibilityLabel.textAlignment = .center
-        visibilityLabel.textColor = .white
-        return visibilityLabel
-        
-    }()
-    
-    lazy private(set) var formatIconImageView: UIImageView = {
-        
-        let formatIcon: UIImage
-        
-        if eventModel.onlineURL == nil {
-            
-            formatIcon = UIImage(systemSymbol: .person3Fill).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
-            
-        } else {
-            
-            formatIcon = UIImage(systemSymbol: .personCropRectangle).withTintColor(UIColor.white, renderingMode: .alwaysOriginal)
-            
-        }
-        
-        var formatIconImageView: UIImageView = UIImageView(image: formatIcon)
-        formatIconImageView.contentMode = .scaleAspectFit
-        formatIconImageView.anchor(size: CGSize(width: 0.0, height: formatLabel.intrinsicContentSize.height))
-        return formatIconImageView
-        
-    }()
-    
-    lazy private(set) var formatLabel: UILabel = {
-        
-        let formatLabel: UILabel = UILabel()
-        
-        if eventModel.onlineURL == nil {
-            
-            formatLabel.text = "Live"
-            
-        } else {
-            
-            formatLabel.text = "Online"
-            
-        }
-        
-        formatLabel.font = .dynamicFont(with: "Octarine-Bold", style: .caption1)
-        formatLabel.numberOfLines = 1
-        formatLabel.textAlignment = .center
-        formatLabel.textColor = .white
-        return formatLabel
-        
-    }()
-    
-    lazy private(set) var cardScrollView: UIScrollView = {
-        
-        let topSpacingView = UIView()
-        topSpacingView.backgroundColor = .clear
-        topSpacingView.anchor(size: CGSize(width: 0.0, height: yInset))
-        
-        let containerView = UIView()
-        containerView.backgroundColor = .clear
-        
-        containerView.addSubview(topSpacingView)
-        topSpacingView.anchor(top: containerView.topAnchor, leading: containerView.leadingAnchor, trailing: containerView.trailingAnchor)
-        
-        containerView.addSubview(containerStackView)
-        containerStackView.anchor(top: topSpacingView.bottomAnchor, leading: containerView.leadingAnchor, bottom: containerView.bottomAnchor, trailing: containerView.trailingAnchor)
-        
-        var cardScrollView = UIScrollView()
-        cardScrollView.alwaysBounceVertical = false
-        cardScrollView.showsVerticalScrollIndicator = false
-        cardScrollView.contentInset = UIEdgeInsets(top: visibilityLabel.intrinsicContentSize.height + (yInset*3.0), left: 0.0, bottom: createButton.intrinsicContentSize.height + (yInset*2), right: 0.0)
-        
-        cardScrollView.addSubview(containerView)
-        containerView.anchor(top: cardScrollView.topAnchor, leading: cardScrollView.leadingAnchor, bottom: cardScrollView.bottomAnchor, trailing: cardScrollView.trailingAnchor, width: cardScrollView.widthAnchor)
-        
-        return cardScrollView
-        
-    }()
-    
-    lazy private var containerStackView: UIStackView = {
-        
-        let editLocationButtonContainerView = UIView()
-        editLocationButtonContainerView.backgroundColor = .clear
-        editLocationButtonContainerView.addSubview(editLocationButton)
-        editLocationButton.anchor(top: editLocationButtonContainerView.topAnchor, bottom: editLocationButtonContainerView.bottomAnchor, centerX: editLocationButtonContainerView.centerXAnchor)
-        
-        let editOnlineURLButtonContainerView = UIView()
-        editOnlineURLButtonContainerView.backgroundColor = .clear
-        editOnlineURLButtonContainerView.addSubview(editOnlineURLButton)
-        editOnlineURLButton.anchor(top: editOnlineURLButtonContainerView.topAnchor, bottom: editOnlineURLButtonContainerView.bottomAnchor, centerX: editOnlineURLButtonContainerView.centerXAnchor)
-        
-        var containerStackView = UIStackView(arrangedSubviews: [titleTextView, popsicleBorderView, dateTextView, locationContainerView, editLocationButtonContainerView, onlineURLContainerView, editOnlineURLButtonContainerView, detailsTextView])
-        containerStackView.axis = .vertical
-        containerStackView.alignment = .fill
-        containerStackView.distribution = .fill
-        containerStackView.spacing = yInset*0.5
-        containerStackView.setCustomSpacing(0.0, after: locationContainerView)
-        containerStackView.setCustomSpacing(0.0, after: titleTextView)
-        containerStackView.setCustomSpacing(0.0, after: popsicleBorderView)
-        containerStackView.setCustomSpacing(yInset*0.8, after: editLocationButtonContainerView)
-        containerStackView.setCustomSpacing(0.0, after: onlineURLContainerView)
-        return containerStackView
-        
-    }()
-    
-    lazy private var popsicleBorderView: PopsicleBorderView = PopsicleBorderView(with: (eventModel.category ?? EventCategory.Culture).getGradientColors()[1], lineHeight: nil)
-    
-    lazy private(set) var titleTextView: UITextView = {
-        
-        let yInnerInset = yInset*0.5
-        let xInnerInset = xInset*0.5
-        
-        var titleTextView = UITextView()
-        titleTextView.backgroundColor = .clear
-        titleTextView.textColor = .white
-        titleTextView.font = .dynamicFont(with: "Octarine-Bold", style: .headline)
-        
-        if let title = eventModel.title {
-            
-            titleTextView.text = title
-            
-        } else {
-            
-            titleTextView.text = "Add Title"
-            
-            let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline).pointSize, weight: .heavy)).withTintColor(.white, renderingMode: .alwaysOriginal)
-
-            let fullString = NSMutableAttributedString(string: titleTextView.text + " ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Bold", style: .headline), .foregroundColor: UIColor.white])
-            fullString.append(NSAttributedString(attachment: imageAttachment))
-            
-            titleTextView.attributedText = fullString
-            
-        }
-        
-        titleTextView.returnKeyType = .done
-        titleTextView.textContainerInset = UIEdgeInsets(top: yInnerInset, left: xInnerInset, bottom: yInnerInset, right: xInnerInset)
-        titleTextView.isScrollEnabled = false
-        titleTextView.textAlignment = .center
-        titleTextView.autocapitalizationType = .none
-        titleTextView.autocorrectionType = .no
-        
-        return titleTextView
-        
-    }()
-    
-    lazy private(set) var dateTextView: UITextView = {
-        
-        let yInnerInset = yInset*0.5
-        let xInnerInset = xInset*0.5
-        
-        var dateTextView = UITextView()
-        dateTextView.font = UIFont.dynamicFont(with: "Octarine-Light", style: .callout)
-        dateTextView.backgroundColor = .clear
-        dateTextView.textColor = .white
-        dateTextView.textAlignment = .center
-        
-        if let startDate = eventModel.startDate, let endDate = eventModel.endDate, let formattedDate = Date.getFormattedDateInterval(start: startDate, end: endDate) {
-            
-            dateTextView.text = formattedDate
-            
-        } else {
-            
-            dateTextView.text = "Add Date"
-            
-            let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Light", style: .callout).pointSize, weight: .regular)).withTintColor(.white, renderingMode: .alwaysOriginal)
-
-            let fullString = NSMutableAttributedString(string: dateTextView.text + " ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Light", style: .callout), .foregroundColor: UIColor.white])
-            fullString.append(NSAttributedString(attachment: imageAttachment))
-            
-            dateTextView.attributedText = fullString
-            
-        }
-        
-        dateTextView.textContainerInset = UIEdgeInsets(top: yInnerInset, left: xInnerInset, bottom: yInnerInset, right: xInnerInset)
-        dateTextView.isScrollEnabled = false
-        dateTextView.textAlignment = .center
-        dateTextView.autocapitalizationType = .none
-        dateTextView.autocorrectionType = .no
-        return dateTextView
-        
-    }()
-    
-    lazy private var locationContainerView: UIView = {
-        
-        let innerInset: CGFloat = yInset*0.33
-        
-        var locationContainerView = UIView()
-        locationContainerView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
-        locationContainerView.clipsToBounds = true
-        locationContainerView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
-        
-        locationContainerView.addSubview(locationLabel)
-        locationLabel.anchor(top: locationContainerView.topAnchor, leading: locationContainerView.leadingAnchor, trailing: locationContainerView.trailingAnchor, padding: UIEdgeInsets(top: innerInset, left: innerInset, bottom: 0.0, right: innerInset))
-        
-        locationContainerView.addSubview(locationMapView)
-        locationMapView.anchor(top: locationLabel.bottomAnchor, leading: locationLabel.leadingAnchor, bottom: locationContainerView.bottomAnchor, trailing: locationLabel.trailingAnchor, padding: UIEdgeInsets(top: innerInset, left: 0.0, bottom: innerInset, right: 0.0))
-        
-        return locationContainerView
-        
-    }()
-    
-    lazy private(set) var locationLabel: UILabel = {
-        
-        var locationLabel = UILabel()
-        locationLabel.textAlignment = .center
-        locationLabel.backgroundColor = .clear
-        locationLabel.numberOfLines = 1
-        locationLabel.textColor = .white
-        locationLabel.text = "Location"
-        
-        if let location = eventModel.location {
-            
-            location.lookUpLocationAddress { (address) in
-                
-                if let address = address {
-                    
-                    locationLabel.text = address
-                    
-                } else {
-                    
-                    locationLabel.text = "Address Unavailable"
-                    
-                }
-                
-            }
-            
-        }
-        
-        locationLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        return locationLabel
-        
-    }()
-    
-    lazy private(set) var locationMapView: MKMapView = {
-        
-        var locationMapView = MKMapView()
-        locationMapView.isPitchEnabled = false
-        locationMapView.isRotateEnabled = false
-        locationMapView.cameraZoomRange = MKMapView.CameraZoomRange(minCenterCoordinateDistance: 0, maxCenterCoordinateDistance: MapViewController.defaultMapViewRegionRadius)
-        locationMapView.showsUserLocation = false
-        locationMapView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
-        locationMapView.layer.masksToBounds = true
-        return locationMapView
-        
-    }()
-    
-    lazy private(set) var editLocationButton: UIButton = {
-        
-        let innerInset: CGFloat = yInset*0.33
-        
-        var editLocationButton = UIButton(type: .system)
-        
-        if let location = eventModel.location {
-            
-            editLocationButton.setTitle("Edit", for: .normal)
-            
-        } else {
-            
-            editLocationButton.setTitle("Add", for: .normal)
-            
-        }
-        
-        editLocationButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        editLocationButton.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
-        editLocationButton.setTitleColor(.white, for: .normal)
-        editLocationButton.titleLabel?.textAlignment = .center
-        editLocationButton.contentEdgeInsets = UIEdgeInsets(top: innerInset*0.5, left: innerInset*2.5, bottom: innerInset, right: innerInset*2.5)
-        editLocationButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
-        return editLocationButton
-        
-    }()
-    
-    lazy private(set) var detailsTextView: UITextView = {
-        
-        let yInnerInset = yInset*0.5
-        let xInnerInset = xInset*0.5
-        
-        var detailsTextView = UITextView()
-        detailsTextView.backgroundColor = .clear
-        detailsTextView.textColor = .white
-        detailsTextView.font = .dynamicFont(with: "Octarine-Light", style: .headline)
-        
-        if let details = eventModel.details {
-            
-            detailsTextView.text = details
-            
-        } else {
-            
-            detailsTextView.text = "Add Details"
-            
-            let imageAttachment = NSTextAttachment()
-            imageAttachment.image = UIImage(systemSymbol: .pencil, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Light", style: .headline).pointSize, weight: .regular)).withTintColor(.white, renderingMode: .alwaysOriginal)
-
-            let fullString = NSMutableAttributedString(string: detailsTextView.text + " ", attributes: [.font: UIFont.dynamicFont(with: "Octarine-Light", style: .headline), .foregroundColor: UIColor.white])
-            fullString.append(NSAttributedString(attachment: imageAttachment))
-            
-            detailsTextView.attributedText = fullString
-            
-        }
-        
-        detailsTextView.textContainerInset = UIEdgeInsets(top: yInnerInset, left: xInnerInset, bottom: yInnerInset, right: xInnerInset)
-        detailsTextView.isScrollEnabled = false
-        detailsTextView.textAlignment = .center
-        detailsTextView.autocapitalizationType = .none
-        detailsTextView.autocorrectionType = .no
-        return detailsTextView
-        
-    }()
-    
-    lazy private var onlineURLContainerView: UIView = {
-        
-        let innerInset: CGFloat = yInset*0.33
-        
-        var onlineURLContainerView = UIView()
-        onlineURLContainerView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
-        onlineURLContainerView.clipsToBounds = true
-        onlineURLContainerView.layer.cornerRadius = .getWidthFitSize(minSize: 14.0, maxSize: 16.0)
-        
-        onlineURLContainerView.addSubview(onlineURLLabel)
-        onlineURLLabel.anchor(top: onlineURLContainerView.topAnchor, leading: onlineURLContainerView.leadingAnchor, trailing: onlineURLContainerView.trailingAnchor, padding: UIEdgeInsets(top: innerInset, left: innerInset, bottom: 0.0, right: innerInset))
-        
-        onlineURLContainerView.addSubview(onlineURLTextView)
-        onlineURLTextView.anchor(top: onlineURLLabel.bottomAnchor, leading: onlineURLLabel.leadingAnchor, bottom: onlineURLContainerView.bottomAnchor, trailing: onlineURLLabel.trailingAnchor, padding: UIEdgeInsets(top: innerInset, left: 0.0, bottom: innerInset, right: 0.0))
-        
-        return onlineURLContainerView
-        
-    }()
-    
-    lazy private(set) var onlineURLLabel: UILabel = {
-        
-        var onlineURLLabel = UILabel()
-        onlineURLLabel.textAlignment = .center
-        onlineURLLabel.backgroundColor = .clear
-        onlineURLLabel.numberOfLines = 1
-        onlineURLLabel.textColor = .white
-        onlineURLLabel.text = "Online Event Link"
-        onlineURLLabel.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        return onlineURLLabel
-        
-    }()
-    
-    lazy private(set) var onlineURLTextView : UITextView = {
-        
-        var onlineURLTextView = UITextView()
-        onlineURLTextView.textColor = .white
-        onlineURLTextView.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[0]
-        onlineURLTextView.font = .dynamicFont(with: "Octarine-Light", style: .subheadline)
-        
-        if let onlineURL = eventModel.onlineURL {
-            
-            onlineURLTextView.text = onlineURL.absoluteString
-            
-        } else {
-            
-            onlineURLTextView.text = "Your event can take place online by adding a link. The physical location you enter will only be informative and help people find your event."
-            
-        }
-        
-        onlineURLTextView.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
-        onlineURLTextView.linkTextAttributes = [.foregroundColor: UIColor.white, .underlineStyle : NSUnderlineStyle.single.rawValue]
-        onlineURLTextView.textAlignment = .center
-        onlineURLTextView.isScrollEnabled = false
-        onlineURLTextView.dataDetectorTypes = .link
-        onlineURLTextView.isSelectable = true
-        onlineURLTextView.isEditable = false
-        onlineURLTextView.autocapitalizationType = .none
-        onlineURLTextView.autocorrectionType = .no
-        return onlineURLTextView
-        
-    }()
-    
-    lazy private(set) var editOnlineURLButton: UIButton = {
-        
-        let innerInset: CGFloat = yInset*0.33
-        
-        var editOnlineURLButton = UIButton(type: .system)
-        
-        if let onlineURL = eventModel.onlineURL {
-            
-            editOnlineURLButton.setTitle("Edit", for: .normal)
-            
-        } else {
-            
-            editOnlineURLButton.setTitle("Add", for: .normal)
-            
-        }
-        
-        editOnlineURLButton.titleLabel?.font = UIFont.dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        editOnlineURLButton.backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
-        editOnlineURLButton.setTitleColor(.white, for: .normal)
-        editOnlineURLButton.titleLabel?.textAlignment = .center
-        editOnlineURLButton.contentEdgeInsets = UIEdgeInsets(top: innerInset*0.5, left: innerInset*2.5, bottom: innerInset, right: innerInset*2.5)
-        editOnlineURLButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 14.0, maxSize: 16.0), shadowOpacity: 0.0, topRightMask: false, topLeftMask: false, bottomRightMask: true, bottomLeftMask: true)
-        return editOnlineURLButton
-        
-    }()
-    
-    lazy private(set) var createButton: LoadingButton = {
-        
-        let innerInset: CGFloat = yInset*0.4
-        
-        var createButton = LoadingButton(bgColor: nil, label: nil)
-        createButton.backgroundColor = .white
-        createButton.setTitle("Create", for: .normal)
-        createButton.titleLabel?.textAlignment = .center
-        createButton.setTitleColor((eventModel.category ?? EventCategory.Culture).getGradientColors()[1], for: .normal)
-        createButton.titleLabel?.font = .dynamicFont(with: "Octarine-Bold", style: .subheadline)
-        createButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset*2, bottom: innerInset, right: innerInset*2)
-        createButton.addShadowAndRoundCorners(cornerRadius: .getWidthFitSize(minSize: 12.0, maxSize: 14.0), shadowColor: UIColor.darkGray, shadowOffset: CGSize(width: 0.0, height: 1.0), shadowOpacity: 0.2, shadowRadius: 8.0)
-        
-        if eventModel.title != nil && eventModel.startDate != nil && eventModel.endDate != nil && eventModel.location != nil {
-            
-            createButton.isUserInteractionEnabled = true
-            createButton.alpha = 1.0
-            
-        } else {
-            
-            createButton.isUserInteractionEnabled = false
-            createButton.alpha = 0.6
-            
-        }
-        
-        return createButton
-        
-    }()
-    
-    lazy private(set) var backButton: BubbleButton = {
-        
-        let innerInset: CGFloat = yInset*0.5
-        
-        var backButton = BubbleButton(bouncyButtonImage: UIImage(systemSymbol: .chevronLeft, withConfiguration: UIImage.SymbolConfiguration(pointSize: UIFont.dynamicFont(with: "Octarine-Bold", style: .title3).pointSize, weight: .medium)).withTintColor(.white, renderingMode: .alwaysOriginal))
-        backButton.contentEdgeInsets = UIEdgeInsets(top: innerInset, left: innerInset, bottom: innerInset, right: innerInset)
-        backButton.backgroundColor = .clear
-        return backButton
-        
-    }()
-    
-    init(eventModel: EventModel) {
-        
-        super.init(frame: .zero)
-        
-        self.eventModel = eventModel
-        
-        configureView()
-        
-    }
-    
-    required init?(coder: NSCoder) {
-        
-        super.init(coder: coder)
-        
-        configureView()
-        
-    }
-    
-    private func configureView() {
-     
-        backgroundColor = (eventModel.category ?? EventCategory.Culture).getGradientColors()[1]
-        
-        addSubview(cardView)
-        cardView.anchor(top: safeAreaLayoutGuide.topAnchor, leading: leadingAnchor, bottom: safeAreaLayoutGuide.bottomAnchor, trailing: trailingAnchor, padding: UIEdgeInsets(top: yInset, left: xInset, bottom: yInset, right: xInset))
-        
-        locationMapView.anchor(height: heightAnchor, multiples: CGSize(width: 1.0, height: 0.15))
-        
-    }
-    
-}
-
-final class FadeEdgeView: UIView {
-    
-    var color: UIColor = .white {
-        
-        didSet {
-            
-            if top {
-                
-                gradientLayer.colors = [
-                    color.withAlphaComponent(1),
-                    color.withAlphaComponent(0),
-                ].map{$0.cgColor}
-                
-            } else {
-                
-                gradientLayer.colors = [
-                    color.withAlphaComponent(0),
-                    color.withAlphaComponent(1),
-                ].map{$0.cgColor}
-                
-            }
-            
-        }
-        
-    }
-    
-    private var top: Bool = true
-    
-    init(color: UIColor, top: Bool) {
-        
-        super.init(frame: .zero)
-        
-        self.color = color
-        self.top = top
-        
-    }
-    
-    required init?(coder: NSCoder) {
-        
-        super.init(coder: coder)
-        
-    }
-    
-    private lazy var gradientLayer: CAGradientLayer = {
-        
-        let l = CAGradientLayer()
-        
-        if top {
-            
-            l.startPoint = CGPoint(x: 0.5, y: 0.6)
-            l.endPoint = CGPoint(x: 0.5, y: 1)
-            l.colors = [
-                color.withAlphaComponent(1),
-                color.withAlphaComponent(0),
-            ].map{$0.cgColor}
-            
-        } else {
-            
-            l.startPoint = CGPoint(x: 0.5, y: 0.0)
-            l.endPoint = CGPoint(x: 0.5, y: 0.4)
-            l.colors = [
-                color.withAlphaComponent(0),
-                color.withAlphaComponent(1),
-            ].map{$0.cgColor}
-            
-        }
-        
-        layer.addSublayer(l)
-        return l
-        
-    }()
-    
-    override func layoutSubviews() {
-        
-        super.layoutSubviews()
-        gradientLayer.frame = bounds
-        
-    }
     
 }

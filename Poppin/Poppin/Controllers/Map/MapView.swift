@@ -11,7 +11,7 @@ import MapKit
 
 // Map Content View:
 
-struct MapView: View {
+struct MapContentView: View {
     
     @State private var filtersAreShowing = false
     @Binding var draggedOffset: CGSize
@@ -45,7 +45,7 @@ struct MapView: View {
         
         ZStack {
             
-            Map()
+            MapUI()
                 .edgesIgnoringSafeArea(.all)
                 .disabled(menuIsShowing || filtersAreShowing || activityIsShowing)
                 .overlay(
@@ -185,7 +185,7 @@ struct MapView: View {
 
 // Map View:
 
-struct Map: UIViewRepresentable {
+struct MapUI: UIViewRepresentable {
     
     func makeUIView(context: Context) -> MKMapView {
         let mapView = MKMapView()

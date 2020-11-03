@@ -12,13 +12,13 @@ import UIKit
 final class SignUpThirdSectionViewController: UIViewController {
     
     // University passed on previous page.
-    private(set) var university: University?
+    private var university: University?
     
     // Name picked on previous page.
-    private(set) var fullName: String?
+    private var fullName: String?
     
     // Date of birth picked on previous page.
-    private(set) var dateOfBirth: Date?
+    private var dateOfBirth: Date?
     
     // Firebase Auth wrapper.
     lazy private var authController = AuthController()

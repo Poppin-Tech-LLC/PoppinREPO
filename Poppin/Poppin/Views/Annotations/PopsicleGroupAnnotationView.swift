@@ -8,13 +8,150 @@
 
 import UIKit
 import MapKit
+import SwiftUI
+
+final class EventGroupAnnotationView: MKAnnotationView {
+    
+    static let defaultReuseIdentifier = "EventGroupAnnotationView"
+    
+    lazy private var containerView: UIView = {
+        
+        let containerView = UIView()
+        containerView.backgroundColor = .clear
+        
+        _ = [groupPopsicleContainerView, groupCountContainerView].map { containerView.addSubview($0) }
+        
+        groupPopsicleContainerView.anchor(top: containerView.topAnchor, leading: containerView.leadingAnchor, bottom: containerView.bottomAnchor, size: CGSize(width: groupPopsicleIcon.intrinsicContentSize.width, height: 0.0))
+        
+        groupCountContainerView.anchor(top: containerView.topAnchor, leading: groupPopsicleContainerView.centerXAnchor, trailing: containerView.trailingAnchor)
+        
+        return containerView
+        
+    }()
+    
+    lazy private var groupPopsicleContainerView: UIView = {
+        
+        let groupPopsicleContainerView = UIView()
+        groupPopsicleContainerView.backgroundColor = .clear
+        
+        _ = [groupPopsicleShadowIcon, groupPopsicleIcon].map { groupPopsicleContainerView.addSubview($0) }
+        
+        groupPopsicleIcon.anchor(top: groupPopsicleContainerView.topAnchor, leading: groupPopsicleContainerView.leadingAnchor, trailing: groupPopsicleContainerView.trailingAnchor)
+        
+        groupPopsicleShadowIcon.anchor(leading: groupPopsicleContainerView.leadingAnchor, bottom: groupPopsicleContainerView.bottomAnchor, trailing: groupPopsicleContainerView.trailingAnchor, centerY: groupPopsicleIcon.bottomAnchor, centerOffset: CGSize(width: 0.0, height: -1.5))
+        
+        return groupPopsicleContainerView
+        
+    }()
+    
+    lazy private var groupPopsicleIcon = UIImageView(image: UIImage.popsicleGroupIcon256.scalePreservingAspectRatio(targetSize: CGSize(width: .width(percent: 12.0), height: .width(percent: 12.0))))
+    
+    lazy private var groupPopsicleShadowIcon: UIImageView = {
+        
+        let groupPopsicleShadowIcon = UIImageView(image: UIImage.defaultPopsicleIconShadow256.scalePreservingAspectRatio(targetSize: CGSize(width: .width(percent: 12.0), height: .width(percent: 12.0))))
+        groupPopsicleShadowIcon.alpha = 0.6
+        return groupPopsicleShadowIcon
+        
+    }()
+    
+    lazy private var groupCountContainerView: CardView = {
+        
+        let groupCountContainerView = CardView(bgColor: .mainDARKPURPLE, padding: UIEdgeInsets(top: .width(percent: 0.77), left: .width(percent: 0.77), bottom: .width(percent: 0.77), right: .width(percent: 0.77)), cornerRadius: .width(percent: 2.0))
+        
+        groupCountContainerView.addSubview(groupCountLabel)
+        
+        groupCountLabel.anchor(top: groupCountContainerView.layoutMarginsGuide.topAnchor, leading: groupCountContainerView.layoutMarginsGuide.leadingAnchor, bottom: groupCountContainerView.layoutMarginsGuide.bottomAnchor, trailing: groupCountContainerView.layoutMarginsGuide.trailingAnchor)
+        
+        return groupCountContainerView
+        
+    }()
+    
+    lazy private var groupCountLabel = OctarineLabel(text: "2", color: .white, bold: true, style: .caption2, alignment: .center, lineLimit: 1)
+    
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        
+        configureView()
+        
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configureView() {
+        
+        frame = CGRect(x: 0.0, y: 0.0, width: groupPopsicleIcon.intrinsicContentSize.width + .width(percent: 1.0) + groupCountLabel.intrinsicContentSize.width, height: groupPopsicleIcon.intrinsicContentSize.height + (groupPopsicleShadowIcon.intrinsicContentSize.height*0.5) - 1.5)
+        centerOffset = CGPoint(x: 0, y: -frame.size.height / 2)
+        
+        addSubview(containerView)
+        containerView.frame = bounds
+        
+    }
+    
+    func setGroupCount(count: Int) {
+        
+        canShowCallout = false
+        displayPriority = .required
+        collisionMode = .rectangle
+        
+        if count < 2 {
+            
+            groupCountLabel.text = "2"
+            
+        } else if count > 99 {
+            
+            groupCountLabel.text = "99+"
+            
+        } else {
+            
+            groupCountLabel.text = String(count)
+            
+        }
+        
+        frame = CGRect(x: 0.0, y: 0.0, width: groupPopsicleIcon.intrinsicContentSize.width + .width(percent: 1.0) + groupCountLabel.intrinsicContentSize.width, height: groupPopsicleIcon.intrinsicContentSize.height + (groupPopsicleShadowIcon.intrinsicContentSize.height*0.5) - 1.5)
+        
+        containerView.frame = bounds
+        
+    }
+    
+}
+
+struct PreviewEventGroupAnnotationView: UIViewRepresentable {
+    
+    func makeUIView(context: Context) -> UIViewType {
+        
+        return UIViewType()
+        
+    }
+    
+    
+    func updateUIView(_ uiView: UIViewType, context: Context) {}
+    
+    typealias UIViewType = EventGroupAnnotationView
+    
+}
+
+struct TestPreviewEventGroupAnnotationView: PreviewProvider {
+    
+    static var previews: Previews {
+        
+        return Previews()
+        
+    }
+    
+    typealias Previews = PreviewEventGroupAnnotationView
+    
+}
+
 
 final class PopsicleGroupAnnotationView: MKAnnotationView {
     
     public static let defaultPopsicleGroupAnnotationViewReuseIdentifier = "PopsicleGroupAnnotationView"
     
     private let popsicleHeight: CGFloat = .getPercentageWidth(percentage: 12.5)
-    private let popsicleWidth: CGFloat = .getPercentageWidth(percentage: 7.5)
+    private let popsicleWidth: CGFloat = .getPercentageWidth(percentage: 12.0)
     
     private let innerInsetX: CGFloat = .getPercentageWidth(percentage: 3)
     private let innerInsetY: CGFloat = .getPercentageWidth(percentage: 2.5)

@@ -66,16 +66,59 @@ extension UIColor {
     static let cultureLIGHTPURPLE = UIColor(named: "cultureLIGHTPURPLE")!
     static let defaultGRAY = UIColor(named: "defaultGRAY")!
     
-    static func UIColorFromHex(rgbValue: UInt32, alpha: Double = 1.0) -> UIColor {
+    /**
+        Construct a UIColor using an HTML/CSS RGB formatted value and an alpha value
+    
+        :param: rgbValue RGB value
+        :param: alpha color alpha value
+    
+        :returns: an UIColor instance that represent the required color
+     */
+    class func colorWithRGB(rgbValue : UInt, alpha : CGFloat = 1.0) -> UIColor {
+        let red = CGFloat((rgbValue & 0xFF0000) >> 16) / 255
+        let green = CGFloat((rgbValue & 0xFF00) >> 8) / 255
+        let blue = CGFloat(rgbValue & 0xFF) / 255
         
-        let red = CGFloat((rgbValue & 0xFF0000) >> 16)/256.0
+        return UIColor(red: red, green: green, blue: blue, alpha: alpha)
+    }
+    
+    /**
+        Returns a lighter color by the provided percentage
+    
+        :param: lighting percent percentage
+        :returns: lighter UIColor
+     */
+    func lighterColor(percent : Double) -> UIColor {
+        return colorWithBrightnessFactor(factor: CGFloat(1 + percent));
+    }
+    
+    /**
+        Returns a darker color by the provided percentage
         
-        let green = CGFloat((rgbValue & 0xFF00) >> 8)/256.0
+        :param: darking percent percentage
+        :returns: darker UIColor
+    */
+    func darkerColor(percent : Double) -> UIColor {
+        return colorWithBrightnessFactor(factor: CGFloat(1 - percent));
+    }
+    
+    /**
+        Return a modified color using the brightness factor provided
+    
+        :param: factor brightness factor
+        :returns: modified color
+    */
+    func colorWithBrightnessFactor(factor: CGFloat) -> UIColor {
+        var hue : CGFloat = 0
+        var saturation : CGFloat = 0
+        var brightness : CGFloat = 0
+        var alpha : CGFloat = 0
         
-        let blue = CGFloat(rgbValue & 0xFF)/256.0
-        
-        return UIColor(red:red, green:green, blue:blue, alpha:CGFloat(alpha))
-        
+        if getHue(&hue, saturation: &saturation, brightness: &brightness, alpha: &alpha) {
+            return UIColor(hue: hue, saturation: saturation, brightness: brightness * factor, alpha: alpha)
+        } else {
+            return self;
+        }
     }
     
 }
@@ -736,6 +779,8 @@ extension Date {
 
 extension CLLocationCoordinate2D {
     
+    static let DU = CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619)
+    
     func lookUpLocationAddress(completionHandler: @escaping (String?) -> Void) {
         
         let location = CLLocation(latitude: self.latitude, longitude: self.longitude)
@@ -759,10 +804,16 @@ extension CLLocationCoordinate2D {
         
     }
     
-    func isInRegion(region: CLCircularRegion) -> Bool {
+    func isIn(region: MKCoordinateRegion) -> Bool {
         
-        return region.contains(self)
+        return CLCircularRegion(center: region.center, radius: region.span.latitudeDelta.toRadius(), identifier: "region").contains(self)
         
     }
+    
+}
+
+extension CLLocationDegrees {
+    
+    func toRadius() -> CLLocationDistance { return self*111000*0.5 }
     
 }

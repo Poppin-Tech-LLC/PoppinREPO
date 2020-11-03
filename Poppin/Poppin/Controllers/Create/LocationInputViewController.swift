@@ -10,13 +10,463 @@ import UIKit
 import SwiftUI
 import CoreLocation
 import MapKit
-import Contacts
+
+final class LocationInputViewController: UIViewController {
+    
+    // Holds the event input.
+    private var eventInput: EventModel?
+    
+    // Closure called when transitioning to the previous page.
+    private var completionHandler: ((CLLocationCoordinate2D?, String?) -> Void)?
+    
+    // Locations to show according to the search query.
+    private var searchResults: [MKLocalSearchCompletion]?
+    
+    // Autocomplete searching controller.
+    private var searchController: MKLocalSearchCompleter?
+    
+    // Campus region. It is used for location searching.
+    private let mapBoundary = MKCoordinateRegion(center: MapViewController.defaultMapViewCenterLocation, latitudinalMeters: MapViewController.defaultMapViewRegionRadius, longitudinalMeters: MapViewController.defaultMapViewRegionRadius)
+    
+    /**
+    Custom class init to set the modal presentation and transition style, update the location input field for the current event, and assign a completion handler.
+
+    - Parameters:
+        - eventInput: Input entered so far for the current event being created.
+        - completionHandler: Closure called when transitioning to the previous section.
+    */
+    init(eventInput: EventModel?, completionHandler: ((CLLocationCoordinate2D?, String?) -> Void)?) {
+        
+        super.init(nibName: nil, bundle: nil)
+        
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+        
+        self.eventInput = eventInput
+        self.completionHandler = completionHandler
+        
+    }
+    
+    /**
+    Required init?(coder:) not implemented (storyboard not available). WIll throw a fatal error.
+
+    - Parameter coder: NSCoder from storyboard.
+    */
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    /// Overrides superclass method to initialize the root view with a custom UI.
+    override func loadView() {
+        
+        self.view = LocationInputView()
+        
+    }
+    
+    /// Overrides superclass method to connect UI elements to the controller.
+    override func viewDidLoad() {
+        
+        super.viewDidLoad()
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return }
+        
+        // 2. Setting targets and delegation.
+        view.mapView.delegate = self
+        view.searchBarView.searchBar.delegate = self
+        view.searchView.tableView.delegate = self
+        view.searchView.tableView.dataSource = self
+        
+        view.backButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
+        view.saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
+        view.searchBarView.cancelButton.addTarget(self, action: #selector(closeSearchView), for: .touchUpInside)
+        
+    }
+    
+    /// Overrides superclass method to update UI.
+    override func viewWillAppear(_ animated: Bool) {
+        
+        super.viewWillAppear(animated)
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return }
+        
+        // 2. Updating input field UI with event input passed.
+        view.updateUI(eventInput: eventInput)
+        
+    }
+    
+    // Close the input field without saving changes.
+    @objc private func cancel() {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return }
+        
+        // 2. If the user has made any changes, show an alert reminding the user that any changes will be lost.
+        if view.mapView.annotations.count == 0 {
+            
+            dismiss(animated: true, completion: nil)
+            
+        } else if let latitude = eventInput?.location?.latitude, let longitude = eventInput?.location?.longitude, latitude == view.eventAnnotation.coordinate.latitude, longitude == view.eventAnnotation.coordinate.longitude {
+            
+            dismiss(animated: true, completion: nil)
+            
+        } else {
+            
+            let alertVC = AlertViewController(alertTitle: "Are you sure you wisth to exit?", alertMessage: "Any edits will be lost.", leftActionTitle: "Exit", leftAction: { [weak self] in
+                
+                guard let self = self else { return }
+                
+                self.dismiss(animated: true, completion: nil)
+            
+            }, rightActionTitle: "Stay")
+            
+            self.present(alertVC, animated: true, completion: nil)
+            
+        }
+        
+    }
+    
+    // Close the input field and save changes by calling the return closure.
+    @objc private func save() {
+    
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return }
+        
+        // 2. If no location has been selected show an error. Else, if changes have been made call the return closure.
+        if view.mapView.annotations.count == 0 {
+            
+            let alertVC = AlertViewController(alertTitle: "No location selected", alertMessage: "Please select a location on the map or search for one.")
+            
+            self.present(alertVC, animated: true, completion: nil)
+            
+        } else if let latitude = eventInput?.location?.latitude, let longitude = eventInput?.location?.longitude, latitude == view.eventAnnotation.coordinate.latitude, longitude == view.eventAnnotation.coordinate.longitude {
+            
+            dismiss(animated: true, completion: nil)
+            
+        } else {
+            
+            completionHandler?(view.eventAnnotation.coordinate, view.locationTextView.text)
+            dismiss(animated: true, completion: nil)
+            
+        }
+        
+    }
+    
+    // Stops searching and hides the search view.
+    @objc private func closeSearchView() {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return }
+        
+        // 2. Stops the search controller.
+        searchController?.cancel()
+        searchController = nil
+        
+        // 3. Hides search view.
+        view.hideSearch()
+        
+    }
+    
+}
+
+extension LocationInputViewController: MKMapViewDelegate {
+    
+    /// Delegate function called when the map needs to update its annotations. It returns a view for each annotation on the map.
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        
+        if let userAnnotation = annotation as? MKUserLocation {
+            
+            if let userAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: UserAnnotationView.defaultReuseIdentifier) as? UserAnnotationView {
+
+                userAnnotationView.setUserIcon(icon: nil)
+                return userAnnotationView
+
+            } else {
+
+                let userAnnotationView = UserAnnotationView(annotation: userAnnotation, reuseIdentifier: UserAnnotationView.defaultReuseIdentifier)
+                userAnnotationView.setUserIcon(icon: nil)
+                return userAnnotationView
+
+            }
+
+        } else if let eventAnnotation = annotation as? EventAnnotation {
+
+            if let eventAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: EventAnnotationView.defaultReuseIdentifier) as? EventAnnotationView {
+
+                eventAnnotationView.setEventAnnotation(eventAnnotation: eventAnnotation)
+                return eventAnnotationView
+
+            } else {
+
+                let eventAnnotationView = EventAnnotationView(annotation: annotation, reuseIdentifier: EventAnnotationView.defaultReuseIdentifier)
+                eventAnnotationView.setEventAnnotation(eventAnnotation: eventAnnotation)
+                return eventAnnotationView
+
+            }
+
+        } else if let eventGroupAnnotation = annotation as? MKClusterAnnotation {
+
+            if let eventGroupAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: EventGroupAnnotationView.defaultReuseIdentifier) as? EventGroupAnnotationView {
+
+                eventGroupAnnotationView.setGroupCount(count: eventGroupAnnotation.memberAnnotations.count)
+                return eventGroupAnnotationView
+
+            } else {
+
+                let eventGroupAnnotationView = EventGroupAnnotationView(annotation: annotation, reuseIdentifier: EventGroupAnnotationView.defaultReuseIdentifier)
+                eventGroupAnnotationView.setGroupCount(count: eventGroupAnnotation.memberAnnotations.count)
+                return eventGroupAnnotationView
+
+            }
+
+        } else {
+            
+            return nil
+            
+        }
+        
+    }
+    
+    /// Delegate function called after viewFor. It animates the appearance of the annotations on the map.
+    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
+        
+        for annotationView in views {
+            
+            annotationView.alpha = 0.0
+            annotationView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
+
+            UIView.animate(withDuration: 0.35, delay: 0.0, usingSpringWithDamping: 0.825, initialSpringVelocity: 1.0,
+                           options: .curveEaseInOut, animations: {
+                            
+                            annotationView.transform = .identity
+                            annotationView.alpha = 1.0
+                            
+            }, completion: nil)
+            
+        }
+        
+    }
+    
+}
+
+extension LocationInputViewController: UISearchBarDelegate, MKLocalSearchCompleterDelegate {
+    
+    /// Delegate function called when the search bar is about to begin editing. If hidden, It displays the search view and initializes the search controller.
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return false }
+        
+        if view.dimOverlayView.isHidden {
+            
+            // 2. Show the search view.
+            view.showSearch()
+            
+            // 3. Initialize the search controller.
+            searchController = MKLocalSearchCompleter()
+            searchController?.delegate = self
+            searchController?.region = mapBoundary
+            searchController?.resultTypes = [.address, .pointOfInterest]
+        
+        }
+        
+        return true
+        
+    }
+    
+    /// Delegate function called after new text has been entered on the search bar. Sends a new search query to the search controller.
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        searchController?.queryFragment = searchBar.text ?? ""
+        
+    }
+    
+    /// Delegate function called once the search controller has finished with the search query. Updates the results table with the new locations.
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return }
+        
+        // 2. Populates the results array with all locations returned from the search query.
+        searchResults = completer.results
+        
+        // 3. Updates results table with new locations.
+        view.searchView.tableView.reloadData()
+        
+    }
+    
+    /// Delegate function called if the search controller fails while handling a query. It empties the results table and prints an error.
+    func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
+        
+        // 1. Prints error.
+        print("Location Search Error: ", error.localizedDescription)
+        
+        // 2. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return }
+        
+        // 3. Empties the results table.
+        searchResults = []
+        view.searchView.tableView.reloadData()
+        
+    }
+    
+}
+
+extension LocationInputViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    /// Delegate function called when the table reloads. Returns the amount of rows to show according to the search results.
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        if let searchResults = searchResults, searchResults.count > 0 {
+            
+            return searchResults.count
+            
+        } else {
+            
+            return 1
+            
+        }
+        
+    }
+    
+    /// Delegate function called for each row of the table when it reloads. Returns custom location cells initialized according to the
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return UITableViewCell() }
+        
+        // 2. Safe casting table view cell to custom location cell.
+        if let locationCell = tableView.dequeueReusableCell(withIdentifier: LocationCell.defaultReuseIdentifier, for: indexPath) as? LocationCell {
+            
+            // 3. Adjust separator line depending on the table row (fixes bug where last table row cell also has a separator despite being the last cell).
+            if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
+                
+                locationCell.separatorInset = UIEdgeInsets(top: 0.0, left: view.frame.size.width, bottom: 0.0, right: 0.0)
+                locationCell.selectionStyle = .none
+                
+            } else {
+                
+                locationCell.separatorInset = .zero
+                locationCell.selectionStyle = .none
+                
+            }
+            
+            // 4. Update cell with data from search results. If no results are found or nothing has been searched yet, show a placeholder cell.
+            if let searchResults = searchResults, searchResults.count > 0 {
+                
+                locationCell.title = searchResults[indexPath.row].title
+                locationCell.address = searchResults[indexPath.row].subtitle
+                
+            } else if let searchText = view.searchBarView.searchBar.text, !searchText.isEmpty  {
+                
+                locationCell.title = "No results found..."
+                locationCell.address = nil
+                
+            } else {
+                
+                locationCell.title = "Search for locations around you."
+                locationCell.address = nil
+                
+            }
+            
+            return locationCell
+            
+        } else { return UITableViewCell() }
+        
+    }
+    
+    /// Delegate function called when a cell has been selected. Zoom to the selected location if is within bounds.
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        // 1. Safe casting root view to custom view.
+        guard let view = view as? LocationInputView else { return }
+        
+        // 2. Safe casting search results and the selected cell as a custom location cell.
+        if let searchResults = searchResults, searchResults.count > 0, let locationCell = tableView.dequeueReusableCell(withIdentifier: LocationCell.defaultReuseIdentifier, for: indexPath) as? LocationCell {
+            
+            // 3. Start loading and disable table view so other locations cannot be selected.
+            locationCell.startLoading()
+            view.searchView.tableView.isUserInteractionEnabled = false
+            
+            // 4. Fetch the location of the data passed from the search result.
+            MKLocalSearch(request: MKLocalSearch.Request(completion: searchResults[indexPath.row])).start { [weak self] (response, error) in
+                
+                guard let self = self else { return }
+                
+                // 5. If an error is found, display it and enable the table view again.
+                if let error = error {
+                    
+                    print("Local search error: ", error.localizedDescription)
+                    
+                    let alertVC = AlertViewController(alertTitle: "An error occurred", alertMessage: "Please try again.")
+                    
+                    self.present(alertVC, animated: true, completion: nil)
+                    
+                    locationCell.stopLoading()
+                    view.searchView.tableView.isUserInteractionEnabled = true
+                    
+                }
+                
+                // 6. A location is found.
+                else if let response = response {
+                    
+                    // 7. Loop through the locations found. If a location is within bounds, enable the table view, close the search view and zoom to the selected location.
+                    for mapItem in response.mapItems {
+                        
+                        if mapItem.placemark.coordinate.isIn(region: self.mapBoundary) {
+                            
+                            locationCell.stopLoading()
+                            view.searchView.tableView.isUserInteractionEnabled = true
+                            
+                            view.dropAnnotation(at: mapItem.placemark)
+                            view.searchBarView.cancelButton.sendActions(for: .touchUpInside)
+                            
+                            return
+                            
+                        } else {
+                            
+                            continue
+                            
+                        }
+                        
+                    }
+                    
+                    // 8. Location is out of bounds. Show an error, and enable the table view again.
+                    let alertVC = AlertViewController(alertTitle: "Location is out of campus bounds", alertMessage: "Please choose a different one.")
+                    
+                    self.present(alertVC, animated: true, completion: nil)
+                    
+                    locationCell.stopLoading()
+                    view.searchView.tableView.isUserInteractionEnabled = true
+                    
+                }
+                
+                // 9. No locations were found. Show an error and enable the table view again.
+                else {
+                    
+                    let alertVC = AlertViewController(alertTitle: "Location not found", alertMessage: "The selected location was not found. Please try again.")
+                    
+                    self.present(alertVC, animated: true, completion: nil)
+                    
+                    locationCell.stopLoading()
+                    view.searchView.tableView.isUserInteractionEnabled = true
+                    
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+}
 
 struct PreviewLocationInputViewController: UIViewControllerRepresentable {
     
     func makeUIViewController(context: Context) -> UIViewControllerType {
         
-        return UIViewControllerType(location: nil, mapBoundry: nil, category: nil)
+        return UIViewControllerType(eventInput: nil, completionHandler: nil)
         
     }
     
@@ -36,569 +486,5 @@ struct TestPreviewLocationInputViewController: PreviewProvider {
     }
     
     typealias Previews = PreviewLocationInputViewController
-    
-}
-
-final class LocationInputViewController: UIViewController {
-    
-    private var location: CLLocationCoordinate2D?
-    private var mapBoundry: MKCoordinateRegion = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 39.6766, longitude: -104.9619), latitudinalMeters: 3000.0, longitudinalMeters: 3000.0)
-    private var category: EventCategory?
-    private var searchResults: [MKLocalSearchCompletion]?
-    
-    weak var delegate: LocationInputDelegate?
-    private var firstTimeLoading = true
-    private var hasBeenTapped = false
-    private var isOutOfBounds = false
-    
-    private var locationSearchController: MKLocalSearchCompleter?
-    
-    lazy private var eventAnnotation: EventAnnotation = {
-        
-        var eventAnnotation = EventAnnotation(id: nil, location: location, category: category)
-        return eventAnnotation
-        
-    }()
-    
-    init(location: CLLocationCoordinate2D?, mapBoundry: MKCoordinateRegion?, category: EventCategory?) {
-        
-        super.init(nibName: nil, bundle: nil)
-        
-        modalPresentationStyle = .overFullScreen
-        modalTransitionStyle = .crossDissolve
-        
-        self.location = location
-        if let mapBoundry = mapBoundry { self.mapBoundry = mapBoundry }
-        self.category = category
-        
-    }
-    
-    required init?(coder: NSCoder) {
-        
-        super.init(coder: coder)
-        
-        modalPresentationStyle = .overFullScreen
-        modalTransitionStyle = .crossDissolve
-        
-    }
-    
-    override func loadView() {
-        
-        self.view = LocationInputView(category: category, mapBoundry: mapBoundry, location: location)
-        
-    }
-    
-    override func viewDidLoad() {
-        
-        super.viewDidLoad()
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        view.delegate = self
-        view.mapView.delegate = self
-        view.searchBar.delegate = self
-        view.searchTableView.delegate = self
-        view.searchTableView.dataSource = self
-        view.backButton.addTarget(self, action: #selector(segueBack), for: .touchUpInside)
-        view.saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
-        view.searchBarCancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
-        
-        if let location = location {
-            
-            hasBeenTapped = true
-            view.mapView.addAnnotation(eventAnnotation)
-            view.mapView.setRegion(MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: location.latitude, longitude: location.longitude), latitudinalMeters: 200.0, longitudinalMeters: 200.0), animated: false)
-            
-        } else {
-            
-            view.mapView.setRegion(mapBoundry, animated: false)
-            
-        }
-        
-    }
-    
-    override func viewDidLayoutSubviews() {
-        
-        super.viewDidLayoutSubviews()
-        
-        if !firstTimeLoading { return }
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        if hasBeenTapped {
-            
-            view.helpTitleView.transform = CGAffineTransform(translationX: 0.0, y: view.helpTitleView.frame.height + (view.yInset*2) + view.safeAreaInsets.bottom)
-            
-        } else {
-            
-            view.confirmLocationView.transform = CGAffineTransform(translationX: 0.0, y: view.confirmLocationView.frame.height)
-            
-        }
-        
-        firstTimeLoading = false
-        
-    }
-    
-    @objc private func segueBack() {
-        
-        if let location = location, (location.latitude != eventAnnotation.coordinate.latitude || location.longitude != eventAnnotation.coordinate.longitude) {
-            
-            let alertVC = AlertViewController(alertTitle: "Are you sure you wish to exit?", alertMessage: "Any changes will be lost.", leftActionTitle: "Exit", leftAction: { [weak self] in
-                
-                guard let self = self else { return }
-                
-                self.dismiss(animated: true, completion: nil)
-            
-            }, rightActionTitle: "Stay")
-            
-            self.present(alertVC, animated: true, completion: nil)
-            
-        } else {
-            
-            self.dismiss(animated: true, completion: nil)
-            
-        }
-        
-    }
-    
-    @objc private func save() {
-        
-        if isOutOfBounds {
-            
-            let alertVC = AlertViewController(alertTitle: "Location is out of campus bounds", alertMessage: "Please try a different one.")
-            
-            self.present(alertVC, animated: true, completion: nil)
-            
-        } else if let location = location, location.latitude == eventAnnotation.coordinate.latitude, location.longitude == eventAnnotation.coordinate.longitude {
-            
-            self.dismiss(animated: true, completion: nil)
-            
-        } else {
-            
-            delegate?.setLocation(location: eventAnnotation.coordinate)
-            self.dismiss(animated: true, completion: nil)
-            
-        }
-        
-    }
-    
-    @objc private func cancel() {
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        view.searchBar.endEditing(true)
-        locationSearchController?.cancel()
-        locationSearchController = nil
-        
-        UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseIn, animations: {
-            
-            view.searchBarShowingConstraints[0].isActive = false
-            view.searchBarShowingConstraints[1].isActive = false
-            view.searchBarHiddenConstraints[0].isActive = true
-            view.searchBarHiddenConstraints[1].isActive = true
-            view.searchBarCancelButton.alpha = 0.0
-            view.backButton.alpha = 1.0
-            view.blurOverlayView.alpha = 0.0
-            view.searchScrollView.alpha = 0.0
-            view.layoutIfNeeded()
-            
-        }, completion: { finished in
-        
-            view.blurOverlayView.isHidden = true
-            view.searchScrollView.isHidden = true
-        
-        })
-        
-    }
-    
-    private func dropPopsicle(at placemark: MKPlacemark) {
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        eventAnnotation.coordinate = placemark.coordinate
-        view.mapView.removeAnnotations(view.mapView.annotations)
-        view.mapView.addAnnotation(eventAnnotation)
-        
-        if let postalAddress = placemark.postalAddress {
-            
-            let address = CNPostalAddressFormatter.string(from: postalAddress, style: .mailingAddress)
-            view.locationTextView.text = String(address.split(separator: "\n")[0])
-            
-        } else {
-            
-            view.locationTextView.text = "Address unavailable"
-            
-        }
-        
-        if !self.hasBeenTapped {
-            
-            view.confirmLocationView.transform = CGAffineTransform(translationX: 0.0, y: view.confirmLocationView.frame.height)
-            
-            UIView.animate(withDuration: 0.8, delay: 0.1, usingSpringWithDamping: 0.85, initialSpringVelocity: 1,
-                           options: .curveEaseOut, animations: {
-                            
-                            view.helpTitleView.transform = CGAffineTransform(translationX: 0.0, y: view.helpTitleView.frame.height + (view.yInset*2) + view.safeAreaInsets.bottom)
-                            view.confirmLocationView.transform = .identity
-                            
-            }, completion: { finished in
-                
-                self.hasBeenTapped = true
-            
-            })
-            
-        }
-        
-        UIView.animate(withDuration: 0.4, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1,
-                       options: .curveEaseOut, animations: {
-                        
-                        view.mapView.setRegion(MKCoordinateRegion(center: self.eventAnnotation.coordinate, latitudinalMeters: 200, longitudinalMeters: 200), animated: true)
-                        
-        }, completion: nil)
-        
-    }
-    
-}
-
-extension LocationInputViewController: MKMapViewDelegate {
-    
-    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        
-        if let eventAnnotation = annotation as? EventAnnotation {
-            
-            if let eventAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: EventAnnotationView.defaultEventAnnotationViewReuseIdentifier) as? EventAnnotationView {
-                
-                eventAnnotationView.setEventAnnotation(eventAnnotation: eventAnnotation)
-                return eventAnnotationView
-                
-            } else {
-                
-                let eventAnnotationView = EventAnnotationView(annotation: eventAnnotation, reuseIdentifier: EventAnnotationView.defaultEventAnnotationViewReuseIdentifier)
-                eventAnnotationView.setEventAnnotation(eventAnnotation: eventAnnotation)
-                return eventAnnotationView
-                
-            }
-            
-        } else {
-            
-            return nil
-            
-        }
-        
-    }
-    
-    func mapView(_ mapView: MKMapView, didAdd views: [MKAnnotationView]) {
-        
-        if views.count == 1, let eventAnnotationView = views[0] as? EventAnnotationView {
-            
-            eventAnnotationView.alpha = 0.0
-            eventAnnotationView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
-
-            UIView.animate(withDuration: 0.4, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1,
-                           options: .curveEaseOut, animations: {
-                            
-                            eventAnnotationView.transform = .identity
-                            eventAnnotationView.alpha = 1.0
-                            
-            }, completion: nil)
-            
-        } else {
-            
-            return
-            
-        }
-        
-    }
-    
-}
-
-extension LocationInputViewController: LocationInputDelegate {
-    
-    func dropPopsicle(at point: CGPoint) {
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        let touchCoordinate = view.mapView.convert(point, toCoordinateFrom: view.mapView)
-        
-        eventAnnotation.coordinate = touchCoordinate
-        isOutOfBounds = false
-        view.mapView.removeAnnotations(view.mapView.annotations)
-        view.mapView.addAnnotation(self.eventAnnotation)
-        
-        touchCoordinate.lookUpLocationAddress { (address) in
-            
-            if let address = address {
-                
-                view.locationTextView.text = String(address.split(separator: "\n")[0])
-                
-            } else {
-                
-                view.locationTextView.text = "Address unavailable"
-                
-            }
-            
-        }
-        
-        if !hasBeenTapped {
-            
-            view.confirmLocationView.transform = CGAffineTransform(translationX: 0.0, y: view.confirmLocationView.frame.height)
-            
-            UIView.animate(withDuration: 0.8, delay: 0.1, usingSpringWithDamping: 0.85, initialSpringVelocity: 1,
-                           options: .curveEaseOut, animations: {
-                            
-                            view.helpTitleView.transform = CGAffineTransform(translationX: 0.0, y: view.helpTitleView.frame.height + (view.yInset*2) + view.safeAreaInsets.bottom)
-                            view.confirmLocationView.transform = .identity
-                            
-            }, completion: { finished in
-        
-                self.hasBeenTapped = true
-            
-            })
-            
-        }
-        
-        UIView.animate(withDuration: 0.4, delay: 0.0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1,
-                       options: .curveEaseOut, animations: {
-                        
-                        view.mapView.setRegion(MKCoordinateRegion(center: self.eventAnnotation.coordinate, latitudinalMeters: 200, longitudinalMeters: 200), animated: true)
-                        
-        }, completion: nil)
-        
-    }
-    
-}
-
-extension LocationInputViewController: UISearchBarDelegate {
-    
-    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
-        
-        guard let view = view as? LocationInputView else { return false }
-        
-        if searchBar == view.searchBar {
-         
-            if view.blurOverlayView.isHidden {
-                
-                locationSearchController = MKLocalSearchCompleter()
-                locationSearchController?.delegate = self
-                locationSearchController?.region = mapBoundry
-                locationSearchController?.resultTypes = [.address, .pointOfInterest]
-                
-                view.blurOverlayView.isHidden = false
-                view.searchScrollView.isHidden = false
-                
-                UIView.animate(withDuration: 0.4, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
-                    
-                    view.searchBarHiddenConstraints[0].isActive = false
-                    view.searchBarHiddenConstraints[1].isActive = false
-                    view.searchBarShowingConstraints[0].isActive = true
-                    view.searchBarShowingConstraints[1].isActive = true
-                    view.searchBarCancelButton.alpha = 1.0
-                    view.backButton.alpha = 0.0
-                    view.blurOverlayView.alpha = 1.0
-                    view.searchScrollView.alpha = 1.0
-                    view.layoutIfNeeded()
-                    
-                }, completion: nil)
-                
-            }
-            
-            return true
-            
-        } else {
-            
-            return false
-            
-        }
-        
-    }
-    
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        if searchBar == view.searchBar {
-            
-            locationSearchController?.queryFragment = searchBar.text ?? ""
-            
-        }
-        
-    }
-    
-}
-
-extension LocationInputViewController: UITableViewDelegate, UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        if let searchResults = searchResults, searchResults.count > 0 {
-            
-            return searchResults.count
-            
-        } else {
-            
-            return 1
-            
-        }
-        
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        guard let view = view as? LocationInputView else { return UITableViewCell() }
-        
-        if tableView == view.searchTableView, let locationCell = tableView.dequeueReusableCell(withIdentifier: LocationSearchCell.cellIdentifier, for: indexPath) as? LocationSearchCell {
-            
-            if indexPath.row == tableView.numberOfRows(inSection: indexPath.section) - 1 {
-                
-                locationCell.separatorInset = UIEdgeInsets(top: 0.0, left: view.frame.size.width, bottom: 0.0, right: 0.0)
-                
-            } else {
-                
-                locationCell.separatorInset = .zero
-                
-            }
-            
-            locationCell.selectionStyle = .none
-            
-            if let searchResults = searchResults, searchResults.count > 0 {
-                
-                locationCell.title = searchResults[indexPath.row].title
-                locationCell.subtitle = searchResults[indexPath.row].subtitle
-                
-            } else if let searchText = view.searchBar.text, !searchText.isEmpty  {
-                
-                locationCell.title = "No results found..."
-                locationCell.subtitle = ""
-                
-            } else {
-                
-                locationCell.title = "Search for locations around you."
-                locationCell.subtitle = ""
-                
-            }
-            
-            return locationCell
-            
-        } else {
-            
-            return UITableViewCell()
-            
-        }
-        
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        if tableView == view.searchTableView, let searchResults = searchResults, searchResults.count > 0, let locationCell = tableView.dequeueReusableCell(withIdentifier: LocationSearchCell.cellIdentifier, for: indexPath) as? LocationSearchCell {
-            
-            locationCell.startLoading()
-            view.searchTableView.isUserInteractionEnabled = false
-            
-            let localSearch = MKLocalSearch(request: MKLocalSearch.Request(completion: searchResults[indexPath.row]))
-            
-            localSearch.start { [weak self] (response, error) in
-                
-                guard let self = self else { return }
-                
-                if let error = error {
-                    
-                    print("Local search error: ", error.localizedDescription)
-                    
-                    let alertVC = AlertViewController(alertTitle: "An error occurred", alertMessage: "Please try again.")
-                    
-                    self.present(alertVC, animated: true, completion: nil)
-                    
-                    locationCell.stopLoading()
-                    view.searchTableView.isUserInteractionEnabled = true
-                    
-                } else if let response = response {
-                    
-                    for mapItem in response.mapItems {
-                        
-                        if mapItem.placemark.coordinate.isInRegion(region: CLCircularRegion(center: self.mapBoundry.center, radius: self.mapBoundry.span.latitudeDelta*111000*0.5, identifier: "mapBoundry")) {
-                            
-                            locationCell.stopLoading()
-                            view.searchTableView.isUserInteractionEnabled = true
-                            self.isOutOfBounds = false
-                            self.dropPopsicle(at: mapItem.placemark)
-                            self.cancel()
-                            
-                            return
-                            
-                        } else {
-                            
-                            continue
-                            
-                        }
-                        
-                    }
-                    
-                    let alertVC = AlertViewController(alertTitle: "Location is out of bounds", alertMessage: "If you continue the location could be innacurate.", leftActionTitle: "Continue", leftAction: { [weak self] in
-                        
-                        guard let self = self else { return }
-                        
-                        locationCell.stopLoading()
-                        view.searchTableView.isUserInteractionEnabled = true
-                        self.isOutOfBounds = true
-                        self.dropPopsicle(at: response.mapItems[0].placemark)
-                        self.cancel()
-                        
-                        }, rightActionTitle: "Cancel")
-                    
-                    self.present(alertVC, animated: true, completion: nil)
-                    
-                    locationCell.stopLoading()
-                    view.searchTableView.isUserInteractionEnabled = true
-                    
-                } else {
-                    
-                    let alertVC = AlertViewController(alertTitle: "Location not found", alertMessage: "The selected location was not found. Please try again.")
-                    
-                    self.present(alertVC, animated: true, completion: nil)
-                    
-                    locationCell.stopLoading()
-                    view.searchTableView.isUserInteractionEnabled = true
-                    
-                }
-                
-            }
-            
-        }
-        
-    }
-    
-}
-
-extension LocationInputViewController: MKLocalSearchCompleterDelegate {
-    
-    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        if completer == locationSearchController {
-            
-            searchResults = completer.results.filter({ (result) -> Bool in
-                
-                return result.subtitle.lowercased().contains("denver") || result.title.lowercased().contains("denver")
-                
-            })
-            
-            view.searchTableView.reloadData()
-            
-        }
-        
-    }
-    
-    func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
-        
-        print("Location Search Error: ", error.localizedDescription)
-        
-        guard let view = view as? LocationInputView else { return }
-        
-        searchResults = []
-        view.searchTableView.reloadData()
-        
-    }
     
 }

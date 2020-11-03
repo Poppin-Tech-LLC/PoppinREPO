@@ -14,6 +14,10 @@ class BouncyButton: UIButton {
     
     private var bouncyButtonImage: UIImage?
     
+    var nonHighlightedColor: UIColor?
+    var highlightedColor: UIColor?
+    var shouldBounce: Bool = true
+    
     init(bouncyButtonImage: UIImage?) {
         
         super.init(frame: .zero)
@@ -37,24 +41,24 @@ class BouncyButton: UIButton {
         contentHorizontalAlignment = .fill
         contentVerticalAlignment = .fill
         imageView?.contentMode = .scaleAspectFit
-        addTarget(self, action: #selector(animateDown), for: [.touchDown, .touchDragEnter])
-        addTarget(self, action: #selector(animateUp), for: [.touchDragExit, .touchCancel, .touchUpInside, .touchUpOutside])
+        addTarget(self, action: #selector(animateDown(sender:)), for: [.touchDown, .touchDragEnter])
+        addTarget(self, action: #selector(animateUp(sender:)), for: [.touchDragExit, .touchCancel, .touchUpInside, .touchUpOutside])
 
     }
     
-    @objc private func animateDown(sender: UIButton) {
+    @objc private func animateDown(sender: BouncyButton) {
         
-        animate(sender, transform: CGAffineTransform.identity.scaledBy(x: 0.90, y: 0.90), alpha: 0.9)
-        
-    }
-    
-    @objc private func animateUp(sender: UIButton) {
-        
-        animate(sender, transform: .identity, alpha: 1.0)
+        animate(sender, transform: CGAffineTransform.identity.scaledBy(x: 0.90, y: 0.90), alpha: 0.9, down: true)
         
     }
     
-    private func animate(_ button: UIButton, transform: CGAffineTransform, alpha: CGFloat) {
+    @objc private func animateUp(sender: BouncyButton) {
+        
+        animate(sender, transform: .identity, alpha: 1.0, down: false)
+        
+    }
+    
+    private func animate(_ button: BouncyButton, transform: CGAffineTransform, alpha: CGFloat, down: Bool) {
         
         UIView.animate(withDuration: 0.55,
                        delay: 0,
@@ -63,8 +67,9 @@ class BouncyButton: UIButton {
                        options: [.curveEaseInOut, .allowUserInteraction],
                        animations: {
                         
+                        if button.shouldBounce { button.transform = transform }
+                        
                         button.alpha = alpha
-                        button.transform = transform
                         
             }, completion: nil)
         
@@ -181,6 +186,19 @@ final class SectionButton: BouncyButton {
     required init?(coder aDecoder: NSCoder) {
         
         super.init(coder: aDecoder)
+        
+    }
+    
+}
+
+class ToggleButton: OctarineButton {
+    
+    override func layoutSubviews() {
+        
+        super.layoutSubviews()
+    
+        self.clipsToBounds = true
+        self.layer.cornerRadius = min(bounds.width, bounds.height)/2
         
     }
     
