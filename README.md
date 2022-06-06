@@ -1,6 +1,6 @@
 # Poppin
 
-Repository for Poppin (iOS)
+Repository for our independent study iOS app prototype for safe campus engagement during the COVID-19 pandemic.
 
 # Installation:
 
@@ -64,34 +64,18 @@ Alternatively if the tutorial does not work, you can use reset the branch (remov
   
   3. Do not delete a branch until it has been successfully merged with the head branch and other members of the repository can confirm so.
 
-# Implemented features:
+# Core features:
 
   - Map View.
+
+  - Menu View.
   
   - Create Event View.
-  
-  - Login/Register View.
   
   - Profile View.
   
   - Popsicle View.
+   
+  - Authentication.
   
-  - Online Database.
-  
-# Features to implement:
-
-  - Menu View.
-  
-  - Settings/Terms&Privacy View.
-  
-  - Security.
-  
-  - Testing.
-  
-  - Admin Rights.
-  
-  - Tutorial View.
-  
-# Future features:
-
-  - Automation of the event creation process.
+  - Cloud Database.
